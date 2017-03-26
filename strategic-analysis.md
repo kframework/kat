@@ -20,7 +20,7 @@ without recompiling the definition. I've also moved the semantic rules which are
 structural (not proper transitions) to this module.
 
 ```{.imp .k}
-requires strategic-analysis.k
+require "strategic-analysis.k"
 
 module IMP-SYNTAX
   imports STRATEGIES
@@ -51,8 +51,8 @@ module IMP-SYNTAX
   syntax Block ::= "{" "}"
                  | "{" Stmt "}"
 
-  rule {} => .  [structural]
-  rule {S} => S [structural]
+  rule {}       => . [structural]
+  rule {S:Stmt} => S [structural]
 
   syntax Stmt  ::= Block
                  | Id "=" AExp ";"            [strict(2)]
@@ -93,21 +93,22 @@ module STRATEGIES
   syntax PredBoth
   syntax Pred ::= PredState | PredState "[" State "]"
                 | PredAnalysis | PredAnalysis "[" Analysis "]"
-                | PredBoth | PredBoth "[" State "," Analysis "]"
-                | "true" | "false"
+                | PredBoth | PredBoth "[" State "|" Analysis "]"
+                | "predTrue" | "predFalse"
 
   syntax Primitive ::= "step"
                      | "snapshot"
-                     | "snapshot" State
                      | "set"
-                     | "set" State
 
   syntax Command ::= Primitive
                    | Pred
                    | "skip"
-                   | "if" Pred "then" Strategy "else" Strategy
-                   | "while" Pred "{" Strategy "}"
-                   | "repeat" Int "{" Strategy "}"
+                   | "{" Strategy "}"
+                   | "if" Pred "then" Command "else" Command
+                   | "while" Pred Command
+                   | "repeat" Int Command
+
+  syntax Block ::= "{" Strategy "}"
 
   syntax Strategy ::= ".Strategy"
                     | Command ";" Strategy
@@ -153,32 +154,32 @@ to do with IMP.
   rule <strategy> .Strategy ++ S => S </strategy>
   rule <strategy> (C ; S) ++ S' => C ; (S ++ S') </strategy>
 
-  rule <currState> _ => S </currState>
-       <strategy> (snapshot S => skip) ; ST </strategy
-
-  rule <currState> S </currState>
-       <strategy> (set => set S) ; ST </strategy>
-
   rule <currState> S </currState>
        <analysis> A </analysis>
-       <strategy> (P:PredBoth => P [ S , A ]) ; S </strategy>
+       <strategy> (P:PredBoth => P [ S | A ]) ; _ </strategy>
 
   rule <currState> S </currState>
-       <strategy> (P:PredState => P [ S ]) ; S </strategy>
+       <strategy> (P:PredState => P [ S ]) ; _ </strategy>
 
   rule <analysis> A </analysis>
-       <strategy> (P:PredAnalysis => P [ A ]) ; S </strategy>
+       <strategy> (P:PredAnalysis => P [ A ]) ; _ </strategy>
 
   rule <strategy> skip ; S => S </strategy> [owise]
+ 
+  rule <strategy> { S } ; S' => S ++ S' </strategy>
   
-  rule <strategy> true  ; if _ then S else _ ; S' => S ++ S' </strategy>
-  rule <strategy> false ; if _ then _ else S ; S' => S ++ S' </strategy>
-  rule <strategy> if P then S else S' ; ST => P ; if P then S else S' ; ST </strategy>
+  rule <strategy> predTrue  ; if _ then C else _ ; S => C ; S </strategy>
+  rule <strategy> predFalse ; if _ then _ else C ; S => C ; S </strategy>
+  rule <strategy> (if P then C else C' => { P ; if P then C else C' ; .Strategy }) ; _ </strategy>
 
-  rule <strategy> while P S ; S' => if P then (S ; while P S ; .Strategy) else .Strategy ; S' </strategy>
+  rule <strategy> ( while P C
+                  => if P then { C ; while P C ; .Strategy }
+                          else skip
+                  ) ; _
+       </strategy>
 
-  rule <strategy> repeat 0 S ; S'   => skip ; S'                         </strategy>
-  rule <strategy> (repeat N S) ; S' => (repeat (N -Int 1) S) ; (S ++ S') </strategy>
+  rule <strategy> (repeat 0 C => skip) ; _ </strategy>
+  rule <strategy> (repeat N C => { repeat (N -Int 1) C ; C ; .Strategy }) ; _ </strategy>
        requires N >Int 0
 ```
 
@@ -195,26 +196,26 @@ taking exactly one step with the symbolic execution engine.
 ```{.imp .k}
   rule <k> X:Id => I ...</k>
        <state>... X |-> I ...</state>
-       <strategy> (step => skip) ; S </strategy>
+       <strategy> (step => skip) ; _ </strategy>
        
   rule <k> X = I:Int ; => . ... </k>
        <state> ... X |-> (_ => I) ... </state>
-       <strategy> (step => skip) ; S </strategy>
+       <strategy> (step => skip) ; _ </strategy>
 
   rule <k> if (true)  B:Block else _ => B:Block ... </k>
-       <strategy> (step => skip) ; S </strategy>
+       <strategy> (step => skip) ; _ </strategy>
        [transition]
   rule <k> if (false) _ else B:Block => B:Block ... </k>
-       <strategy> (step => skip) ; S </strategy>
+       <strategy> (step => skip) ; _ </strategy>
        [transition]
 
   rule <k> int (X,Xs => Xs) ; ... </k>
        <state> Rho:Map (.Map => X|->?V:Int) </state>
-       <strategy> (step => skip) ; S </strategy>
+       <strategy> (step => skip) ; _ </strategy>
        requires notBool (X in keys(Rho))
 
   rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k>
-       <strategy> (step => skip) ; S </strategy>
+       <strategy> (step => skip) ; _ </strategy>
 ```
 
 And we also must instantiate the sort `State`, as well as commands `snapshot`
@@ -230,11 +231,12 @@ and `set`, to the language IMP.
 
   rule <k> KCELL </k>
        <state> STATE </state>
-       <strategy> (snapshot => snapshop [ KCELL , STATE ]) ; S </strategy>
+       <strategy> (snapshot => skip) ; _ </strategy>
 
   rule <k> _ => KCELL </k>
        <state> _ => STATE </state>
-       <strategy> (set [ KCELL , STATE ] => skip) ; S </strategy>
+       <currState> [ KCELL , STATE ] </currState>
+       <strategy> (set => skip) ; _ </strategy>
 endmodule
 ```
 
@@ -259,11 +261,11 @@ execution should stop. If execution in this augmented theory results in
 `fail-bmc` at the top of the `strategy` cell, then the property being checked
 was violated.
 
-`step-check` is a helper strategy which will take a step then check a property
-of the stored state, ending in `fail-bmc` if the query fails.
+`check-step` is a helper strategy which will check that a property holds
+then take a step, ending in `fail-bmc` if the property fails.
 
 `bmc-invariant` is the overall strategy we're interested in. It will first check
-that the proprety is true in the initial state, then repeat `step-check` of the
+that the proprety is true in the initial state, then repeat `check-step` of the
 property the specified number of times.
 
 ```{.strat .k}
@@ -271,7 +273,7 @@ module ANALYSIS-BMC
   imports STRATEGIES
 
   syntax Command ::= "fail-bmc"
-                   | "step-check" PredState
+                   | "check-step" PredState
                    | "bmc-invariant" Int PredState
 endmodule
 ```
@@ -287,16 +289,14 @@ module IMP-BMC
   imports IMP-STRATEGIES
   imports ANALYSIS-BMC
 
-  rule <strategy> step-check P ; S
-               => step ; snapshot
-                ; if P then (skip ; .Strategy) else (fail-bmc ; .Strategy) 
-                ; S
+  rule <strategy> ( check-step P
+                 => { snapshot ; if P then step else fail-bmc ; .Strategy }
+                  ) ; _
        </strategy>
 
-  rule <strategy> bmc-invariant N P
-               =>   if Q then (repeat N (step-check P) ; .Strategy)
-                         else (fail-bmc ; .Strategy)
-                  ; .Strategy
+  rule <strategy> ( bmc-invariant N P
+                 => { repeat N (check-step P) ; check-step P ; .Strategy }
+                  ) ; _
        </strategy>
 endmodule
 ```
@@ -322,14 +322,14 @@ module ANALYSIS-COMPILATION
 
   syntax Analysis ::= Rules
 
-  syntax Pred ::= "new?"
+  syntax PredBoth ::= "new?"
   syntax PredState ::= "cut-point?"
 
-  rule Command ::= "save"
-                 | "abstract"
-                 | "compile-step"
-                 | "newRule"
-                 | "compile"
+  syntax Command ::= "save"
+                   | "abstract"
+                   | "compile-step"
+                   | "newRule"
+                   | "compile"
 endmodule
 ```
 
@@ -342,9 +342,9 @@ module IMP-COMPILATION
   imports IMP-STRATEGIES
   imports ANALYSIS-COMPILATION
 
-  rule <strategy> (new? [ S , .Rules ] => true) ; S </strategy>
-  rule <strategy> (new? [ S , (T , < S  --> S'  >) ] => false ; S </strategy>
-  rule <strategy> (new? [ S , (T , < S' --> S'' >) ] => new [ S , T ]) ; S </strategy>
+  rule <strategy> (new? [ S | .Rules ] => predTrue) ; _ </strategy>
+  rule <strategy> (new? [ S | (T , < S  --> _ >) ] => predFalse) ; _ </strategy>
+  rule <strategy> (new? [ S | (T , < S' --> _ >) ] => new? [ S | T ]) ; _ </strategy>
        requires S =/=K S'
 ```
 
@@ -356,13 +356,13 @@ and then `abstract`s it. `newRule` begins building a new rule in the analysis.
 ```{.imp .k}
   rule <currState> S' </currState>
        <analysis> R , < S --> (_ => S') > </analysis>
-       <strategy> (save => skip) ; S </strategy>
+       <strategy> (save => skip) ; _ </strategy>
 
-  rule <strategy> compile-step ; S => step ; snapshot ; save ; abstract ; S </strategy>
+  rule <strategy> (compile-step => { step ; snapshot ; save ; abstract ; .Strategy }) ; _ </strategy>
 
   rule <currState> S </currState>
        <analysis> R => R , < S --> S > </analysis>
-       <strategy> newRule ; S => S </strategy>
+       <strategy> (newRule => skip) ; _ </strategy>
 ```
 
 Finally, the command `compile` will execute the system symbolically until it
@@ -375,8 +375,7 @@ teh abstracted state as the starting point and resumes execution.
                => snapshot
                 ; newRule
                 ; compile-step
-                ; while new? { if cut-point? then (newRule ; .Strategy)
-                                             else .Strategy
+                ; while new? { if cut-point? then newRule else skip
                              ; compile-step
                              ; .Strategy
                              }
@@ -395,20 +394,20 @@ state-abstraction be done. When it is done, I specify that each value in the
 `state` map should be set to a new symbolic value.
 
 ```{.imp .k}
-  rule <strategy> (cut-point? [ [ while (_) _ ... , _ ] ] => true) ; _ </strategy>
-  rule <strategy> (cut-point? [ [ _ , _ ] ] => false)              ; _ </strategy>
+  rule <strategy> (cut-point? [ [ while (_:Bool) _ ~> _ , _ ] ] => predTrue) ; _ </strategy>
+  rule <strategy> (cut-point? [ [ _ , _ ] ] => predFalse) ; _ </strategy>
        [owise]
 
   syntax Command ::= "#abstract" Set
-                   | "#abstract" Id Set
+                   | "#abstractKey" Id Set
 
   rule <currState> [ KCELL , STATE ] </currState>
        <strategy> (abstract => #abstract keys(STATE)) ; _ </strategy>
 
   rule <strategy> (#abstract .Set => skip) ; _ </strategy>
-  rule <strategy> (#abstract (SetItem(X) XS) => #abstract X XS) ; _ </strategy>
-  rule <currState> [ _ , X |-> (_ => V?:Int) ... ] </currState>
-       <strategy> (#abstract X XS => #abstract XS) ; _ </strategy>
+  rule <strategy> (#abstract (SetItem(X) XS) => #abstractKey X XS) ; _ </strategy>
+  rule <currState> [ _ , X |-> (_ => ?V:Int) M:Map ] </currState>
+       <strategy> (#abstractKey X XS => #abstract XS) ; _ </strategy>
 endmodule
 ```
 

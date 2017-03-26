@@ -34,21 +34,22 @@ module STRATEGIES
   syntax PredBoth
   syntax Pred ::= PredState | PredState "[" State "]"
                 | PredAnalysis | PredAnalysis "[" Analysis "]"
-                | PredBoth | PredBoth "[" State "," Analysis "]"
-                | "true" | "false"
+                | PredBoth | PredBoth "[" State "|" Analysis "]"
+                | "predTrue" | "predFalse"
 
   syntax Primitive ::= "step"
                      | "snapshot"
-                     | "snapshot" State
                      | "set"
-                     | "set" State
 
   syntax Command ::= Primitive
                    | Pred
                    | "skip"
-                   | "if" Pred "then" Strategy "else" Strategy
-                   | "while" Pred "{" Strategy "}"
-                   | "repeat" Int "{" Strategy "}"
+                   | "{" Strategy "}"
+                   | "if" Pred "then" Command "else" Command
+                   | "while" Pred Command
+                   | "repeat" Int Command
+
+  syntax Block ::= "{" Strategy "}"
 
   syntax Strategy ::= ".Strategy"
                     | Command ";" Strategy
@@ -83,11 +84,11 @@ endmodule
 // `fail-bmc` at the top of the `strategy` cell, then the property being checked
 // was violated.
 
-// `step-check` is a helper strategy which will take a step then check a property
-// of the stored state, ending in `fail-bmc` if the query fails.
+// `check-step` is a helper strategy which will check that a property holds then
+// take a step, ending in `fail-bmc` if the property fails.
 
 // `bmc-invariant` is the overall strategy we're interested in. It will first check
-// that the proprety is true in the initial state, then repeat `step-check` of the
+// that the proprety is true in the initial state, then repeat `check-step` of the
 // property the specified number of times.
 
 
@@ -95,7 +96,7 @@ module ANALYSIS-BMC
   imports STRATEGIES
 
   syntax Command ::= "fail-bmc"
-                   | "step-check" PredState
+                   | "check-step" PredState
                    | "bmc-invariant" Int PredState
 endmodule
 
@@ -121,13 +122,13 @@ module ANALYSIS-COMPILATION
 
   syntax Analysis ::= Rules
 
-  syntax Pred ::= "new?"
+  syntax PredBoth ::= "new?"
   syntax PredState ::= "cut-point?"
 
-  rule Command ::= "save"
-                 | "abstract"
-                 | "compile-step"
-                 | "newRule"
-                 | "compile"
+  syntax Command ::= "save"
+                   | "abstract"
+                   | "compile-step"
+                   | "newRule"
+                   | "compile"
 endmodule
 
