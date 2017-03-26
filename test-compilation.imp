@@ -1,0 +1,24 @@
+// Examples
+// ========
+
+// Here I'll demonstrate three analysis using this technique, bounded model
+// checking, semantics based compilation, and corrective monitoring.
+
+// Semantics Based Compilation {#semantics-based-compilation-1}
+// ---------------------------
+
+// Execute this test file with `krun --search test-compilation.imp`. Every solution
+// will have it's own trace of generated rules.
+
+// ``` {.test-compilation}
+// strategy : compile ; .Strategy
+// 
+// =====
+// 
+// int n s ;
+// 
+// while (0 <= n) {
+//   n = n - 1 ;
+//   s = s + n ;
+// }
+// ```

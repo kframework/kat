@@ -1,0 +1,22 @@
+// Examples
+// ========
+
+// Here I'll demonstrate three analysis using this technique, bounded model
+// checking, semantics based compilation, and corrective monitoring.
+
+// Bounded Invariant Model Checking {#bounded-invariant-model-checking-1}
+// --------------------------------
+
+// Here we check the property `x > 7` for 10 steps of execution. The example is run
+// using `krun --search test-bmc.imp`. If any of the solutions contains `fail-bmc`
+// at the top of the `strategy` cell, then the property is violated in 10 steps.
+
+// ``` {.test-bmc}
+// strategy : bmc-invariant 10 (x > 7) ; .Strategy
+// 
+// =====
+// 
+// int x ;
+// x = 0 ;
+// x = x + 15 ;
+// ```
