@@ -1,22 +1,26 @@
 // Examples
 // ========
 
-// Here I'll demonstrate three analysis using this technique, bounded model
-// checking, semantics based compilation, and corrective monitoring.
+// Compile the file `imp-strategies.k` with the command
+// `kompile --main-module IMP-ANALYSIS imp-strategies.k`.
 
 // Bounded Invariant Model Checking {#bounded-invariant-model-checking-1}
 // --------------------------------
 
-// Here we check the property `x > 7` for 10 steps of execution. The example is run
-// using `krun --search test-bmc.imp`. If any of the solutions contains `fail-bmc`
-// at the top of the `strategy` cell, then the property is violated in 10 steps.
+// Here we check the property `x <= 7` for 5 steps of execution after the code has
+// initialized (the `step` in front of the command). Run this with
+// `krun --search test-bmc.imp`.
 
-// ``` {.test-bmc}
-// strategy : bmc-invariant 10 (x > 7) ; .Strategy
-// 
-// =====
-// 
-// int x ;
-// x = 0 ;
-// x = x + 15 ;
-// ```
+
+command : < step ; bmc-invariant 5 bool? x <= 7 ; .Strategy >
+
+=====
+
+int x ;
+x = 0 ;
+x = x + 15 ;
+
+
+// Note that to develop the `bmc-invariant` strategy, I experimented by changing
+// the above over and over again. Each time I had to re-`krun`, which is relatively
+// slow, but there is no reason to re-start the symbolic execution engine.
