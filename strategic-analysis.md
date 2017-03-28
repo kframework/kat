@@ -87,9 +87,8 @@ IMP Configuration
 The configuration for IMP is given here, along with the symbolic-execution
 strategies harness. The original execution state of the program is moved into a
 new cell `state` where it will live. The `strategy` cell contains the current
-execution strategy, the `stack` cell contains a stack of states that the
-strategy can use for execution, and the `analysis` cell contains a scratch-pad
-memory for the strategy.
+execution strategy, and the `analysis` cell contains a scratch-pad memory for
+the strategy.
 
 Note that this is a very simple "configuration transformation", namely one where
 the existing language's execution is nested inside the observing configuration.
@@ -102,7 +101,6 @@ module IMP-STRATEGIES
   configuration <T>
                   <symbolicExecution multiplicity="*">
                     <strategy> skip </strategy>
-                    <stack> .Stack </stack>
                     <analysis> .Analysis </analysis>
                     <state>
                       <k> $PGM:Program </k>
@@ -113,7 +111,7 @@ module IMP-STRATEGIES
 
   syntax Program ::= "strategy" ":" Strategy "=====" Stmt
 
-  rule <strategy> _ => S </strategy> <k> strategy : S ===== PGM => PGM </k>
+  rule <strategy> _ => STRAT </strategy> <k> strategy : STRAT:Strategy ===== PGM => PGM </k>
 
 endmodule
 ```
@@ -124,19 +122,11 @@ Strategies
 Two modules are interleaved below. If K's configurations were more composable,
 they could easily be one module defining the `symbolicExecution` machine.
 
-The strategy language controls a small stack machine, which in turns controls
-the execution of the program via the sort `Prim` (for "primitive"). This stack
-machine has a stack of program symbolic states, which it can do normal
-stack-machine like things with. The sort of each type of command tells you where
-the arguments of the command will be sourced from (this will happen
-automatically for you). You must provide the reduction of your command to its
-output when it is at the top of the `strategy` cell.
+Execution Machine Syntax
+------------------------
 
-Stack Machine Syntax
---------------------
-
-The syntax of the stack machine primitives are given. The `Strategy` for `step`
-must be provided by the language definition (see for IMP below).
+The `Strategy` for `step` must be provided by the language definition (see for
+IMP below).
 
 ```{.strat .k}
 module STRATEGIES
@@ -148,89 +138,57 @@ module STRATEGIES
 
   syntax Analysis ::= ".Analysis"
 
-  syntax UnStackOp
-  syntax BinStackOp
-  syntax StackOp ::= UnStackOp  | UnStackOp State
-                   | BinStackOp | BinStackOp State State
+  syntax Pred
 
-  syntax StateOp
-  syntax Op ::= StackOp | StateOp | StateOp State
-
-  syntax Strategy ::= Op | "step"
+  syntax Strategy ::= Pred
+                    | "step"
+                    | "skip" | "load" State
+                    | Strategy ";" Strategy [assoc]
+                    | "?" Strategy ":" Strategy
 ```
-
-For an `UnStackOp`, you can just put it at the top of `strategy`, and the top
-element of the stack will be loaded for you. For `BinStackOp`, it will load the
-top two elements for you. If you have a `StateOp`, it will also automatically
-load a copy of the current state for you.
 
 ```{.imp .k}
 module STRATEGIES-HARNESS
   imports IMP-STRATEGIES
-
-  rule <strategy> (UOP:UnStackOp  => UOP S)     ; _ </strategy> <stack> S : STACK       => STACK </stack>
-  rule <strategy> (BOP:BinStackOp => BOP S1 S2) ; _ </strategy> <stack> S1 : S2 : STACK => STACK </stack>
-  rule <strategy> (SOP:StateOp    => SOP S)     ; _ </strategy> <state> S </state>
 ```
-
-Primitive Operators
--------------------
-
-`load` is the "pop" for the stack machine, and `store` is the "push".
-
-```{.strat .k}
-  syntax UnStackOp ::= "load"
-  syntax StateOp ::= "store"
-  syntax Strategy ::= "skip"
-                    | Strategy ";" Strategy [assoc]
-```
-
--   `load` places the state at the top of the stack into the execution harness
--   `store` copies the state in the execution harness onto the stack
-
-```{.imp .k}
-  rule <strategy> (load S  => skip) ; _ </strategy> <state> _     => S         </state>
-  rule <strategy> (store S => skip) ; _ </startegy> <stack> STACK => S : STACK </stack>
-```
-
--   `skip` will be automatically simplified out of the `Strategy`. 
+-   `skip` will be automatically simplified out of the `Strategy` (unless it's at the end)
+-   `load` places the given state into the execution harness
+-   `?_:_` (choice) uses the top of the strategy cell to determine what to execute next
 
 ```{.imp .k}
   rule <strategy> skip ; S      => S      </strategy>
-  rule <strategy> S ; skip      => S      </strategy>
   rule <strategy> S ; skip ; S' => S ; S' </strategy>
+
+  rule <strategy> (load S  => skip) ; _ </strategy> <state> _ => S </state>
+
+  rule <strategy> (#true  ; ? S : _ => S) ; _ </strategy>
+  rule <strategy> (#false ; ? _ : S => S) ; _ </strategy>
 ```
 
 Predicates
 ----------
 
 ```{.strat .k}
-  syntax AtomicPred ::= "bool?" | "finished?"
-
-  syntax Pred ::= AtomicPred | AtomicPred State
-                | "#true" | "#false" | "#pred"
+  syntax Pred ::= "#true" | "#false" | "#pred"
                 | "not" Pred | Pred "or" Pred | Pred "and" Pred
 
-  syntax Strategy ::= Pred
+  syntax Pred ::= "bool?" | "finished?"
+
+endmodule
 ```
 
-Atomic predicates automatically load a copy of the current execution state. When
-you declare an `AtomicPred`, make sure to provide the reduction rule to `#true`
-or `#false` on the `strategy` cell.
-
-```{.imp .k}
-  rule <strategy> (AP:AtomicPred => AP S) ; _ </strategy> <state> S </state>
-```
+When you declare a `Pred`, make sure to provide the reduction rule to `#true` or
+`#false` on the `strategy` cell.
 
 -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it
 -   `finished?` checks if the `k` cell is empty (ie. execution of that machine has terminated)
 
 ```{.imp .k}
-  rule <strategy> (bool? (<k> true  </k> _) => #true)  ; _ </strategy>
-  rule <strategy> (bool? (<k> false </k> _) => #false) ; _ </strategy>
+  rule <strategy> (bool? => #true)      ; _ </strategy> <k> true  </k>
+  rule <strategy> (bool? => #false)     ; _ </strategy> <k> false </k>
 
-  rule <strategy> (finished? (<k> . </k> _) => #true)  ; _ </strategy>
-  rule <strategy> (finished? (<k> _ </k> _) => #false) ; _ </strategy> [owise]
+  rule <strategy> (finished? => #true)  ; _ </strategy> <k> . </k>
+  rule <strategy> (finished? => #false) ; _ </strategy> <k> _ </k> [owise]
 ```
 
 The boolean operators `not`, `and`, and `or` use helpers to evaluate their
@@ -248,51 +206,21 @@ arguments from left-to-right lazily ("short-circuit").
   rule <strategy> (P and Q => P ; #pred and Q)     ; _ </strategy>
   rule <strategy> (top ; #pred and Q => Q)         ; _ </strategy>
   rule <strategy> (bottom ; #pred and Q => bottom) ; _ </strategy>
-```
-
-Strategy Language
------------------
-
-The basic strategy language consists of operators, predicates, and choice.
-
-```{.strat .k}
-  syntax Strategy ::= Op | Pred | "?" Strategy ":" Strategy
 
 endmodule
 ```
 
-The top element of the `strategy` cell determines the semantics of choice.
+Auxillary Strategies
+--------------------
 
-```{.imp .k}
-  rule <strategy> (#true  ; ? S : _ => S) ; _ </strategy>
-  rule <strategy> (#false ; ? _ : S => S) ; _ </strategy>
-
-endmodule
-```
-
-Helpers
--------
-
-Here I define several helpers which make programming in this small stack machine
-easier. This can be considered a "library" for the stack machine, which makes
-rapid prototyping of algorithms for analysis of symbolic execution easy in K.
-Once configurations are composable, this could live in an actual library
-distributed with K.
-
--   `swap-stack` swaps the top two elements of the stack
--   `dup` duplicates the top of the stack
--   `swap` swaps the top of the stack with the current execution
+Here I define several helpers which make programming in this control language.
+This can be considered a "library" for the strategies, which makes rapid
+prototyping of algorithms for analysis easier. Once configurations are
+composable, this could live in an actual library distributed with K.
 
 ```{.imp .k}
 module STRATEGIES-AUX
   imports STRATEGIES-HARNESS
-
-  syntax BinStackOp ::= "swap"
-  syntax UnStackOp ::= "swap-stack" | "dup"
-
-  rule <strategy> (swap S           => store ; load S)      ; _ </strategy>
-  rule <strategy> (swap-stack S1 S2 => store S1 ; store S2) ; _ </strategy>
-  rule <strategy> (dup S            => store S ; store S)   ; _ </strategy>
 ```
 
 -   `while` executes with a given strategy until the predicate no longer holds (adding an integer bounds the iterations)
@@ -309,19 +237,16 @@ module STRATEGIES-AUX
   rule <strategy> (step-to N P => while N P)                               ; _ </strategy> requires N >Int 0
 ```
 
--   `call` loads the top element of the stack and executes it given `Strategy`
--   `exec` executes the top element of the stack to completion (adding an integer bounds the steps)
+-   `exec` executes the given state to completion (adding an integer bounds the steps)
 -   `eval` calls `exec` then checks the predicate `bool?`
 
 ```{.imp .k}
-  syntax Strategy ::= "call" Strategy
+  syntax Strategy ::= "exec" State | "exec" Int State
+                    | "eval" State
 
-  syntax UnStackOp ::= "exec" | "exec" Int | "eval"
-
-  rule <strategy> (call S   => swap-stack ; S ; swap-stack)          ; _ </strategy>
-  rule <strategy> (exec S   => store S ; call (step-to finished?))   ; _ </strategy>
-  rule <strategy> (exec N S => store S ; call (step-to N finished?)) ; _ </strategy>
-  rule <strategy> (eval S   => exec S  ; bool?)                      ; _ </strategy>
+  rule <strategy> (exec STATE   => load STATE ; step-to finished?)   ; _ </strategy>
+  rule <strategy> (exec N STATE => load STATE ; step-to N finished?) ; _ </strategy>
+  rule <strategy> (eval STATE   => exec STATE ; bool?)               ; _ </strategy>
 endmodule
 ```
 
@@ -377,22 +302,18 @@ module IMP-BMC
   syntax Trace ::= ".Trace"
                  | Trace ";" State
   syntax Analysis ::= Trace
-
-  rule <analysis> .Analysis => .Trace </analysis>
 ```
 
 -   `record` copies the current execution state to the end of the trace
 
 ```{.imp .k}
-  syntax StateOp ::= "record"
+  syntax Strategy ::= "record"
 
   rule <strategy> (record S => skip) ; _ </strategy> <analysis> T => T ; S </analysis>
 ```
 
--   `assertion-failure` indicates that the given predicate failed within the
-    execution bound
--   `assertion-success` inidicates that either the depth bound has been reached,
-    or execution has terminated
+-   `assertion-failure` indicates that the given predicate failed within the execution bound
+-   `assertion-success` inidicates that either the depth bound has been reached, or execution has terminated
 -   `bmc-invariant` checks that the predicate holds for each step up to a bound
 
 ```{.imp .k}
@@ -406,18 +327,18 @@ module IMP-BMC
                   ; P ; ? assertion-success : assertion-failure P
                   ) ; _
        </strategy>
+       <analysis> _ => .Trace </analysis>
 ```
 
 Everything above is language independent. This is the only part specific to the
 language IMP.
 
--   `bexp?` allows us to make queries about the state in the boolean expression
-    language of IMP
+-   `bexp?` allows us to make queries about the state in the boolean expression language of IMP
 
 ```{.imp .k}
-  syntax AtomicPred ::= "bexp?" BExp
+  syntax Pred ::= "bexp?" BExp
 
-  rule <strategy> (bexp? B (<mem> M </mem> _) => eval (<k> B </k> <mem> M </mem>)) ; _ </strategy>
+  rule <strategy> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </strategy> <mem> MEM </mem>
 endmodule
 ```
 
@@ -456,12 +377,14 @@ module IMP-COMPILATION
 
   syntax Analysis ::= Rules
 
-  syntax AtomicPred ::= "subsumed?"
-                      | "cut-point?"
+  syntax Pred ::= "subsumed?"
+                | "cut-point?"
 
   syntax StateOp ::= "abstract"
+                   | "end-rule"
 
   syntax Strategy ::= "compile"
+                    | "begin-rule"
 ```
 
 ### Language Independent (but tied to configuration)
@@ -471,27 +394,27 @@ subsumed by the left-hand side of any of the generated rules. This is done in
 general using a matching-logic implication, but here with syntactic equality.
 
 ```{.imp .k}
-  syntax AtomicPred ::= "#subsumed?" Rules
+  syntax Pred ::= "#subsumed?" Rules
 
-  rule <strategy> (subsumed? S:State => #subsumed? RS S)    ; _ </strategy> <analysis> RS </analysis>
-  rule <strategy> (#subsumed? .Rules _ => bottom)           ; _ </strategy>
-  rule <strategy> (#subsumed? (RS , < S  --> _ >) S => top) ; _ </strategy>
+  rule <strategy> (subsumed?         => #subsumed? RS) ; _ </strategy> <analysis> RS </analysis>
+  rule <strategy> (#subsumed? .Rules => bottom)        ; _ </strategy>
 
-  // TODO: The following check should be an ML implication, not syntactic equality.
-  rule <strategy> (#subsumed? (RS , < S' --> _ > => RS) S)  ; _ </strategy> requires S =/=K S'
+  syntax Bool ::= State "->K" State
+
+  // TODO: Make the following an actual ML implication check
+  rule <strategy> (#subsumed? (RS , < <k> KCELL </k> _ --> _ >) => top) ; _ </strategy> <state> <k> KCELL </k> _ </state>
+  rule <strategy> (#subsumed? (RS , RL:Rule => RS))  ; _ </strategy> [owise]
 ```
 
-`extend` takes the current state and saves it to the end of the last rule
-generated in the analysis, and takes an execution step. `restart` begins
-building a new rule in the analysis.
+-   `begin-rule` creates the left-hand side of a new rule in the `analysis` cell
+-   `end-rule` adds the right-hind side to a half-finished rule in the `analysis` cell
 
 ```{.imp .k}
-  syntax UnStackOp ::= "#new-rule"
+  rule <strategy> (begin-rule => skip) ; _ </strategy> <analysis> RS => RS ; < STATE > </analysis>
+                                                       <state> STATE </state>
 
-  rule <strategy> (#new-rule S => skip) ; _ </strategy> <analysis> RS => RS ; < S > </analysis>
-
-  rule <strategy> (begin-rule => abstract ; #new-rule) ; _ </strategy>
-  rule <strategy> (end-rule S => skip) ; _ </strategy> <analysis> RS ; (< S' > => < S' --> S >) > </analysis>
+  rule <strategy> (end-rule => skip)   ; _ </strategy> <analysis> RS ; (< S > => < S --> STATE >) </analysis>
+                                                       <state> STATE </state>
 ```
 
 Finally, the command `compile` is a macro for executing the system symbolically
@@ -500,40 +423,41 @@ predicate). If so, it begins building a new rule with the abstracted state as
 the starting point and resumes execution.
 
 ```{.imp .k}
-  rule <strategy> ( compile =>   begin-rule
-                               ; while (not (finished? or subsumed?))
-                                    ( step-to cut-point?
-                                    ; end-rule
-                                    ; begin-rule
-                                    )
-                               ; end-rule
+  rule <strategy> ( compile
+                 => abstract
+                  ; begin-rule
+                  ; while (not (finished? or subsumed?))
+                       ( step-to (finished? or cut-point?)
+                       ; end-rule
+                       ; abstract
+                       ; begin-rule
+                       )
+                  ; end-rule
                   ) ; _
        </strategy>
+       <analysis> _ => .Rules </analysis>
 ```
 
 ### Instantiating to IMP
 
 The only part of this instantiation that is specific to IMP is the `cut-point?`
-predicate and `abstract` command. Otherwise, everything could be defined prior
-to finalizing the configuration.
-
-Here, I specify that only when the top of the KCELL is a `while`-loop should
-state-abstraction be done. For abstraction, I specify that each value in the
-`state` map should be set to a new symbolic value.
+predicate and `abstract` command. Here, I specify that only when the top of the
+KCELL is a `while`-loop should state-abstraction be done. At abstraction points,
+each value in the `mem` map should be set to a new symbolic value.
 
 ```{.imp .k}
-  rule <strategy> (cut-point? (<k> while (_:Bool) _ ~> _ </k> _) => top)    ; _ </strategy>
-  rule <strategy> (cut-point? S                                  => bottom) ; _ </strategy> [owise]
+  rule <strategy> (cut-point? => top)    ; _ </strategy> <k> while _ _ ... </k>
+  rule <strategy> (cut-point? => bottom) ; _ </strategy> [owise]
 
-  syntax UnStackOp ::= "#abstract" Set
-                     | "#abstractKey" Id Set
+  syntax Strategy ::= "#abstract" Set
+                    | "#abstractKey" Id
 
-  rule <strategy> (abstract (<state> MEM </state> C:Bag) => #abstract keys(MEM) (<state> MEM </state> C)) ; _ </strategy>
+  rule <strategy> (abstract => #abstract keys(MEM)) ; _ </strategy> <mem> MEM </mem>
 
-  rule <strategy> (#abstract .Set S:State            => store S)             ; _ </strategy>
-  rule <strategy> (#abstract (SetItem(X) XS) S:State => #abstractKey X XS S) ; _ </strategy>
+  rule <strategy> (#abstract .Set            => skip)                          ; _ </strategy>
+  rule <strategy> (#abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS) ; _ </strategy>
 
-  rule <strategy> (#abstractKey X XS (<state> (X |-> _) M:Map </state> C:Bag) => #abstract XS (<state> (X |-> ?V:Int) M </state> C)) ; _ </strategy>
+  rule <strategy> (#abstractKey X => skip) ; _ </strategy> <mem> ... (X |-> _ => ?V:Int) ... </mem>
 
 endmodule
 ```
@@ -542,11 +466,11 @@ endmodule
 
 -   Post-process the results of the compilation with another abstraction pass
     which just hashes the contents of the `k` cell for each rule. This will
-    reduce the amount of frivilous matching that happens in executing the
+    reduce the amount of extra matching that happens in executing the
     compiled definition.
 
--   Get a proper implication check going (instead of syntactic equality). This
-    will be possible once a good matching-logic prover is integrated with `k`.
+-   Get the implication check working (using ML prover or some
+    backend heuristic). Right now it just uses exact equality of the `k` cell.
 
 Corrective Model Checking
 -------------------------
@@ -579,7 +503,7 @@ initialized (the `step` in front of the command). Run this with
 `krun --search test-bmc.imp`.
 
 ```{.test-bmc .k}
-strategy : bmc-invariant 5 (bexp? x <= 7)
+strategy : bmc-invariant 5 (bexp? x <= 7) ; skip
 
 =====
 
@@ -599,7 +523,7 @@ Execute this test file with `krun --search test-compilation.imp`. Every solution
 will have it's own trace of generated rules.
 
 ```{.test-compilation .k}
-strategy : compile
+strategy : compile ; skip
 
 =====
 
