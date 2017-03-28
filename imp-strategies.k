@@ -271,13 +271,13 @@ module STRATEGIES-AUX
 
 
   syntax Strategy ::= "call" Strategy
-                    | "exec" | "exec" Int
-                    | "eval"
 
-  rule <strategy> (call S => swap-stack ; S ; swap-stack)       ; _ </strategy>
-  rule <strategy> (exec   => load ; call (step-to finished?))   ; _ </strategy>
-  rule <strategy> (exec N => load ; call (step-to N finished?)) ; _ </strategy>
-  rule <strategy> (eval   => exec ; bool?)                      ; _ </strategy>
+  syntax UnStackOp ::= "exec" | "exec" Int | "eval"
+
+  rule <strategy> (call S   => swap-stack ; S ; swap-stack)          ; _ </strategy>
+  rule <strategy> (exec S   => store S ; call (step-to finished?))   ; _ </strategy>
+  rule <strategy> (exec N S => store S ; call (step-to N finished?)) ; _ </strategy>
+  rule <strategy> (eval S   => exec S  ; bool?)                      ; _ </strategy>
 endmodule
 
 
@@ -358,9 +358,9 @@ module ANALYSIS-BMC
 
   rule <analysis> .Analysis => .Trace </analysis>
 
-  syntax UnStackOp ::= "record"
+  syntax StateOp ::= "record"
 
-  rule <strategy> (record S => store S) ; _ </strategy> <analysis> T => T ; S </analysis>
+  rule <strategy> (record S => skip) ; _ </strategy> <analysis> T => T ; S </analysis>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the
@@ -375,7 +375,12 @@ module ANALYSIS-BMC
                     | "assertion-success"
                     | "bmc-invariant" Int Pred
 
-  rule <strategy> (bmc-invariant N P => while N P record ; P ; ? assertion-success : assertion-failure P) ; _ </strategy>
+  rule <strategy> ( bmc-invariant N P
+                 => while N P (record ; step)
+                  ; record
+                  ; P ; ? assertion-success : assertion-failure P
+                  ) ; _
+       </strategy>
 
 
 // ### Instantiating to IMP {#instantiating-to-imp-1}
