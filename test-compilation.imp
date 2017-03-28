@@ -11,7 +11,7 @@
 // will have it's own trace of generated rules.
 
 
-command : compile
+strategy : compile
 
 =====
 

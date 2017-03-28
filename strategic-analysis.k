@@ -1,163 +1,98 @@
-// Introduction
-// ============
-
-// Here I define a strategy language for controlling symbolic execution, and show
-// some simple analysis we can define from within K itself. The language IMP is
-// used as a running example, and the theory transformations over IMP's semantics
-// are performed by hand, but in a uniform way with an eye towards automatability.
-
-// The idea here is that once you have control over symbolic execution from within
-// K, it becomes much easier to prototype the program analysis we normally would do
-// in a backend. As such, some time is spent building a robust strategy language.
-
-// One design goal behind this effort is that the execution state of the program
-// should be disturbed as little as possible by the monitoring and control-flow
-// enforced by the strategy. As such, computation that the strategy needs to
-// accomplish should be done in the `strategy` cell, not on the `k` cell. It would
-// be nice to specify the sub-configuration `symbolicExecution` separetely, and
-// only at the end say "compose this configuration with my programming language's
-// configuration".
-
 // Strategies
-// ----------
+// ==========
 
-// First there is a module `STRATEGIES` which defines a small stack machine for
-// controlling the symbolic execution of a program. This machine has a stack of
-// program states which it can `push` to (take a snapshot of current program
-// execution state) and `pop` from (set the current execution state to top of
-// stack). `step` is builtin as a primitive in the language, which is implemented
-// as an instrumentation of the semantics to control execution. It also has a
-// memory of sort `Analysis` (the results of whatever analysis is being performed
-// by the strategy). A simple imperative language is built over these primitive
-// actions, which allows for simple control-flow.
+// Two modules are interleaved below. If K's configurations were more composable,
+// they could easily be one module defining the `symbolicExecution` machine.
 
+// The strategy language controls a small stack machine, which in turns controls
+// the execution of the program via the sort `Prim` (for "primitive"). This stack
+// machine has a stack of program symbolic states, which it can do normal
+// stack-machine like things with. The sort of each type of command tells you where
+// the arguments of the command will be sourced from (this will happen
+// automatically for you). You must provide the reduction of your command to its
+// output when it is at the top of the `strategy` cell.
 
-// Copyright (c) 2014-2016 K Team. All Rights Reserved.
+// Stack Machine Syntax
+// --------------------
+
+// The syntax of the stack machine primitives are given. The `Strategy` for `step`
+// must be provided by the language definition (see for IMP below).
+
 
 module STRATEGIES
 
-  syntax State
+  syntax State ::= Bag
   syntax Stack ::= ".Stack"
                  | State ":" Stack
-  
+
   syntax Analysis ::= ".Analysis"
 
-  syntax StateOp ::= "bool?"
-                   | "exec"
-                   | "eval"
+  syntax UnStackOp
+  syntax BinStackOp
+  syntax StackOp ::= UnStackOp  | UnStackOp State
+                   | BinStackOp | BinStackOp State State
 
-  syntax OpResult ::= "top" | "bottom"
+  syntax StateOp
+  syntax Op ::= StackOp | StateOp | StateOp State
 
-  syntax Command ::= "skip" | "step"
-                   | "push" | "push" State
-                   | "pop"  | "pop"  State
-                   | "swap"
-                   | "call" Command
-                   | StateOp | StateOp State | OpResult
-                   | "?" Command ":" Command
+  syntax Strategy ::= Op | "step"
 
-  syntax Command ::= "<" Strategy ">"
-                   | "if" StateOp "then" Command "else" Command
-                   | "while" StateOp Command
-                   | "repeat" Int Command
-                   | "fix" Command
-                   | "swapState" | "dup"
 
-  syntax Strategy ::= ".Strategy"
-                    | Command ";" Strategy
+// For an `UnStackOp`, you can just put it at the top of `strategy`, and the top
+// element of the stack will be loaded for you. For `BinStackOp`, it will load the
+// top two elements for you. If you have a `StateOp`, it will also automatically
+// load a copy of the current state for you.
+
+// Primitive Operators
+// -------------------
+
+// `load` is the "pop" for the stack machine, and `store` is the "push".
+
+
+  syntax UnStackOp ::= "load"
+  syntax StateOp ::= "store"
+  syntax Strategy ::= "skip"
+                    | Strategy ";" Strategy [assoc]
+
+
+// -   `load` places the state at the top of the stack into the execution harness
+// -   `store` copies the state in the execution harness onto the stack
+
+// -   `skip` will be automatically simplified out of the `Strategy`.
+
+// Predicates
+// ----------
+
+
+  syntax AtomicPred ::= "bool?" | "finished?"
+
+  syntax Pred ::= AtomicPred | AtomicPred State
+                | "#true" | "#false" | "#pred"
+                | "not" Pred | Pred "or" Pred | Pred "and" Pred
+
+  syntax Strategy ::= Pred
+
+
+// Atomic predicates automatically load a copy of the current execution state. When
+// you declare an `AtomicPred`, make sure to provide the reduction rule to `#true`
+// or `#false` on the `strategy` cell.
+
+// -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it
+// -   `finished?` checks if the `k` cell is empty (ie. execution of that machine
+//     has terminated)
+
+// The boolean operators `not`, `and`, and `or` use helpers to evaluate their
+// arguments from left-to-right lazily ("short-circuit").
+
+// Strategy Language
+// -----------------
+
+// The basic strategy language consists of operators, predicates, and choice.
+
+
+  syntax Strategy ::= Op | Pred | "?" Strategy ":" Strategy
+
 endmodule
 
 
-// Ideally, we could enter strategies on the fly (ie. in the debugger). Really,
-// this `STRATEGIES` module is just about getting control over the symbolic
-// execution engine from inside K itself. After experimenting with strategies in an
-// interactive session, one could save out the result as a macro-command in a
-// library that ships with K. This would make rapidly prototyping new analysis even
-// easier; right now I'm relying on the fact that I augmented IMP with the sort
-// `Program` to rapidly test new strategies.
-
-// Analysis Tools
-// ==============
-
-// These modules define the "interfaces" to various analysis. You need to provide
-// the interpretation of each new `StateOp`. By importing some combination of these
-// analysis, you are importing all of their interfaces.
-
-// Bounded Invariant Model Checking
-// --------------------------------
-
-// Here we'll define the interface for having a bounded invariant model checker.
-// This does not define any new elements of sort `Pred`, so as long as you support
-// the `STRATEGIES` interface (`step`, `push`, and `push`), you support this
-// analysis. Of course, any invariant you want to check yourself you'll have to
-// define the semantics for.
-
-// ### Language Independent {#language-independent-1}
-
-// `assertion-failure` is used to signal that the property has been violated and
-// that execution should stop. If execution in this augmented theory results in
-// `assertion-failure` at the top of the `strategy` cell, then the property being
-// checked was violated.
-
-// `assert` is a helper strategy which will check that a property holds, ending in
-// `assertion-failure` if the property fails.
-
-// `bmc-invariant` is the overall strategy we're interested in. It will first check
-// that the proprety is true in the initial state, then repeat `check-step` of the
-// property the specified number of times.
-
-
-module ANALYSIS-BMC
-  imports STRATEGIES
-
-  syntax StateOp ::= "record"
-
-  syntax Command ::= "assertion-failure" StateOp
-                   | "assert" StateOp
-                   | "bmc-invariant" Int StateOp
-
-  syntax Trace ::= ".Trace"
-                 | Trace ";" State
-  syntax Analysis ::= Trace
-endmodule
-
-
-// The analysis we'll be performing is just keeping track of the trace of the
-// state. If we end and `assertion-failure` is at the top of the strategy cell,
-// then the trace will be an execution which violates the invariant. If we end with
-// an empty strategy cell, then the program has been verified up to the bound to
-// remain within the invariant.
-
-// Semantics Based Compilation
-// ---------------------------
-
-// Here, the result of the analysis will be a list of new rules corresponding to
-// the compiled definition. I've subsorted `Rules` into `Analysis`, and defined
-// `Rules` as a cons-list of rules generated. The interface to this analysis is the
-// predicate `cut-point?` (to specify when a rule should be finished and a new one
-// started), and the command `abstract` (to specify how to abstract the state).
-
-// ### Language Independent {#language-independent-2}
-
-
-module ANALYSIS-COMPILATION
-  imports STRATEGIES
-
-  syntax Rule ::= "<" State "-->" State ">"
-  syntax Rules ::= ".Rules"
-                 | Rules "," Rule
-
-  syntax Analysis ::= Rules
-
-  syntax StateOp ::= "new?"
-                   | "#new?" Rules
-                   | "cut-point?"
-
-  syntax Command ::= "extendRule"
-                   | "abstract"
-                   | "newRule"
-                   | "restart"
-                   | "compile-step"
-                   | "compile"
-endmodule
-
+// The top element of the `strategy` cell determines the semantics of choice.

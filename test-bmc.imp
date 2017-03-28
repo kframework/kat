@@ -12,7 +12,7 @@
 // `krun --search test-bmc.imp`.
 
 
-command : < step ; bmc-invariant 5 bool? x <= 7 ; .Strategy >
+strategy : bmc-invariant 5 (bexp? x <= 7)
 
 =====
 
