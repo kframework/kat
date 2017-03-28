@@ -20,6 +20,7 @@
 
 
 module STRATEGIES
+  imports KCELLS
 
   syntax State ::= Bag
   syntax Stack ::= ".Stack"

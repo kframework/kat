@@ -96,7 +96,7 @@ module IMP-STRATEGIES
   imports STRATEGIES
 
   configuration <T>
-                  <symbolicExecution>
+                  <symbolicExecution multiplicity="*">
                     <strategy> skip </strategy>
                     <stack> .Stack </stack>
                     <analysis> .Analysis </analysis>
@@ -104,7 +104,7 @@ module IMP-STRATEGIES
                       <k> $PGM:Program </k>
                       <mem> .Map </mem>
                     </state>
-                  </symbolicExecution multiplicity="*">
+                  </symbolicExecution>
                 </T>
 
   syntax Program ::= "strategy" ":" Strategy "=====" Stmt
@@ -141,7 +141,7 @@ endmodule
 
 
 module STRATEGIES-HARNESS
-  imports IMP-CONFIGURATION
+  imports IMP-STRATEGIES
 
   rule <strategy> (UOP:UnStackOp  => UOP S)     ; _ </strategy> <stack> S : STACK       => STACK </stack>
   rule <strategy> (BOP:BinStackOp => BOP S1 S2) ; _ </strategy> <stack> S1 : S2 : STACK => STACK </stack>
@@ -323,33 +323,11 @@ endmodule
 // Bounded Invariant Model Checking
 // --------------------------------
 
-// Here we'll define the interface for having a bounded invariant model checker.
-// This does not define any new elements of sort `StackOp`, so as long as you
-// support the `STRATEGIES` interface (`step`), you support this analysis. Of
-// course, any invariant you want to check yourself you'll have to define the
-// semantics for.
-
-// ### Language Independent
-
-// `assertion-failure` is used to signal that the property has been violated and
-// that execution should stop. If execution in this augmented theory results in
-// `assertion-failure` at the top of the `strategy` cell, then the property being
-// checked was violated.
-
-// `assertion-success` indicates that either the depth bound was reached, or the
-// program finished executing before the assertion was violated.
-
-// `assert` is a helper strategy which will check that a property holds, ending in
-// `assertion-failure` if the property fails.
-
-// `bmc-invariant` is the overall strategy we're interested in. It will first
-// `assert` that the proprety is true in the initial state, then repeatedly
-// `step ; assert` until the depth bound is reached.
-
-// -   `record` copies the top element of the stack to the execution trace
+// In bounded invariant model checking, the analysis being performed is a trace of
+// the execution states that we have seen.
 
 
-module ANALYSIS-BMC
+module IMP-BMC
   imports IMP-SEMANTICS
 
   syntax Trace ::= ".Trace"
@@ -357,6 +335,10 @@ module ANALYSIS-BMC
   syntax Analysis ::= Trace
 
   rule <analysis> .Analysis => .Trace </analysis>
+
+
+// -   `record` copies the current execution state to the end of the trace
+
 
   syntax StateOp ::= "record"
 
@@ -367,8 +349,7 @@ module ANALYSIS-BMC
 //     execution bound
 // -   `assertion-success` inidicates that either the depth bound has been reached,
 //     or execution has terminated
-// -   `bmc-invariant` checks that a predicate holds for each step up to a depth
-//     bound
+// -   `bmc-invariant` checks that the predicate holds for each step up to a bound
 
 
   syntax Strategy ::= "assertion-failure" Pred
@@ -376,17 +357,18 @@ module ANALYSIS-BMC
                     | "bmc-invariant" Int Pred
 
   rule <strategy> ( bmc-invariant N P
-                 => while N P (record ; step)
-                  ; record
+                 => record
+                  ; while N P (step ; record)
                   ; P ; ? assertion-success : assertion-failure P
                   ) ; _
        </strategy>
 
 
-// ### Instantiating to IMP {#instantiating-to-imp-1}
+// Everything above is language independent. This is the only part specific to the
+// language IMP.
 
-// We'd like to make normal `BExp` queries about the state. To do so, we provide an
-// injection from `BExp` to `Pred`.
+// -   `bexp?` allows us to make queries about the state in the boolean expression
+//     language of IMP
 
 
   syntax AtomicPred ::= "bexp?" BExp
@@ -394,6 +376,21 @@ module ANALYSIS-BMC
   rule <strategy> (bexp? B (<mem> M </mem> _) => eval (<k> B </k> <mem> M </mem>)) ; _ </strategy>
 endmodule
 
+
+// ### Future Work
+
+// -   Extend to model checking more than invariants. We could define the
+//     derivatives of regular expressions, and of LTL, and from that get regular or
+//     LTL model checking fairly simply here. This would be similar to how the
+//     derivatives of predicates `and` and `or` are defined, only they would inject
+//     extra `step` operations into the strategy. CTL is harder because the
+//     symbolic execution engine doesn't generate a proper disjunction, but rather
+//     splits into a family of separate states.
+// 
+// -   We should be able to just use normal ML patterns as sort `Cond`. This will
+//     require support from a ML prover, but will allow model checking very
+//     rich properties.
+// 
 
 // Semantics Based Compilation
 // ---------------------------
@@ -405,9 +402,8 @@ endmodule
 // started), and the command `abstract` (to specify how to abstract the state).
 
 
-module ANALYSIS-COMPILATION
-
-  imports STRATEGIES
+module IMP-COMPILATION
+  imports IMP-SEMANTICS
 
   syntax Rule ::= "<" State ">"
                 | "<" State "-->" State ">"
@@ -423,7 +419,6 @@ module ANALYSIS-COMPILATION
   syntax StateOp ::= "abstract"
 
   syntax Strategy ::= "compile"
-endmodule
 
 
 // ### Language Independent (but tied to configuration)
@@ -432,10 +427,6 @@ endmodule
 // subsumed by the left-hand side of any of the generated rules. This is done in
 // general using a matching-logic implication, but here with syntactic equality.
 
-
-module IMP-COMPILATION
-  imports IMP-STRATEGIES
-  imports ANALYSIS-COMPILATION
 
   syntax AtomicPred ::= "#subsumed?" Rules
 
@@ -477,7 +468,7 @@ module IMP-COMPILATION
        </strategy>
 
 
-// ### Instantiating to IMP {#instantiating-to-imp-2}
+// ### Instantiating to IMP {#instantiating-to-imp-1}
 
 // The only part of this instantiation that is specific to IMP is the `cut-point?`
 // predicate and `abstract` command. Otherwise, everything could be defined prior

@@ -100,7 +100,7 @@ module IMP-STRATEGIES
   imports STRATEGIES
 
   configuration <T>
-                  <symbolicExecution>
+                  <symbolicExecution multiplicity="*">
                     <strategy> skip </strategy>
                     <stack> .Stack </stack>
                     <analysis> .Analysis </analysis>
@@ -108,7 +108,7 @@ module IMP-STRATEGIES
                       <k> $PGM:Program </k>
                       <mem> .Map </mem>
                     </state>
-                  </symbolicExecution multiplicity="*">
+                  </symbolicExecution>
                 </T>
 
   syntax Program ::= "strategy" ":" Strategy "=====" Stmt
@@ -140,6 +140,7 @@ must be provided by the language definition (see for IMP below).
 
 ```{.strat .k}
 module STRATEGIES
+  imports KCELLS
 
   syntax State ::= Bag
   syntax Stack ::= ".Stack"
@@ -165,7 +166,7 @@ load a copy of the current state for you.
 
 ```{.imp .k}
 module STRATEGIES-HARNESS
-  imports IMP-CONFIGURATION
+  imports IMP-STRATEGIES
 
   rule <strategy> (UOP:UnStackOp  => UOP S)     ; _ </strategy> <stack> S : STACK       => STACK </stack>
   rule <strategy> (BOP:BinStackOp => BOP S1 S2) ; _ </strategy> <stack> S1 : S2 : STACK => STACK </stack>
@@ -366,33 +367,11 @@ analysis, you are importing all of their interfaces.
 Bounded Invariant Model Checking
 --------------------------------
 
-Here we'll define the interface for having a bounded invariant model checker.
-This does not define any new elements of sort `StackOp`, so as long as you
-support the `STRATEGIES` interface (`step`), you support this analysis. Of
-course, any invariant you want to check yourself you'll have to define the
-semantics for.
-
-### Language Independent
-
-`assertion-failure` is used to signal that the property has been violated and
-that execution should stop. If execution in this augmented theory results in
-`assertion-failure` at the top of the `strategy` cell, then the property being
-checked was violated.
-
-`assertion-success` indicates that either the depth bound was reached, or the
-program finished executing before the assertion was violated.
-
-`assert` is a helper strategy which will check that a property holds, ending in
-`assertion-failure` if the property fails.
-
-`bmc-invariant` is the overall strategy we're interested in. It will first
-`assert` that the proprety is true in the initial state, then repeatedly
-`step ; assert` until the depth bound is reached.
-
--   `record` copies the top element of the stack to the execution trace
+In bounded invariant model checking, the analysis being performed is a trace of
+the execution states that we have seen.
 
 ```{.imp .k}
-module ANALYSIS-BMC
+module IMP-BMC
   imports IMP-SEMANTICS
 
   syntax Trace ::= ".Trace"
@@ -400,16 +379,21 @@ module ANALYSIS-BMC
   syntax Analysis ::= Trace
 
   rule <analysis> .Analysis => .Trace </analysis>
+```
 
+-   `record` copies the current execution state to the end of the trace
+
+```{.imp .k}
   syntax StateOp ::= "record"
 
   rule <strategy> (record S => skip) ; _ </strategy> <analysis> T => T ; S </analysis>
 ```
 
--   `assertion-failure` indicates that the given predicate failed within the execution bound
+-   `assertion-failure` indicates that the given predicate failed within the
+    execution bound
 -   `assertion-success` inidicates that either the depth bound has been reached,
     or execution has terminated
--   `bmc-invariant` checks that a predicate holds for each step up to a depth bound
+-   `bmc-invariant` checks that the predicate holds for each step up to a bound
 
 ```{.imp .k}
   syntax Strategy ::= "assertion-failure" Pred
@@ -417,17 +401,18 @@ module ANALYSIS-BMC
                     | "bmc-invariant" Int Pred
 
   rule <strategy> ( bmc-invariant N P
-                 => while N P (record ; step)
-                  ; record
+                 => record
+                  ; while N P (step ; record)
                   ; P ; ? assertion-success : assertion-failure P
                   ) ; _
        </strategy>
 ```
 
-### Instantiating to IMP
+Everything above is language independent. This is the only part specific to the
+language IMP.
 
-We'd like to make normal `BExp` queries about the state. To do so, we provide an
-injection from `BExp` to `Pred`.
+-   `bexp?` allows us to make queries about the state in the boolean expression
+    language of IMP
 
 ```{.imp .k}
   syntax AtomicPred ::= "bexp?" BExp
@@ -460,9 +445,8 @@ predicate `cut-point?` (to specify when a rule should be finished and a new one
 started), and the command `abstract` (to specify how to abstract the state).
 
 ```{.imp .k}
-module ANALYSIS-COMPILATION
-
-  imports STRATEGIES
+module IMP-COMPILATION
+  imports IMP-SEMANTICS
 
   syntax Rule ::= "<" State ">"
                 | "<" State "-->" State ">"
@@ -478,7 +462,6 @@ module ANALYSIS-COMPILATION
   syntax StateOp ::= "abstract"
 
   syntax Strategy ::= "compile"
-endmodule
 ```
 
 ### Language Independent (but tied to configuration)
@@ -488,10 +471,6 @@ subsumed by the left-hand side of any of the generated rules. This is done in
 general using a matching-logic implication, but here with syntactic equality.
 
 ```{.imp .k}
-module IMP-COMPILATION
-  imports IMP-STRATEGIES
-  imports ANALYSIS-COMPILATION
-
   syntax AtomicPred ::= "#subsumed?" Rules
 
   rule <strategy> (subsumed? S:State => #subsumed? RS S)    ; _ </strategy> <analysis> RS </analysis>
