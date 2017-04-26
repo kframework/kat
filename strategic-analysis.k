@@ -95,7 +95,7 @@ module IMP-SEMANTICS
                     | Command ";" Strategy
                     | "strategy" ":" Command "=====" Stmt
 //-------------------------------------------------------
-  rule <strategy> strategy : C ===== PGM:Stmt => C ; .Strategy </strategy> <k> . => PGM </k>
+  rule <strategy> strategy : C ===== PGM => C ; .Strategy </strategy> <k> . => PGM </k>
 
 
 // Here we give the semantics of IMP augmented to work with the strategy harness.
@@ -155,19 +155,19 @@ module STRATEGY-IMP
 //     determine what to execute next
 
 
-  rule <strategy> skip ; S      => S      </strategy>
-  rule <strategy> S ; skip ; S' => S ; S' </strategy>
+  rule <strategy> skip ; S     => S     </strategy>
+  rule <strategy> C ; skip ; S => C ; S </strategy>
 
   syntax Command ::= "{" Strategy "}"
 //-----------------------------------
-  rule <strategy> { .Strategy }  ; S  => skip           ; S  </strategy>
+  rule <strategy> ({ .Strategy } => skip) ; _ </strategy>
   rule <strategy> { C ; S }      ; S' => C ; { S }      ; S' </strategy>
   rule <strategy> C ; { C' ; S } ; S' => C ; C' ; { S } ; S' </strategy>
 
   syntax Command ::= "load" State
 //-------------------------------
   rule <strategy> (load #current => skip) ; _ </strategy>
-  rule <strategy> (load S => skip)        ; _ </strategy> <state> _ => S </state> requires S =/=K #current
+  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
 
   syntax Pred ::= "#true" | "#false"
   syntax Command ::= Pred
@@ -196,7 +196,7 @@ module STRATEGY-IMP
 
   rule <strategy> P and Q ; S => P ; #pred and Q ; S </strategy>
   rule <strategy> #true  ; #pred and Q ; S => Q      ; S </strategy>
-  rule <strategy> #false ; #pred and Q ; S => #false ; S </strategy>
+  rule <strategy> #false ; #pred and _ ; S => #false ; S </strategy>
 
 
 // -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it

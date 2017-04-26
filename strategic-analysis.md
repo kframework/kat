@@ -59,7 +59,11 @@ module IMP-SYNTAX
 
   rule {}  => . [structural]
   rule {S} => S [structural]
+
   rule int .Ids ; => . [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
+    requires notBool (X in keys(Rho))
+
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
   syntax KResult ::= Int | Bool
@@ -105,7 +109,7 @@ The strategy is loaded into the `strategy` cell, and the program is loaded into 
                     | Command ";" Strategy
                     | "strategy" ":" Command "=====" Stmt
 //-------------------------------------------------------
-  rule <strategy> strategy : C ===== PGM:Stmt => C ; .Strategy </strategy> <k> . => PGM </k>
+  rule <strategy> strategy : C ===== PGM => C ; .Strategy </strategy> <k> . => PGM </k>
 ```
 
 Here we give the semantics of IMP augmented to work with the strategy harness.
@@ -123,10 +127,6 @@ These steps will only be executed when the strategy decides to take a `step`.
 
   rule <strategy> (step => skip) ; _ </strategy> <k> if (true)  B:Block else _ => B:Block ... </k> [transition]
   rule <strategy> (step => skip) ; _ </strategy> <k> if (false) _ else B:Block => B:Block ... </k> [transition]
-
-  rule <strategy> (step => skip) ; _ </strategy> <k> int (X,Xs => Xs) ; ... </k>
-                                                 <mem> Rho:Map (.Map => X|->?V:Int) </mem>
-                                                 requires notBool (X in keys(Rho))
 
   rule <strategy> (step => skip) ; _ </strategy> <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k>
 endmodule
@@ -161,19 +161,19 @@ Strategy Commands
 -   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to determine what to execute next
 
 ```{.k .strategic-analysis}
-  rule <strategy> skip ; S      => S      </strategy>
-  rule <strategy> S ; skip ; S' => S ; S' </strategy>
+  rule <strategy> skip ; S     => S     </strategy>
+  rule <strategy> C ; skip ; S => C ; S </strategy>
 
   syntax Command ::= "{" Strategy "}"
 //-----------------------------------
-  rule <strategy> { .Strategy }  ; S  => skip           ; S  </strategy>
+  rule <strategy> ({ .Strategy } => skip) ; _ </strategy>
   rule <strategy> { C ; S }      ; S' => C ; { S }      ; S' </strategy>
   rule <strategy> C ; { C' ; S } ; S' => C ; C' ; { S } ; S' </strategy>
 
   syntax Command ::= "load" State
 //-------------------------------
   rule <strategy> (load #current => skip) ; _ </strategy>
-  rule <strategy> (load S => skip)        ; _ </strategy> <state> _ => S </state> requires S =/=K #current
+  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
 
   syntax Pred ::= "#true" | "#false"
   syntax Command ::= Pred
@@ -202,7 +202,7 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
   rule <strategy> P and Q ; S => P ; #pred and Q ; S </strategy>
   rule <strategy> #true  ; #pred and Q ; S => Q      ; S </strategy>
-  rule <strategy> #false ; #pred and Q ; S => #false ; S </strategy>
+  rule <strategy> #false ; #pred and _ ; S => #false ; S </strategy>
 ```
 
 -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it
@@ -309,9 +309,9 @@ Performing bounded invariant model checking is a simple macro in our strategy la
 -   `bimc` checks that the predicate holds for each step up to a search-depth bound.
 
 ```{.k .strategic-analysis}
-  syntax Command ::= "bmc-invariant" Int Pred
-//-------------------------------------------
-  rule <strategy> ( bmc-invariant N P
+  syntax Command ::= "bimc" Int Pred
+//----------------------------------
+  rule <strategy> ( bimc N P
                  => { record
                     ; while N P
                         { step
@@ -340,14 +340,14 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-  rule <strategy> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </strategy> <mem> MEM </mem>
+  rule <strategy> (bexp? B => eval (<imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </strategy> <mem> MEM </mem>
 endmodule
 ```
 
 ### Future Work
 
 -   This should extended to model checking more than invariants by defining the appropriate derivatives of your favorite temporal logic's formula.
--   We should be able to use arbitrary ML patterns as sort `Pred`.
+-   We should be able to use arbitrary matching-logic patterns as sort `Pred`.
 
 Semantics Based Compilation
 ---------------------------
