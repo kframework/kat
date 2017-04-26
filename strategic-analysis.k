@@ -87,7 +87,7 @@ module IMP-SEMANTICS
 
 // The sort `Strategy` will correspond to a program in the strategy language. The
 // syntax `strategy :_=====_` allows specifying a strategy and a program. The
-// strategy is loaded into the `startegy` cell, and the program is loaded into the
+// strategy is loaded into the `strategy` cell, and the program is loaded into the
 // `k` cell in the `imp` execution harness.
 
 
@@ -131,6 +131,8 @@ endmodule
 // controlling the `imp` execution state).
 
 // -   Sort `State` is for the bag of cells in the `state` execution harness.
+// -   `#current` is used as a marker to indicate that the current state should
+//     be used.
 
 
 module STRATEGY-IMP
@@ -138,6 +140,7 @@ module STRATEGY-IMP
   imports IMP-SEMANTICS
 
   syntax State ::= Bag
+                 | "#current"
 
 
 // Strategy Commands
@@ -163,7 +166,8 @@ module STRATEGY-IMP
 
   syntax Command ::= "load" State
 //-------------------------------
-  rule <strategy> (load S => skip) ; _ </strategy> <state> _ => S </state>
+  rule <strategy> (load #current => skip) ; _ </strategy>
+  rule <strategy> (load S => skip)        ; _ </strategy> <state> _ => S </state> requires S =/=K #current
 
   syntax Pred ::= "#true" | "#false"
   syntax Command ::= Pred
@@ -197,7 +201,7 @@ module STRATEGY-IMP
 
 // -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it
 // -   `finished?` checks if the `k` cell is empty (ie. execution of that machine
-//     has terminated) or just has a boolean
+//     has terminated) or just has a boolean.
 
 
   syntax Pred ::= "bool?"
@@ -235,20 +239,20 @@ module STRATEGY-IMP
 
 
 // -   `exec_` executes the given state to completion, and `exec__` implements a
-//     bounded version. Note that `krun == exec_`.
+//     bounded version. Note that `krun == exec #current`.
 // -   `eval_` executes a given state to completion and checks `bool?`, and
 //     `eval__` implements a bounded version.
 
 
   syntax Command ::= "exec" State | "exec" Int State
 //--------------------------------------------------
-  rule <strategy> (exec   STATE => { load STATE ; step-to   finished? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
-  rule <strategy> (exec N STATE => { load STATE ; step-to N finished? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
+  rule <strategy> (exec         STATE => { load STATE ; step-to   finished? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (exec (N:Int) STATE => { load STATE ; step-to N finished? ; .Strategy }) ; _ </strategy>
 
-  syntax Command ::= "eval" State | "exec" Int State
+  syntax Command ::= "eval" State | "eval" Int State
 //--------------------------------------------------
-  rule <strategy> (eval   STATE => { exec   STATE ; bool? ; .Strategy }) ; _ </strategy>
-  rule <strategy> (eval N STATE => { exec N STATE ; bool? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (eval         STATE => { exec   STATE ; bool? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
+  rule <strategy> (eval (N:Int) STATE => { exec N STATE ; bool? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
 endmodule
 
 
