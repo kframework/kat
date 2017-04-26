@@ -1,0 +1,23 @@
+// Examples
+// ========
+
+// Compile the file `strategic-analysis.k` with the command
+// `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS strategic-analysis.k`.
+
+// Bounded Invariant Model Checking {#bounded-invariant-model-checking-1}
+// --------------------------------
+
+// Here we check the property `x <= 7` for 5 steps of execution after the code has
+// initialized (the `step` in front of the command). Run this with
+// `krun --search bimc.imp`. Every solution should be checked for
+// `assertion-failure_` or `assertion-success`.
+
+
+strategy : bimc 5 (bexp? x <= 7)
+
+=====
+
+int x ;
+x = 0 ;
+x = x + 15 ;
+

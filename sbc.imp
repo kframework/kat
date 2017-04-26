@@ -1,0 +1,24 @@
+// Examples
+// ========
+
+// Compile the file `strategic-analysis.k` with the command
+// `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS strategic-analysis.k`.
+
+// Semantics Based Compilation {#semantics-based-compilation-1}
+// ---------------------------
+
+// Execute this test file with `krun --search sbc.imp`. Every solution will have
+// it's own trace of generated rules.
+
+
+strategy : compile
+
+=====
+
+int n s ;
+
+while (0 <= n) {
+  n = n - 1 ;
+  s = s + n ;
+}
+
