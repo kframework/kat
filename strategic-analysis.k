@@ -91,9 +91,11 @@ module IMP-SEMANTICS
 // `k` cell in the `imp` execution harness.
 
 
-  syntax Strategy ::= "strategy" ":" Strategy "=====" Stmt
-//--------------------------------------------------------
-  rule <strategy> strategy : STRAT:Strategy ===== PGM:Stmt => STRAT </strategy> <k> . => PGM </k>
+  syntax Strategy ::= ".Strategy"
+                    | Command ";" Strategy
+                    | "strategy" ":" Command "=====" Stmt
+//-------------------------------------------------------
+  rule <strategy> strategy : C ===== PGM:Stmt => C ; .Strategy </strategy> <k> . => PGM </k>
 
 
 // Here we give the semantics of IMP augmented to work with the strategy harness.
@@ -102,9 +104,8 @@ module IMP-SEMANTICS
 // executed when the strategy decides to take a `step`.
 
 
-  syntax Strategy ::= "step" | "skip"
-                    | Strategy ";" Strategy [assoc]
-//-------------------------------------------------
+  syntax Command ::= "step" | "skip"
+//----------------------------------
   rule <strategy> (step => skip) ; _ </strategy> <k> X:Id => I ... </k>
                                                  <mem> ... X |-> I ... </mem>
 
@@ -139,10 +140,11 @@ module STRATEGY-IMP
   syntax State ::= Bag
 
 
-// Strategy Statements
-// -------------------
+// Strategy Commands
+// -----------------
 
 // -   `_;_` is used to sequence primitives in the language (provided above)
+// -   `{_}` is used to turn a `Strategy` into a single `Command`
 // -   `skip` acts as a no-op (provided above)
 // -   `step` is used to specify an execution step for your language
 // -   `load_` places the given state into the `imp` execution harness
@@ -150,19 +152,25 @@ module STRATEGY-IMP
 //     determine what to execute next
 
 
-  rule <strategy> (skip ; S)      => S      </strategy>
-  rule <strategy> (S ; skip ; S') => S ; S' </strategy>
+  rule <strategy> skip ; S      => S      </strategy>
+  rule <strategy> S ; skip ; S' => S ; S' </strategy>
 
-  syntax Strategy ::= "load" State
-//--------------------------------
-  rule <strategy> (load S  => skip) ; _ </strategy> <state> _ => S </state>
+  syntax Command ::= "{" Strategy "}"
+//-----------------------------------
+  rule <strategy> { .Strategy }  ; S  => skip           ; S  </strategy>
+  rule <strategy> { C ; S }      ; S' => C ; { S }      ; S' </strategy>
+  rule <strategy> C ; { C' ; S } ; S' => C ; C' ; { S } ; S' </strategy>
+
+  syntax Command ::= "load" State
+//-------------------------------
+  rule <strategy> (load S => skip) ; _ </strategy> <state> _ => S </state>
 
   syntax Pred ::= "#true" | "#false"
-  syntax Strategy ::= Pred
-                    | "?" Strategy ":" Strategy
-//---------------------------------------------
-  rule <strategy> (#true  ; ? S : _ => S) ; _ </strategy>
-  rule <strategy> (#false ; ? _ : S => S) ; _ </strategy>
+  syntax Command ::= Pred
+                   | "?" Command ":" Command
+//------------------------------------------
+  rule <strategy> #true  ; ? C : _ ; S => C ; S' </strategy>
+  rule <strategy> #false ; ? _ : C ; S => C ; S' </strategy>
 
 
 // Strategy Predicates
@@ -174,17 +182,17 @@ module STRATEGY-IMP
 
   syntax Pred ::= "#pred" | "not" Pred | Pred "or" Pred | Pred "and" Pred
 //-----------------------------------------------------------------------
-  rule <strategy> (not P => P ; not #pred)       ; _ </strategy>
-  rule <strategy> (#false ; not #pred => #true)  ; _ </strategy>
-  rule <strategy> (#true  ; not #pred => #false) ; _ </strategy>
+  rule <strategy> not P ; S => P ; not #pred ; S </strategy>
+  rule <strategy> #false ; not #pred ; S => #true  ; S </strategy>
+  rule <strategy> #true  ; not #pred ; S => #false ; S </strategy>
 
-  rule <strategy> (P or Q => P ; #pred or Q)     ; _ </strategy>
-  rule <strategy> (#true  ; #pred or _ => #true) ; _ </strategy>
-  rule <strategy> (#false ; #pred or Q => Q)     ; _ </strategy>
+  rule <strategy> P or Q ; S => P ; #pred or Q ; S </strategy>
+  rule <strategy> #true  ; #pred or _ ; S => #true ; S </strategy>
+  rule <strategy> #false ; #pred or Q ; S => Q     ; S </strategy>
 
-  rule <strategy> (P and Q => P ; #pred and Q)     ; _ </strategy>
-  rule <strategy> (#true  ; #pred and Q => Q)      ; _ </strategy>
-  rule <strategy> (#false ; #pred and Q => #false) ; _ </strategy>
+  rule <strategy> P and Q ; S => P ; #pred and Q ; S </strategy>
+  rule <strategy> #true  ; #pred and Q ; S => Q      ; S </strategy>
+  rule <strategy> #false ; #pred and Q ; S => #false ; S </strategy>
 
 
 // -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it
@@ -214,14 +222,14 @@ module STRATEGY-IMP
 //     a bounded version.
 
 
-  syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
-//---------------------------------------------------------------------
-  rule <strategy> (while   P S => P ; ? (S ; while P S) : skip)            ; _ </strategy>
-  rule <strategy> (while 0 P S => skip)                                    ; _ </strategy>
-  rule <strategy> (while N P S => P ; ? (S ; while (N -Int 1) P S) : skip) ; _ </strategy> requires N >Int 0
+  syntax Command ::= "while" Pred Command | "while" Int Pred Command
+//------------------------------------------------------------------
+  rule <strategy> (while   P C => { P ; ? { C ; while P C ; .Strategy }            : skip ; .Strategy }) ; _ </strategy>
+  rule <strategy> (while 0 P C => skip)                                                                  ; _ </strategy>
+  rule <strategy> (while N P C => { P ; ? { C ; while (N -Int 1) P C ; .Strategy } : skip ; .Strategy }) ; _ </strategy> requires N >Int 0
 
-  syntax Strategy ::= "step-to" Pred | "step-to" Int Pred
-//--------------------------------------------------------
+  syntax Command ::= "step-to" Pred | "step-to" Int Pred
+//------------------------------------------------------
   rule <strategy> (step-to   P => while   (not P) step) ; _ </strategy>
   rule <strategy> (step-to N P => while N (not P) step) ; _ </strategy> requires N >Int 0
 
@@ -232,15 +240,15 @@ module STRATEGY-IMP
 //     `eval__` implements a bounded version.
 
 
-  syntax Strategy ::= "exec" State | "exec" Int State
-//---------------------------------------------------
-  rule <strategy> (exec   STATE => load STATE ; step-to   finished? ; load STATE') ; _ </strategy> <state> STATE' </state>
-  rule <strategy> (exec N STATE => load STATE ; step-to N finished? ; load STATE') ; _ </strategy> <state> STATE' </state>
+  syntax Command ::= "exec" State | "exec" Int State
+//--------------------------------------------------
+  rule <strategy> (exec   STATE => { load STATE ; step-to   finished? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
+  rule <strategy> (exec N STATE => { load STATE ; step-to N finished? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
 
-  syntax Strategy ::= "eval" State | "exec" Int State
-//---------------------------------------------------
-  rule <strategy> (eval   STATE => exec   STATE ; bool?) ; _ </strategy>
-  rule <strategy> (eval N STATE => exec N STATE ; bool?) ; _ </strategy>
+  syntax Command ::= "eval" State | "exec" Int State
+//--------------------------------------------------
+  rule <strategy> (eval   STATE => { exec   STATE ; bool? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (eval N STATE => { exec N STATE ; bool? ; .Strategy }) ; _ </strategy>
 endmodule
 
 
@@ -279,9 +287,10 @@ module STRATEGY-BIMC
 // -   `record` copies the current execution state to the end of the trace.
 
 
-  syntax Strategy ::= "record"
-//----------------------------
-  rule <strategy> (record S => skip) ; _ </strategy> <analysis> T => T ; S </analysis>
+  syntax Command ::= "record"
+//---------------------------
+  rule <strategy> (record => skip) ; _ </strategy> <analysis> T => T ; S </analysis>
+                                                   <state> S </state>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the
@@ -290,7 +299,7 @@ module STRATEGY-BIMC
 //     or execution has terminated
 
 
-  syntax Strategy ::= "assertion-failure" Pred | "assertion-success"
+  syntax Command ::= "assertion-failure" Pred | "assertion-success"
 
 
 // Performing bounded invariant model checking is a simple macro in our strategy
@@ -300,13 +309,20 @@ module STRATEGY-BIMC
 //     search-depth bound.
 
 
-  syntax Strategy ::= "bmc-invariant" Int Pred
+  syntax Commmand ::= "bmc-invariant" Int Pred
 //--------------------------------------------
   rule <strategy> ( bmc-invariant N P
-                 => record
-                  ; while N P (step ; record)
-                  ; P ; ? assertion-success : assertion-failure P
-                  ) ; _
+                 => { record
+                    ; while N P
+                        { step
+                        ; record
+                        ; .Strategy
+                        }
+                    ; P ; ? assertion-success : assertion-failure P
+                    ; .Strategy
+                    }
+                  )
+                  ; _
        </strategy>
        <analysis> _ => .Trace </analysis>
 endmodule
@@ -394,8 +410,8 @@ module STRATEGY-SBC
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <strategy> (#subsumed? .Rules => bottom)                                             ; _ </strategy>
-  rule <strategy> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS ; _ </strategy> <state> STATE </state>
+  rule <strategy> (#subsumed? .Rules => #false)                                              ; _ </strategy>
+  rule <strategy> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </strategy> <state> STATE </state>
 
 
 // At cut-points, we'll finish the rule we've been building, abstract the state,
@@ -407,14 +423,14 @@ module STRATEGY-SBC
 //     the record of rules.
 
 
-  syntax Strategy ::= "begin-rule"
-//--------------------------------
+  syntax Command ::= "begin-rule"
+//-------------------------------
   rule <strategy> (begin-rule => skip) ; _ </strategy> <analysis> RS => RS ; < STATE > </analysis>
                                                        <state> STATE </state>
 
-  syntax Strategy ::= "end-rule"
-//------------------------------
-  rule <strategy> (end-rule => skip)   ; _ </strategy> <analysis> RS ; (< S > => < S --> STATE >) </analysis>
+  syntax Command ::= "end-rule"
+//-----------------------------
+  rule <strategy> (end-rule => skip)   ; _ </strategy> <analysis> RS ; (< LHS > => < LHS --> STATE >) </analysis>
                                                        <state> STATE </state>
 
 
@@ -424,19 +440,23 @@ module STRATEGY-SBC
 //     operators until it has collected a complete set of rules.
 
 
-  syntax Strategy ::= "compile"
-//-----------------------------
+  syntax Command ::= "compile"
+//----------------------------
   rule <strategy> ( compile
-                 => abstract
-                  ; begin-rule
-                  ; while (not (finished? or subsumed?))
-                       ( step-to (finished? or cut-point?)
-                       ; end-rule
-                       ; abstract
-                       ; begin-rule
-                       )
-                  ; end-rule
-                  ) ; _
+                 => { abstract
+                    ; begin-rule
+                    ; while (not (finished? or subsumed?))
+                        { step-to (finished? or cut-point?)
+                        ; end-rule
+                        ; abstract
+                        ; begin-rule
+                        ; .Strategy
+                        }
+                    ; end-rule
+                    ; .Strategy
+                    }
+                  )
+                  ; _
        </strategy>
        <analysis> _ => .Rules </analysis>
 endmodule
@@ -457,16 +477,16 @@ module IMP-SBC
 //------------------
   rule <strategy> (abstract => #abstract keys(MEM)) ; _ </strategy> <mem> MEM </mem>
 
-  syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
-//-------------------------------------------------------
-  rule <strategy> (#abstract .Set            => skip)                          ; _ </strategy>
-  rule <strategy> (#abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS) ; _ </strategy>
+  syntax Command ::= "#abstract" Set | "#abstractKey" Id
+//------------------------------------------------------
+  rule <strategy> (#abstract .Set            => skip)                                          ; _ </strategy>
+  rule <strategy> (#abstract (SetItem(X) XS) => { #abstractKey X ; #abstract XS ; .Strategy }) ; _ </strategy>
   rule <strategy> (#abstractKey X => skip) ; _ </strategy> <mem> ... (X |-> _ => ?V:Int) ... </mem>
 
 // Define `_subsumes_`
 //--------------------
-  rule <strategy> ((<imp> <k> KCELL </k> _ </imp> subsumes <imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </strategy>
-  rule <strategy> ((<imp> <k> KCELL </k> _ </imp> subsumes <imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </strategy> requires KCELL =/=K KCELL'
+  rule <strategy> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </strategy>
+  rule <strategy> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </strategy> requires KCELL =/=K KCELL'
 endmodule
 
 

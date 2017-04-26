@@ -4,5 +4,5 @@ pandoc-tangle --from markdown --to code-k --code strategic-analysis strategic-an
 pandoc-tangle --from markdown --to code-k --code bimc               strategic-analysis.md > bimc.imp
 pandoc-tangle --from markdown --to code-k --code sbc                strategic-analysis.md > sbc.imp
 
-echo "kompiling..."
-kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS --debug strategic-analysis.k || exit 1
+# echo "kompiling..."
+# kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS --debug strategic-analysis.k || exit 1
