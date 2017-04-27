@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
 
 pandoc-tangle --from markdown --to code-k --code strategic-analysis strategic-analysis.md > strategic-analysis.k
-pandoc-tangle --from markdown --to code-k --code bimc               strategic-analysis.md > bimc.imp
-pandoc-tangle --from markdown --to code-k --code sbc                strategic-analysis.md > sbc.imp
+pandoc-tangle --from markdown --to code-k --code bimc --strip-text  strategic-analysis.md > bimc.imp
+pandoc-tangle --from markdown --to code-k --code sbc  --strip-text  strategic-analysis.md > sbc.imp
 
 echo "kompiling..."
 kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS strategic-analysis.k || exit 1

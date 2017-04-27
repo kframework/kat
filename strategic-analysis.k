@@ -12,7 +12,8 @@
 // flow, `_:=_` for assignment, and `while (_) _` for looping.
 
 
-module IMP-SYNTAX
+module IMP
+  imports MAP
 
   syntax AExp  ::= Int | Id
                  | AExp "/" AExp [left, strict]
@@ -28,9 +29,9 @@ module IMP-SYNTAX
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
 
-  rule I1 <= I2 => I1 <=Int I2
-  rule ! T => notBool T
-  rule true && B => B
+  rule I1 <= I2   => I1 <=Int I2
+  rule ! T        => notBool T
+  rule true  && B => B
   rule false && _ => false
 
   syntax Block ::= "{" "}"
@@ -45,9 +46,9 @@ module IMP-SYNTAX
                  | "while" "(" BExp ")" Block
                  > Stmt Stmt                            [left]
 
-  rule {}  => . [structural]
-  rule {S} => S [structural]
-  rule int .Ids ; => . [structural]
+  rule {}              => .        [structural]
+  rule {S}             => S        [structural]
+  rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
   syntax KResult ::= Int | Bool
@@ -63,7 +64,7 @@ endmodule
 
 
 module IMP-SEMANTICS
-  imports IMP-SYNTAX
+  imports IMP
 
   configuration <T>
                   <symbolicExecution multiplicity="*">
@@ -115,11 +116,15 @@ module IMP-SEMANTICS
   rule <strategy> (step => skip) ; _ </strategy> <k> if (true)  B:Block else _ => B:Block ... </k> [transition]
   rule <strategy> (step => skip) ; _ </strategy> <k> if (false) _ else B:Block => B:Block ... </k> [transition]
 
-  rule <strategy> (step => skip) ; _ </strategy> <k> int (X,Xs => Xs) ; ... </k>
-                                                 <mem> Rho:Map (.Map => X|->?V:Int) </mem>
-                                                 requires notBool (X in keys(Rho))
-
   rule <strategy> (step => skip) ; _ </strategy> <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k>
+
+
+// When we figure out subconfigurations we'll be able to put this with the rest of
+// the IMP semantics.
+
+
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
+    requires notBool (X in keys(Rho))
 endmodule
 
 
@@ -143,31 +148,20 @@ module STRATEGY-IMP
                  | "#current"
 
 
-// Strategy Commands
-// -----------------
+// Strategy Statements
+// -------------------
 
 // -   `_;_` is used to sequence primitives in the language (provided above)
 // -   `{_}` is used to turn a `Strategy` into a single `Command`
-// -   `skip` acts as a no-op (provided above)
-// -   `step` is used to specify an execution step for your language
-// -   `load_` places the given state into the `imp` execution harness
 // -   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to
 //     determine what to execute next
 
-
-  rule <strategy> skip ; S     => S     </strategy>
-  rule <strategy> C ; skip ; S => C ; S </strategy>
 
   syntax Command ::= "{" Strategy "}"
 //-----------------------------------
   rule <strategy> ({ .Strategy } => skip) ; _ </strategy>
   rule <strategy> { C ; S }      ; S' => C ; { S }      ; S' </strategy>
   rule <strategy> C ; { C' ; S } ; S' => C ; C' ; { S } ; S' </strategy>
-
-  syntax Command ::= "load" State
-//-------------------------------
-  rule <strategy> (load #current => skip) ; _ </strategy>
-  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
 
   syntax Pred ::= "#true" | "#false"
   syntax Command ::= Pred
@@ -177,6 +171,24 @@ module STRATEGY-IMP
   rule <strategy> #false ; ? _ : C ; S => C ; S </strategy>
 
 
+// -   `skip` acts as a no-op (provided above)
+// -   `step` is used to specify an execution step for your language
+// -   `load_` places the given state into the `imp` execution harness
+
+
+  rule <strategy> skip ; S     => S     </strategy>
+  rule <strategy> C ; skip ; S => C ; S </strategy>
+
+  syntax Command ::= "load" State
+//-------------------------------
+  rule <strategy> (load #current => skip) ; _ </strategy>
+  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
+
+  syntax Command ::= "analysis" K
+//-------------------------------
+  rule <strategy> (analysis K => skip) ; _ </strategy> <analysis> _ => K </analysis>
+
+
 // Strategy Predicates
 // -------------------
 
@@ -184,8 +196,9 @@ module STRATEGY-IMP
 // ("short-circuit") are given via controlled heating and cooling.
 
 
-  syntax Pred ::= "#pred" | "not" Pred | Pred "or" Pred | Pred "and" Pred
-//-----------------------------------------------------------------------
+  syntax Pred ::= "#pred" | "(" Pred ")" [bracket]
+                | "not" Pred | Pred "or" Pred | Pred "and" Pred
+//-------------------------------------------------------------
   rule <strategy> not P ; S => P ; not #pred ; S </strategy>
   rule <strategy> #false ; not #pred ; S => #true  ; S </strategy>
   rule <strategy> #true  ; not #pred ; S => #false ; S </strategy>
@@ -211,10 +224,10 @@ module STRATEGY-IMP
 
   syntax Pred ::= "finished?"
 //---------------------------
-  rule <strategy> (finished? => #true)  ; _ </strategy> <k> .     </k>
-  rule <strategy> (finished? => #true)  ; _ </strategy> <k> true  </k>
-  rule <strategy> (finished? => #true)  ; _ </strategy> <k> false </k>
-  rule <strategy> (finished? => #false) ; _ </strategy> <k> _     </k> [owise]
+  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> .K    </k> ... </state>
+  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> true  </k> ... </state>
+  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> false </k> ... </state>
+  rule <strategy> (finished? => #false) ; _ </strategy> <state> <k> KCELL </k> ... </state> [owise]
 
 
 // Strategy Macros
@@ -246,13 +259,13 @@ module STRATEGY-IMP
 
   syntax Command ::= "exec" State | "exec" Int State
 //--------------------------------------------------
-  rule <strategy> (exec         STATE => { load STATE ; step-to   finished? ; .Strategy }) ; _ </strategy>
-  rule <strategy> (exec (N:Int) STATE => { load STATE ; step-to N finished? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (exec         S => { load S ; step-to   finished? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (exec (N:Int) S => { load S ; step-to N finished? ; .Strategy }) ; _ </strategy>
 
   syntax Command ::= "eval" State | "eval" Int State
 //--------------------------------------------------
-  rule <strategy> (eval         STATE => { exec   STATE ; bool? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
-  rule <strategy> (eval (N:Int) STATE => { exec N STATE ; bool? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
+  rule <strategy> (eval         S => { exec   S ; bool? ; load S' ; .Strategy }) ; _ </strategy> <state> S' </state>
+  rule <strategy> (eval (N:Int) S => { exec N S ; bool? ; load S' ; .Strategy }) ; _ </strategy> <state> S' </state>
 endmodule
 
 
@@ -288,6 +301,7 @@ module STRATEGY-BIMC
   syntax Analysis ::= Trace
 
 
+// -   `analysis-trace` sets the current analysis to a `Trace`.
 // -   `record` copies the current execution state to the end of the trace.
 
 
@@ -313,10 +327,11 @@ module STRATEGY-BIMC
 //     search-depth bound.
 
 
-  syntax Command ::= "bmc-invariant" Int Pred
-//-------------------------------------------
-  rule <strategy> ( bmc-invariant N P
-                 => { record
+  syntax Command ::= "bimc" Int Pred
+//----------------------------------
+  rule <strategy> ( bimc N P
+                 => { analysis .Trace
+                    ; record
                     ; while N P
                         { step
                         ; record
@@ -328,7 +343,6 @@ module STRATEGY-BIMC
                   )
                   ; _
        </strategy>
-       <analysis> _ => .Trace </analysis>
 endmodule
 
 
@@ -346,15 +360,22 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-  rule <strategy> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </strategy> <mem> MEM </mem>
+  rule <strategy> (bexp? B => eval (<imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </strategy> <mem> MEM </mem>
 endmodule
 
+
+// ### BIMC Examples
+
+// Here we check the property `x <= 7` for 5 steps of execution after the code has
+// initialized (the `step` in front of the command). Run this with
+// `krun --search bimc.imp`. Every solution should be checked for
+// `assertion-failure_` or `assertion-success`.
 
 // ### Future Work
 
 // -   This should extended to model checking more than invariants by defining the
 //     appropriate derivatives of your favorite temporal logic's formula.
-// -   We should be able to use arbitrary ML patterns as sort `Pred`.
+// -   We should be able to use arbitrary matching-logic patterns as sort `Pred`.
 
 // Semantics Based Compilation
 // ---------------------------
@@ -447,7 +468,8 @@ module STRATEGY-SBC
   syntax Command ::= "compile"
 //----------------------------
   rule <strategy> ( compile
-                 => { abstract
+                 => { analysis .Rules
+                    ; abstract
                     ; begin-rule
                     ; while (not (finished? or subsumed?))
                         { step-to (finished? or cut-point?)
@@ -493,6 +515,11 @@ module IMP-SBC
   rule <strategy> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </strategy> requires KCELL =/=K KCELL'
 endmodule
 
+
+// ### SBC Examples
+
+// Execute this test file with `krun --search sbc.imp`. Every solution will have
+// it's own trace of generated rules.
 
 // ### Future Work {#future-work-1}
 

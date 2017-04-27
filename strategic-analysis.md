@@ -24,7 +24,8 @@ IMP has `AExp` for arithmetic expressions, `BExp` for boolean expressions, and
 flow, `_:=_` for assignment, and `while (_) _` for looping.
 
 ```{.k .strategic-analysis}
-module IMP-SYNTAX
+module IMP
+  imports MAP
 
   syntax AExp  ::= Int | Id
                  | AExp "/" AExp [left, strict]
@@ -40,9 +41,9 @@ module IMP-SYNTAX
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
 
-  rule I1 <= I2 => I1 <=Int I2
-  rule ! T => notBool T
-  rule true && B => B
+  rule I1 <= I2   => I1 <=Int I2
+  rule ! T        => notBool T
+  rule true  && B => B
   rule false && _ => false
 
   syntax Block ::= "{" "}"
@@ -57,13 +58,9 @@ module IMP-SYNTAX
                  | "while" "(" BExp ")" Block
                  > Stmt Stmt                            [left]
 
-  rule {}  => . [structural]
-  rule {S} => S [structural]
-
-  rule int .Ids ; => . [structural]
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
-    requires notBool (X in keys(Rho))
-
+  rule {}              => .        [structural]
+  rule {S}             => S        [structural]
+  rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
   syntax KResult ::= Int | Bool
@@ -78,7 +75,7 @@ It would be nice to specify the sub-configuration `imp` separetely.
 
 ```{.k .strategic-analysis}
 module IMP-SEMANTICS
-  imports IMP-SYNTAX
+  imports IMP
 
   configuration <T>
                   <symbolicExecution multiplicity="*">
@@ -129,6 +126,13 @@ These steps will only be executed when the strategy decides to take a `step`.
   rule <strategy> (step => skip) ; _ </strategy> <k> if (false) _ else B:Block => B:Block ... </k> [transition]
 
   rule <strategy> (step => skip) ; _ </strategy> <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k>
+```
+
+When we figure out subconfigurations we'll be able to put this with the rest of the IMP semantics.
+
+```{.k .strategic-analysis}
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
+    requires notBool (X in keys(Rho))
 endmodule
 ```
 
@@ -150,30 +154,19 @@ module STRATEGY-IMP
                  | "#current"
 ```
 
-Strategy Commands
------------------
+Strategy Statements
+-------------------
 
 -   `_;_` is used to sequence primitives in the language (provided above)
 -   `{_}` is used to turn a `Strategy` into a single `Command`
--   `skip` acts as a no-op (provided above)
--   `step` is used to specify an execution step for your language
--   `load_` places the given state into the `imp` execution harness
 -   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to determine what to execute next
 
 ```{.k .strategic-analysis}
-  rule <strategy> skip ; S     => S     </strategy>
-  rule <strategy> C ; skip ; S => C ; S </strategy>
-
   syntax Command ::= "{" Strategy "}"
 //-----------------------------------
   rule <strategy> ({ .Strategy } => skip) ; _ </strategy>
   rule <strategy> { C ; S }      ; S' => C ; { S }      ; S' </strategy>
   rule <strategy> C ; { C' ; S } ; S' => C ; C' ; { S } ; S' </strategy>
-
-  syntax Command ::= "load" State
-//-------------------------------
-  rule <strategy> (load #current => skip) ; _ </strategy>
-  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
 
   syntax Pred ::= "#true" | "#false"
   syntax Command ::= Pred
@@ -183,6 +176,24 @@ Strategy Commands
   rule <strategy> #false ; ? _ : C ; S => C ; S </strategy>
 ```
 
+-   `skip` acts as a no-op (provided above)
+-   `step` is used to specify an execution step for your language
+-   `load_` places the given state into the `imp` execution harness
+
+```{.k .strategic-analysis}
+  rule <strategy> skip ; S     => S     </strategy>
+  rule <strategy> C ; skip ; S => C ; S </strategy>
+
+  syntax Command ::= "load" State
+//-------------------------------
+  rule <strategy> (load #current => skip) ; _ </strategy>
+  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
+
+  syntax Command ::= "analysis" K
+//-------------------------------
+  rule <strategy> (analysis K => skip) ; _ </strategy> <analysis> _ => K </analysis>
+```
+
 Strategy Predicates
 -------------------
 
@@ -190,8 +201,9 @@ Predicates serve as the boolean sort for the strategy language.
 Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
 ```{.k .strategic-analysis}
-  syntax Pred ::= "#pred" | "not" Pred | Pred "or" Pred | Pred "and" Pred
-//-----------------------------------------------------------------------
+  syntax Pred ::= "#pred" | "(" Pred ")" [bracket]
+                | "not" Pred | Pred "or" Pred | Pred "and" Pred
+//-------------------------------------------------------------
   rule <strategy> not P ; S => P ; not #pred ; S </strategy>
   rule <strategy> #false ; not #pred ; S => #true  ; S </strategy>
   rule <strategy> #true  ; not #pred ; S => #false ; S </strategy>
@@ -216,10 +228,10 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
   syntax Pred ::= "finished?"
 //---------------------------
-  rule <strategy> (finished? => #true)  ; _ </strategy> <k> .     </k>
-  rule <strategy> (finished? => #true)  ; _ </strategy> <k> true  </k>
-  rule <strategy> (finished? => #true)  ; _ </strategy> <k> false </k>
-  rule <strategy> (finished? => #false) ; _ </strategy> <k> _     </k> [owise]
+  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> .K    </k> ... </state>
+  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> true  </k> ... </state>
+  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> false </k> ... </state>
+  rule <strategy> (finished? => #false) ; _ </strategy> <state> <k> KCELL </k> ... </state> [owise]
 ```
 
 Strategy Macros
@@ -248,13 +260,13 @@ Strategy Macros
 ```{.k .strategic-analysis}
   syntax Command ::= "exec" State | "exec" Int State
 //--------------------------------------------------
-  rule <strategy> (exec         STATE => { load STATE ; step-to   finished? ; .Strategy }) ; _ </strategy>
-  rule <strategy> (exec (N:Int) STATE => { load STATE ; step-to N finished? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (exec         S => { load S ; step-to   finished? ; .Strategy }) ; _ </strategy>
+  rule <strategy> (exec (N:Int) S => { load S ; step-to N finished? ; .Strategy }) ; _ </strategy>
 
   syntax Command ::= "eval" State | "eval" Int State
 //--------------------------------------------------
-  rule <strategy> (eval         STATE => { exec   STATE ; bool? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
-  rule <strategy> (eval (N:Int) STATE => { exec N STATE ; bool? ; load STATE' ; .Strategy }) ; _ </strategy> <state> STATE' </state>
+  rule <strategy> (eval         S => { exec   S ; bool? ; load S' ; .Strategy }) ; _ </strategy> <state> S' </state>
+  rule <strategy> (eval (N:Int) S => { exec N S ; bool? ; load S' ; .Strategy }) ; _ </strategy> <state> S' </state>
 endmodule
 ```
 
@@ -288,6 +300,7 @@ module STRATEGY-BIMC
   syntax Analysis ::= Trace
 ```
 
+-   `analysis-trace` sets the current analysis to a `Trace`.
 -   `record` copies the current execution state to the end of the trace.
 
 ```{.k .strategic-analysis}
@@ -312,7 +325,8 @@ Performing bounded invariant model checking is a simple macro in our strategy la
   syntax Command ::= "bimc" Int Pred
 //----------------------------------
   rule <strategy> ( bimc N P
-                 => { record
+                 => { analysis .Trace
+                    ; record
                     ; while N P
                         { step
                         ; record
@@ -324,7 +338,6 @@ Performing bounded invariant model checking is a simple macro in our strategy la
                   )
                   ; _
        </strategy>
-       <analysis> _ => .Trace </analysis>
 endmodule
 ```
 
@@ -342,6 +355,25 @@ module IMP-BIMC
 //----------------------------
   rule <strategy> (bexp? B => eval (<imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </strategy> <mem> MEM </mem>
 endmodule
+```
+
+### BIMC Examples
+
+Here we check the property `x <= 7` for 5 steps of execution after the code has initialized (the `step` in front of the command).
+Run this with `krun --search bimc.imp`.
+Every solution should be checked for `assertion-failure_` or `assertion-success`.
+
+```{.imp .bimc .k}
+strategy : { step
+           ; bimc 5 (bexp? (x <= 7))
+           ; .Strategy
+           }
+
+=====
+
+int x ;
+x = 0 ;
+x = x + 15 ;
 ```
 
 ### Future Work
@@ -428,7 +460,8 @@ Finally, semantics based compilation is provided as a macro.
   syntax Command ::= "compile"
 //----------------------------
   rule <strategy> ( compile
-                 => { abstract
+                 => { analysis .Rules
+                    ; abstract
                     ; begin-rule
                     ; while (not (finished? or subsumed?))
                         { step-to (finished? or cut-point?)
@@ -475,6 +508,24 @@ module IMP-SBC
 endmodule
 ```
 
+### SBC Examples
+
+Execute this test file with `krun --search sbc.imp`.
+Every solution will have it's own trace of generated rules.
+
+```{.imp .sbc .k}
+strategy : compile
+
+=====
+
+int n s ;
+
+while (0 <= n) {
+  n = n - 1 ;
+  s = s + n ;
+}
+```
+
 ### Future Work
 
 -   Post-process the results of the compilation with another abstraction pass which just hashes the contents of the `k` cell for each rule.
@@ -494,38 +545,3 @@ Examples
 
 Compile the file `strategic-analysis.k` with the command `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS strategic-analysis.k`.
 
-Bounded Invariant Model Checking
---------------------------------
-
-Here we check the property `x <= 7` for 5 steps of execution after the code has initialized (the `step` in front of the command).
-Run this with `krun --search bimc.imp`.
-Every solution should be checked for `assertion-failure_` or `assertion-success`.
-
-```{.imp .bimc .k}
-strategy : bimc 5 (bexp? x <= 7)
-
-=====
-
-int x ;
-x = 0 ;
-x = x + 15 ;
-```
-
-Semantics Based Compilation
----------------------------
-
-Execute this test file with `krun --search sbc.imp`.
-Every solution will have it's own trace of generated rules.
-
-```{.imp .sbc .k}
-strategy : compile
-
-=====
-
-int n s ;
-
-while (0 <= n) {
-  n = n - 1 ;
-  s = s + n ;
-}
-```
