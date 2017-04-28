@@ -17,35 +17,57 @@ IMP Language
 The IMP language is largely defined as in the [K tutorial](www.kframework.org/index.php/K_Tutorial).
 Refer there for a more detailed explanation of the language.
 
-### IMP Syntax
+### Configuration
 
-IMP has `AExp` for arithmetic expressions, `BExp` for boolean expressions, and
-`Stmt` for statements, sequenced by `_;_`. It has `if_then_else_` for control
-flow, `_:=_` for assignment, and `while (_) _` for looping.
+The IMP language has a `k` cell for execution and a `mem` cell for storage.
+In IMP, base values are of sorts `Int` and `Bool`.
 
-```{.k .strategic-analysis}
+```{.k .imp}
 module IMP
   imports MAP
 
+  configuration <imp>
+                  <k> . </k>
+                  <mem> .Map </mem>
+                </imp>
+
+  syntax KResult ::= Int | Bool
+```
+
+### Expressions
+
+IMP has `AExp` for arithmetic expressions (over integers).
+
+```{.k .imp}
   syntax AExp  ::= Int | Id
                  | AExp "/" AExp [left, strict]
                  > AExp "+" AExp [left, strict]
                  | "(" AExp ")"  [bracket]
-
+//----------------------------------------
   rule I1 / I2 => I1 /Int I2  requires I2 =/=Int 0
   rule I1 + I2 => I1 +Int I2
+```
 
+IMP has `BExp` for boolean expressions.
+
+```{.k .imp}
   syntax BExp  ::= Bool
                  | AExp "<=" AExp [seqstrict, latex({#1}\leq{#2})]
                  | "!" BExp       [strict]
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
-
+//-----------------------------------------
   rule I1 <= I2   => I1 <=Int I2
   rule ! T        => notBool T
   rule true  && B => B
   rule false && _ => false
+```
 
+### Statements
+
+IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for assignment, and `while(_)_` for looping.
+
+```{.k .imp}
   syntax Block ::= "{" "}"
                  | "{" Stmt "}"
 
@@ -57,164 +79,82 @@ module IMP
                  | "if" "(" BExp ")" Block "else" Block [strict(1)]
                  | "while" "(" BExp ")" Block
                  > Stmt Stmt                            [left]
-
+//------------------------------------------------------------
   rule {}              => .        [structural]
   rule {S}             => S        [structural]
+
   rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
-  syntax KResult ::= Int | Bool
-endmodule
-```
-
-### IMP Semantics
-
-First the configuration for IMP is given.
-The sub-configuration `imp` corresponds to execution in IMP, while the `strategy` cell sits outside controlling the execution.
-It would be nice to specify the sub-configuration `imp` separetely.
-
-```{.k .strategic-analysis}
-module IMP-SEMANTICS
-  imports IMP
-
-  configuration <T>
-                  <symbolicExecution multiplicity="*">
-                    <strategy> $PGM:Strategy </strategy>
-                    <analysis> .Analysis </analysis>
-                    <state>
-                      <imp>
-                        <k> . </k>
-                        <mem> .Map </mem>
-                      </imp>
-                    </state>
-                  </symbolicExecution>
-                </T>
-```
-
--   Sort `Analysis` corresponds to the results of running the strategy program.
-
-```{.k .strategic-analysis}
-  syntax Analysis ::= ".Analysis"
-```
-
-The sort `Strategy` will correspond to a program in the strategy language.
-The syntax `strategy :_=====_` allows specifying a strategy and a program.
-The strategy is loaded into the `strategy` cell, and the program is loaded into the `k` cell in the `imp` execution harness.
-
-```{.k .strategic-analysis}
-  syntax Strategy ::= ".Strategy"
-                    | Command ";" Strategy
-                    | "strategy" ":" Command "=====" Stmt
-//-------------------------------------------------------
-  rule <strategy> strategy : C ===== PGM => C ; .Strategy </strategy> <k> . => PGM </k>
-```
-
-Here we give the semantics of IMP augmented to work with the strategy harness.
-Next to each transititon (decided by the language designer), the cell `<strategy> (step => skip) ; _ </strategy>` is added.
-These steps will only be executed when the strategy decides to take a `step`.
-
-```{.k .strategic-analysis}
-  syntax Command ::= "step" | "skip"
-//----------------------------------
-  rule <strategy> (step => skip) ; _ </strategy> <k> X:Id => I ... </k>
-                                                 <mem> ... X |-> I ... </mem>
-
-  rule <strategy> (step => skip) ; _ </strategy> <k> X = I:Int ; => . ... </k>
-                                                 <mem> ... X |-> (_ => I) ... </mem>
-
-  rule <strategy> (step => skip) ; _ </strategy> <k> if (true)  B:Block else _ => B:Block ... </k> [transition]
-  rule <strategy> (step => skip) ; _ </strategy> <k> if (false) _ else B:Block => B:Block ... </k> [transition]
-
-  rule <strategy> (step => skip) ; _ </strategy> <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k>
-```
-
-When we figure out subconfigurations we'll be able to put this with the rest of the IMP semantics.
-
-```{.k .strategic-analysis}
   rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
     requires notBool (X in keys(Rho))
+```
+
+### Semantics
+
+All the rules above are "regular" rules, not to be considered transition steps by analysis tools.
+The rules below are named (with the attribute `tag`) so that strategy-based analysis tools can treat them specially.
+
+```{.k .imp}
+  rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [tag(lookup)]
+  rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [tag(assignment)]
+
+  rule if (true)  B:Block else _ => B:Block [tag(iftrue)  transition]
+  rule if (false) _ else B:Block => B:Block [tag(iffalse) transition]
+
+  rule while (B) STMT => if (B) {STMT while (B) STMT} else {} [tag(while)]
 endmodule
 ```
 
 Strategy Language
 =================
 
-The strategy language used here is a simple imperative language.
-It has sequencing, choice, and looping (in addition to primitives related to controlling the `imp` execution state).
+A simple imperative strategy language is supplied here.
+It has sequencing, choice, and looping (in addition to primitives related to controlling the execution state).
 
--   Sort `State` is for the bag of cells in the `state` execution harness.
+### Configuration
+
+```{.k .strategic-analysis}
+module STRATEGY-HARNESS
+  imports STRATEGY
+  imports KCELLS
+
+  configuration <analysis> .Analysis </analysis>
+                <state> .State </state>
+                </s>
+```
+
+-   Sort `Analysis` corresponds to the results of running the strategy program.
+-   Sort `State` corresponds to cells in the execution harness (the `state` cell).
 -   `#current` is used as a marker to indicate that the current state should be used.
 
 ```{.k .strategic-analysis}
-module STRATEGY-IMP
-  imports KCELLS
-  imports IMP-SEMANTICS
-
-  syntax State ::= Bag
-                 | "#current"
-```
-
-Strategy Statements
--------------------
-
--   `_;_` is used to sequence primitives in the language (provided above)
--   `{_}` is used to turn a `Strategy` into a single `Command`
--   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to determine what to execute next
-
-```{.k .strategic-analysis}
-  syntax Command ::= "{" Strategy "}"
-//-----------------------------------
-  rule <strategy> ({ .Strategy } => skip) ; _ </strategy>
-  rule <strategy> { C ; S }      ; S' => C ; { S }      ; S' </strategy>
-  rule <strategy> C ; { C' ; S } ; S' => C ; C' ; { S } ; S' </strategy>
-
-  syntax Pred ::= "#true" | "#false"
-  syntax Command ::= Pred
-                   | "?" Command ":" Command
-//------------------------------------------
-  rule <strategy> #true  ; ? C : _ ; S => C ; S </strategy>
-  rule <strategy> #false ; ? _ : C ; S => C ; S </strategy>
-```
-
--   `skip` acts as a no-op (provided above)
--   `step` is used to specify an execution step for your language
--   `load_` places the given state into the `imp` execution harness
-
-```{.k .strategic-analysis}
-  rule <strategy> skip ; S     => S     </strategy>
-  rule <strategy> C ; skip ; S => C ; S </strategy>
-
-  syntax Command ::= "load" State
-//-------------------------------
-  rule <strategy> (load #current => skip) ; _ </strategy>
-  rule <strategy> (load S        => skip) ; _ </strategy> <state> _ => S </state> requires S =/=K #current
-
-  syntax Command ::= "analysis" K
-//-------------------------------
-  rule <strategy> (analysis K => skip) ; _ </strategy> <analysis> _ => K </analysis>
+  syntax Analysis ::= ".Analysis"
+  syntax State    ::= ".State"
+                    | #current
 ```
 
 Strategy Predicates
 -------------------
 
-Predicates serve as the boolean sort for the strategy language.
+The strategy language has its own sort `Pred` for predicates, separate from the `Bool` usually used by programming languages.
 Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
 ```{.k .strategic-analysis}
-  syntax Pred ::= "#pred" | "(" Pred ")" [bracket]
+  syntax Pred ::= "#true" | "#false" | "#pred" | "(" Pred ")" [bracket]
                 | "not" Pred | Pred "or" Pred | Pred "and" Pred
 //-------------------------------------------------------------
-  rule <strategy> not P ; S => P ; not #pred ; S </strategy>
-  rule <strategy> #false ; not #pred ; S => #true  ; S </strategy>
-  rule <strategy> #true  ; not #pred ; S => #false ; S </strategy>
+  rule <s> not P ; S => P ; not #pred ; S </s>
+  rule <s> #false ; not #pred ; S => #true  ; S </s>
+  rule <s> #true  ; not #pred ; S => #false ; S </s>
 
-  rule <strategy> P or Q ; S => P ; #pred or Q ; S </strategy>
-  rule <strategy> #true  ; #pred or _ ; S => #true ; S </strategy>
-  rule <strategy> #false ; #pred or Q ; S => Q     ; S </strategy>
+  rule <s> P or Q ; S => P ; #pred or Q ; S </s>
+  rule <s> #true  ; #pred or _ ; S => #true ; S </s>
+  rule <s> #false ; #pred or Q ; S => Q     ; S </s>
 
-  rule <strategy> P and Q ; S => P ; #pred and Q ; S </strategy>
-  rule <strategy> #true  ; #pred and Q ; S => Q      ; S </strategy>
-  rule <strategy> #false ; #pred and _ ; S => #false ; S </strategy>
+  rule <s> P and Q ; S => P ; #pred and Q ; S </s>
+  rule <s> #true  ; #pred and Q ; S => Q      ; S </s>
+  rule <s> #false ; #pred and _ ; S => #false ; S </s>
 ```
 
 -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it
@@ -223,16 +163,66 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 ```{.k .strategic-analysis}
   syntax Pred ::= "bool?"
 //-----------------------
-  rule <strategy> (bool? => #true)  ; _ </strategy> <k> true  </k>
-  rule <strategy> (bool? => #false) ; _ </strategy> <k> false </k>
+  rule <s> (bool? => #true)  ; _ </s> <k> true  </k>
+  rule <s> (bool? => #false) ; _ </s> <k> false </k>
 
   syntax Pred ::= "finished?"
 //---------------------------
-  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> .K    </k> ... </state>
-  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> true  </k> ... </state>
-  rule <strategy> (finished? => #true)  ; _ </strategy> <state> <k> false </k> ... </state>
-  rule <strategy> (finished? => #false) ; _ </strategy> <state> <k> KCELL </k> ... </state> [owise]
+  rule <s> (finished? => #true)  ; _ </s> <state> <k> .K    </k> ... </state>
+  rule <s> (finished? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
+  rule <s> (finished? => #true)  ; _ </s> <state> <k> false </k> ... </state>
+  rule <s> (finished? => #false) ; _ </s> <state> <k> KCELL </k> ... </state> [owise]
 ```
+
+Strategy Statements
+-------------------
+
+The sort `Strategy` corresponds to a program in the strategy language.
+
+-   `_;_` is used to sequence primitives in the language (provided above)
+-   `skip` acts as a no-op
+-   `{_}` is used to turn a `Strategy` into a single `Command`
+-   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to determine what to execute next
+
+```{.k .strategic-analysis}
+  syntax Strategy ::= "skip"
+                    | "{" Strategy "}"          [bracket]
+                    > Strategy ";" Strategy     [right]
+                    > "?" Strategy ":" Strategy
+                    > Strategy "|" Strategy     [right]
+//-----------------------------------------------------
+  rule skip ; S => S         [structural]
+  rule #true  ; ? S : _ => S [structural]
+  rule #false ; ? _ : S => S [structural]
+```
+
+Strategy Primitives
+-------------------
+
+Primitives in the strategy language correspond to 
+
+-   `step` is used to specify an execution step for your language.
+-   `#step` is the interface to `step`, for each programming language `#step` must be provided.
+-   `load_` places the given state into the `imp` execution harness.
+-   `analysis_` sets the `analysis` cell to the given argument.
+
+```{.k .strategic-analysis}
+  syntax Strategy ::= "step" | "#step"
+//------------------------------------
+  rule <s> (step => regular* ; heat* ; #step ; cool* ; regular*) ; _ </s>
+  
+  syntax Strategy ::= "load" State
+//--------------------------------
+  rule <s> (load #current => skip) ; _ </s>
+  rule <s> (load S        => skip) ; _ </s> <state> _ => S </state> requires S =/=K #current
+
+  syntax Strategy ::= "analysis" Analysis
+//---------------------------------------
+  rule <s> (analysis A => skip) ; _ </s> <analysis> _ => A </analysis>
+```
+
+Strategy Predicates
+-------------------
 
 Strategy Macros
 ---------------
@@ -274,6 +264,8 @@ Analysis Tools
 ==============
 
 These modules define the "interfaces" to various analysis, and provide the implementation of those interfaces for IMP.
+The syntax `strategy :_=====_` allows specifying a strategy and a program.
+The strategy is loaded into the `strategy` cell, and the program is loaded into the `k` cell in the `imp` execution harness.
 
 ```{.k .strategic-analysis}
 module IMP-ANALYSIS
