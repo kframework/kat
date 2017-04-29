@@ -2,10 +2,10 @@
 
 pandoc-tangle --from markdown --to code-k --code imp-lang           strategic-analysis.md > imp.k
 pandoc-tangle --from markdown --to code-k --code strategy-lang      strategic-analysis.md > strategy.k
+pandoc-tangle --from markdown --to code-k --code kat                strategic-analysis.md > kat.k
+pandoc-tangle --from markdown --to code-k --code imp-kat            strategic-analysis.md > imp-kat.k
 pandoc-tangle --from markdown --to code-k --code bimc --strip-text  strategic-analysis.md > bimc.imp
 pandoc-tangle --from markdown --to code-k --code sbc  --strip-text  strategic-analysis.md > sbc.imp
 
-echo "kompiling..."
-kompile --debug --main-module IMP              --syntax-module IMP              imp.k      || exit 1
-kompile --debug --main-module STRATEGY-HARNESS --syntax-module STRATEGY-HARNESS strategy.k || exit 1
-# kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS strategic-analysis.k || exit 1
+echo "kompiling ..."
+kompile --debug --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k || exit 1

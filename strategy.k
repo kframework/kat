@@ -8,6 +8,7 @@
 
 module STRATEGY-HARNESS
   imports STRATEGY
+  imports KCELLS
 
   configuration <strategy>
                   <state> .State </state>
@@ -42,16 +43,8 @@ module STRATEGY-HARNESS
   rule <s> (#false ; #pred and _ ; S => #false) ; _ </s>
 
 
-// Often you'll want a way to translate from the sort `Bool` in the programming
-// language to the sort `Pred` in the strategy language.
-
-// -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
-
 
   syntax Pred ::= "bool?"
-//-----------------------
-  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
-  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
 
 
 // Strategy Statements
@@ -106,10 +99,10 @@ module STRATEGY-HARNESS
   syntax Strategy ::= "try" Strategy | "#try" State
 //-------------------------------------------------
   rule <s> (try S => S ; #try STATE) ; _ </s> <state> STATE </state>
-  rule <s> #STUCK ~> SA:StrategyApply ~> (#try STATE ; S) => load STATE ; #false ; S </s>
+  rule <s> (#try STATE => #true)     ; _ </s>
 
+  rule <s> #STUCK ~> SA:StrategyApply ; #try STATE ; S => load STATE ; #false ; S </s>
   rule <s> SA:StrategyApplied ~> S => S </s>
-  rule <s> #try STATE ; S => #true ; S </s>
 
 
 // Strategies can manipulate the `state` cell (where program execution happens) and
@@ -168,6 +161,7 @@ module STRATEGY-HARNESS
 //     implements a bounded version.
 
 
+  syntax priority while__ while___ > _*
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
   rule <s> (while P S => P ; (? S ; while P S : skip)) ; _ </s>
@@ -175,6 +169,7 @@ module STRATEGY-HARNESS
   rule <s> (while 0 P S => skip) ; _ </s>
   rule <s> (while N P S => P ; (? S ; while (N -Int 1) P S : skip)) ; _ </s> requires N >Int 0
 
+  syntax priority step-until_ step-until__ > _*
   syntax Strategy ::= "step-until" Pred | "step-until" Int Pred
 //-------------------------------------------------------------
   rule <s> (step-until   P => while   (not P) step) ; _ </s>
@@ -187,11 +182,13 @@ module STRATEGY-HARNESS
 //     `eval__` implements a bounded version.
 
 
+  syntax priority exec_ exec__ > _*
   syntax Strategy ::= "exec" State | "exec" Int State
 //---------------------------------------------------
   rule <s> (exec         STATE => load STATE ; step-until   stuck?) ; _ </s>
   rule <s> (exec (N:Int) STATE => load STATE ; step-until N stuck?) ; _ </s>
 
+  syntax priority eval_ eval__ > _*
   syntax Strategy ::= "eval" State | "eval" Int State
 //---------------------------------------------------
   rule <s> (eval         STATE => exec   STATE ; bool? ; load STATE') ; _ </s> <state> STATE' </state>

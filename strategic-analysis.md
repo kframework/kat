@@ -115,6 +115,7 @@ It has sequencing, choice, and looping (in addition to primitives related to con
 ```{.k .strategy-lang}
 module STRATEGY-HARNESS
   imports STRATEGY
+  imports KCELLS
 
   configuration <strategy>
                   <state> .State </state>
@@ -148,16 +149,10 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
   rule <s> (#false ; #pred and _ ; S => #false) ; _ </s>
 ```
 
-Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
-
--   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
-
 ```{.k .strategy-lang}
   syntax Pred ::= "bool?"
-//-----------------------
-  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
-  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
 ```
+
 
 Strategy Statements
 -------------------
@@ -203,10 +198,10 @@ Here, a wrapper around this functionality is provided which will try to execute 
   syntax Strategy ::= "try" Strategy | "#try" State
 //-------------------------------------------------
   rule <s> (try S => S ; #try STATE) ; _ </s> <state> STATE </state>
-  rule <s> #STUCK ~> SA:StrategyApply ~> (#try STATE ; S) => load STATE ; #false ; S </s>
+  rule <s> (#try STATE => #true)     ; _ </s>
 
+  rule <s> #STUCK ~> SA:StrategyApply ; #try STATE ; S => load STATE ; #false ; S </s>
   rule <s> SA:StrategyApplied ~> S => S </s>
-  rule <s> #try STATE ; S => #true ; S </s>
 ```
 
 Strategies can manipulate the `state` cell (where program execution happens) and the `analysis` cell (a memory/storage for the strategy language).
@@ -259,6 +254,7 @@ Strategy Macros
 -   `step-until_` will execute until a predicate holds, and `step-until__` implements a bounded version.
 
 ```{.k .strategy-lang}
+  syntax priority while__ while___ > _*
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
   rule <s> (while P S => P ; (? S ; while P S : skip)) ; _ </s>
@@ -266,6 +262,7 @@ Strategy Macros
   rule <s> (while 0 P S => skip) ; _ </s>
   rule <s> (while N P S => P ; (? S ; while (N -Int 1) P S : skip)) ; _ </s> requires N >Int 0
 
+  syntax priority step-until_ step-until__ > _*
   syntax Strategy ::= "step-until" Pred | "step-until" Int Pred
 //-------------------------------------------------------------
   rule <s> (step-until   P => while   (not P) step) ; _ </s>
@@ -277,11 +274,13 @@ Strategy Macros
 -   `eval_` executes a given state to completion and checks `bool?`, and `eval__` implements a bounded version.
 
 ```{.k .strategy-lang}
+  syntax priority exec_ exec__ > _*
   syntax Strategy ::= "exec" State | "exec" Int State
 //---------------------------------------------------
   rule <s> (exec         STATE => load STATE ; step-until   stuck?) ; _ </s>
   rule <s> (exec (N:Int) STATE => load STATE ; step-until N stuck?) ; _ </s>
 
+  syntax priority eval_ eval__ > _*
   syntax Strategy ::= "eval" State | "eval" Int State
 //---------------------------------------------------
   rule <s> (eval         STATE => exec   STATE ; bool? ; load STATE') ; _ </s> <state> STATE' </state>
@@ -289,17 +288,31 @@ Strategy Macros
 endmodule
 ```
 
-Analysis Tools
-==============
+K Analysis Tools (KAT)
+======================
 
 These modules define the "interfaces" to various analysis, and provide the implementation of those interfaces for IMP.
 The syntax `strategy :_=====_` allows specifying a strategy and a program.
 The strategy is loaded into the `strategy` cell, and the program is loaded into the `k` cell in the `imp` execution harness.
 
-```
-module IMP-ANALYSIS
+```{.k .imp-kat}
+requires "imp.k"
+requires "strategy.k"
+requires "kat.k"
+
+module IMP-KAT
   imports IMP-BIMC
   imports IMP-SBC
+```
+
+Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
+
+-   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
+
+```{.k .imp-kat}
+  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
+  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
+endmodule
 ```
 
 Bounded Invariant Model Checking
@@ -307,9 +320,9 @@ Bounded Invariant Model Checking
 
 In bounded invariant model checking, the analysis being performed is a trace of the execution states that we have seen.
 
-```
+```{.k .kat}
 module STRATEGY-BIMC
-  imports STRATEGY-IMP
+  imports STRATEGY-HARNESS
 
   syntax State
   syntax Pred
@@ -323,41 +336,39 @@ module STRATEGY-BIMC
 -   `analysis-trace` sets the current analysis to a `Trace`.
 -   `record` copies the current execution state to the end of the trace.
 
-```
-  syntax Command ::= "record"
-//---------------------------
-  rule <strategy> (record => skip) ; _ </strategy> <analysis> T => T ; S </analysis>
-                                                   <state> S </state>
+```{.k .kat}
+  syntax Strategy ::= "record"
+//----------------------------
+  rule <s> (record => skip) ; _ </s> <analysis> T => T ; S </analysis>
+                                     <state> S </state>
 ```
 
 -   `assertion-failure` indicates that the given predicate failed within the execution bound
 -   `assertion-success` inidicates that either the depth bound has been reached, or execution has terminated
 
-```
-  syntax Command ::= "assertion-failure" Pred | "assertion-success"
+```{.k .kat}
+  syntax Strategy ::= "assertion-failure" Pred | "assertion-success"
 ```
 
 Performing bounded invariant model checking is a simple macro in our strategy language.
 
 -   `bimc` checks that the predicate holds for each step up to a search-depth bound.
 
-```
-  syntax Command ::= "bimc" Int Pred
-//----------------------------------
-  rule <strategy> ( bimc N P
-                 => { analysis .Trace
-                    ; record
-                    ; while N P
-                        { step
-                        ; record
-                        ; .Strategy
-                        }
-                    ; P ; ? assertion-success : assertion-failure P
-                    ; .Strategy
-                    }
-                  )
-                  ; _
-       </strategy>
+```{.k .kat}
+  syntax Strategy ::= "bimc" Int Pred
+//-----------------------------------
+  rule <s> ( bimc N P
+           => { analysis .Trace
+              ; record
+              ; while N P
+                  { step
+                  ; record
+                  }
+              ; P ; ? assertion-success : assertion-failure P
+              }
+           )
+           ; _
+       </s>
 endmodule
 ```
 
@@ -367,13 +378,14 @@ Here we provide a way to make queries about the current IMP memory using IMP's `
 
 -   `bexp?` is a predicate that allows us to make queries about the current execution memory.
 
-```
+```{.k .imp-kat}
 module IMP-BIMC
+  imports IMP
   imports STRATEGY-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-  rule <strategy> (bexp? B => eval (<imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </strategy> <mem> MEM </mem>
+  rule <s> (bexp? B => eval (<imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <mem> MEM </mem>
 endmodule
 ```
 
@@ -386,7 +398,6 @@ Every solution should be checked for `assertion-failure_` or `assertion-success`
 ```{.imp .bimc .k}
 strategy : { step
            ; bimc 5 (bexp? (x <= 7))
-           ; .Strategy
            }
 
 =====
@@ -414,9 +425,9 @@ Anytime we reach a state which is subsumed by the left-hand-side of one of our g
 
 I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `Rule`.
 
-```
+```{.k .kat}
 module STRATEGY-SBC
-  imports STRATEGY-IMP
+  imports STRATEGY-HARNESS
 
   syntax State
   syntax Pred
@@ -437,22 +448,22 @@ The instantiation to IMP is provided.
 -   `abstract` is an operator than should abstract away enough details of the state to guarantee termination.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 
-```
+```{.k .kat}
   syntax Pred ::= "cut-point?" | "abstract"
 ```
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
     Note that below we provide the instantiation of `_subsumes_` to IMP manually, but in principle this should inferred.
 
-```
+```{.k .kat}
   syntax Pred ::= "subsumed?" | State "subsumes" State
 //----------------------------------------------------
-  rule <strategy> (subsumed? => #subsumed? RS) ; _ </strategy> <analysis> RS </analysis>
+  rule <s> (subsumed? => #subsumed? RS) ; _ </s> <analysis> RS </analysis>
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <strategy> (#subsumed? .Rules => #false)                                              ; _ </strategy>
-  rule <strategy> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </strategy> <state> STATE </state>
+  rule <s> (#subsumed? .Rules => #false)                                              ; _ </s>
+  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </s> <state> STATE </state>
 ```
 
 At cut-points, we'll finish the rule we've been building, abstract the state, start a building a new rule from that state.
@@ -460,71 +471,70 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 -   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
 -   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.
 
-```
-  syntax Command ::= "begin-rule"
-//-------------------------------
-  rule <strategy> (begin-rule => skip) ; _ </strategy> <analysis> RS => RS , < STATE > </analysis>
-                                                       <state> STATE </state>
+```{.k .kat}
+  syntax Strategy ::= "begin-rule"
+//--------------------------------
+  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < STATE > </analysis>
+                                         <state> STATE </state>
 
-  syntax Command ::= "end-rule"
-//-----------------------------
-  rule <strategy> (end-rule => skip)   ; _ </strategy> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
-                                                       <state> STATE </state>
+  syntax Strategy ::= "end-rule"
+//------------------------------
+  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
+                                         <state> STATE </state>
 ```
 
 Finally, semantics based compilation is provided as a macro.
 
 -   `compile` will execute a program using the given `cut-point?` and `abstract` operators until it has collected a complete set of rules.
 
-```
-  syntax Command ::= "compile"
-//----------------------------
-  rule <strategy> ( compile
-                 => { analysis .Rules
-                    ; abstract
-                    ; begin-rule
-                    ; while (not (finished? or subsumed?))
-                        { step-until (finished? or cut-point?)
-                        ; end-rule
-                        ; abstract
-                        ; begin-rule
-                        ; .Strategy
-                        }
-                    ; end-rule
-                    ; .Strategy
-                    }
-                  )
-                  ; _
-       </strategy>
+```{.k .kat}
+  syntax Strategy ::= "compile"
+//-----------------------------
+  rule <s> ( compile
+          => { analysis .Rules
+             ; abstract
+             ; begin-rule
+             ; while (not (stuck? or subsumed?))
+                 { step-until (stuck? or cut-point?)
+                 ; end-rule
+                 ; abstract
+                 ; begin-rule
+                 }
+             ; end-rule
+             }
+           )
+           ; _
+       </s>
        <analysis> _ => .Rules </analysis>
 endmodule
 ```
 
 ### Instantiating to IMP
 
-```
+```{.k .imp-kat}
 module IMP-SBC
+  imports IMP
   imports STRATEGY-SBC
 
 // Define `cut-point?`
 //--------------------
-  rule <strategy> (cut-point? => #true)  ; _ </strategy> <k> while _ _ ... </k>
-  rule <strategy> (cut-point? => #false) ; _ </strategy> [owise]
+  rule <s> (cut-point? => #true)  ; _ </s> <k> while _ _ ... </k>
+  rule <s> (cut-point? => #false) ; _ </s> [owise]
 
 // Define `abstract`
 //------------------
-  rule <strategy> (abstract => #abstract keys(MEM)) ; _ </strategy> <mem> MEM </mem>
+  rule <s> (abstract => #abstract keys(MEM)) ; _ </s> <mem> MEM </mem>
 
-  syntax Command ::= "#abstract" Set | "#abstractKey" Id
-//------------------------------------------------------
-  rule <strategy> (#abstract .Set            => skip)                                          ; _ </strategy>
-  rule <strategy> (#abstract (SetItem(X) XS) => { #abstractKey X ; #abstract XS ; .Strategy }) ; _ </strategy>
-  rule <strategy> (#abstractKey X => skip) ; _ </strategy> <mem> ... X |-> (_ => ?V:Int) ... </mem>
+  syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
+//-------------------------------------------------------
+  rule <s> (#abstract .Set            => skip)                                          ; _ </s>
+  rule <s> (#abstract (SetItem(X) XS) => { #abstractKey X ; #abstract XS }) ; _ </s>
+  rule <s> (#abstractKey X => skip) ; _ </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
 
 // Define `_subsumes_`
 //--------------------
-  rule <strategy> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </strategy>
-  rule <strategy> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </strategy> requires KCELL =/=K KCELL'
+  rule <s> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </s>
+  rule <s> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
 endmodule
 ```
 

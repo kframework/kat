@@ -1,5 +1,5 @@
-// Analysis Tools
-// ==============
+// K Analysis Tools (KAT)
+// ======================
 
 // Bounded Invariant Model Checking
 // --------------------------------
@@ -9,7 +9,6 @@
 
 strategy : { step
            ; bimc 5 (bexp? (x <= 7))
-           ; .Strategy
            }
 
 =====
