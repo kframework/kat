@@ -23,8 +23,8 @@ module IMP-KAT
 // -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
 
 
-  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
-  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
+  rule <s> (bool? => #true)  ; _ </s> <execution> <k> true  </k> ... </execution>
+  rule <s> (bool? => #false) ; _ </s> <execution> <k> false </k> ... </execution>
 endmodule
 
 
@@ -63,7 +63,7 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-  rule <s> (bexp? B => eval (<imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <mem> MEM </mem>
+  rule <s> (bexp? B => eval (state <imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <execution> <mem> MEM </mem> ... </execution>
 endmodule
 
 
@@ -148,8 +148,8 @@ module IMP-SBC
 
 // Define `_subsumes_`
 //--------------------
-  rule <s> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </s>
-  rule <s> ((<imp> <k> KCELL </k> _ </imp>) subsumes (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
+  rule <s> (state (<imp> <k> KCELL </k> _ </imp>) subsumes state (<imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </s>
+  rule <s> (state (<imp> <k> KCELL </k> _ </imp>) subsumes state (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
 endmodule
 
 

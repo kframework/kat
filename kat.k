@@ -37,8 +37,8 @@ module STRATEGY-BIMC
 
   syntax Strategy ::= "record"
 //----------------------------
-  rule <s> (record => skip) ; _ </s> <analysis> T => T ; S </analysis>
-                                     <state> S </state>
+  rule <s> (record => skip) ; _ </s> <analysis> T => T ; state S </analysis>
+                                     <execution> S </execution>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the
@@ -153,8 +153,8 @@ module STRATEGY-SBC
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <s> (#subsumed? .Rules => #false)                                              ; _ </s>
-  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </s> <state> STATE </state>
+  rule <s> (#subsumed? .Rules => #false)                                                      ; _ </s>
+  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes (state STATE)) or #subsumed? RS) ; _ </s> <execution> STATE </execution>
 
 
 // At cut-points, we'll finish the rule we've been building, abstract the state,
@@ -168,13 +168,13 @@ module STRATEGY-SBC
 
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < STATE > </analysis>
-                                         <state> STATE </state>
+  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < state STATE > </analysis>
+                                         <execution> STATE </execution>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
-                                         <state> STATE </state>
+  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> state STATE >) </analysis>
+                                         <execution> STATE </execution>
 
 
 // Finally, semantics based compilation is provided as a macro.
