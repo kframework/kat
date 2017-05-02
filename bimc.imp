@@ -1,19 +1,6 @@
-// K Analysis Tools (KAT)
-// ======================
+int n, s ;
 
-// Bounded Invariant Model Checking
-// --------------------------------
-
-// ### BIMC Examples
-
-
-strategy : { step
-           ; bimc 5 (bexp? (x <= 7))
-           }
-
-=====
-
-int x ;
-x = 0 ;
-x = x + 15 ;
-
+while (0 <= n) {
+  n = n + -1 ;
+  s = s + n ;
+}

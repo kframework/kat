@@ -15,7 +15,7 @@ module IMP
   imports MAP
 
   configuration <imp>
-                  <k> . </k>
+                  <k> $PGM:Stmt </k>
                   <mem> .Map </mem>
                 </imp>
 

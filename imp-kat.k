@@ -23,8 +23,8 @@ module IMP-KAT
 // -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
 
 
-  rule <s> (bool? => #true)  ; _ </s> <execution> <k> true  </k> ... </execution>
-  rule <s> (bool? => #false) ; _ </s> <execution> <k> false </k> ... </execution>
+//  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
+//  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
 endmodule
 
 
@@ -63,7 +63,7 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-  rule <s> (bexp? B => eval (state <imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <execution> <mem> MEM </mem> ... </execution>
+//  rule <s> (bexp? B => eval (state <imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <state> <mem> MEM </mem> ... </state>
 endmodule
 
 

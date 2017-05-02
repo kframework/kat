@@ -7,8 +7,11 @@ endmodule
 
 module A
     import EXP
-    syntax Exp ::= "x" | "y"
-    configuration <imp> <k> $PGM </k> </imp>
+    syntax Exp ::= "x" | "y" | "load"
+    configuration <imp>
+                        <k> $PGM:Exp </k>
+                        <d> $CAR:Exp </d>
+                  </imp>
 
     rule x => y
 endmodule
@@ -16,23 +19,27 @@ endmodule
 module B
     import EXP
     syntax Exp ::= "foo" | "bar"
-    configuration <blah> foo </blah>
+    configuration <blah> <car> $FOO:Exp </car> </blah>
 
-    rule <blah> foo => bar </blah>
+    rule <car> foo => bar </car>
 endmodule
 
 module C
     imports A
     imports B
+    imports KCELLS
 
     configuration <t>
-                   initBlahCell
-                   <state> initImpCell(.K) </state>
-                   <analysis> .K </analysis>
+                   initBlahCell(Init)
+                   <state> initImpCell(Init) </state>
+                   <analysis> .Analysis </analysis>
                   </t>
 
-    syntax Analysis ::= "set" Exp | ".Analysis"
+    syntax Analysis ::= "set" Exp | ".Analysis" | State "," Analysis
+    syntax State ::= "#current" | Cell
 
-    rule <analysis> set E => .Analysis </analysis> <state> _ => <imp> <k> E </k> </imp> </state>
-    rule <k> y => foo ...</k> <blah> bar => x </blah>
+    rule <analysis> set E => .Analysis </analysis> <state> _ => <imp> <k> E </k> <d> y </d> </imp> </state>
+    rule <k> y => foo ...</k> <car> bar => x </car>
+
+    rule <k> load => . ... </k> <analysis> A => BLAH , A </analysis> <blah> BLAH </blah>
 endmodule

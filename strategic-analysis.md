@@ -29,7 +29,7 @@ module IMP
   imports MAP
 
   configuration <imp>
-                  <k> . </k>
+                  <k> $PGM:Stmt </k>
                   <mem> .Map </mem>
                 </imp>
 
@@ -117,22 +117,23 @@ It has sequencing, choice, and looping (in addition to primitives related to con
 ```{.k .strategy-lang}
 requires "imp.k"
 
-module STRATEGY-HARNESS
+module STRATEGY-IMP
   imports IMP
   imports STRATEGY
   imports KCELLS
 
   configuration <strategy>
-                  initSCell(.K)
-                  <execution> initImpCell(.K) </execution>
+                  initSCell(Init)
+                  <state> initImpCell(Init) </state>
                   <analysis> .Analysis </analysis>
                 </strategy>
 
-  syntax Strategy ::= "strategy" ":" Strategy "=====" Stmt
-  syntax State    ::= "#current" | "state" Cell
+//  syntax Strategy ::= "strategy" ":" Strategy "=====" Stmt
+  syntax State    ::= "#current" | Cell
   syntax Analysis ::= ".Analysis"
 
-  rule <s> strategy : S ===== PGM </s> <execution> _ => <imp> <k> PGM </k> <mem> .Map </mem> </imp> </execution>
+//  rule <s> strategy : S ===== PGM => S </s> <state> _ => <imp> <k> PGM </k> <mem> .Map </mem> </imp> </state>
+endmodule
 ```
 
 Strategy Predicates
@@ -142,6 +143,9 @@ The strategy language has its own sort `Pred` for predicates, separate from the 
 Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
 ```{.k .strategy-lang}
+module STRATEGY-HARNESS
+  imports STRATEGY-IMP
+
   syntax Pred ::= "#true" | "#false" | "#pred" | "(" Pred ")" [bracket]
                 | "not" Pred | Pred "or" Pred | Pred "and" Pred
 //-------------------------------------------------------------
@@ -206,7 +210,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
   syntax priority try_ > _*
   syntax Strategy ::= "try" Strategy | "#try" State
 //-------------------------------------------------
-  rule <s> (try S => S ; #try (state STATE)) ; _ </s> <execution> STATE </execution>
+//  rule <s> (try S => S ; #try (state STATE)) ; _ </s> <state> STATE </state>
   rule <s> (#try STATE => #true)             ; _ </s>
 
   rule <s> #STUCK ~> SA:StrategyApply ; #try STATE ; S => load STATE ; #false ; S </s>
@@ -222,7 +226,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
   syntax Strategy ::= "load" State
 //--------------------------------
   rule <s> (load #current      => skip) ; _ </s>
-  rule <s> (load (state STATE) => skip) ; _ </s> <execution> _ => STATE </execution>
+//  rule <s> (load (state STATE) => skip) ; _ </s> <state> _ => STATE </state>
 
   syntax Strategy ::= "analysis" Analysis
 //---------------------------------------
@@ -252,7 +256,7 @@ Strategy Macros
 ```{.k .strategy-lang}
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> (can? S => try S ; ? load (state STATE) ; #true : #false) ; _ </s> <execution> STATE </execution>
+//  rule <s> (can? S => try S ; ? load (state STATE) ; #true : #false) ; _ </s> <state> STATE </state>
 
   syntax Pred ::= "stuck?"
 //------------------------
@@ -292,8 +296,8 @@ Strategy Macros
   syntax priority eval_ eval__ > _*
   syntax Strategy ::= "eval" State | "eval" Int State
 //---------------------------------------------------
-  rule <s> (eval         STATE => exec   STATE ; bool? ; load (state STATE')) ; _ </s> <execution> STATE' </execution>
-  rule <s> (eval (N:Int) STATE => exec N STATE ; bool? ; load (state STATE')) ; _ </s> <execution> STATE' </execution>
+//  rule <s> (eval         STATE => exec   STATE ; bool? ; load (state STATE')) ; _ </s> <state> STATE' </state>
+//  rule <s> (eval (N:Int) STATE => exec N STATE ; bool? ; load (state STATE')) ; _ </s> <state> STATE' </state>
 endmodule
 ```
 
@@ -319,8 +323,8 @@ Often you'll want a way to translate from the sort `Bool` in the programming lan
 -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
 
 ```{.k .imp-kat}
-  rule <s> (bool? => #true)  ; _ </s> <execution> <k> true  </k> ... </execution>
-  rule <s> (bool? => #false) ; _ </s> <execution> <k> false </k> ... </execution>
+//  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
+//  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
 endmodule
 ```
 
@@ -348,8 +352,8 @@ module STRATEGY-BIMC
 ```{.k .kat}
   syntax Strategy ::= "record"
 //----------------------------
-  rule <s> (record => skip) ; _ </s> <analysis> T => T ; state S </analysis>
-                                     <execution> S </execution>
+//  rule <s> (record => skip) ; _ </s> <analysis> T => T ; S </analysis>
+//                                     <state> S </state>
 ```
 
 -   `assertion-failure` indicates that the given predicate failed within the execution bound
@@ -394,7 +398,7 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-  rule <s> (bexp? B => eval (state <imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <execution> <mem> MEM </mem> ... </execution>
+//  rule <s> (bexp? B => eval (state <imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <state> <mem> MEM </mem> ... </state>
 endmodule
 ```
 
@@ -472,7 +476,7 @@ The instantiation to IMP is provided.
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
   rule <s> (#subsumed? .Rules => #false)                                                      ; _ </s>
-  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes (state STATE)) or #subsumed? RS) ; _ </s> <execution> STATE </execution>
+//  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes (state STATE)) or #subsumed? RS) ; _ </s> <state> STATE </state>
 ```
 
 At cut-points, we'll finish the rule we've been building, abstract the state, start a building a new rule from that state.
@@ -483,13 +487,13 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 ```{.k .kat}
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < state STATE > </analysis>
-                                         <execution> STATE </execution>
+//  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < state STATE > </analysis>
+//                                         <state> STATE </state>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> state STATE >) </analysis>
-                                         <execution> STATE </execution>
+//  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> state STATE >) </analysis>
+//                                         <state> STATE </state>
 ```
 
 Finally, semantics based compilation is provided as a macro.

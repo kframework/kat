@@ -9,3 +9,4 @@ pandoc-tangle --from markdown --to code-k --code sbc  --strip-text  strategic-an
 
 echo "kompiling ..."
 kompile --debug --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k || exit 1
+#kompile --debug --main-module STRATEGY-IMP --syntax-module STRATEGY-IMP strategy.k || exit 1
