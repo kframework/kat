@@ -15,16 +15,6 @@ requires "kat.k"
 module IMP-KAT
   imports IMP-BIMC
   imports IMP-SBC
-
-
-// Often you'll want a way to translate from the sort `Bool` in the programming
-// language to the sort `Pred` in the strategy language.
-
-// -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
-
-
-//  rule <s> (bool? => #true)  ; _ </s> <state> <k> true  </k> ... </state>
-//  rule <s> (bool? => #false) ; _ </s> <state> <k> false </k> ... </state>
 endmodule
 
 
@@ -58,12 +48,11 @@ endmodule
 
 
 module IMP-BIMC
-  imports IMP
   imports STRATEGY-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-//  rule <s> (bexp? B => eval (state <imp> <k> B </k> <mem> MEM </mem> </imp>)) ; _ </s> <state> <mem> MEM </mem> ... </state>
+//  rule <s> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </s> <state> <mem> MEM </mem> ... </state>
 endmodule
 
 
@@ -148,8 +137,8 @@ module IMP-SBC
 
 // Define `_subsumes_`
 //--------------------
-  rule <s> (state (<imp> <k> KCELL </k> _ </imp>) subsumes state (<imp> <k> KCELL  </k> _ </imp>) => #true)  ; _ </s>
-  rule <s> (state (<imp> <k> KCELL </k> _ </imp>) subsumes state (<imp> <k> KCELL' </k> _ </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
+  rule <s> (state (<imp> <k> KCELL </k> <mem> _ </mem> </imp>) subsumes state (<imp> <k> KCELL  </k> <mem> _ </mem> </imp>) => #true)  ; _ </s>
+  rule <s> (state (<imp> <k> KCELL </k> <mem> _ </mem> </imp>) subsumes state (<imp> <k> KCELL' </k> <mem> _ </mem> </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
 endmodule
 
 

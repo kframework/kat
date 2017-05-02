@@ -7,11 +7,6 @@
 // `strategy` cell, and the program is loaded into the `k` cell in the `imp`
 // execution harness.
 
-// Often you'll want a way to translate from the sort `Bool` in the programming
-// language to the sort `Pred` in the strategy language.
-
-// -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
-
 // Bounded Invariant Model Checking
 // --------------------------------
 
@@ -20,13 +15,13 @@
 
 
 module STRATEGY-BIMC
-  imports STRATEGY-HARNESS
+  imports STRATEGY-IMP
 
   syntax State
   syntax Pred
 
   syntax Trace ::= ".Trace"
-                 | Trace ";" State
+                 | Trace ";" Cell
 
   syntax Analysis ::= Trace
 
@@ -37,8 +32,8 @@ module STRATEGY-BIMC
 
   syntax Strategy ::= "record"
 //----------------------------
-//  rule <s> (record => skip) ; _ </s> <analysis> T => T ; S </analysis>
-//                                     <state> S </state>
+//  rule <s> (record => skip) ; _ </s> <state> <imp> S </imp> </state>
+//                                     <analysis> T => T ; S </analysis>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the
@@ -115,7 +110,7 @@ endmodule
 
 
 module STRATEGY-SBC
-  imports STRATEGY-HARNESS
+  imports STRATEGY-IMP
 
   syntax State
   syntax Pred
@@ -153,8 +148,8 @@ module STRATEGY-SBC
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <s> (#subsumed? .Rules => #false)                                                      ; _ </s>
-//  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes (state STATE)) or #subsumed? RS) ; _ </s> <state> STATE </state>
+  rule <s> (#subsumed? .Rules => #false)                                              ; _ </s>
+  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </s> <state> <imp> STATE </imp> </state>
 
 
 // At cut-points, we'll finish the rule we've been building, abstract the state,
@@ -168,13 +163,13 @@ module STRATEGY-SBC
 
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-//  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < state STATE > </analysis>
-//                                         <state> STATE </state>
+//  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < STATE > </analysis>
+//                                         <state> <imp> STATE </imp> </state>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-//  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> state STATE >) </analysis>
-//                                         <state> STATE </state>
+//  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
+//                                         <state> <imp> STATE </imp> </state>
 
 
 // Finally, semantics based compilation is provided as a macro.
