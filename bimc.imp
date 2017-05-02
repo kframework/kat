@@ -1,6 +1,13 @@
-int n, s ;
+// K Analysis Tools (KAT)
+// ======================
 
-while (0 <= n) {
-  n = n + -1 ;
-  s = s + n ;
-}
+// Bounded Invariant Model Checking
+// --------------------------------
+
+// ### BIMC Examples
+
+
+int x ;
+x = 0 ;
+x = x + 15 ;
+

@@ -409,12 +409,6 @@ Run this with `krun --search bimc.imp`.
 Every solution should be checked for `assertion-failure_` or `assertion-success`.
 
 ```{.imp .bimc .k}
-strategy : { step
-           ; bimc 5 (bexp? (x <= 7))
-           }
-
-=====
-
 int x ;
 x = 0 ;
 x = x + 15 ;
@@ -557,14 +551,10 @@ Execute this test file with `krun --search sbc.imp`.
 Every solution will have it's own trace of generated rules.
 
 ```{.imp .sbc .k}
-strategy : compile
-
-=====
-
-int n s ;
+int n , s ;
 
 while (0 <= n) {
-  n = n - 1 ;
+  n = n + - 1 ;
   s = s + n ;
 }
 ```
