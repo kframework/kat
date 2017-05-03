@@ -17,11 +17,8 @@
 module STRATEGY-BIMC
   imports STRATEGY-IMP
 
-  syntax State
-  syntax Pred
-
   syntax Trace ::= ".Trace"
-                 | Trace ";" Cell
+                 | Trace ";" State
 
   syntax Analysis ::= Trace
 
@@ -32,8 +29,10 @@ module STRATEGY-BIMC
 
   syntax Strategy ::= "record"
 //----------------------------
-//  rule <s> (record => skip) ; _ </s> <imp> S </imp>
-//                                     <analysis> T => T ; S </analysis>
+  rule <strategy>
+       <s> record => skip ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+                                   <analysis> T:Trace => T ; { KCELL | MEM } </analysis>
+       </strategy>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the
@@ -58,10 +57,10 @@ module STRATEGY-BIMC
            => analysis .Trace
              ; record
              ; while N P
-                 { step
+                 ( step
                  ; record
-                 }
-             ; P ; ? assertion-success : assertion-failure P
+                 )
+             ; if P then assertion-success else assertion-failure P
            )
            ...
        </s>
@@ -143,12 +142,12 @@ module STRATEGY-SBC
 
   syntax Pred ::= "subsumed?" | State "subsumes" State
 //----------------------------------------------------
-  rule <s> (subsumed? => #subsumed? RS) ; _ </s> <analysis> RS </analysis>
+  rule <s> subsumed? => #subsumed? RS ... </s> <analysis> RS </analysis>
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <s> (#subsumed? .Rules => #false)                                              ; _ </s>
-  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </s> <imp> STATE </imp>
+  rule <s> #subsumed? .Rules => #false                                                        ... </s>
+  rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes { KCELL | MEM }) or #subsumed? RS ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 
 
 // At cut-points, we'll finish the rule we've been building, abstract the state,
@@ -180,19 +179,19 @@ module STRATEGY-SBC
   syntax Strategy ::= "compile"
 //-----------------------------
   rule <s> ( compile
-          => { analysis .Rules
+          => ( analysis .Rules
              ; abstract
              ; begin-rule
              ; while (not (stuck? or subsumed?))
-                 { step until (stuck? or cut-point?)
+                 ( step until (stuck? or cut-point?)
                  ; end-rule
                  ; abstract
                  ; begin-rule
-                 }
+                 )
              ; end-rule
-             }
+             )
            )
-           ; _
+           ...
        </s>
        <analysis> _ => .Rules </analysis>
 endmodule

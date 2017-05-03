@@ -52,7 +52,7 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-//  rule <s> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </s> <mem> MEM </mem> ...
+//  rule <s> (bexp? B => eval { B | MEM }) ; _ </s> <mem> MEM </mem> ...
 endmodule
 
 
@@ -122,23 +122,23 @@ module IMP-SBC
 
 // Define `cut-point?`
 //--------------------
-  rule <s> (cut-point? => #true)  ; _ </s> <k> while _ _ ... </k>
-  rule <s> (cut-point? => #false) ; _ </s> [owise]
+  rule <s> cut-point? => #true  ... </s> <k> while _ _ ... </k>
+  rule <s> cut-point? => #false ... </s> [owise]
 
 // Define `abstract`
 //------------------
-  rule <s> (abstract => #abstract keys(MEM)) ; _ </s> <mem> MEM </mem>
+  rule <s> abstract => #abstract keys(MEM) ... </s> <mem> MEM </mem>
 
   syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
 //-------------------------------------------------------
-  rule <s> (#abstract .Set            => skip)                                          ; _ </s>
-  rule <s> (#abstract (SetItem(X) XS) => { #abstractKey X ; #abstract XS }) ; _ </s>
-  rule <s> (#abstractKey X => skip) ; _ </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
+  rule <s> #abstract .Set            => skip                          ... </s>
+  rule <s> #abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS ... </s>
+  rule <s> #abstractKey X => skip ... </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
 
 // Define `_subsumes_`
 //--------------------
-  rule <s> (state (<imp> <k> KCELL </k> <mem> _ </mem> </imp>) subsumes state (<imp> <k> KCELL  </k> <mem> _ </mem> </imp>) => #true)  ; _ </s>
-  rule <s> (state (<imp> <k> KCELL </k> <mem> _ </mem> </imp>) subsumes state (<imp> <k> KCELL' </k> <mem> _ </mem> </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
+  rule <s> { KCELL | _ } subsumes { KCELL  | _ } => #true  ... </s>
+  rule <s> { KCELL | _ } subsumes { KCELL' | _ } => #false ... </s> requires KCELL =/=K KCELL'
 endmodule
 
 

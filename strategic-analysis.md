@@ -31,12 +31,11 @@ module IMP
 
   configuration <strategy>
                   initSCell(Init)
-                  <analysis> .Analysis </analysis>
-
                   <imp>
                    <k> $PGM:Stmt </k>
                    <mem> .Map </mem>
                   </imp>
+                  <analysis> .Analysis </analysis>
                 </strategy>
 
   syntax Analysis ::= ".Analysis"
@@ -125,10 +124,11 @@ It has sequencing, choice, and looping (in addition to primitives related to con
 requires "imp.k"
 
 module STRATEGY-IMP
+  imports STRATEGY
   imports IMP
   imports KCELLS
 
-  syntax State    ::= "#current" | Cell
+  syntax State    ::= "#current" | "{" K "|" Map "}"
   syntax Analysis ::= ".Analysis"
 ```
 
@@ -143,16 +143,16 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
                 | "not" Pred | Pred "or" Pred | Pred "and" Pred
 //-------------------------------------------------------------
   rule <s> not P => P ; not #pred ... </s>
-  rule <s> #false ; not #pred => #true  ... </s>
-  rule <s> #true  ; not #pred => #false ... </s>
+  rule <s> #false ~> not #pred => #true  ... </s>
+  rule <s> #true  ~> not #pred => #false ... </s>
 
   rule <s> P or Q => P ; #pred or Q ... </s>
-  rule <s> #true  ; #pred or _ => #true ... </s>
-  rule <s> #false ; #pred or Q => Q     ... </s>
+  rule <s> #true  ~> #pred or _ => #true ... </s>
+  rule <s> #false ~> #pred or Q => Q     ... </s>
 
-  rule <s> P and Q ; S => P ; #pred and Q ... </s>
-  rule <s> #true  ; #pred and Q ; S => Q      ... </s>
-  rule <s> #false ; #pred and _ ; S => #false ... </s>
+  rule <s> P and Q => P ; #pred and Q ... </s>
+  rule <s> #true  ~> #pred and Q => Q      ... </s>
+  rule <s> #false ~> #pred and _ => #false ... </s>
 ```
 
 Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
@@ -181,18 +181,17 @@ The strategy language is a simple imperative language with sequencing and choice
 ```{.k .strategy-lang}
   syntax Strategy ::= Pred
                     | "skip"
-                    | "{" Strategy "}"          [bracket]
                     | "(" Strategy ")"          [bracket]
                     | "?" Strategy ":" Strategy
                     > Strategy "*"
                     > Strategy ";" Strategy     [right]
                     > Strategy "|" Strategy     [right]
 //-----------------------------------------------------
-  rule <s> skip    => .        ... </s> [structural]
-  rule <s> S1 ; S2 => S1 ~> S2 ... </s> [structural]
+  rule <s> skip    => .             ... </s> [structural]
+  rule <s> (S1 ; S2 => S1 ~> S2) ~> _   </s> [structural]
 
-  rule <s> #true  ; ? S : _ => S ... </s> [structural]
-  rule <s> #false ; ? _ : S => S ... </s> [structural]
+  rule <s> #true  ~> ? S : _ => S ... </s> [structural]
+  rule <s> #false ~> ? _ : S => S ... </s> [structural]
 
   rule <s> S*     => try S ; ? S* : skip ... </s> [structural]
   rule <s> S | S' => try S ; ? skip : S' ... </s> [structural]
@@ -208,13 +207,15 @@ Here, a wrapper around this functionality is provided which will try to execute 
 
 ```{.k .strategy-lang}
   syntax priority try_ > _*
-  syntax Strategy ::= "try" Strategy | "#try" State
-//-------------------------------------------------
-  rule <s> try S => S ; #try STATE ... </s> <imp> STATE </imp> [structural]
-  rule <s> #try STATE => #true     ... </s>                    [structural]
+  syntax Strategy  ::= "try" Strategy
+  syntax Exception ::= "#try" State
+//---------------------------------
+  rule <s> try S => S ~> #try { KCELL | MEM } ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp> [structural]
+  rule <s> #try STATE => #true                ... </s>                                              [structural]
 
-  rule <s> #STUCK ~> SA:StrategyApply ~> (#try STATE ; S) => (load STATE ; #false ; S) </s> [structural]
-  rule <s> SA:StrategyApplied => . ... </s>                                                 [structural]
+  rule <s> #STUCK ~> #try STATE => load STATE ; #false ... </s> [structural]
+  rule <s> #STUCK ~> S:Strategy => #STUCK              ... </s> [structural]
+  rule <s> SA:StrategyApplied => . ... </s> [structural]
 ```
 
 Strategies can manipulate the `state` cell (where program execution happens) and the `analysis` cell (a memory/storage for the strategy language).
@@ -225,8 +226,8 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 ```{.k .strategy-lang}
   syntax Strategy ::= "load" State
 //--------------------------------
-  rule <s> load #current => skip ... </s>                         [structural]
-  rule <s> load STATE    => skip ... </s> <imp> _ => STATE </imp> [structural]
+  rule <s> load #current        => skip ... </s>                                                        [structural]
+  rule <s> load { KCELL | MEM } => skip ... </s> <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp> [structural]
 
   syntax Strategy ::= "analysis" Analysis
 //---------------------------------------
@@ -244,7 +245,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 
   syntax Strategy ::= "step" | "#step"
 //------------------------------------
-  rule <s> step => step-with #step ... </s>                           [structural]
+  rule <s> step  => step-with #step                          ... </s> [structural]
   rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if ... </s> [structural]
 ```
 
@@ -257,7 +258,7 @@ Strategy Macros
 ```{.k .strategy-lang}
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> can? S => try S ; ? load STATE ; #true : #false ... </s> <imp> STATE </imp> [structural]
+  rule <s> can? S => try S ; ? load { KCELL | MEM } ; #true : #false ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------
@@ -279,9 +280,9 @@ Strategy Macros
   syntax priority while__ while___ > _*
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
-  rule <s> while   P S => if P then { S ; while            P S } else skip ... </s>                   [structural]
-  rule <s> while 0 P S => skip                                             ... </s>                   [structural]
-  rule <s> while N P S => if P then { S ; while (N -Int 1) P S } else skip ... </s> requires N >Int 0 [structural]
+  rule <s> while   P S => if P then S ; while            P S else skip ... </s>                   [structural]
+  rule <s> while 0 P S => skip                                         ... </s>                   [structural]
+  rule <s> while N P S => if P then S ; while (N -Int 1) P S else skip ... </s> requires N >Int 0 [structural]
 
   syntax priority _until_ _until__ > _*
   syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
@@ -304,8 +305,8 @@ Strategy Macros
   syntax priority eval_ eval__ > _*
   syntax Strategy ::= "eval" State | "eval" Int State
 //---------------------------------------------------
-  rule <s> eval         STATE => exec   STATE ; if bool? then { load STATE' ; #true } else { load STATE' ; #false } ... </s> <imp> STATE' </imp>
-  rule <s> eval (N:Int) STATE => exec N STATE ; if bool? then { load STATE' ; #true } else { load STATE' ; #false } ... </s> <imp> STATE' </imp>
+  rule <s> eval         STATE => exec   STATE ; if bool? then load { KCELL | MEM } ; #true else load { KCELL | MEM } ; #false ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> eval (N:Int) STATE => exec N STATE ; if bool? then load { KCELL | MEM } ; #true else load { KCELL | MEM } ; #false ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 endmodule
 ```
 
@@ -336,11 +337,8 @@ In bounded invariant model checking, the analysis being performed is a trace of 
 module STRATEGY-BIMC
   imports STRATEGY-IMP
 
-  syntax State
-  syntax Pred
-
   syntax Trace ::= ".Trace"
-                 | Trace ";" Cell
+                 | Trace ";" State
 
   syntax Analysis ::= Trace
 ```
@@ -351,8 +349,10 @@ module STRATEGY-BIMC
 ```{.k .kat}
   syntax Strategy ::= "record"
 //----------------------------
-//  rule <s> (record => skip) ; _ </s> <imp> S </imp>
-//                                     <analysis> T => T ; S </analysis>
+  rule <strategy>
+       <s> record => skip ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+                                   <analysis> T:Trace => T ; { KCELL | MEM } </analysis>
+       </strategy>
 ```
 
 -   `assertion-failure` indicates that the given predicate failed within the execution bound
@@ -373,10 +373,10 @@ Performing bounded invariant model checking is a simple macro in our strategy la
            => analysis .Trace
              ; record
              ; while N P
-                 { step
+                 ( step
                  ; record
-                 }
-             ; P ; ? assertion-success : assertion-failure P
+                 )
+             ; if P then assertion-success else assertion-failure P
            )
            ...
        </s>
@@ -395,7 +395,7 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-//  rule <s> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </s> <mem> MEM </mem> ...
+//  rule <s> (bexp? B => eval { B | MEM }) ; _ </s> <mem> MEM </mem> ...
 endmodule
 ```
 
@@ -462,12 +462,12 @@ The instantiation to IMP is provided.
 ```{.k .kat}
   syntax Pred ::= "subsumed?" | State "subsumes" State
 //----------------------------------------------------
-  rule <s> (subsumed? => #subsumed? RS) ; _ </s> <analysis> RS </analysis>
+  rule <s> subsumed? => #subsumed? RS ... </s> <analysis> RS </analysis>
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <s> (#subsumed? .Rules => #false)                                              ; _ </s>
-  rule <s> (#subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS) ; _ </s> <imp> STATE </imp>
+  rule <s> #subsumed? .Rules => #false                                                        ... </s>
+  rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes { KCELL | MEM }) or #subsumed? RS ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 ```
 
 At cut-points, we'll finish the rule we've been building, abstract the state, start a building a new rule from that state.
@@ -495,19 +495,19 @@ Finally, semantics based compilation is provided as a macro.
   syntax Strategy ::= "compile"
 //-----------------------------
   rule <s> ( compile
-          => { analysis .Rules
+          => ( analysis .Rules
              ; abstract
              ; begin-rule
              ; while (not (stuck? or subsumed?))
-                 { step until (stuck? or cut-point?)
+                 ( step until (stuck? or cut-point?)
                  ; end-rule
                  ; abstract
                  ; begin-rule
-                 }
+                 )
              ; end-rule
-             }
+             )
            )
-           ; _
+           ...
        </s>
        <analysis> _ => .Rules </analysis>
 endmodule
@@ -522,23 +522,23 @@ module IMP-SBC
 
 // Define `cut-point?`
 //--------------------
-  rule <s> (cut-point? => #true)  ; _ </s> <k> while _ _ ... </k>
-  rule <s> (cut-point? => #false) ; _ </s> [owise]
+  rule <s> cut-point? => #true  ... </s> <k> while _ _ ... </k>
+  rule <s> cut-point? => #false ... </s> [owise]
 
 // Define `abstract`
 //------------------
-  rule <s> (abstract => #abstract keys(MEM)) ; _ </s> <mem> MEM </mem>
+  rule <s> abstract => #abstract keys(MEM) ... </s> <mem> MEM </mem>
 
   syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
 //-------------------------------------------------------
-  rule <s> (#abstract .Set            => skip)                                          ; _ </s>
-  rule <s> (#abstract (SetItem(X) XS) => { #abstractKey X ; #abstract XS }) ; _ </s>
-  rule <s> (#abstractKey X => skip) ; _ </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
+  rule <s> #abstract .Set            => skip                          ... </s>
+  rule <s> #abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS ... </s>
+  rule <s> #abstractKey X => skip ... </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
 
 // Define `_subsumes_`
 //--------------------
-  rule <s> (state (<imp> <k> KCELL </k> <mem> _ </mem> </imp>) subsumes state (<imp> <k> KCELL  </k> <mem> _ </mem> </imp>) => #true)  ; _ </s>
-  rule <s> (state (<imp> <k> KCELL </k> <mem> _ </mem> </imp>) subsumes state (<imp> <k> KCELL' </k> <mem> _ </mem> </imp>) => #false) ; _ </s> requires KCELL =/=K KCELL'
+  rule <s> { KCELL | _ } subsumes { KCELL  | _ } => #true  ... </s>
+  rule <s> { KCELL | _ } subsumes { KCELL' | _ } => #false ... </s> requires KCELL =/=K KCELL'
 endmodule
 ```
 
