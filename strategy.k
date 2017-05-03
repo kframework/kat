@@ -79,9 +79,8 @@ module STRATEGY-IMP
                     > Strategy ";" Strategy     [right]
                     > Strategy "|" Strategy     [right]
 //-----------------------------------------------------
-  rule <s> skip ; S                 => S ...          </s> [structural]
-  rule <s> ( SA:StrategyApply ) ; S => SA ; S         </s> [structural]
-  rule <s> (S1 ; S2) ; S3           => S1 ; (S2 ; S3) </s> [structural]
+  rule <s> skip    => .        ... </s> [structural]
+  rule <s> S1 ; S2 => S1 ~> S2 ... </s> [structural]
 
   rule <s> #true  ; ? S : _ => S ... </s> [structural]
   rule <s> #false ; ? _ : S => S ... </s> [structural]
@@ -108,7 +107,6 @@ module STRATEGY-IMP
   rule <s> try S => S ; #try STATE ... </s> <imp> STATE </imp> [structural]
   rule <s> #try STATE => #true     ... </s>                    [structural]
 
-  rule <s> ^ RT ; S => ^ RT ~> S ... </s>                                                   [structural]
   rule <s> #STUCK ~> SA:StrategyApply ~> (#try STATE ; S) => (load STATE ; #false ; S) </s> [structural]
   rule <s> SA:StrategyApplied => . ... </s>                                                 [structural]
 
@@ -157,31 +155,39 @@ module STRATEGY-IMP
 
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> (can? S => try S ; ? load STATE ; #true : #false) ; _ </s> <imp> STATE </imp> [structural]
+  rule <s> can? S => try S ; ? load STATE ; #true : #false ... </s> <imp> STATE </imp> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------
-  rule <s> (stuck? => not can? step) ; _ </s> [structural]
+  rule <s> stuck? => not can? step ... </s> [structural]
+
+
+
+  syntax priority if_then_else_ > _*
+  syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
+//-------------------------------------------------------------
+  rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s> [structural]
+  
 
 
 // -   `while__` allows looping behavior (controlled by sort `Pred`), and
 //     `while___` implements a bounded version.
-// -   `step-until_` will execute until a predicate holds, and `step-until__`
-//     implements a bounded version.
+// -   `_until_` will execute the given strategy until a predicate holds, and
+//     `_until__` implements a bounded version.
 
 
   syntax priority while__ while___ > _*
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
-  rule <s> (while   P S => P ; (? S ; while P S : skip)) ; _ </s> [structural]
-  rule <s> (while 0 P S => skip) ; _ </s> [structural]
-  rule <s> (while N P S => P ; (? S ; while (N -Int 1) P S : skip)) ; _ </s> requires N >Int 0 [structural]
+  rule <s> while   P S => if P then { S ; while            P S } else skip ... </s>                   [structural]
+  rule <s> while 0 P S => skip                                             ... </s>                   [structural]
+  rule <s> while N P S => if P then { S ; while (N -Int 1) P S } else skip ... </s> requires N >Int 0 [structural]
 
-  syntax priority step-until_ step-until__ > _*
-  syntax Strategy ::= "step-until" Pred | "step-until" Int Pred
-//-------------------------------------------------------------
-  rule <s> (step-until   P => while   (not P) step) ; _ </s>                   [structural]
-  rule <s> (step-until N P => while N (not P) step) ; _ </s> requires N >Int 0 [structural]
+  syntax priority _until_ _until__ > _*
+  syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
+//---------------------------------------------------------------------
+  rule <s> S until   P => while   (not P) S ... </s>                   [structural]
+  rule <s> S until N P => while N (not P) S ... </s> requires N >Int 0 [structural]
 
 
 // -   `exec_` executes the given state to completion, and `exec__` implements a
@@ -193,13 +199,13 @@ module STRATEGY-IMP
   syntax priority exec_ exec__ > _*
   syntax Strategy ::= "exec" State | "exec" Int State
 //---------------------------------------------------
-  rule <s> (exec         STATE => load STATE ; step-until   stuck?) ; _ </s>
-  rule <s> (exec (N:Int) STATE => load STATE ; step-until N stuck?) ; _ </s>
+  rule <s> exec         STATE => load STATE ; step until   stuck? ... </s>
+  rule <s> exec (N:Int) STATE => load STATE ; step until N stuck? ... </s>
 
   syntax priority eval_ eval__ > _*
   syntax Strategy ::= "eval" State | "eval" Int State
 //---------------------------------------------------
-  rule <s> (eval         STATE => exec   STATE ; bool? ; ? { load STATE' ; #true } : { load STATE' ; #false }) ; _ </s> <imp> STATE' </imp>
-  rule <s> (eval (N:Int) STATE => exec N STATE ; bool? ; ? { load STATE' ; #true } : { load STATE' ; #false }) ; _ </s> <imp> STATE' </imp>
+  rule <s> eval         STATE => exec   STATE ; if bool? then { load STATE' ; #true } else { load STATE' ; #false } ... </s> <imp> STATE' </imp>
+  rule <s> eval (N:Int) STATE => exec N STATE ; if bool? then { load STATE' ; #true } else { load STATE' ; #false } ... </s> <imp> STATE' </imp>
 endmodule
 

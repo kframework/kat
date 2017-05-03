@@ -55,16 +55,15 @@ module STRATEGY-BIMC
   syntax Strategy ::= "bimc" Int Pred
 //-----------------------------------
   rule <s> ( bimc N P
-           => { analysis .Trace
-              ; record
-              ; while N P
-                  { step
-                  ; record
-                  }
-              ; P ; ? assertion-success : assertion-failure P
-              }
+           => analysis .Trace
+             ; record
+             ; while N P
+                 { step
+                 ; record
+                 }
+             ; P ; ? assertion-success : assertion-failure P
            )
-           ; _
+           ...
        </s>
 endmodule
 
@@ -185,7 +184,7 @@ module STRATEGY-SBC
              ; abstract
              ; begin-rule
              ; while (not (stuck? or subsumed?))
-                 { step-until (stuck? or cut-point?)
+                 { step until (stuck? or cut-point?)
                  ; end-rule
                  ; abstract
                  ; begin-rule
