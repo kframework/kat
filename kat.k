@@ -17,8 +17,11 @@
 module STRATEGY-BIMC
   imports STRATEGY-IMP
 
+  syntax State
+  syntax Pred
+
   syntax Trace ::= ".Trace"
-                 | Trace ";" State
+                 | Trace ";" Cell
 
   syntax Analysis ::= Trace
 
@@ -29,10 +32,8 @@ module STRATEGY-BIMC
 
   syntax Strategy ::= "record"
 //----------------------------
-  rule <strategy>
-       <s> record => skip ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-                                   <analysis> T:Trace => T ; { KCELL | MEM } </analysis>
-       </strategy>
+//  rule <s> (record => skip) ... </s> <imp> S </imp>
+//                                     <analysis> T => T ; S </analysis>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the

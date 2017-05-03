@@ -31,11 +31,12 @@ module IMP
 
   configuration <strategy>
                   initSCell(Init)
+                  <analysis> .Analysis </analysis>
+
                   <imp>
                    <k> $PGM:Stmt </k>
                    <mem> .Map </mem>
                   </imp>
-                  <analysis> .Analysis </analysis>
                 </strategy>
 
   syntax Analysis ::= ".Analysis"
@@ -337,8 +338,11 @@ In bounded invariant model checking, the analysis being performed is a trace of 
 module STRATEGY-BIMC
   imports STRATEGY-IMP
 
+  syntax State
+  syntax Pred
+
   syntax Trace ::= ".Trace"
-                 | Trace ";" State
+                 | Trace ";" Cell
 
   syntax Analysis ::= Trace
 ```
@@ -349,10 +353,8 @@ module STRATEGY-BIMC
 ```{.k .kat}
   syntax Strategy ::= "record"
 //----------------------------
-  rule <strategy>
-       <s> record => skip ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-                                   <analysis> T:Trace => T ; { KCELL | MEM } </analysis>
-       </strategy>
+//  rule <s> (record => skip) ... </s> <imp> S </imp>
+//                                     <analysis> T => T ; S </analysis>
 ```
 
 -   `assertion-failure` indicates that the given predicate failed within the execution bound
