@@ -52,7 +52,7 @@ module IMP-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-//  rule <s> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </s> <state> <mem> MEM </mem> ... </state>
+//  rule <s> (bexp? B => eval (<k> B </k> <mem> MEM </mem>)) ; _ </s> <mem> MEM </mem> ...
 endmodule
 
 

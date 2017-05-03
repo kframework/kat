@@ -13,13 +13,20 @@
 
 module IMP
   imports MAP
+  imports STRATEGY
 
-  configuration <imp>
-                  <k> $PGM:Stmt </k>
-                  <mem> .Map </mem>
-                </imp>
+  configuration <strategy>
+                  initSCell(Init)
+                  <analysis> .Analysis </analysis>
 
-  syntax KResult ::= Int | Bool
+                  <imp>
+                   <k> $PGM:Stmt </k>
+                   <mem> .Map </mem>
+                  </imp>
+                </strategy>
+
+  syntax Analysis ::= ".Analysis"
+  syntax KResult  ::= Int | Bool
 
 
 // ### Expressions
