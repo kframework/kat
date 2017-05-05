@@ -109,6 +109,11 @@ The module `IMP-KAT` includes all the supported analysis for the IMP language.
 requires "imp.k"
 requires "kat.k"
 
+module IMP-ANALYSIS
+  imports IMP-BIMC
+  imports IMP-SBC
+endmodule
+
 module IMP-KAT
   imports IMP
   imports KAT
@@ -136,14 +141,6 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 ```{.k .imp-kat}
   rule <s> bool? [ { true  | _ } ] => #true  ... </s> [structural]
   rule <s> bool? [ { false | _ } ] => #false ... </s> [structural]
-```
-
-### Loading Strategy from File
-
-```{.k .imp-kat}
-  syntax Stmt ::= "strategy" ":" Strategy "=====" Stmt
-//----------------------------------------------------
-  rule <s> _ => STRATEGY </s> <k> strategy : STRATEGY ===== PGM => PGM </k>
 endmodule
 ```
 
@@ -185,7 +182,7 @@ SBC
 
 ```{.k .imp-kat}
 module IMP-SBC
-  imports IMP
+  imports IMP-KAT
   imports KAT-SBC
 ```
 
@@ -194,8 +191,7 @@ module IMP-SBC
 IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
 
 ```{.k .imp-kat}
-  rule <s> cut-point? [ { while _ _ ... | MEM } ] => #true  ... </s> [structural]
-  rule <s> cut-point? [ STATE                   ] => #false ... </s> [owise, structural]
+  rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ while) ... </s> [structural]
 ```
 
 ### Define `abstract`
@@ -228,12 +224,15 @@ Execute this test file with `krun --search sbc.imp`.
 Every solution will have it's own trace of generated rules.
 
 ```{.imp .sbc .k}
-int n , s ;
+int n , s , x;
 
+s = 0 ;
 while (0 <= n) {
   n = n + -1 ;
   s = s + n ;
 }
+
+x = 0 ;
 ```
 
 ### Exmaple (Collatz)

@@ -16,10 +16,13 @@
 // it's own trace of generated rules.
 
 
-int n , s ;
+int n , s , x;
 
+s = 0 ;
 while (0 <= n) {
   n = n + -1 ;
   s = s + n ;
 }
+
+x = 0 ;
 

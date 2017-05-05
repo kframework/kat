@@ -225,8 +225,8 @@ Strategy Macros
   syntax priority _until_ _until__ > _*
   syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
 //---------------------------------------------------------------------
-  rule <s> S until   P => while   (not P) S ... </s>                   [structural]
-  rule <s> S until N P => while N (not P) S ... </s> requires N >Int 0 [structural]
+  rule <s> S until   P => while   (not P) S ... </s> [structural]
+  rule <s> S until N P => while N (not P) S ... </s> [structural]
 ```
 
 -   `exec` executes the given state to completion, and `exec_` implements a bounded version.

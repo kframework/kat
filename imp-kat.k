@@ -11,6 +11,11 @@
 requires "imp.k"
 requires "kat.k"
 
+module IMP-ANALYSIS
+  imports IMP-BIMC
+  imports IMP-SBC
+endmodule
+
 module IMP-KAT
   imports IMP
   imports KAT
@@ -39,14 +44,6 @@ module IMP-KAT
 
   rule <s> bool? [ { true  | _ } ] => #true  ... </s> [structural]
   rule <s> bool? [ { false | _ } ] => #false ... </s> [structural]
-
-
-// ### Loading Strategy from File
-
-
-  syntax Stmt ::= "strategy" ":" Strategy "=====" Stmt
-//----------------------------------------------------
-  rule <s> _ => STRATEGY </s> <k> strategy : STRATEGY ===== PGM => PGM </k>
 endmodule
 
 
@@ -85,7 +82,7 @@ endmodule
 
 
 module IMP-SBC
-  imports IMP
+  imports IMP-KAT
   imports KAT-SBC
 
 
@@ -95,8 +92,7 @@ module IMP-SBC
 // execution of IMP to terminate.
 
 
-  rule <s> cut-point? [ { while _ _ ... | MEM } ] => #true  ... </s> [structural]
-  rule <s> cut-point? [ STATE                   ] => #false ... </s> [owise, structural]
+  rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ while) ... </s> [structural]
 
 
 // ### Define `abstract`
