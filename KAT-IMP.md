@@ -159,14 +159,22 @@ SBC
 module IMP-SBC
   imports IMP
   imports KAT-SBC
+```
 
-// Define `cut-point?`
-//--------------------
+### Define `cut-point?`
+
+IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
+
+```{.k .imp-kat}
   rule <s> cut-point? => #true  ... </s> <k> while _ _ ... </k>
   rule <s> cut-point? => #false ... </s> [owise]
+```
 
-// Define `abstract`
-//------------------
+### Define `abstract`
+
+IMP will abstract by turning all the values in memory into fresh symbolic values.
+
+```{.k .imp-kat}
   rule <s> abstract => #abstract keys(MEM) ... </s> <mem> MEM </mem>
 
   syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
@@ -174,9 +182,13 @@ module IMP-SBC
   rule <s> #abstract .Set            => skip                          ... </s>
   rule <s> #abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS ... </s>
   rule <s> #abstractKey X => skip ... </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
+```
 
-// Define `_subsumes_`
-//--------------------
+### Define `_subsumes_`
+
+Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
+
+```{.k .imp-kat}
   rule <s> (<k> KCELL </k> <mem> _ </mem>) subsumes (<k> KCELL  </k> <mem> _ </mem>) => #true  ... </s>
   rule <s> (<k> KCELL </k> <mem> _ </mem>) subsumes (<k> KCELL' </k> <mem> _ </mem>) => #false ... </s> requires KCELL =/=K KCELL'
 endmodule

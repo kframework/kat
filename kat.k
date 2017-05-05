@@ -58,6 +58,26 @@ module KAT
   rule <s> bool? => #false ... </s> <k> false </k>
 
 
+// The current K backend will place the token `#STUCK` at the front of the `s` cell
+// when execution cannot continue. Here, a wrapper around this functionality is
+// provided which will try to execute the given strategy and will roll back the
+// state on failure.
+
+// -   `try?_` executes a given strategy, placing `#true` on strategy cell if it
+//     succeeds and `#false` otherwise.
+
+
+  syntax Pred      ::= "try?" Strategy
+  syntax Exception ::= "#try" State
+//---------------------------------
+  rule <s> try? S => S ~> #try STATE ... </s> <imp> STATE </imp> [structural]
+  rule <s> #try STATE => #true       ... </s>                    [structural]
+
+  rule <s> #STUCK ~> #try STATE => load STATE ; #false ... </s> [structural]
+  rule <s> #STUCK ~> S:Strategy => #STUCK              ... </s> [structural]
+  rule <s> SA:StrategyApplied => . ... </s> [structural]
+
+
 // Strategy Statements
 // -------------------
 
@@ -77,7 +97,7 @@ module KAT
 
 
   syntax Strategy ::= Pred
-                    | "skip"
+                    > "skip"
                     | "(" Strategy ")"          [bracket]
                     | "?" Strategy ":" Strategy
                     > Strategy "*"
@@ -90,33 +110,12 @@ module KAT
   rule <s> #true  ~> ? S : _ => S ... </s> [structural]
   rule <s> #false ~> ? _ : S => S ... </s> [structural]
 
-  rule <s> S*     => try S ; ? S* : skip ... </s> [structural]
-  rule <s> S | S' => try S ; ? skip : S' ... </s> [structural]
+  rule <s> S*     => (try? S) ; ? S* : skip ... </s> [structural]
+  rule <s> S | S' => (try? S) ; ? skip : S' ... </s> [structural]
 
 
 // Strategy Primitives
 // -------------------
-
-// The current K backend will place the token `#STUCK` at the front of the `s` cell
-// when execution cannot continue. Here, a wrapper around this functionality is
-// provided which will try to execute the given strategy and will roll back the
-// state on failure.
-
-// -   `try_` executes a given strategy, placing `#true` on strategy cell if it
-//     succeeds and `#false` otherwise.
-
-
-  syntax priority try_ > _*
-  syntax Strategy  ::= "try" Strategy
-  syntax Exception ::= "#try" State
-//---------------------------------
-  rule <s> try S => S ~> #try STATE ... </s> <imp> STATE </imp> [structural]
-  rule <s> #try STATE => #true                ... </s>          [structural]
-
-  rule <s> #STUCK ~> #try STATE => load STATE ; #false ... </s> [structural]
-  rule <s> #STUCK ~> S:Strategy => #STUCK              ... </s> [structural]
-  rule <s> SA:StrategyApplied => . ... </s> [structural]
-
 
 // Strategies can manipulate the `state` cell (where program execution happens) and
 // the `analysis` cell (a memory/storage for the strategy language).
@@ -162,7 +161,7 @@ module KAT
 
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> can? S => try S ; ? load STATE ; #true : #false ... </s> <imp> STATE </imp> [structural]
+  rule <s> can? S => (try? S) ; ? load STATE ; #true : #false ... </s> <imp> STATE </imp> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------
@@ -174,7 +173,6 @@ module KAT
   syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
 //-------------------------------------------------------------
   rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s> [structural]
-  
 
 
 // -   `while__` allows looping behavior (controlled by sort `Pred`), and
@@ -220,11 +218,9 @@ endmodule
 // K Analysis Toolset (KAT)
 // ========================
 
-// These modules define the "interfaces" to various analysis, and provide the
-// implementation of those interfaces for IMP. The syntax `strategy :_=====_`
-// allows specifying a strategy and a program. The strategy is loaded into the
-// `strategy` cell, and the program is loaded into the `k` cell in the `imp`
-// execution harness.
+// KAT is a set of formal analysis tools which can be instantiated (as needed) to
+// your programming language. Each tool has a well defined interface in terms of
+// the predicates and operations you must provide over your languages state.
 
 // Bounded Invariant Model Checking
 // --------------------------------
@@ -242,7 +238,6 @@ module KAT-BIMC
   syntax Analysis ::= Trace
 
 
-// -   `analysis-trace` sets the current analysis to a `Trace`.
 // -   `record` copies the current execution state to the end of the trace.
 
 
@@ -252,32 +247,20 @@ module KAT-BIMC
                                    <analysis> T => T ; STATE </analysis>
 
 
-// -   `assertion-failure` indicates that the given predicate failed within the
-//     execution bound
-// -   `assertion-success` inidicates that either the depth bound has been reached,
-//     or execution has terminated
-
-
-  syntax Strategy ::= "assertion-failure" Pred | "assertion-success"
-
-
-// Performing bounded invariant model checking is a simple macro in our strategy
-// language.
+// Performing bounded invariant model checking is a simple predicate in our
+// strategy language.
 
 // -   `bimc` checks that the predicate holds for each step up to a
 //     search-depth bound.
 
 
-  syntax Strategy ::= "bimc" Int Pred
-//-----------------------------------
+  syntax Pred ::= "bimc" Int Pred
+//-------------------------------
   rule <s> ( bimc N P
            => analysis .Trace
-             ; record
-             ; while N P
-                 ( step
-                 ; record
-                 )
-             ; if P then assertion-success else assertion-failure P
+            ; record
+            ; (step ; record) until N (not P)
+            ; P
            )
            ...
        </s>
@@ -322,7 +305,7 @@ module KAT-SBC
 
 
 // The interface of this analysis requires you define when to abstract and how to
-// abstract. The instantiation to IMP is provided.
+// abstract.
 
 // -   `cut-point?` is a predicate that should hold when abstraction should occur.
 // -   `abstract` is an operator than should abstract away enough details of the
@@ -330,7 +313,11 @@ module KAT-SBC
 //     not to destroy all information collected about the state in this execution.
 
 
-  syntax Pred ::= "cut-point?" | "abstract"
+  syntax Pred ::= "cut-point?"
+//----------------------------
+
+  syntax Strategy ::= "abstract"
+//------------------------------
 
 
 // -   `subsumed?` is a predicate that checks if any of the left-hand sides of the
@@ -378,17 +365,16 @@ module KAT-SBC
   syntax Strategy ::= "compile"
 //-----------------------------
   rule <s> ( compile
-          => ( analysis .Rules
-             ; abstract
-             ; begin-rule
-             ; while (not (stuck? or subsumed?))
-                 ( step until (stuck? or cut-point?)
-                 ; end-rule
-                 ; abstract
-                 ; begin-rule
-                 )
-             ; end-rule
-             )
+          => analysis .Rules
+           ; abstract
+           ; begin-rule
+           ; while (not (stuck? or subsumed?))
+               ( step until (stuck? or cut-point?)
+               ; end-rule
+               ; abstract
+               ; begin-rule
+               )
+           ; end-rule
            )
            ...
        </s>
