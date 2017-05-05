@@ -171,12 +171,9 @@ Here we check the property `x <= 7` for 5 steps of execution after the code has 
 Run this with `krun --search bimc.imp`.
 
 ```{.imp .bimc .k}
-strategy : skip
-===== {
-    int x ;
-    x = 0 ;
-    x = x + 15 ;
-}
+int x ;
+x = 0 ;
+x = x + 15 ;
 ```
 
 ### Example (Bound Reached)

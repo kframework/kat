@@ -23,10 +23,7 @@
 // `krun --search bimc.imp`.
 
 
-strategy : skip
-===== {
-    int x ;
-    x = 0 ;
-    x = x + 15 ;
-}
+int x ;
+x = 0 ;
+x = x + 15 ;
 
