@@ -1,16 +1,25 @@
-// K Analysis Tools (KAT)
-// ======================
+// Instantiation of KAT
+// ====================
 
-// Semantics Based Compilation
-// ---------------------------
+// The KAT requires some programming-language specific information to work.
+// Instantiation of the progamming language to KAT should happen with the language
+// semantics on an as-needed basis.
 
-// ### SBC Examples
+// The module `IMP-KAT` includes all the supported analysis for the IMP language.
+
+// SBC
+// ---
+
+// ### Example (Single Loop)
+
+// Execute this test file with `krun --search sbc.imp`. Every solution will have
+// it's own trace of generated rules.
 
 
 int n , s ;
 
 while (0 <= n) {
-  n = n + - 1 ;
+  n = n + -1 ;
   s = s + n ;
 }
 

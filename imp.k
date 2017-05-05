@@ -16,13 +16,11 @@ module IMP
   imports MAP
   imports STRATEGY
 
+  configuration <imp>
+                  <k> $PGM:Stmt </k>
+                  <mem> .Map </mem>
+                </imp>
 
-   configuration <imp>
-                   <k> $PGM:Stmt </k>
-                   <mem> .Map </mem>
-                 </imp>
-
-  syntax Analysis ::= ".Analysis"
   syntax KResult  ::= Int | Bool
 
 
@@ -81,10 +79,7 @@ module IMP
   rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
-  rule <k> int (X,Xs => Xs) ; ... </k>
-       <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
-    requires notBool (X in keys(Rho))
-    [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem> requires notBool (X in keys(Rho)) [structural]
 
 
 // Semantics

@@ -12,18 +12,41 @@ requires "imp.k"
 requires "kat.k"
 
 module IMP-KAT
-  imports IMP-BIMC
-  imports IMP-SBC
+  imports IMP
+  imports KAT
+
+
+// ### Define `push` and `pop`
+
+// Here the definition of a `State` for IMP is given, as well as the definitions of
+// how to `push` and `pop` states.
+
 
   syntax State ::= "{" K "|" Map "}"
+//----------------------------------
+  rule <s> push                => push { KCELL | MEM } ... </s> <imp> <k> KCELL      </k> <mem> MEM      </mem> </imp> [structural]
+  rule <s> pop { KCELL | MEM } => .                    ... </s> <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp> [structural]
+
+
+// ### Define `#step`
+
 
   rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if ... </s> [structural]
-  rule <s> push => push { KCELL | MEM } ... </s>
-       <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-    [structural]
-  rule <s> pop { KCELL | MEM } => . ... </s>
-       <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp>
-    [structural]
+
+
+// ### Define `bool?`
+
+
+  rule <s> bool? [ { true  | _ } ] => #true  ... </s> [structural]
+  rule <s> bool? [ { false | _ } ] => #false ... </s> [structural]
+
+
+// ### Loading Strategy from File
+
+
+  syntax Stmt ::= "strategy" ":" Strategy "=====" Stmt
+//----------------------------------------------------
+  rule <s> _ => STRATEGY </s> <k> strategy : STRATEGY ===== PGM => PGM </k>
 endmodule
 
 
@@ -38,15 +61,12 @@ endmodule
 
 
 module IMP-BIMC
-  imports IMP
+  imports IMP-KAT
   imports KAT-BIMC
 
-  syntax Pred ::= "bexp?" BExp | "#bexp?" BExp
-//--------------------------------------------
-  rule <s> bexp? B => push ; #bexp? B ... </s> [structural]
-  rule <s> #bexp? B => eval ... </s>
-       <states> { _ => B | MEM } : STATES </states>
-    [structural]
+  syntax StatePred ::= "bexp?" BExp
+//---------------------------------
+  rule <s> bexp? B [ { _ | MEM } ] => pop { B | MEM } ; eval ... </s> [structural]
 endmodule
 
 
@@ -75,8 +95,8 @@ module IMP-SBC
 // execution of IMP to terminate.
 
 
-  rule <s> cut-point? => #true  ... </s> <k> while _ _ ... </k> [structural]
-  rule <s> cut-point? => #false ... </s>                        [owise, structural]
+  rule <s> cut-point? [ { while _ _ ... | MEM } ] => #true  ... </s> [structural]
+  rule <s> cut-point? [ STATE                   ] => #false ... </s> [owise, structural]
 
 
 // ### Define `abstract`
@@ -85,13 +105,13 @@ module IMP-SBC
 // values.
 
 
-  rule <s> abstract => #abstract keys(MEM) ... </s> <mem> MEM </mem> [structural]
+  syntax Strategy ::= "#abstract" Set State | "#abstractKey" Id Set State
+//-----------------------------------------------------------------------
+  rule <s> abstract [ { KCELL | MEM } ] => #abstract keys(MEM) { KCELL | MEM } ... </s> [structural]
+  rule <s> #abstract .Set STATE         => pop STATE                           ... </s> [structural]
 
-  syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
-//-------------------------------------------------------
-  rule <s> #abstract .Set            => skip                             ... </s>   [structural]
-  rule <s> #abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS    ... </s>   [structural]
-  rule <s> #abstractKey X => skip ... </s> <mem> ... X |-> (_ => ?V:Int) ... </mem> [structural]
+  rule <s> #abstract (SetItem(X) XS) STATE   => #abstractKey X XS STATE                   ... </s> [structural]
+  rule <s> #abstractKey X XS { KCELL | MEM } => #abstract XS { KCELL | MEM[X <- ?V:Int] } ... </s> [structural]
 
 
 // ### Define `_subsumes_`
@@ -100,8 +120,8 @@ module IMP-SBC
 // enough to check that the `k` cell is identical for subsumption.
 
 
-  rule <s> { KCELL | _ } subsumes { KCELL  | _ } => #true  ... </s>                            [structural]
-  rule <s> { KCELL | _ } subsumes { KCELL' | _ } => #false ... </s> requires KCELL =/=K KCELL' [structural]
+  rule <s> { KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>                            [structural]
+  rule <s> { KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL' [structural]
 endmodule
 
 

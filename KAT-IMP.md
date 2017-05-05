@@ -15,13 +15,11 @@ module IMP
   imports MAP
   imports STRATEGY
 
+  configuration <imp>
+                  <k> $PGM:Stmt </k>
+                  <mem> .Map </mem>
+                </imp>
 
-   configuration <imp>
-                   <k> $PGM:Stmt </k>
-                   <mem> .Map </mem>
-                 </imp>
-
-  syntax Analysis ::= ".Analysis"
   syntax KResult  ::= Int | Bool
 ```
 
@@ -79,10 +77,7 @@ IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for assign
   rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
-  rule <k> int (X,Xs => Xs) ; ... </k>
-       <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
-    requires notBool (X in keys(Rho))
-    [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem> requires notBool (X in keys(Rho)) [structural]
 ```
 
 Semantics
@@ -115,18 +110,40 @@ requires "imp.k"
 requires "kat.k"
 
 module IMP-KAT
-  imports IMP-BIMC
-  imports IMP-SBC
+  imports IMP
+  imports KAT
+```
 
+### Define `push` and `pop`
+
+Here the definition of a `State` for IMP is given, as well as the definitions of how to `push` and `pop` states.
+
+```{.k .imp-kat}
   syntax State ::= "{" K "|" Map "}"
+//----------------------------------
+  rule <s> push                => push { KCELL | MEM } ... </s> <imp> <k> KCELL      </k> <mem> MEM      </mem> </imp> [structural]
+  rule <s> pop { KCELL | MEM } => .                    ... </s> <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp> [structural]
+```
 
+### Define `#step`
+
+```{.k .imp-kat}
   rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if ... </s> [structural]
-  rule <s> push => push { KCELL | MEM } ... </s>
-       <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-    [structural]
-  rule <s> pop { KCELL | MEM } => . ... </s>
-       <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp>
-    [structural]
+```
+
+### Define `bool?`
+
+```{.k .imp-kat}
+  rule <s> bool? [ { true  | _ } ] => #true  ... </s> [structural]
+  rule <s> bool? [ { false | _ } ] => #false ... </s> [structural]
+```
+
+### Loading Strategy from File
+
+```{.k .imp-kat}
+  syntax Stmt ::= "strategy" ":" Strategy "=====" Stmt
+//----------------------------------------------------
+  rule <s> _ => STRATEGY </s> <k> strategy : STRATEGY ===== PGM => PGM </k>
 endmodule
 ```
 
@@ -139,15 +156,12 @@ Here we provide a way to make queries about the current IMP memory using IMP's `
 
 ```{.k .imp-kat}
 module IMP-BIMC
-  imports IMP
+  imports IMP-KAT
   imports KAT-BIMC
 
-  syntax Pred ::= "bexp?" BExp | "#bexp?" BExp
-//--------------------------------------------
-  rule <s> bexp? B => push ; #bexp? B ... </s> [structural]
-  rule <s> #bexp? B => eval ... </s>
-       <states> { _ => B | MEM } : STATES </states>
-    [structural]
+  syntax StatePred ::= "bexp?" BExp
+//---------------------------------
+  rule <s> bexp? B [ { _ | MEM } ] => pop { B | MEM } ; eval ... </s> [structural]
 endmodule
 ```
 
@@ -157,9 +171,12 @@ Here we check the property `x <= 7` for 5 steps of execution after the code has 
 Run this with `krun --search bimc.imp`.
 
 ```{.imp .bimc .k}
-int x ;
-x = 0 ;
-x = x + 15 ;
+strategy : skip
+===== {
+    int x ;
+    x = 0 ;
+    x = x + 15 ;
+}
 ```
 
 ### Example (Bound Reached)
@@ -180,8 +197,8 @@ module IMP-SBC
 IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
 
 ```{.k .imp-kat}
-  rule <s> cut-point? => #true  ... </s> <k> while _ _ ... </k> [structural]
-  rule <s> cut-point? => #false ... </s>                        [owise, structural]
+  rule <s> cut-point? [ { while _ _ ... | MEM } ] => #true  ... </s> [structural]
+  rule <s> cut-point? [ STATE                   ] => #false ... </s> [owise, structural]
 ```
 
 ### Define `abstract`
@@ -189,13 +206,13 @@ IMP will have a cut-point at the beginning of every `while` loop, allowing every
 IMP will abstract by turning all the values in memory into fresh symbolic values.
 
 ```{.k .imp-kat}
-  rule <s> abstract => #abstract keys(MEM) ... </s> <mem> MEM </mem> [structural]
+  syntax Strategy ::= "#abstract" Set State | "#abstractKey" Id Set State
+//-----------------------------------------------------------------------
+  rule <s> abstract [ { KCELL | MEM } ] => #abstract keys(MEM) { KCELL | MEM } ... </s> [structural]
+  rule <s> #abstract .Set STATE         => pop STATE                           ... </s> [structural]
 
-  syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
-//-------------------------------------------------------
-  rule <s> #abstract .Set            => skip                             ... </s>   [structural]
-  rule <s> #abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS    ... </s>   [structural]
-  rule <s> #abstractKey X => skip ... </s> <mem> ... X |-> (_ => ?V:Int) ... </mem> [structural]
+  rule <s> #abstract (SetItem(X) XS) STATE   => #abstractKey X XS STATE                   ... </s> [structural]
+  rule <s> #abstractKey X XS { KCELL | MEM } => #abstract XS { KCELL | MEM[X <- ?V:Int] } ... </s> [structural]
 ```
 
 ### Define `_subsumes_`
@@ -203,8 +220,8 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
 
 ```{.k .imp-kat}
-  rule <s> { KCELL | _ } subsumes { KCELL  | _ } => #true  ... </s>                            [structural]
-  rule <s> { KCELL | _ } subsumes { KCELL' | _ } => #false ... </s> requires KCELL =/=K KCELL' [structural]
+  rule <s> { KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>                            [structural]
+  rule <s> { KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL' [structural]
 endmodule
 ```
 
@@ -217,7 +234,7 @@ Every solution will have it's own trace of generated rules.
 int n , s ;
 
 while (0 <= n) {
-  n = n + - 1 ;
+  n = n + -1 ;
   s = s + n ;
 }
 ```

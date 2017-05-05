@@ -2,6 +2,8 @@
 
 pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
 pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
+pandoc-tangle --from markdown --to code-k --code bimc     KAT-IMP.md > bimc.imp
+pandoc-tangle --from markdown --to code-k --code sbc      KAT-IMP.md > sbc.imp
 
 pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
 
