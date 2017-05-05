@@ -5,7 +5,8 @@
 // tutorial](www.kframework.org/index.php/K_Tutorial). Refer there for a more
 // detailed explanation of the language.
 
-// ### Configuration
+// Configuration
+// -------------
 
 // The IMP language has a `k` cell for execution and a `mem` cell for storage. In
 // IMP, base values are of sorts `Int` and `Bool`.
@@ -15,20 +16,18 @@ module IMP
   imports MAP
   imports STRATEGY
 
-  configuration <strategy>
-                  initSCell(Init)
-                  <imp>
+
+   configuration <imp>
                    <k> $PGM:Stmt </k>
                    <mem> .Map </mem>
-                  </imp>
-                  <analysis> .Analysis </analysis>
-                </strategy>
+                 </imp>
 
   syntax Analysis ::= ".Analysis"
   syntax KResult  ::= Int | Bool
 
 
-// ### Expressions
+// Expressions
+// -----------
 
 // IMP has `AExp` for arithmetic expressions (over integers).
 
@@ -57,7 +56,8 @@ module IMP
   rule false && _ => false
 
 
-// ### Statements
+// Statements
+// ----------
 
 // IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for
 // assignment, and `while(_)_` for looping.
@@ -85,7 +85,8 @@ module IMP
     requires notBool (X in keys(Rho))
 
 
-// ### Semantics
+// Semantics
+// ---------
 
 // All the rules above are "regular" rules, not to be considered transition steps
 // by analysis tools. The rules below are named (with the attribute `tag`) so that

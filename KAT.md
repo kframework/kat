@@ -1,118 +1,17 @@
 Introduction
 ============
 
-Here I define a strategy language for controlling symbolic execution, and show some simple analysis we can define from within K itself.
-The language IMP is used as a running example, and the theory transformations over IMP's semantics are performed by hand.
+The K Analysis Toolset (KAT) is a library of tools written in K itself for analyzing programming languages and programs.
+KAT uses the K strategy language to control execution of the programming languages, making it extensible in K itself.
 
-Some time is spent building a robust strategy language.
-This time would otherwise be spent extending a K backend, which would not be portable.
+The techniques here are language independent, but for now we use IMP as a running example.
 
 One design goal behind this effort is that the execution state of the program should be disturbed as little as possible.
 Thus, the strategy language is used as an all-powerful of monitor that executes next to the program.
 Computation that the strategy needs to accomplish should be done in the `strategy` cell, not on the `k` cell.
 
+Compile this markdown document to the relevant K files using `./tangle`.
 Compile the file `imp-kat.k` with the command `kompile --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k`.
-
-IMP Language
-============
-
-The IMP language is largely defined as in the [K tutorial](www.kframework.org/index.php/K_Tutorial).
-Refer there for a more detailed explanation of the language.
-
-### Configuration
-
-The IMP language has a `k` cell for execution and a `mem` cell for storage.
-In IMP, base values are of sorts `Int` and `Bool`.
-
-```{.k .imp-lang}
-module IMP
-  imports MAP
-  imports STRATEGY
-
-  configuration <strategy>
-                  initSCell(Init)
-                  <imp>
-                   <k> $PGM:Stmt </k>
-                   <mem> .Map </mem>
-                  </imp>
-                  <analysis> .Analysis </analysis>
-                </strategy>
-
-  syntax Analysis ::= ".Analysis"
-  syntax KResult  ::= Int | Bool
-```
-
-### Expressions
-
-IMP has `AExp` for arithmetic expressions (over integers).
-
-```{.k .imp-lang}
-  syntax AExp  ::= Int | Id
-                 | AExp "/" AExp [left, strict]
-                 > AExp "+" AExp [left, strict]
-                 | "(" AExp ")"  [bracket]
-//----------------------------------------
-  rule I1 / I2 => I1 /Int I2  requires I2 =/=Int 0
-  rule I1 + I2 => I1 +Int I2
-```
-
-IMP has `BExp` for boolean expressions.
-
-```{.k .imp-lang}
-  syntax BExp  ::= Bool
-                 | AExp "<=" AExp [seqstrict, latex({#1}\leq{#2})]
-                 | "!" BExp       [strict]
-                 > BExp "&&" BExp [left, strict(1)]
-                 | "(" BExp ")"   [bracket]
-//-----------------------------------------
-  rule I1 <= I2   => I1 <=Int I2
-  rule ! T        => notBool T
-  rule true  && B => B
-  rule false && _ => false
-```
-
-### Statements
-
-IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for assignment, and `while(_)_` for looping.
-
-```{.k .imp-lang}
-  syntax Block ::= "{" "}"
-                 | "{" Stmt "}"
-
-  syntax Ids ::= List{Id,","}
-
-  syntax Stmt  ::= Block
-                 | "int" Ids ";"
-                 | Id "=" AExp ";"                      [strict(2)]
-                 | "if" "(" BExp ")" Block "else" Block [strict(1)]
-                 | "while" "(" BExp ")" Block
-                 > Stmt Stmt                            [left]
-//------------------------------------------------------------
-  rule {}              => .        [structural]
-  rule {S}             => S        [structural]
-
-  rule int .Ids ;      => .        [structural]
-  rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
-
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
-    requires notBool (X in keys(Rho))
-```
-
-### Semantics
-
-All the rules above are "regular" rules, not to be considered transition steps by analysis tools.
-The rules below are named (with the attribute `tag`) so that strategy-based analysis tools can treat them specially.
-
-```{.k .imp-lang}
-  rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [tag(lookup)]
-  rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [tag(assignment)]
-
-  rule if (true)  B:Block else _ => B:Block [tag(if), transition]
-  rule if (false) _ else B:Block => B:Block [tag(if), transition]
-
-  rule while (B) STMT => if (B) {STMT while (B) STMT} else {} [tag(while)]
-endmodule
-```
 
 Strategy Language
 =================
@@ -120,14 +19,20 @@ Strategy Language
 A simple imperative strategy language is supplied here.
 It has sequencing, choice, and looping (in addition to primitives related to controlling the execution state).
 
-```{.k .strategy-lang}
+```{.k .kat}
 requires "imp.k"
 
-module STRATEGY-IMP
+module KAT
   imports IMP
   imports KCELLS
 
-  syntax State    ::= "#current" | "{" K "|" Map "}"
+  configuration <strategy>
+                  initSCell(Init)
+                  initImpCell(Init)
+                  <analysis> .Analysis </analysis>
+                </strategy>
+
+  syntax State    ::= "#current" | Cell | Bag
   syntax Analysis ::= ".Analysis"
 ```
 
@@ -137,7 +42,7 @@ Strategy Predicates
 The strategy language has its own sort `Pred` for predicates, separate from the `Bool` usually used by programming languages.
 Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax Pred ::= "#true" | "#false" | "#pred" | "(" Pred ")" [bracket]
                 | "not" Pred | Pred "or" Pred | Pred "and" Pred
 //-------------------------------------------------------------
@@ -158,11 +63,11 @@ Often you'll want a way to translate from the sort `Bool` in the programming lan
 
 -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax Pred ::= "bool?"
 
-  rule <s> bool? => #true  ... </s> <imp> <k> true  </k> ... </imp>
-  rule <s> bool? => #false ... </s> <imp> <k> false </k> ... </imp>
+  rule <s> bool? => #true  ... </s> <k> true  </k>
+  rule <s> bool? => #false ... </s> <k> false </k>
 ```
 
 Strategy Statements
@@ -177,7 +82,7 @@ The strategy language is a simple imperative language with sequencing and choice
 -   `_*` executes the given strategy until it cannot be executed anymore ("greedy Kleene star").
 -   `_|_` tries executing the first strategy, and on failure executes the second.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax Strategy ::= Pred
                     | "skip"
                     | "(" Strategy ")"          [bracket]
@@ -204,13 +109,13 @@ Here, a wrapper around this functionality is provided which will try to execute 
 
 -   `try_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax priority try_ > _*
   syntax Strategy  ::= "try" Strategy
   syntax Exception ::= "#try" State
 //---------------------------------
-  rule <s> try S => S ~> #try { KCELL | MEM } ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp> [structural]
-  rule <s> #try STATE => #true                ... </s>                                              [structural]
+  rule <s> try S => S ~> #try STATE ... </s> <imp> STATE </imp> [structural]
+  rule <s> #try STATE => #true                ... </s>          [structural]
 
   rule <s> #STUCK ~> #try STATE => load STATE ; #false ... </s> [structural]
   rule <s> #STUCK ~> S:Strategy => #STUCK              ... </s> [structural]
@@ -222,11 +127,11 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `load_` places the given state into the execution harness.
 -   `analysis_` sets the `analysis` cell to the given argument.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax Strategy ::= "load" State
 //--------------------------------
-  rule <s> load #current        => skip ... </s>                                                        [structural]
-  rule <s> load { KCELL | MEM } => skip ... </s> <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp> [structural]
+  rule <s> load #current => skip ... </s>                    [structural]
+  rule <s> load STATE    => skip ... </s> <imp> STATE </imp> [structural]
 
   syntax Strategy ::= "analysis" Analysis
 //---------------------------------------
@@ -237,7 +142,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `#step` should be defined for each programming language, specifying which transitions are proper steps.
 -   `step` is `step-with_` instantiated to `#step`.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax Strategy ::= "step-with" Strategy
 //----------------------------------------
   rule <s> step-with S => (^ heat | ^ regular)* ; S ; (^ cool)* ... </s> [structural]
@@ -254,17 +159,17 @@ Strategy Macros
 -   `can?_` tries to execute the given strategy, but restores the state afterwards.
 -   `stuck?` checks if the current state can take a step.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> can? S => try S ; ? load { KCELL | MEM } ; #true : #false ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp> [structural]
+  rule <s> can? S => try S ; ? load STATE ; #true : #false ... </s> <imp> STATE </imp> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------
   rule <s> stuck? => not can? step ... </s> [structural]
 ```
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax priority if_then_else_ > _*
   syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
 //-------------------------------------------------------------
@@ -275,7 +180,7 @@ Strategy Macros
 -   `while__` allows looping behavior (controlled by sort `Pred`), and `while___` implements a bounded version.
 -   `_until_` will execute the given strategy until a predicate holds, and `_until__` implements a bounded version.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax priority while__ while___ > _*
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
@@ -294,7 +199,7 @@ Strategy Macros
     Note that `krun == exec #current`.
 -   `eval_` executes a given state to completion and checks `bool?`, and `eval__` implements a bounded version.
 
-```{.k .strategy-lang}
+```{.k .kat}
   syntax priority exec_ exec__ > _*
   syntax Strategy ::= "exec" State | "exec" Int State
 //---------------------------------------------------
@@ -304,28 +209,18 @@ Strategy Macros
   syntax priority eval_ eval__ > _*
   syntax Strategy ::= "eval" State | "eval" Int State
 //---------------------------------------------------
-  rule <s> eval         STATE => exec   STATE ; if bool? then load { KCELL | MEM } ; #true else load { KCELL | MEM } ; #false ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-  rule <s> eval (N:Int) STATE => exec N STATE ; if bool? then load { KCELL | MEM } ; #true else load { KCELL | MEM } ; #false ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> eval         STATE => exec   STATE ; if bool? then load STATE' ; #true else load STATE' ; #false ... </s> <imp> STATE' </imp>
+  rule <s> eval (N:Int) STATE => exec N STATE ; if bool? then load STATE' ; #true else load STATE' ; #false ... </s> <imp> STATE' </imp>
 endmodule
 ```
 
-K Analysis Tools (KAT)
-======================
+K Analysis Toolset (KAT)
+========================
 
 These modules define the "interfaces" to various analysis, and provide the implementation of those interfaces for IMP.
 The syntax `strategy :_=====_` allows specifying a strategy and a program.
 The strategy is loaded into the `strategy` cell, and the program is loaded into the `k` cell in the `imp` execution harness.
 
-```{.k .imp-kat}
-requires "imp.k"
-requires "strategy.k"
-requires "kat.k"
-
-module IMP-KAT
-  imports IMP-BIMC
-  imports IMP-SBC
-endmodule
-```
 
 Bounded Invariant Model Checking
 --------------------------------
@@ -333,8 +228,8 @@ Bounded Invariant Model Checking
 In bounded invariant model checking, the analysis being performed is a trace of the execution states that we have seen.
 
 ```{.k .kat}
-module STRATEGY-BIMC
-  imports STRATEGY-IMP
+module KAT-BIMC
+  imports KAT
 
   syntax Trace ::= ".Trace"
                  | Trace ";" State
@@ -348,8 +243,8 @@ module STRATEGY-BIMC
 ```{.k .kat}
   syntax Strategy ::= "record"
 //----------------------------
-//  rule <s> record => skip ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-//                                   <analysis> T => T ; { KCELL | MEM } </analysis>
+  rule <s> record => skip ... </s> <imp> STATE </imp>
+                                   <analysis> T => T ; STATE </analysis>
 ```
 
 -   `assertion-failure` indicates that the given predicate failed within the execution bound
@@ -380,34 +275,6 @@ Performing bounded invariant model checking is a simple macro in our strategy la
 endmodule
 ```
 
-### Instantiating to IMP
-
-Here we provide a way to make queries about the current IMP memory using IMP's `BExp` sort directly.
-
--   `bexp?` is a predicate that allows us to make queries about the current execution memory.
-
-```{.k .imp-kat}
-module IMP-BIMC
-  imports STRATEGY-BIMC
-
-  syntax Pred ::= "bexp?" BExp
-//----------------------------
-//  rule <s> (bexp? B => eval { B | MEM }) ; _ </s> <mem> MEM </mem> ...
-endmodule
-```
-
-### BIMC Examples
-
-Here we check the property `x <= 7` for 5 steps of execution after the code has initialized (the `step` in front of the command).
-Run this with `krun --search bimc.imp`.
-Every solution should be checked for `assertion-failure_` or `assertion-success`.
-
-```{.imp .bimc .k}
-int x ;
-x = 0 ;
-x = x + 15 ;
-```
-
 ### Future Work
 
 -   This should extended to model checking more than invariants by defining the appropriate derivatives of your favorite temporal logic's formula.
@@ -427,8 +294,8 @@ Anytime we reach a state which is subsumed by the left-hand-side of one of our g
 I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `Rule`.
 
 ```{.k .kat}
-module STRATEGY-SBC
-  imports STRATEGY-IMP
+module KAT-SBC
+  imports KAT
 
   syntax Rule ::= "<" State ">"
                 | "<" State "-->" State ">"
@@ -460,8 +327,8 @@ The instantiation to IMP is provided.
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <s> #subsumed? .Rules => #false                                                        ... </s>
-  rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes { KCELL | MEM }) or #subsumed? RS ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> #subsumed? .Rules => #false                                              ... </s>
+  rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS ... </s> <imp> STATE </imp>
 ```
 
 At cut-points, we'll finish the rule we've been building, abstract the state, start a building a new rule from that state.
@@ -472,13 +339,13 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 ```{.k .kat}
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-  rule <s> begin-rule => skip ... </s> <analysis> RS => RS , < { KCELL | MEM } > </analysis>
-                                       <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> begin-rule => skip ... </s> <analysis> RS => RS , < STATE > </analysis>
+                                       <imp> STATE </imp>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-  rule <s> end-rule => skip ... </s> <analysis> RS , (< LHS > => < LHS --> { KCELL | MEM } >) </analysis>
-                                     <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> end-rule => skip ... </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
+                                     <imp> STATE </imp>
 ```
 
 Finally, semantics based compilation is provided as a macro.
@@ -506,50 +373,6 @@ Finally, semantics based compilation is provided as a macro.
        <analysis> _ => .Rules </analysis>
 endmodule
 ```
-
-### Instantiating to IMP
-
-```{.k .imp-kat}
-module IMP-SBC
-  imports IMP
-  imports STRATEGY-SBC
-
-// Define `cut-point?`
-//--------------------
-  rule <s> cut-point? => #true  ... </s> <k> while _ _ ... </k>
-  rule <s> cut-point? => #false ... </s> [owise]
-
-// Define `abstract`
-//------------------
-  rule <s> abstract => #abstract keys(MEM) ... </s> <mem> MEM </mem>
-
-  syntax Strategy ::= "#abstract" Set | "#abstractKey" Id
-//-------------------------------------------------------
-  rule <s> #abstract .Set            => skip                          ... </s>
-  rule <s> #abstract (SetItem(X) XS) => #abstractKey X ; #abstract XS ... </s>
-  rule <s> #abstractKey X => skip ... </s> <mem> ... X |-> (_ => ?V:Int) ... </mem>
-
-// Define `_subsumes_`
-//--------------------
-  rule <s> { KCELL | _ } subsumes { KCELL  | _ } => #true  ... </s>
-  rule <s> { KCELL | _ } subsumes { KCELL' | _ } => #false ... </s> requires KCELL =/=K KCELL'
-endmodule
-```
-
-### SBC Examples
-
-Execute this test file with `krun --search sbc.imp`.
-Every solution will have it's own trace of generated rules.
-
-```{.imp .sbc .k}
-int n , s ;
-
-while (0 <= n) {
-  n = n + - 1 ;
-  s = s + n ;
-}
-```
-
 ### Future Work
 
 -   Post-process the results of the compilation with another abstraction pass which just hashes the contents of the `k` cell for each rule.

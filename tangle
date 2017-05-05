@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 
-pandoc-tangle --from markdown --to code-k --code imp-lang           KAT.md > imp.k
-pandoc-tangle --from markdown --to code-k --code strategy-lang      KAT.md > strategy.k
-pandoc-tangle --from markdown --to code-k --code kat                KAT.md > kat.k
-pandoc-tangle --from markdown --to code-k --code imp-kat            KAT.md > imp-kat.k
+pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
+pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
+
+pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
 
 echo "kompiling ..."
 kompile --debug --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k || exit 1

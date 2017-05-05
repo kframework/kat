@@ -1,5 +1,224 @@
-// K Analysis Tools (KAT)
-// ======================
+// Strategy Language
+// =================
+
+// A simple imperative strategy language is supplied here. It has sequencing,
+// choice, and looping (in addition to primitives related to controlling the
+// execution state).
+
+
+requires "imp.k"
+
+module KAT
+  imports IMP
+  imports KCELLS
+
+  configuration <strategy>
+                  initSCell(Init)
+                  initImpCell(Init)
+                  <analysis> .Analysis </analysis>
+                </strategy>
+
+  syntax State    ::= "#current" | Cell | Bag
+  syntax Analysis ::= ".Analysis"
+
+
+// Strategy Predicates
+// -------------------
+
+// The strategy language has its own sort `Pred` for predicates, separate from the
+// `Bool` usually used by programming languages. Lazy semantics ("short-circuit")
+// are given via controlled heating and cooling.
+
+
+  syntax Pred ::= "#true" | "#false" | "#pred" | "(" Pred ")" [bracket]
+                | "not" Pred | Pred "or" Pred | Pred "and" Pred
+//-------------------------------------------------------------
+  rule <s> not P => P ; not #pred ... </s>
+  rule <s> #false ~> not #pred => #true  ... </s>
+  rule <s> #true  ~> not #pred => #false ... </s>
+
+  rule <s> P or Q => P ; #pred or Q ... </s>
+  rule <s> #true  ~> #pred or _ => #true ... </s>
+  rule <s> #false ~> #pred or Q => Q     ... </s>
+
+  rule <s> P and Q => P ; #pred and Q ... </s>
+  rule <s> #true  ~> #pred and Q => Q      ... </s>
+  rule <s> #false ~> #pred and _ => #false ... </s>
+
+
+// Often you'll want a way to translate from the sort `Bool` in the programming
+// language to the sort `Pred` in the strategy language.
+
+// -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it.
+
+
+  syntax Pred ::= "bool?"
+
+  rule <s> bool? => #true  ... </s> <k> true  </k>
+  rule <s> bool? => #false ... </s> <k> false </k>
+
+
+// Strategy Statements
+// -------------------
+
+// The strategy language is a simple imperative language with sequencing and
+// choice.
+
+// -   `skip` acts as a no-op strategy.
+// -   `{_}` and `(_)` are syntactically used to make blocks in the
+//     strategy language.
+// -   `_;_` is used to sequentially compose strategies.
+// -   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to
+//     determine what to execute next.
+// -   `_*` executes the given strategy until it cannot be executed anymore
+//     ("greedy Kleene star").
+// -   `_|_` tries executing the first strategy, and on failure executes
+//     the second.
+
+
+  syntax Strategy ::= Pred
+                    | "skip"
+                    | "(" Strategy ")"          [bracket]
+                    | "?" Strategy ":" Strategy
+                    > Strategy "*"
+                    > Strategy ";" Strategy     [right]
+                    > Strategy "|" Strategy     [right]
+//-----------------------------------------------------
+  rule <s> skip    => .             ... </s> [structural]
+  rule <s> (S1 ; S2 => S1 ~> S2) ~> _   </s> [structural]
+
+  rule <s> #true  ~> ? S : _ => S ... </s> [structural]
+  rule <s> #false ~> ? _ : S => S ... </s> [structural]
+
+  rule <s> S*     => try S ; ? S* : skip ... </s> [structural]
+  rule <s> S | S' => try S ; ? skip : S' ... </s> [structural]
+
+
+// Strategy Primitives
+// -------------------
+
+// The current K backend will place the token `#STUCK` at the front of the `s` cell
+// when execution cannot continue. Here, a wrapper around this functionality is
+// provided which will try to execute the given strategy and will roll back the
+// state on failure.
+
+// -   `try_` executes a given strategy, placing `#true` on strategy cell if it
+//     succeeds and `#false` otherwise.
+
+
+  syntax priority try_ > _*
+  syntax Strategy  ::= "try" Strategy
+  syntax Exception ::= "#try" State
+//---------------------------------
+  rule <s> try S => S ~> #try STATE ... </s> <imp> STATE </imp> [structural]
+  rule <s> #try STATE => #true                ... </s>          [structural]
+
+  rule <s> #STUCK ~> #try STATE => load STATE ; #false ... </s> [structural]
+  rule <s> #STUCK ~> S:Strategy => #STUCK              ... </s> [structural]
+  rule <s> SA:StrategyApplied => . ... </s> [structural]
+
+
+// Strategies can manipulate the `state` cell (where program execution happens) and
+// the `analysis` cell (a memory/storage for the strategy language).
+
+// -   `load_` places the given state into the execution harness.
+// -   `analysis_` sets the `analysis` cell to the given argument.
+
+
+  syntax Strategy ::= "load" State
+//--------------------------------
+  rule <s> load #current => skip ... </s>                    [structural]
+  rule <s> load STATE    => skip ... </s> <imp> STATE </imp> [structural]
+
+  syntax Strategy ::= "analysis" Analysis
+//---------------------------------------
+  rule <s> analysis A => skip ... </s> <analysis> _ => A </analysis> [structural]
+
+
+// -   `step-with_` is used to specify that a given strategy should be executed
+//     admist heating and cooling.
+// -   `#step` should be defined for each programming language, specifying which
+//     transitions are proper steps.
+// -   `step` is `step-with_` instantiated to `#step`.
+
+
+  syntax Strategy ::= "step-with" Strategy
+//----------------------------------------
+  rule <s> step-with S => (^ heat | ^ regular)* ; S ; (^ cool)* ... </s> [structural]
+
+  syntax Strategy ::= "step" | "#step"
+//------------------------------------
+  rule <s> step  => step-with #step                          ... </s> [structural]
+  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if ... </s> [structural]
+
+
+// Strategy Macros
+// ---------------
+
+// -   `can?_` tries to execute the given strategy, but restores the
+//     state afterwards.
+// -   `stuck?` checks if the current state can take a step.
+
+
+  syntax Pred ::= "can?" Strategy
+//-------------------------------
+  rule <s> can? S => try S ; ? load STATE ; #true : #false ... </s> <imp> STATE </imp> [structural]
+
+  syntax Pred ::= "stuck?"
+//------------------------
+  rule <s> stuck? => not can? step ... </s> [structural]
+
+
+
+  syntax priority if_then_else_ > _*
+  syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
+//-------------------------------------------------------------
+  rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s> [structural]
+  
+
+
+// -   `while__` allows looping behavior (controlled by sort `Pred`), and
+//     `while___` implements a bounded version.
+// -   `_until_` will execute the given strategy until a predicate holds, and
+//     `_until__` implements a bounded version.
+
+
+  syntax priority while__ while___ > _*
+  syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
+//---------------------------------------------------------------------
+  rule <s> while   P S => if P then S ; while            P S else skip ... </s>                   [structural]
+  rule <s> while 0 P S => skip                                         ... </s>                   [structural]
+  rule <s> while N P S => if P then S ; while (N -Int 1) P S else skip ... </s> requires N >Int 0 [structural]
+
+  syntax priority _until_ _until__ > _*
+  syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
+//---------------------------------------------------------------------
+  rule <s> S until   P => while   (not P) S ... </s>                   [structural]
+  rule <s> S until N P => while N (not P) S ... </s> requires N >Int 0 [structural]
+
+
+// -   `exec_` executes the given state to completion, and `exec__` implements a
+//     bounded version. Note that `krun == exec #current`.
+// -   `eval_` executes a given state to completion and checks `bool?`, and
+//     `eval__` implements a bounded version.
+
+
+  syntax priority exec_ exec__ > _*
+  syntax Strategy ::= "exec" State | "exec" Int State
+//---------------------------------------------------
+  rule <s> exec         STATE => load STATE ; step until   stuck? ... </s>
+  rule <s> exec (N:Int) STATE => load STATE ; step until N stuck? ... </s>
+
+  syntax priority eval_ eval__ > _*
+  syntax Strategy ::= "eval" State | "eval" Int State
+//---------------------------------------------------
+  rule <s> eval         STATE => exec   STATE ; if bool? then load STATE' ; #true else load STATE' ; #false ... </s> <imp> STATE' </imp>
+  rule <s> eval (N:Int) STATE => exec N STATE ; if bool? then load STATE' ; #true else load STATE' ; #false ... </s> <imp> STATE' </imp>
+endmodule
+
+
+// K Analysis Toolset (KAT)
+// ========================
 
 // These modules define the "interfaces" to various analysis, and provide the
 // implementation of those interfaces for IMP. The syntax `strategy :_=====_`
@@ -14,8 +233,8 @@
 // the execution states that we have seen.
 
 
-module STRATEGY-BIMC
-  imports STRATEGY-IMP
+module KAT-BIMC
+  imports KAT
 
   syntax Trace ::= ".Trace"
                  | Trace ";" State
@@ -29,8 +248,8 @@ module STRATEGY-BIMC
 
   syntax Strategy ::= "record"
 //----------------------------
-//  rule <s> record => skip ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-//                                   <analysis> T => T ; { KCELL | MEM } </analysis>
+  rule <s> record => skip ... </s> <imp> STATE </imp>
+                                   <analysis> T => T ; STATE </analysis>
 
 
 // -   `assertion-failure` indicates that the given predicate failed within the
@@ -65,21 +284,6 @@ module STRATEGY-BIMC
 endmodule
 
 
-// ### Instantiating to IMP
-
-// Here we provide a way to make queries about the current IMP memory using IMP's
-// `BExp` sort directly.
-
-// -   `bexp?` is a predicate that allows us to make queries about the current
-//     execution memory.
-
-// ### BIMC Examples
-
-// Here we check the property `x <= 7` for 5 steps of execution after the code has
-// initialized (the `step` in front of the command). Run this with
-// `krun --search bimc.imp`. Every solution should be checked for
-// `assertion-failure_` or `assertion-success`.
-
 // ### Future Work
 
 // -   This should extended to model checking more than invariants by defining the
@@ -105,8 +309,8 @@ endmodule
 // `Rule`.
 
 
-module STRATEGY-SBC
-  imports STRATEGY-IMP
+module KAT-SBC
+  imports KAT
 
   syntax Rule ::= "<" State ">"
                 | "<" State "-->" State ">"
@@ -141,8 +345,8 @@ module STRATEGY-SBC
 
   syntax Pred ::= "#subsumed?" Rules
 //----------------------------------
-  rule <s> #subsumed? .Rules => #false                                                        ... </s>
-  rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes { KCELL | MEM }) or #subsumed? RS ... </s> <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> #subsumed? .Rules => #false                                              ... </s>
+  rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes STATE) or #subsumed? RS ... </s> <imp> STATE </imp>
 
 
 // At cut-points, we'll finish the rule we've been building, abstract the state,
@@ -156,13 +360,13 @@ module STRATEGY-SBC
 
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-  rule <s> begin-rule => skip ... </s> <analysis> RS => RS , < { KCELL | MEM } > </analysis>
-                                       <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> begin-rule => skip ... </s> <analysis> RS => RS , < STATE > </analysis>
+                                       <imp> STATE </imp>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-  rule <s> end-rule => skip ... </s> <analysis> RS , (< LHS > => < LHS --> { KCELL | MEM } >) </analysis>
-                                     <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+  rule <s> end-rule => skip ... </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
+                                     <imp> STATE </imp>
 
 
 // Finally, semantics based compilation is provided as a macro.
@@ -191,13 +395,6 @@ module STRATEGY-SBC
        <analysis> _ => .Rules </analysis>
 endmodule
 
-
-// ### Instantiating to IMP {#instantiating-to-imp-1}
-
-// ### SBC Examples
-
-// Execute this test file with `krun --search sbc.imp`. Every solution will have
-// it's own trace of generated rules.
 
 // ### Future Work {#future-work-1}
 

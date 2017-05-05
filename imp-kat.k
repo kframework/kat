@@ -1,15 +1,14 @@
-// K Analysis Tools (KAT)
-// ======================
+// Instantiation of KAT
+// ====================
 
-// These modules define the "interfaces" to various analysis, and provide the
-// implementation of those interfaces for IMP. The syntax `strategy :_=====_`
-// allows specifying a strategy and a program. The strategy is loaded into the
-// `strategy` cell, and the program is loaded into the `k` cell in the `imp`
-// execution harness.
+// The KAT requires some programming-language specific information to work.
+// Instantiation of the progamming language to KAT should happen with the language
+// semantics on an as-needed basis.
+
+// The module `IMP-KAT` includes all the supported analysis for the IMP language.
 
 
 requires "imp.k"
-requires "strategy.k"
 requires "kat.k"
 
 module IMP-KAT
@@ -18,27 +17,8 @@ module IMP-KAT
 endmodule
 
 
-// Bounded Invariant Model Checking
-// --------------------------------
-
-// In bounded invariant model checking, the analysis being performed is a trace of
-// the execution states that we have seen.
-
-// -   `analysis-trace` sets the current analysis to a `Trace`.
-// -   `record` copies the current execution state to the end of the trace.
-
-// -   `assertion-failure` indicates that the given predicate failed within the
-//     execution bound
-// -   `assertion-success` inidicates that either the depth bound has been reached,
-//     or execution has terminated
-
-// Performing bounded invariant model checking is a simple macro in our strategy
-// language.
-
-// -   `bimc` checks that the predicate holds for each step up to a
-//     search-depth bound.
-
-// ### Instantiating to IMP
+// BIMC
+// ----
 
 // Here we provide a way to make queries about the current IMP memory using IMP's
 // `BExp` sort directly.
@@ -48,77 +28,33 @@ endmodule
 
 
 module IMP-BIMC
-  imports STRATEGY-BIMC
+  imports IMP
+  imports KAT-BIMC
 
   syntax Pred ::= "bexp?" BExp
 //----------------------------
-//  rule <s> (bexp? B => eval { B | MEM }) ; _ </s> <mem> MEM </mem> ...
+  rule <s> bexp? B => eval (<k> B </k> <mem> MEM </mem>) ... </s> <mem> MEM </mem>
 endmodule
 
 
-// ### BIMC Examples
+// ### Example (Invariant Failure)
 
 // Here we check the property `x <= 7` for 5 steps of execution after the code has
 // initialized (the `step` in front of the command). Run this with
 // `krun --search bimc.imp`. Every solution should be checked for
 // `assertion-failure_` or `assertion-success`.
 
-// ### Future Work
+// ### Example (Bound Reached)
 
-// -   This should extended to model checking more than invariants by defining the
-//     appropriate derivatives of your favorite temporal logic's formula.
-// -   We should be able to use arbitrary matching-logic patterns as sort `Pred`.
+// ### Example (Execution Terminates)
 
-// Semantics Based Compilation
-// ---------------------------
-
-// Semantics based compilation uses symbolic execution to reduce the size of
-// transition system defined by programming language semantics. As the program is
-// executed symbolically, the execution state is periodically "abstracted" with a
-// language-specific abstraction operator. The abstraction operator must be
-// powerful enough to guarantee termination of every program in the language.
-// However, if the abstraction is too strong, the transition system will not be
-// reduced in size very much, yielding worse compilation results.
-
-// As we execute, we'll collect new the states we've seen so far as a new `Rule` of
-// the smaller transition system. Anytime we reach a state which is subsumed by the
-// left-hand-side of one of our generated rules, we'll stop exploring that path.
-
-// I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of
-// `Rule`.
-
-// The interface of this analysis requires you define when to abstract and how to
-// abstract. The instantiation to IMP is provided.
-
-// -   `cut-point?` is a predicate that should hold when abstraction should occur.
-// -   `abstract` is an operator than should abstract away enough details of the
-//     state to guarantee termination. Note that `abstract` needs to also take care
-//     not to destroy all information collected about the state in this execution.
-
-// -   `subsumed?` is a predicate that checks if any of the left-hand sides of the
-//     rules `_subsumes_` the current state. Note that below we provide the
-//     instantiation of `_subsumes_` to IMP manually, but in principle this
-//     should inferred.
-
-// At cut-points, we'll finish the rule we've been building, abstract the state,
-// start a building a new rule from that state.
-
-// -   `begin-rule` will use the current state as the left-hand-side of a new rule
-//     in the record of rules.
-// -   `end-rule` uses the current state as the right-hand-side of a new rule in
-//     the record of rules.
-
-// Finally, semantics based compilation is provided as a macro.
-
-// -   `compile` will execute a program using the given `cut-point?` and `abstract`
-//     operators until it has collected a complete set of rules.
-
-// ### Instantiating to IMP {#instantiating-to-imp-1}
+// SBC
+// ---
 
 
 module IMP-SBC
   imports IMP
-  imports STRATEGY-SBC
+  imports KAT-SBC
 
 // Define `cut-point?`
 //--------------------
@@ -137,31 +73,16 @@ module IMP-SBC
 
 // Define `_subsumes_`
 //--------------------
-  rule <s> { KCELL | _ } subsumes { KCELL  | _ } => #true  ... </s>
-  rule <s> { KCELL | _ } subsumes { KCELL' | _ } => #false ... </s> requires KCELL =/=K KCELL'
+  rule <s> (<k> KCELL </k> <mem> _ </mem>) subsumes (<k> KCELL  </k> <mem> _ </mem>) => #true  ... </s>
+  rule <s> (<k> KCELL </k> <mem> _ </mem>) subsumes (<k> KCELL' </k> <mem> _ </mem>) => #false ... </s> requires KCELL =/=K KCELL'
 endmodule
 
 
-// ### SBC Examples
+// ### Example (Single Loop)
 
 // Execute this test file with `krun --search sbc.imp`. Every solution will have
 // it's own trace of generated rules.
 
-// ### Future Work {#future-work-1}
+// ### Exmaple (Collatz)
 
-// -   Post-process the results of the compilation with another abstraction pass
-//     which just hashes the contents of the `k` cell for each rule. This will
-//     reduce the amount of extra matching that happens in executing the
-//     compiled definition.
-// -   Use matching-logic implication to implement `_subsumes_` in a
-//     language-indepedent way.
-
-// Corrective Model Checking
-// -------------------------
-
-// Corrective model-checking extends semantics based compilation by restricting the
-// generated transition systems to only traces which satisfy the given property.
-// The strategy will only allow execution to continue if the property specified is
-// satisfied.
-
-// Not implemented yet.
+// ### Example (Memory Walk)
