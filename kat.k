@@ -108,9 +108,6 @@ endmodule
 module STRATEGY-SBC
   imports STRATEGY-IMP
 
-  syntax State
-  syntax Pred
-
   syntax Rule ::= "<" State ">"
                 | "<" State "-->" State ">"
 
@@ -159,13 +156,13 @@ module STRATEGY-SBC
 
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-//  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < STATE > </analysis>
-//                                         <imp> STATE </imp>
+  rule <s> begin-rule => skip ... </s> <analysis> RS => RS , < { KCELL | MEM } > </analysis>
+                                       <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-//  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
-//                                         <imp> STATE </imp>
+  rule <s> end-rule => skip ... </s> <analysis> RS , (< LHS > => < LHS --> { KCELL | MEM } >) </analysis>
+                                     <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 
 
 // Finally, semantics based compilation is provided as a macro.

@@ -31,12 +31,11 @@ module IMP
 
   configuration <strategy>
                   initSCell(Init)
-                  <analysis> .Analysis </analysis>
-
                   <imp>
                    <k> $PGM:Stmt </k>
                    <mem> .Map </mem>
                   </imp>
+                  <analysis> .Analysis </analysis>
                 </strategy>
 
   syntax Analysis ::= ".Analysis"
@@ -125,7 +124,6 @@ It has sequencing, choice, and looping (in addition to primitives related to con
 requires "imp.k"
 
 module STRATEGY-IMP
-  imports STRATEGY
   imports IMP
   imports KCELLS
 
@@ -432,9 +430,6 @@ I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `R
 module STRATEGY-SBC
   imports STRATEGY-IMP
 
-  syntax State
-  syntax Pred
-
   syntax Rule ::= "<" State ">"
                 | "<" State "-->" State ">"
 
@@ -477,13 +472,13 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 ```{.k .kat}
   syntax Strategy ::= "begin-rule"
 //--------------------------------
-//  rule <s> (begin-rule => skip) ; _ </s> <analysis> RS => RS , < STATE > </analysis>
-//                                         <imp> STATE </imp>
+  rule <s> begin-rule => skip ... </s> <analysis> RS => RS , < { KCELL | MEM } > </analysis>
+                                       <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 
   syntax Strategy ::= "end-rule"
 //------------------------------
-//  rule <s> (end-rule => skip)   ; _ </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
-//                                         <imp> STATE </imp>
+  rule <s> end-rule => skip ... </s> <analysis> RS , (< LHS > => < LHS --> { KCELL | MEM } >) </analysis>
+                                     <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
 ```
 
 Finally, semantics based compilation is provided as a macro.

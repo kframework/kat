@@ -17,12 +17,11 @@ module IMP
 
   configuration <strategy>
                   initSCell(Init)
-                  <analysis> .Analysis </analysis>
-
                   <imp>
                    <k> $PGM:Stmt </k>
                    <mem> .Map </mem>
                   </imp>
+                  <analysis> .Analysis </analysis>
                 </strategy>
 
   syntax Analysis ::= ".Analysis"

@@ -9,7 +9,6 @@
 requires "imp.k"
 
 module STRATEGY-IMP
-  imports STRATEGY
   imports IMP
   imports KCELLS
 
