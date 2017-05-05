@@ -1,12 +1,9 @@
 #!/usr/bin/env zsh
 
-pandoc-tangle --from markdown --to code-k --code imp-lang           strategic-analysis.md > imp.k
-pandoc-tangle --from markdown --to code-k --code strategy-lang      strategic-analysis.md > strategy.k
-pandoc-tangle --from markdown --to code-k --code kat                strategic-analysis.md > kat.k
-pandoc-tangle --from markdown --to code-k --code imp-kat            strategic-analysis.md > imp-kat.k
-pandoc-tangle --from markdown --to code-k --code bimc --strip-text  strategic-analysis.md > bimc.imp
-pandoc-tangle --from markdown --to code-k --code sbc  --strip-text  strategic-analysis.md > sbc.imp
+pandoc-tangle --from markdown --to code-k --code imp-lang           KAT.md > imp.k
+pandoc-tangle --from markdown --to code-k --code strategy-lang      KAT.md > strategy.k
+pandoc-tangle --from markdown --to code-k --code kat                KAT.md > kat.k
+pandoc-tangle --from markdown --to code-k --code imp-kat            KAT.md > imp-kat.k
 
 echo "kompiling ..."
 kompile --debug --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k || exit 1
-#kompile --debug --main-module STRATEGY-IMP --syntax-module STRATEGY-IMP strategy.k || exit 1
