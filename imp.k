@@ -37,8 +37,8 @@ module IMP
                  > AExp "+" AExp [left, strict]
                  | "(" AExp ")"  [bracket]
 //----------------------------------------
-  rule I1 / I2 => I1 /Int I2  requires I2 =/=Int 0
-  rule I1 + I2 => I1 +Int I2
+  rule I1 / I2 => I1 /Int I2  requires I2 =/=Int 0 [structural]
+  rule I1 + I2 => I1 +Int I2                       [structural]
 
 
 // IMP has `BExp` for boolean expressions.
@@ -50,10 +50,10 @@ module IMP
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
 //-----------------------------------------
-  rule I1 <= I2   => I1 <=Int I2
-  rule ! T        => notBool T
-  rule true  && B => B
-  rule false && _ => false
+  rule I1 <= I2   => I1 <=Int I2 [structural]
+  rule ! T        => notBool T   [structural]
+  rule true  && B => B           [structural]
+  rule false && _ => false       [structural]
 
 
 // Statements
@@ -81,8 +81,10 @@ module IMP
   rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
+  rule <k> int (X,Xs => Xs) ; ... </k>
+       <mem> Rho:Map (.Map => X |-> ?V:Int) </mem>
     requires notBool (X in keys(Rho))
+    [structural]
 
 
 // Semantics
