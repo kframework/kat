@@ -7,8 +7,10 @@ pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
 
 pandoc-tangle --from markdown --to code-k --code straight-line-1 KAT-IMP.md > straight-line-1.imp
 pandoc-tangle --from markdown --to code-k --code straight-line-2 KAT-IMP.md > straight-line-2.imp
-pandoc-tangle --from markdown --to code-k --code sum             KAT-IMP.md > sum.imp
 pandoc-tangle --from markdown --to code-k --code dead-if         KAT-IMP.md > dead-if.imp
+pandoc-tangle --from markdown --to code-k --code sum             KAT-IMP.md > sum.imp
+pandoc-tangle --from markdown --to code-k --code sum-plus        KAT-IMP.md > sum-plus.imp
+pandoc-tangle --from markdown --to code-k --code collatz         KAT-IMP.md > collatz.imp
 
 
 echo "kompiling ..."

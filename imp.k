@@ -32,11 +32,15 @@ module IMP
 
   syntax AExp  ::= Int | Id
                  | AExp "/" AExp [left, strict]
-                 > AExp "+" AExp [left, strict]
+                 | AExp "*" AExp [left, strict]
+                 > AExp "-" AExp [left, strict]
+                 | AExp "+" AExp [left, strict] 
                  | "(" AExp ")"  [bracket]
 //----------------------------------------
-  rule I1 / I2 => I1 /Int I2  requires I2 =/=Int 0 [structural]
-  rule I1 + I2 => I1 +Int I2                       [structural]
+  rule I1 + I2 => I1 +Int I2                      [structural]
+  rule I1 - I2 => I1 -Int I2                      [structural]
+  rule I1 * I2 => I1 *Int I2                      [structural]
+  rule I1 / I2 => I1 /Int I2 requires I2 =/=Int 0 [structural]
 
 
 // IMP has `BExp` for boolean expressions.
