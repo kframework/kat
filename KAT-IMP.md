@@ -230,15 +230,8 @@ module IMP-SBC
          ...
        </s>
     [structural]
-//  rule <s> push-new-states [ { while ( BEXP:BExp ) BODY | MEM } ]
-//        => push { while ( BEXP ) BODY | MEM | true  }
-//         ; push { while ( BEXP ) BODY | MEM | false }
-//         ...
-//       </s>
-//    [structural]
 
   rule <s> pop { while ( BEXP ) BODY ~> REST | MEM | BOOL } => pop { while ( BOOL ) BODY ~> REST | MEM } ... </s> [structural]
-//  rule <s> pop { while ( BEXP ) BODY      | MEM | BOOL } => pop { while ( BOOL ) BODY      | MEM } ... </s> [structural]
 ```
 
 ### Define `cut-point?`
@@ -272,7 +265,6 @@ Because the memory is fully abstract every time subsumption is checked, it's eno
   rule <s> { KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL' [structural]
 
   rule <s> { while ( BEXP ) BODY ~> REST | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST | MEM } subsumes? [ STATE ] ... </s> [structural]
-// rule <s> { while ( BEXP ) BODY      | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY      | MEM } subsumes? [ STATE ] ... </s> [structural]
 endmodule
 ```
 
