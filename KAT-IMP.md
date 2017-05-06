@@ -77,7 +77,7 @@ IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for assign
   rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
 
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem> requires notBool (X in keys(Rho)) [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> 0) </mem> requires notBool (X in keys(Rho)) [structural]
 ```
 
 Semantics
@@ -167,10 +167,42 @@ endmodule
 Here we check the property `x <= 7` for 5 steps of execution after the code has initialized (the `step` in front of the command).
 Run this with `krun --search bimc.imp`.
 
-```{.imp .bimc .k}
+```{.imp .straight-line-1 .k}
 int x ;
 x = 0 ;
 x = x + 15 ;
+```
+
+```{.imp .straight-line-2 .k}
+int x ;
+x = 0 ;
+x = x + 15 ;
+x = x + -10 ;
+```
+
+```
+$> krun --debug -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp
+<kat> <s> #STUCK ~> #bimc-result #false </s> <imp> <k> . </k> <mem> x |-> 15 </mem> </imp> <analysis> ( ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) | x |-> 0 } ) ; { x = 15 ; | x |-> 0 } ) ; { . | x |-> 15 } </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp
+<kat> <s> #STUCK ~> #bimc-result #true </s> <imp> <k> x = 15 ; </k> <mem> x |-> 0 </mem> </imp> <analysis> ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) | x |-> 0 } ) ; { x = 15 ; | x |-> 0 } </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp
+<kat> <s> #STUCK ~> #bimc-result #true </s> <imp> <k> x = 15 ; ~> ( x = x + -10 ; ) </k> <mem> x |-> 0 </mem> </imp> <analysis> ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x = 15 ; ~> ( x = x + -10 ; ) | x |-> 0 } </analysis> <states> .States </states> </kat>
+$> krun --debug -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp
+<kat> <s> #STUCK ~> #bimc-result #false </s> <imp> <k> x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) </k> <mem> x |-> 15 </mem> </imp> <analysis> ( ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x = 15 ; ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) | x |-> 15 } </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp
+<kat> <s> #STUCK ~> #bimc-result #false </s> <imp> <k> x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) </k> <mem> x |-> 15 </mem> </imp> <analysis> ( ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x = 15 ; ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) | x |-> 15 } </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='step ; bimc 500 (bexp? s <= 32)' sum.imp
+<kat> <s> #STUCK ~> #bimc-result #false in 40 steps : { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 35 n |-> 5 } </s> <imp> <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> 35 n |-> 5 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='step ; bimc 40 (bexp? s <= 32)' sum.imp
+<kat> <s> #STUCK ~> #bimc-result #false in 40 steps : { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 35 n |-> 5 } </s> <imp> <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> 35 n |-> 5 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='step ; bimc 39 (bexp? s <= 32)' sum.imp
+<kat> <s> #STUCK ~> #bimc-result #true in 39 steps : { s = 35 ; ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 30 n |-> 5 } </s> <imp> <k> s = 35 ; ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> 30 n |-> 5 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
 ```
 
 ### Example (Bound Reached)
@@ -223,16 +255,36 @@ endmodule
 Execute this test file with `krun --search sbc.imp`.
 Every solution will have it's own trace of generated rules.
 
-```{.imp .sbc .k}
-int n , s , x;
+```{.imp .sum .k}
+int n , s ;
 
-s = 0 ;
+n = 10 ;
 while (0 <= n) {
   n = n + -1 ;
   s = s + n ;
 }
+```
 
-x = 0 ;
+```{.imp .dead-if .k}
+int x ;
+
+x = 7 ;
+if (x <= 7) {
+  x = 1 ;
+} else {
+  x = -1 ;
+}
+```
+
+```
+$> krun --debug -cSTRATEGY='compile' straight-line-1.imp
+<kat> <s> #STUCK ~> #compile-result ( .Rules , < { int x , .Ids ; x = 0 ; x = x + 15 ; | .Map } --> { . | x |-> 15 } > ) </s> <imp> <k> . </k> <mem> x |-> V0 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='compile' straight-line-2.imp
+<kat> <s> #STUCK ~> #compile-result ( .Rules , < { int x , .Ids ; x = 0 ; x = x + 15 ; x = x + -10 ; | .Map } --> { . | x |-> 5 } > ) </s> <imp> <k> . </k> <mem> x |-> V0 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
+
+$> krun --debug -cSTRATEGY='compile' dead-if.imp
+<kat> <s> #STUCK ~> #compile-result ( .Rules , < { int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; } | .Map } --> { . | x |-> 1 } > ) </s> <imp> <k> . </k> <mem> x |-> V0 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
 ```
 
 ### Exmaple (Collatz)

@@ -33,9 +33,10 @@ module KAT
 // are given via controlled heating and cooling.
 
 
-  syntax Pred ::= "#true" | "#false" | "#pred" | "(" Pred ")" [bracket]
-                | "not" Pred | Pred "or" Pred | Pred "and" Pred
-//-------------------------------------------------------------
+  syntax PredAtom ::= "#true" | "#false"
+  syntax Pred     ::= PredAtom | "#pred" | "(" Pred ")" [bracket]
+                    | "not" Pred | Pred "or" Pred | Pred "and" Pred
+//-----------------------------------------------------------------
   rule <s> not P               => P ; not #pred ... </s> [structural]
   rule <s> #false ~> not #pred => #true         ... </s> [structural]
   rule <s> #true  ~> not #pred => #false        ... </s> [structural]
@@ -175,8 +176,8 @@ module KAT
   syntax priority step-with_ > _*
   syntax Strategy ::= "step-with" Strategy | "#step" | "step"
 //-----------------------------------------------------------
-  rule <s> step-with S => (^ regular | ^ heat)* ; S ; (^ regular| ^ cool)* ... </s> [structural]
-  rule <s> step        => step-with #step                                  ... </s> [structural]
+  rule <s> step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)* ... </s> [structural]
+  rule <s> step        => step-with #step                                   ... </s> [structural]
 
 
 // Things added to the sort `StateOp` will automatically load the current state for
@@ -216,9 +217,8 @@ module KAT
   syntax priority if_then_else_ > _*
   syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy | "pred-pop"
 //--------------------------------------------------------------------------
-  rule <s> if P then S1 else S2 => P ; ? S1 : S2    ... </s> [structural]
-  rule <s> #true  ~> pred-pop => pop ; #true  ... </s> [structural]
-  rule <s> #false ~> pred-pop => pop ; #false ... </s> [structural]
+  rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s> [structural]
+  rule <s> PA:PredAtom ~> pred-pop => pop ; PA   ... </s> [structural]
 
 
 // -   `while__` allows looping behavior (controlled by sort `Pred`), and
@@ -230,9 +230,9 @@ module KAT
   syntax priority while__ while___ > _*
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
-  rule <s> while   P S => if P then S ; while            P S else skip ... </s>                   [structural]
-  rule <s> while 0 P S => skip                                         ... </s>                   [structural]
-  rule <s> while N P S => if P then S ; while (N -Int 1) P S else skip ... </s> requires N >Int 0 [structural]
+  rule <s> while   P S => P ; ? S ; while P S : skip            ... </s>                   [structural]
+  rule <s> while 0 P S => skip                                  ... </s>                   [structural]
+  rule <s> while N P S => P ; ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0 [structural]
 
   syntax priority _until_ _until__ > _*
   syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
@@ -278,10 +278,18 @@ endmodule
 module KAT-BIMC
   imports KAT
 
-  syntax Trace ::= ".Trace"
-                 | Trace ";" State
-
   syntax Analysis ::= Trace
+
+
+// -   `#length` calculates the length of a trace.
+
+
+  syntax Trace ::= ".Trace" | Trace ";" State
+  syntax Strategy ::= "#length" Trace | "#length" Int Trace | "#length" Int
+//-------------------------------------------------------------------------
+  rule <s> #length T         => #length 0 T          ... </s> [structural]
+  rule <s> #length N .Trace  => #length N            ... </s> [structural]
+  rule <s> #length N (T ; _) => #length (N +Int 1) T ... </s> [structural]
 
 
 // -   `record` copies the current execution state to the end of the trace.
@@ -295,20 +303,35 @@ module KAT-BIMC
 // Performing bounded invariant model checking is a simple predicate in our
 // strategy language.
 
-// -   `bimc` checks that the predicate holds for each step up to a
-//     search-depth bound.
+// -   `#bimc-result_in_steps:_` holds the result of a bimc analysis.
 
 
-  syntax Pred ::= "bimc" Int Pred
-//-------------------------------
-  rule <s> ( bimc N P
+  syntax Exception ::= "#bimc-result" | "#bimc-result" PredAtom "in" Int "steps" ":" State
+//----------------------------------------------------------------------------------------
+  rule <s> #length N:Int ~> #bimc-result PA in -1 steps : STATE => #bimc-result PA in (N -Int 1) steps : STATE ... </s> [structural]
+  rule <s> PA:PredAtom ~> #bimc-result => #length T ; STATE ~> #bimc-result PA in -1 steps : STATE ... </s>
+       <analysis> T ; STATE => .Analysis </analysis>
+    [structural]
+
+
+// -   `bimc?__` is a predicate that checks if an invariant holds for each step up
+//     to a search-depth bound.
+// -   `bimc__` turns the predicate `bimc?` into a standalone analysis.
+
+
+  syntax Pred     ::= "bimc?" Int Pred
+  syntax Strategy ::= "bimc"  Int Pred
+//------------------------------------
+  rule <s> bimc N P => bimc? N P ~> #bimc-result ... </s> [structural]
+  rule <s> ( bimc? N P
           => analysis .Trace
            ; record
            ; (step ; record) until N (not P)
            ; P
            )
            ...
-       </s>
+       </s> 
+    [structural]
 endmodule
 
 
@@ -392,8 +415,18 @@ module KAT-SBC
 
   syntax StateOp ::= "begin-rule" | "end-rule"
 //--------------------------------------------
-  rule <s> begin-rule [ STATE ] => . ... </s> <analysis> RS => RS , < STATE >                </analysis> [structural]
-  rule <s> end-rule   [ STATE ] => . ... </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> [structural]
+  rule <s> begin-rule [ STATE ] => . ... </s> <analysis> RS => RS , < STATE >                </analysis> requires STATE =/=K #current [structural]
+  rule <s> end-rule   [ STATE ] => . ... </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> requires STATE =/=K #current [structural]
+
+
+// -   `#compile-result_` holds the result of a sbc analysis.
+
+
+  syntax Exception ::= "#compile-result" | "#compile-result" Rules
+//----------------------------------------------------------------
+  rule <s> #compile-result => #compile-result RS ... </s>
+       <analysis> RS , R => .Analysis </analysis>
+    [structural]
 
 
 // Finally, semantics based compilation is provided as a macro.
@@ -415,6 +448,7 @@ module KAT-SBC
                ; begin-rule
                )
            ; end-rule
+          ~> #compile-result
            )
            ...
        </s>
