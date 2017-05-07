@@ -129,10 +129,10 @@ krun --directory '../' --search -cSTRATEGY='compile' dead-if.imp
 # Sum should generate three rules:
 
 # 1.  One rule to get us to the beginning of the `while` loop (initialization).
-# 2.  One rule corresponding to an iteration of the `while` loop (if the condition
-#     on the loop is true).
-# 3.  One rule corresponding to jumping over the `while` loop (if the condition on
+# 2.  One rule corresponding to jumping over the `while` loop (if the condition on
 #     the loop is false).
+# 3.  One rule corresponding to an iteration of the `while` loop (if the condition
+#     on the loop is true).
 
 
 krun --directory '../' --search -cSTRATEGY='compile' sum.imp
@@ -152,14 +152,14 @@ krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
 # Indeed, we get a summary of the Collatz program with four rules:
 
 # 1.  A rule that gets us to the beginning of the `while` loop (initialization).
-# 2.  A rule that has the effect of the `while` loop if the branch inside is true
-#     (roughly, "if the number is not 1 and even, divide it by 2").
+# 2.  A rule that gets us past the `while` loop once we reach 1.
 # 3.  A rule that has the effect of the `while` loop if the branch inside is false
 #     (roughly, "if the number is not 1 and odd, multiply by 3 and add 1").
-# 4.  A rule that gets us past the `while` loop once we reach 1.
+# 4.  A rule that has the effect of the `while` loop if the branch inside is true
+#     (roughly, "if the number is not 1 and even, divide it by 2").
 
-# Rules 1 and 4 above will be generated in both solutions for `--search`, but
-# rules 2 and 3 are each only generated in one of the solutions. Note that we
+# Rules 1 and 2 above will be generated in both solutions for `--search`, but
+# rules 3 and 4 are each only generated in one of the solutions. Note that we
 # effectively get a "summary" of the Collatz algorithm which is independent of how
 # it's written down in IMP.
 

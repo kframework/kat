@@ -390,8 +390,8 @@ Solution 1
 Sum should generate three rules:
 
 1. One rule to get us to the beginning of the `while` loop (initialization).
-2. One rule corresponding to an iteration of the `while` loop (if the condition on the loop is true).
-3. One rule corresponding to jumping over the `while` loop (if the condition on the loop is false).
+2. One rule corresponding to jumping over the `while` loop (if the condition on the loop is false).
+3. One rule corresponding to an iteration of the `while` loop (if the condition on the loop is true).
 
 ```{.sh .runtests}
 krun --directory '../' --search -cSTRATEGY='compile' sum.imp
@@ -443,11 +443,11 @@ Finally, we pick a program that has a conditional inside the `while` loop.
 Indeed, we get a summary of the Collatz program with four rules:
 
 1.  A rule that gets us to the beginning of the `while` loop (initialization).
-2.  A rule that has the effect of the `while` loop if the branch inside is true (roughly, "if the number is not 1 and even, divide it by 2").
+2.  A rule that gets us past the `while` loop once we reach 1.
 3.  A rule that has the effect of the `while` loop if the branch inside is false (roughly, "if the number is not 1 and odd, multiply by 3 and add 1").
-4.  A rule that gets us past the `while` loop once we reach 1.
+4.  A rule that has the effect of the `while` loop if the branch inside is true (roughly, "if the number is not 1 and even, divide it by 2").
 
-Rules 1 and 4 above will be generated in both solutions for `--search`, but rules 2 and 3 are each only generated in one of the solutions.
+Rules 1 and 2 above will be generated in both solutions for `--search`, but rules 3 and 4 are each only generated in one of the solutions.
 Note that we effectively get a "summary" of the Collatz algorithm which is independent of how it's written down in IMP.
 
 ```{.sh .runtests}
@@ -458,8 +458,14 @@ krun --directory '../' --search -cSTRATEGY='compile' collatz.imp
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
+
+                                     // RULE 1
                                    , < { int n , ( x , .Ids ) ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | .Map } --> { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> 0 n |-> 782 } > )
+
+                                     // RULE 2
                                    , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | false }                     --> { . | x |-> V0 n |-> V1 } > )
+
+                                     // RULE 3
                                    , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | true }                      --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( 3 *Int V1 +Int 1 ) } >
                                    ) </s>
  <imp>
@@ -472,7 +478,17 @@ Solution 1
 
 Solution 2
 <kat>
- <s> #STUCK ~> #compile-result ( ( ( .Rules , < { int n , ( x , .Ids ) ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | .Map } --> { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> 0 n |-> 782 } > ) , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | false } --> { . | x |-> V0 n |-> V1 } > ) , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | true } --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( V1 /Int 2 ) } > ) </s>
+ <s> #STUCK ~> #compile-result ( ( ( .Rules
+
+                                     // RULE 1
+                                   , < { int n , ( x , .Ids ) ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | .Map } --> { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> 0 n |-> 782 } > )
+
+                                     // RULE 2
+                                   , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | false }                     --> { . | x |-> V0 n |-> V1 } > )
+
+                                     // RULE 4
+                                   , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | true }                      --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( V1 /Int 2 ) } >
+                                   ) </s>
  <imp>
   <k> while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k>
   <mem> x |-> V2 n |-> V3 </mem>
