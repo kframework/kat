@@ -407,15 +407,16 @@ module KAT-SBC
 // -   `abstract` is an operator than should abstract away enough details of the
 //     state to guarantee termination of the execution of compilation. Note that
 //     `abstract` needs to also take care not to destroy all information collected
-//     about the state in this execution. `abstract` must push any new states to
-//     analyze onto the top of the `states` stack.
+//     about the state in this execution.
+// -   `next-states` must push any new states to analyze onto the top of the
+//     `states` stack.
 
 
   syntax StatePred ::= "cut-point?" | State "subsumes?"
 //-----------------------------------------------------
 
-  syntax StateOp ::= "abstract"
-//-----------------------------
+  syntax StateOp ::= "abstract" | "next-states"
+//---------------------------------------------
 
 
 // -   `subsumed?` is a predicate that checks if any of the left-hand sides of the
@@ -472,6 +473,7 @@ module KAT-SBC
                 ; step until (cut-point? or stuck?)
                 ; end-rule
                 ; abstract
+                ; next-states
              else skip
            )
            ...

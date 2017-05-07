@@ -380,14 +380,14 @@ The interface of this analysis requires you define when to abstract and how to a
 -   `_subsumes?` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
 -   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
-     `abstract` must push any new states to analyze onto the top of the `states` stack.
+-   `next-states` must push any new states to analyze onto the top of the `states` stack.
 
 ```{.k .kat}
   syntax StatePred ::= "cut-point?" | State "subsumes?"
 //-----------------------------------------------------
 
-  syntax StateOp ::= "abstract"
-//-----------------------------
+  syntax StateOp ::= "abstract" | "next-states"
+//---------------------------------------------
 ```
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
@@ -439,6 +439,7 @@ Finally, semantics based compilation is provided as a macro.
                 ; step until (cut-point? or stuck?)
                 ; end-rule
                 ; abstract
+                ; next-states
              else skip
            )
            ...

@@ -56,7 +56,7 @@ module IMP
 //-----------------------------------------
   rule I1 <= I2   => I1 <=Int I2 [structural]
   rule I1 <  I2   => I1 <Int  I2 [structural]
-  rule I1 == I2   => I1 =Int  I2 [structural]
+  rule I1 == I2   => I1 ==Int I2 [structural]
   rule ! T        => notBool T   [structural]
   rule true  && B => B           [structural]
   rule false && _ => false       [structural]
@@ -74,7 +74,7 @@ module IMP
   rule {S}             => S        [structural]
 
   syntax Ids ::= List{Id,","}
-  syntax Stmt :;= "int" Ids ";"
+  syntax Stmt ::= "int" Ids ";"
 //-----------------------------
   rule <k> int .Ids ; => .    ... </k> [structural]
   rule <k> int (X,Xs => Xs) ; ... </k>

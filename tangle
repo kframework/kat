@@ -15,5 +15,9 @@ pandoc-tangle --from markdown --to code-k --code sum             KAT-IMP-example
 pandoc-tangle --from markdown --to code-k --code sum-plus        KAT-IMP-examples.md > tests/sum-plus.imp
 pandoc-tangle --from markdown --to code-k --code collatz         KAT-IMP-examples.md > tests/collatz.imp
 
-# echo "kompiling ..."
-# kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
+# build the test harness
+pandoc-tangle --from markdown --to code-sh --code runtests KAT-IMP-examples.md > tests/runtests.sh
+chmod u+x tests/runtests.sh
+
+echo "kompiling ..."
+kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
