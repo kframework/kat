@@ -47,12 +47,16 @@ module IMP
 
 
   syntax BExp  ::= Bool
-                 | AExp "<=" AExp [seqstrict, latex({#1}\leq{#2})]
+                 | AExp "<=" AExp [seqstrict]
+                 | AExp "<" AExp  [seqstrict]
+                 | AExp "==" AExp [seqstrict]
                  | "!" BExp       [strict]
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
 //-----------------------------------------
   rule I1 <= I2   => I1 <=Int I2 [structural]
+  rule I1 <  I2   => I1 <Int  I2 [structural]
+  rule I1 == I2   => I1 =Int  I2 [structural]
   rule ! T        => notBool T   [structural]
   rule true  && B => B           [structural]
   rule false && _ => false       [structural]
@@ -61,29 +65,35 @@ module IMP
 // Statements
 // ----------
 
-// IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for
-// assignment, and `while(_)_` for looping.
+// IMP has `{_}` for creating blocks and `int_;` for declaring variables.
 
 
-  syntax Block ::= "{" "}"
-                 | "{" Stmt "}"
+  syntax Block ::= "{" "}" | "{" Stmt "}"
+//---------------------------------------
+  rule {}              => .        [structural]
+  rule {S}             => S        [structural]
 
   syntax Ids ::= List{Id,","}
+  syntax Stmt :;= "int" Ids ";"
+//-----------------------------
+  rule <k> int .Ids ; => .    ... </k> [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k>
+       <mem> Rho:Map (.Map => X |-> 0) </mem>
+     requires notBool (X in keys(Rho))
+     [structural]
+
+
+// IMP has `if_then_else_` for choice, `_=_;` for assignment, and `while(_)_` for
+// looping.
+
 
   syntax Stmt  ::= Block
-                 | "int" Ids ";"
                  | Id "=" AExp ";"                      [strict(2)]
                  | "if" "(" BExp ")" Block "else" Block [strict(1)]
                  | "while" "(" BExp ")" Block
                  > Stmt Stmt                            [left]
 //------------------------------------------------------------
-  rule {}              => .        [structural]
-  rule {S}             => S        [structural]
-
-  rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
-
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> 0) </mem> requires notBool (X in keys(Rho)) [structural]
 
 
 // Semantics

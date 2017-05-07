@@ -46,12 +46,16 @@ IMP has `BExp` for boolean expressions.
 
 ```{.k .imp-lang}
   syntax BExp  ::= Bool
-                 | AExp "<=" AExp [seqstrict, latex({#1}\leq{#2})]
+                 | AExp "<=" AExp [seqstrict]
+                 | AExp "<" AExp  [seqstrict]
+                 | AExp "==" AExp [seqstrict]
                  | "!" BExp       [strict]
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
 //-----------------------------------------
   rule I1 <= I2   => I1 <=Int I2 [structural]
+  rule I1 <  I2   => I1 <Int  I2 [structural]
+  rule I1 == I2   => I1 =Int  I2 [structural]
   rule ! T        => notBool T   [structural]
   rule true  && B => B           [structural]
   rule false && _ => false       [structural]
@@ -60,28 +64,34 @@ IMP has `BExp` for boolean expressions.
 Statements
 ----------
 
-IMP has `{_}` for creating blocks, `if_then_else_` for choice, `_:=_` for assignment, and `while(_)_` for looping.
+IMP has `{_}` for creating blocks and `int_;` for declaring variables.
 
 ```{.k .imp-lang}
-  syntax Block ::= "{" "}"
-                 | "{" Stmt "}"
+  syntax Block ::= "{" "}" | "{" Stmt "}"
+//---------------------------------------
+  rule {}              => .        [structural]
+  rule {S}             => S        [structural]
 
   syntax Ids ::= List{Id,","}
+  syntax Stmt :;= "int" Ids ";"
+//-----------------------------
+  rule <k> int .Ids ; => .    ... </k> [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k>
+       <mem> Rho:Map (.Map => X |-> 0) </mem>
+     requires notBool (X in keys(Rho))
+     [structural]
+```
 
+IMP has `if_then_else_` for choice, `_=_;` for assignment, and `while(_)_` for looping.
+
+```{.k .imp-lang}
   syntax Stmt  ::= Block
-                 | "int" Ids ";"
                  | Id "=" AExp ";"                      [strict(2)]
                  | "if" "(" BExp ")" Block "else" Block [strict(1)]
                  | "while" "(" BExp ")" Block
                  > Stmt Stmt                            [left]
 //------------------------------------------------------------
-  rule {}              => .        [structural]
-  rule {S}             => S        [structural]
-
-  rule int .Ids ;      => .        [structural]
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
-
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> 0) </mem> requires notBool (X in keys(Rho)) [structural]
 ```
 
 Semantics
@@ -166,53 +176,6 @@ module IMP-BIMC
 endmodule
 ```
 
-### Example (Invariant Failure)
-
-Here we check the property `x <= 7` for 5 steps of execution after the code has initialized (the `step` in front of the command).
-Run this with `krun --search bimc.imp`.
-
-```{.imp .straight-line-1 .k}
-int x ;
-x = 0 ;
-x = x + 15 ;
-```
-
-```{.imp .straight-line-2 .k}
-int x ;
-x = 0 ;
-x = x + 15 ;
-x = x + -10 ;
-```
-
-```
-$> krun -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp
-<kat> <s> #STUCK ~> #bimc-result #false </s> <imp> <k> . </k> <mem> x |-> 15 </mem> </imp> <analysis> ( ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) | x |-> 0 } ) ; { x = 15 ; | x |-> 0 } ) ; { . | x |-> 15 } </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp
-<kat> <s> #STUCK ~> #bimc-result #true </s> <imp> <k> x = 15 ; </k> <mem> x |-> 0 </mem> </imp> <analysis> ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) | x |-> 0 } ) ; { x = 15 ; | x |-> 0 } </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp
-<kat> <s> #STUCK ~> #bimc-result #true </s> <imp> <k> x = 15 ; ~> ( x = x + -10 ; ) </k> <mem> x |-> 0 </mem> </imp> <analysis> ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x = 15 ; ~> ( x = x + -10 ; ) | x |-> 0 } </analysis> <states> .States </states> </kat>
-$> krun -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp
-<kat> <s> #STUCK ~> #bimc-result #false </s> <imp> <k> x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) </k> <mem> x |-> 15 </mem> </imp> <analysis> ( ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x = 15 ; ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) | x |-> 15 } </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp
-<kat> <s> #STUCK ~> #bimc-result #false </s> <imp> <k> x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) </k> <mem> x |-> 15 </mem> </imp> <analysis> ( ( ( .Trace ; { x = 0 ; ~> ( x = x + 15 ; ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( 15 ) ~> #freezer_=_;0 ( x ) ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x = 15 ; ~> ( x = x + -10 ; ) | x |-> 0 } ) ; { x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) | x |-> 15 } </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='step ; bimc 500 (bexp? s <= 32)' sum.imp
-<kat> <s> #STUCK ~> #bimc-result #false in 40 steps : { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 35 n |-> 5 } </s> <imp> <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> 35 n |-> 5 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='step ; bimc 40 (bexp? s <= 32)' sum.imp
-<kat> <s> #STUCK ~> #bimc-result #false in 40 steps : { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 35 n |-> 5 } </s> <imp> <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> 35 n |-> 5 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='step ; bimc 39 (bexp? s <= 32)' sum.imp
-<kat> <s> #STUCK ~> #bimc-result #true in 39 steps : { s = 35 ; ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 30 n |-> 5 } </s> <imp> <k> s = 35 ; ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> 30 n |-> 5 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-```
-
-### Example (Bound Reached)
-
-### Example (Execution Terminates)
-
 SBC
 ---
 
@@ -267,85 +230,3 @@ Because the memory is fully abstract every time subsumption is checked, it's eno
   rule <s> { while ( BEXP ) BODY ~> REST | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST | MEM } subsumes? [ STATE ] ... </s> [structural]
 endmodule
 ```
-
-### Example (Single Loop)
-
-Execute this test file with `krun --search sbc.imp`.
-Every solution will have it's own trace of generated rules.
-
-```{.imp .sum .k}
-int n , s ;
-
-n = 10 ;
-while (0 <= n) {
-  n = n + -1 ;
-  s = s + n ;
-}
-```
-
-```{.imp .dead-if .k}
-int x ;
-
-x = 7 ;
-if (x <= 7) {
-  x = 1 ;
-} else {
-  x = -1 ;
-}
-```
-
-```{.imp .sum-plus .k}
-int n , s ;
-
-n = 10 ;
-while (0 <= n) {
-  n = n + -1 ;
-  s = s + n ;
-}
-
-s = s + 300 ;
-```
-
-```{.imp .collatz .k}
-int n , x ;
-
-n = 782 ;
-x = 0 ;
-
-while (2 <= n) {
-  if (n <= ((n / 2) * 2)) {
-    n = n / 2 ;
-  } else {
-    n = (3 * n) + 1 ;
-  }
-  x = x + 1 ;
-}
-```
-
-
-```
-$> krun -cSTRATEGY='compile' straight-line-1.imp
-<kat> <s> #STUCK ~> #compile-result ( .Rules , < { int x , .Ids ; x = 0 ; x = x + 15 ; | .Map } --> { . | x |-> 15 } > ) </s> <imp> <k> . </k> <mem> x |-> V0 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='compile' straight-line-2.imp
-<kat> <s> #STUCK ~> #compile-result ( .Rules , < { int x , .Ids ; x = 0 ; x = x + 15 ; x = x + -10 ; | .Map } --> { . | x |-> 5 } > ) </s> <imp> <k> . </k> <mem> x |-> V0 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='compile' dead-if.imp
-<kat> <s> #STUCK ~> #compile-result ( .Rules , < { int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; } | .Map } --> { . | x |-> 1 } > ) </s> <imp> <k> . </k> <mem> x |-> V0 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='compile' sum.imp
-<kat> <s> #STUCK ~> #compile-result ( ( ( .Rules , < { int n , ( s , .Ids ) ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | .Map } --> { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 0 n |-> 10 } > ) , < { while ( false ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 } --> { . | s |-> V0 n |-> V1 } > ) , < { while ( true ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 } --> { while ( true ) { n = n + -1 ; s = s + n ; } | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } > ) </s> <imp> <k> while ( true ) { n = n + -1 ; s = s + n ; } </k> <mem> s |-> V2 n |-> V3 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun -cSTRATEGY='compile' sum-plus.imp
-<kat> <s> #STUCK ~> #compile-result ( ( ( .Rules , < { int n , ( s , .Ids ) ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } s = s + 300 ; | .Map } --> { ( while ( 0 <= n ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> 0 n |-> 10 } > ) , < { ( while ( false ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> V0 n |-> V1 } --> { . | s |-> ( V0 +Int 300 ) n |-> V1 } > ) , < { ( while ( true ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> V0 n |-> V1 } --> { ( while ( true ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } > ) </s> <imp> <k> ( while ( true ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) </k> <mem> s |-> V2 n |-> V3 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-
-$> krun --search -cSTRATEGY='compile' collatz.imp
-Solution 1
-<kat> <s> #STUCK ~> #compile-result ( ( ( .Rules , < { int n , ( x , .Ids ) ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | .Map } --> { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> 0 n |-> 782 } > ) , < { while ( false ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 } --> { . | x |-> V0 n |-> V1 } > ) , < { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 } --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( 3 *Int V1 +Int 1 ) } > ) </s> <imp> <k> while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> V2 n |-> V3 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-Solution 2
-<kat> <s> #STUCK ~> #compile-result ( ( ( .Rules , < { int n , ( x , .Ids ) ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | .Map } --> { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> 0 n |-> 782 } > ) , < { while ( false ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 } --> { . | x |-> V0 n |-> V1 } > ) , < { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 } --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( V1 /Int 2 ) } > ) </s> <imp> <k> while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> V2 n |-> V3 </mem> </imp> <analysis> .Analysis </analysis> <states> .States </states> </kat>
-```
-
-### Exmaple (Collatz)
-
-### Example (Memory Walk)

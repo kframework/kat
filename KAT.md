@@ -68,8 +68,16 @@ If you declare something a `StatePred`, this code will automatically load the cu
   syntax StatePred
   syntax Pred ::= StatePred | StatePred "[" State "]"
 //---------------------------------------------------
-  rule <s> SP:StatePred              => push ; SP [ #current ] ; pred-pop ... </s>                                   [structural]
-  rule <s> SP:StatePred [ #current ] => SP [ STATE ]                      ... </s> <states> STATE : STATES </states> [structural]
+  rule <s> SP:StatePred              => push ; SP [ #current ] ; #pred drop ... </s>                                   [structural]
+  rule <s> SP:StatePred [ #current ] => SP [ STATE ]                        ... </s> <states> STATE : STATES </states> [structural]
+```
+
+-   `#pred_` is useful for propagating the result of a predicate through another strategy.
+
+```{.k .kat}
+  syntax Strategy ::= "#pred" Strategy
+//------------------------------------
+  rule <s> PA:PredAtom ~> #pred S => S ; PA   ... </s> [structural]
 ```
 
 Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
@@ -144,6 +152,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 
 -   `push_` copies the current execution state onto the stack of states and must be provided by the programming language.
 -   `pop_` places the given state in the execution harness and must be provided by the programming language.
+-   `stack_` sets the `states` cell to the given state stack.
 -   `swap` swaps the top two elements of the state stack.
 -   `dup` duplicates the top element of the state stack.
 -   `drop` removes the top element of the state stack (without placing it in the execution harness).
@@ -157,6 +166,10 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 //---------------------------------------
   rule <s> pop #current => skip      ... </s>                                             [structural]
   rule <s> pop          => pop STATE ... </s> <states> STATE : STATES => STATES </states> [structural]
+
+  syntax Strategy ::= "stack" States
+//----------------------------------
+  rule <s> stack STATES => . ... </s> <states> _ => STATES </states> [structural]
 
   syntax Strategy ::= "swap" | "dup" | "drop"
 //-------------------------------------------
@@ -204,7 +217,7 @@ Strategy Macros
 ```{.k .kat}
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> can? S => push ; (try? S) ; pred-pop ... </s> <imp> STATE </imp> [structural]
+  rule <s> can? S => push ; (try? S) ; #pred pop ... </s> <imp> STATE </imp> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------
@@ -212,14 +225,12 @@ Strategy Macros
 ```
 
 -   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
--   `pred-pop` is useful for always popping a state but propagating the result of a predicate through.
 
 ```{.k .kat}
   syntax priority if_then_else_ > _*
-  syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy | "pred-pop"
-//--------------------------------------------------------------------------
+  syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
+//-------------------------------------------------------------
   rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s> [structural]
-  rule <s> PA:PredAtom ~> pred-pop => pop ; PA   ... </s> [structural]
 ```
 
 -   `while__` allows looping behavior (controlled by sort `Pred`), and `while___` implements a bounded version.
@@ -254,8 +265,8 @@ Strategy Macros
   syntax priority eval_ > _*
   syntax StatePred ::= "eval" | "eval" Int
 //----------------------------------------
-  rule <s> eval   [ STATE ] => exec   ; bool? ... </s> [structural]
-  rule <s> eval N [ STATE ] => exec N ; bool? ... </s> [structural]
+  rule <s> eval   [ STATE ] => pop STATE ; exec   ; bool? ... </s> [structural]
+  rule <s> eval N [ STATE ] => pop STATE ; exec N ; bool? ... </s> [structural]
 endmodule
 ```
 
@@ -274,13 +285,15 @@ In bounded invariant model checking, the analysis being performed is a trace of 
 module KAT-BIMC
   imports KAT
 
+  syntax Trace    ::= ".Trace"
+                    | Trace ";" State
+
   syntax Analysis ::= Trace
 ```
 
--   `#length` calculates the length of a trace.
+-   `#length_` calculates the length of a trace.
 
 ```{.k .kat}
-  syntax Trace ::= ".Trace" | Trace ";" State
   syntax Strategy ::= "#length" Trace | "#length" Int Trace | "#length" Int
 //-------------------------------------------------------------------------
   rule <s> #length T         => #length 0 T          ... </s> [structural]
@@ -296,15 +309,16 @@ module KAT-BIMC
   rule <s> record [ STATE ] => . ... </s> <analysis> T => T ; STATE </analysis> requires STATE =/=K #current [structural]
 ```
 
-Performing bounded invariant model checking is a simple predicate in our strategy language.
+After performing BIMC, we'll need a container for the results of the analysis.
 
--   `#bimc-result_in_steps:_` holds the result of a bimc analysis.
+-   `#bimc-result_in_steps` holds the result of a bimc analysis.
+    The final state reached in the analysis cell will be in the execution harness.
 
 ```{.k .kat}
-  syntax Exception ::= "#bimc-result" | "#bimc-result" PredAtom "in" Int "steps" ":" State
-//----------------------------------------------------------------------------------------
-  rule <s> #length N:Int ~> #bimc-result PA in -1 steps : STATE => #bimc-result PA in (N -Int 1) steps : STATE ... </s> [structural]
-  rule <s> PA:PredAtom ~> #bimc-result => #length T ; STATE ~> #bimc-result PA in -1 steps : STATE ... </s>
+  syntax Exception ::= "#bimc-result" | "#bimc-result" PredAtom "in" Int "steps"
+//------------------------------------------------------------------------------
+  rule <s> #length N:Int ~> #bimc-result PA in -1 steps => #bimc-result PA in (N -Int 1) steps ... </s> [structural]
+  rule <s> PA:PredAtom ~> #bimc-result => pop STATE ; #length T ; STATE ~> #bimc-result PA in -1 steps ... </s>
        <analysis> T ; STATE => .Analysis </analysis>
     [structural]
 ```
@@ -364,8 +378,9 @@ The interface of this analysis requires you define when to abstract and how to a
 
 -   `cut-point?` is a predicate that should hold when abstraction should occur.
 -   `_subsumes?` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
--   `abstract` is an operator than should abstract away enough details of the state to guarantee termination.
+-   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
+     `abstract` must push any new states to analyze onto the top of the `states` stack.
 
 ```{.k .kat}
   syntax StatePred ::= "cut-point?" | State "subsumes?"
@@ -411,43 +426,46 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 
 Finally, semantics based compilation is provided as a macro.
 
--   `compile` will execute a program using the given `cut-point?` and `abstract` operators until it has collected a complete set of rules.
+-   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
 
 ```{.k .kat}
-  syntax StateOp ::= "push-new-states"
-//------------------------------------
-
   syntax Strategy ::= "compile-step"
 //----------------------------------
   rule <s> ( compile-step
-          => pop
+          => dup ; pop
            ; if (not subsumed?)
-             then begin-rule
+             then begin-rule [ #current ]
                 ; step
                 ; step until (cut-point? or stuck?)
                 ; end-rule
                 ; abstract
-                ; push-new-states
              else skip
            )
            ...
        </s>
+    [structural]
+```
 
-  syntax Strategy ::= "compile"
-//-----------------------------
-  rule <s> ( compile
+-   `compile` will initialize the stack to empty and the analysis to `.Rules`, then compile the current program to completion.
+
+```{.k .kat}
+  syntax StateOp ::= "compile"
+//----------------------------
+  rule <s> ( compile [ STATE ]
           => analysis .Rules
-           ; push
+           ; stack .States
+           ; push STATE
            ; compile-step until stack-empty?
           ~> #compile-result
            )
            ...
        </s>
+    [structural]
 endmodule
 ```
 ### Future Work
 
--   Post-process the results of the compilation with another abstraction pass which just hashes the contents of the `k` cell for each rule.
+-   Post-processing steps including hashing any components of the state that are concrete for the entire execution (eg. the `k` cell).
     This will reduce the amount of extra matching that happens in executing the compiled definition.
 -   Use matching-logic implication to implement `_subsumes?` in a language-indepedent way.
 

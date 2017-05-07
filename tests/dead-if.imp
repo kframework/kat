@@ -1,0 +1,21 @@
+// IMP Exmaples
+// ============
+
+// In this file several tests are provided for KAT.
+
+// Branching
+// ---------
+
+// This example exhibits a "dead" if statement; any good compiler would optimize it
+// away.
+
+
+int x ;
+
+x = 7 ;
+if (x <= 7) {
+  x = 1 ;
+} else {
+  x = -1 ;
+}
+

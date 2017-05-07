@@ -1,0 +1,17 @@
+// IMP Exmaples
+// ============
+
+// In this file several tests are provided for KAT.
+
+// Straight Line Code
+// ------------------
+
+// These programs are "straight-line code" in IMP; they don't have any branching or
+// looping.
+
+
+int x ;
+x = 0 ;
+x = x + 15 ;
+x = x + -10 ;
+

@@ -67,16 +67,6 @@ module IMP-BIMC
 endmodule
 
 
-// ### Example (Invariant Failure)
-
-// Here we check the property `x <= 7` for 5 steps of execution after the code has
-// initialized (the `step` in front of the command). Run this with
-// `krun --search bimc.imp`.
-
-// ### Example (Bound Reached)
-
-// ### Example (Execution Terminates)
-
 // SBC
 // ---
 
@@ -134,12 +124,3 @@ module IMP-SBC
   rule <s> { while ( BEXP ) BODY ~> REST | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST | MEM } subsumes? [ STATE ] ... </s> [structural]
 endmodule
 
-
-// ### Example (Single Loop)
-
-// Execute this test file with `krun --search sbc.imp`. Every solution will have
-// it's own trace of generated rules.
-
-// ### Exmaple (Collatz)
-
-// ### Example (Memory Walk)

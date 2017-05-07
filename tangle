@@ -1,17 +1,19 @@
 #!/usr/bin/env zsh
 
+# build the file `kat.k` from `KAT.md`
+pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
+
+# build the files `imp.k` and `imp-kat.k` from `IMP-KAT.md`
 pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
 pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
 
-pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
+# build the test code files
+pandoc-tangle --from markdown --to code-k --code straight-line-1 KAT-IMP-examples.md > tests/straight-line-1.imp
+pandoc-tangle --from markdown --to code-k --code straight-line-2 KAT-IMP-examples.md > tests/straight-line-2.imp
+pandoc-tangle --from markdown --to code-k --code dead-if         KAT-IMP-examples.md > tests/dead-if.imp
+pandoc-tangle --from markdown --to code-k --code sum             KAT-IMP-examples.md > tests/sum.imp
+pandoc-tangle --from markdown --to code-k --code sum-plus        KAT-IMP-examples.md > tests/sum-plus.imp
+pandoc-tangle --from markdown --to code-k --code collatz         KAT-IMP-examples.md > tests/collatz.imp
 
-pandoc-tangle --from markdown --to code-k --code straight-line-1 KAT-IMP.md > straight-line-1.imp
-pandoc-tangle --from markdown --to code-k --code straight-line-2 KAT-IMP.md > straight-line-2.imp
-pandoc-tangle --from markdown --to code-k --code dead-if         KAT-IMP.md > dead-if.imp
-pandoc-tangle --from markdown --to code-k --code sum             KAT-IMP.md > sum.imp
-pandoc-tangle --from markdown --to code-k --code sum-plus        KAT-IMP.md > sum-plus.imp
-pandoc-tangle --from markdown --to code-k --code collatz         KAT-IMP.md > collatz.imp
-
-
-echo "kompiling ..."
-kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
+# echo "kompiling ..."
+# kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
