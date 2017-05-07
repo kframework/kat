@@ -401,8 +401,14 @@ krun --directory '../' --search -cSTRATEGY='compile' sum.imp
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
+
+                                     // RULE 1
                                    , < { int n , ( s , .Ids ) ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | .Map } --> { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 0 n |-> 10 } > )
+
+                                     // RULE 2
                                    , < { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 | false }            --> { . | s |-> V0 n |-> V1 } > )
+
+                                     // RULE 3
                                    , < { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 | true }             --> { while ( true ) { n = n + -1 ; s = s + n ; } | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } >
                                    ) </s>
  <imp>
@@ -414,7 +420,7 @@ Solution 1
 </kat>
 ```
 
-Sum Plus should generate the same rules, but the rule for the false branch of the `while` loop should also include the effect of the code after the `while` loop.
+Sum Plus should generate the same rules, but the rule for the false branch of the `while` loop should also include the effect of the code after the `while` loop (rule 2').
 
 ```{.sh .runtests}
 krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
@@ -424,8 +430,14 @@ krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
+
+                                     // RULE 1
                                    , < { int n , ( s , .Ids ) ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } s = s + 300 ; | .Map } --> { ( while ( 0 <= n ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> 0 n |-> 10 } > )
+
+                                     // RULE 2'
                                    , < { ( while ( 0 <= n ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> V0 n |-> V1 | false } --> { . | s |-> ( V0 +Int 300 ) n |-> V1 } > )
+
+                                     // RULE 3
                                    , < { ( while ( 0 <= n ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> V0 n |-> V1 | true }  --> { ( while ( true ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } >
                                    ) </s>
  <imp>

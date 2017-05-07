@@ -140,7 +140,7 @@ krun --directory '../' --search -cSTRATEGY='compile' sum.imp
 
 # Sum Plus should generate the same rules, but the rule for the false branch of
 # the `while` loop should also include the effect of the code after the `while`
-# loop.
+# loop (rule 2').
 
 
 krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
