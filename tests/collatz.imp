@@ -1,7 +1,8 @@
 // IMP Exmaples
 // ============
 
-// In this file several tests are provided for KAT.
+// In this file several tests are provided for KAT. The file `tests/runtests.sh`
+// should be run with K commit `e14da0a` from Github.
 
 // Looping
 // -------

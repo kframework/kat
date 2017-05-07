@@ -58,8 +58,8 @@ module KAT
   syntax StatePred
   syntax Pred ::= StatePred | StatePred "[" State "]"
 //---------------------------------------------------
-  rule <s> SP:StatePred              => push ; SP [ #current ] ; #pred drop ... </s>                                   [structural]
-  rule <s> SP:StatePred [ #current ] => SP [ STATE ]                        ... </s> <states> STATE : STATES </states> [structural]
+  rule <s> SP:StatePred              => push ; SP [ #current ] ... </s>                                             [structural]
+  rule <s> SP:StatePred [ #current ] => SP [ STATE ]           ... </s> <states> STATE : STATES => STATES </states> [structural]
 
 
 // -   `#pred_` is useful for propagating the result of a predicate through
@@ -170,7 +170,7 @@ module KAT
 
   syntax Strategy ::= "pop" | "pop" State
 //---------------------------------------
-  rule <s> pop #current => skip      ... </s>                                             [structural]
+  rule <s> pop #current => .         ... </s>                                             [structural]
   rule <s> pop          => pop STATE ... </s> <states> STATE : STATES => STATES </states> [structural]
 
   syntax Strategy ::= "stack" States
@@ -189,7 +189,7 @@ module KAT
 
   syntax Strategy ::= "analysis" Analysis
 //---------------------------------------
-  rule <s> analysis A => skip ... </s> <analysis> _ => A </analysis> [structural]
+  rule <s> analysis A => . ... </s> <analysis> _ => A </analysis> [structural]
 
 
 // -   `step-with_` is used to specify that a given strategy should be executed
@@ -254,7 +254,7 @@ module KAT
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
   rule <s> while   P S => P ; ? S ; while P S : skip            ... </s>                   [structural]
-  rule <s> while 0 P S => skip                                  ... </s>                   [structural]
+  rule <s> while 0 P S => .                                     ... </s>                   [structural]
   rule <s> while N P S => P ; ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0 [structural]
 
   syntax priority _until_ _until__ > _*
@@ -279,8 +279,8 @@ module KAT
   syntax priority eval_ > _*
   syntax StatePred ::= "eval" | "eval" Int
 //----------------------------------------
-  rule <s> eval   [ STATE ] => pop STATE ; exec   ; bool? ... </s> [structural]
-  rule <s> eval N [ STATE ] => pop STATE ; exec N ; bool? ... </s> [structural]
+  rule <s> eval   [ STATE ] => pop STATE ; exec   ; bool? ... </s> requires STATE =/=K #current [structural]
+  rule <s> eval N [ STATE ] => pop STATE ; exec N ; bool? ... </s> requires STATE =/=K #current [structural]
 endmodule
 
 
@@ -350,9 +350,11 @@ module KAT-BIMC
   rule <s> bimc N P => bimc? N P ~> #bimc-result ... </s> [structural]
   rule <s> ( bimc? N P
           => analysis .Trace
+           ; stack .States
            ; record
-           ; (step ; record) until N (not P)
+           ; (step ; record) until N ((not P) or stuck?)
            ; P
+           ; #pred (drop until stack-empty?)
            )
            ...
        </s> 
@@ -452,9 +454,7 @@ module KAT-SBC
 
   syntax Exception ::= "#compile-result" | "#compile-result" Rules
 //----------------------------------------------------------------
-  rule <s> #compile-result => #compile-result RS ... </s>
-       <analysis> RS => .Analysis </analysis>
-    [structural]
+  rule <s> #compile-result => #compile-result RS ... </s> <analysis> RS => .Analysis </analysis> [structural]
 
 
 // Finally, semantics based compilation is provided as a macro.
@@ -467,14 +467,14 @@ module KAT-SBC
 //----------------------------------
   rule <s> ( compile-step
           => dup ; pop
-           ; if (not subsumed?)
+           ; if not (subsumed? or stuck?)
              then begin-rule [ #current ]
                 ; step
                 ; step until (cut-point? or stuck?)
                 ; end-rule
                 ; abstract
                 ; next-states
-             else skip
+             else drop ; skip
            )
            ...
        </s>
@@ -485,12 +485,12 @@ module KAT-SBC
 //     then compile the current program to completion.
 
 
-  syntax StateOp ::= "compile"
-//----------------------------
-  rule <s> ( compile [ STATE ]
+  syntax Strategy ::= "compile"
+//-----------------------------
+  rule <s> ( compile
           => analysis .Rules
            ; stack .States
-           ; push STATE
+           ; push
            ; compile-step until stack-empty?
           ~> #compile-result
            )

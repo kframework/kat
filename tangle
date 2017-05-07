@@ -1,23 +1,39 @@
 #!/usr/bin/env zsh
 
+# KAT
+# ===
+
 # build the file `kat.k` from `KAT.md`
 pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
+
+# IMP-KAT
+# =======
 
 # build the files `imp.k` and `imp-kat.k` from `IMP-KAT.md`
 pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
 pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
 
-# build the test code files
-pandoc-tangle --from markdown --to code-k --code straight-line-1 KAT-IMP-examples.md > tests/straight-line-1.imp
-pandoc-tangle --from markdown --to code-k --code straight-line-2 KAT-IMP-examples.md > tests/straight-line-2.imp
-pandoc-tangle --from markdown --to code-k --code dead-if         KAT-IMP-examples.md > tests/dead-if.imp
-pandoc-tangle --from markdown --to code-k --code sum             KAT-IMP-examples.md > tests/sum.imp
-pandoc-tangle --from markdown --to code-k --code sum-plus        KAT-IMP-examples.md > tests/sum-plus.imp
-pandoc-tangle --from markdown --to code-k --code collatz         KAT-IMP-examples.md > tests/collatz.imp
+# Kompile
+# =======
 
-# build the test harness
-pandoc-tangle --from markdown --to code-sh --code runtests KAT-IMP-examples.md > tests/runtests.sh
+# echo "kompiling ..."
+# kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
+
+# Examples
+# ========
+
+examples=(straight-line-1 straight-line-2 dead-if sum sum-plus collatz)
+
+for example in $examples; do
+    pandoc-tangle --from markdown --to code-k --code "$example" KAT-IMP-examples.md > "tests/$example.imp"
+done
+
+# Tests
+# =====
+
+pandoc-tangle --from markdown --to code-sh --code runtests        KAT-IMP-examples.md > tests/runtests.sh
+pandoc-tangle --from markdown --to code-k  --code runtests-output KAT-IMP-examples.md > tests/runtests.out
 chmod u+x tests/runtests.sh
 
-echo "kompiling ..."
-kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
+# echo "running tests ..."
+# cat tests/runtests-outpu | grep -v -e '^//' -e '^$' | tr -squeeze-repeats ' '

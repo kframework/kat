@@ -172,7 +172,7 @@ module IMP-BIMC
 
   syntax StatePred ::= "bexp?" BExp
 //---------------------------------
-  rule <s> bexp? B [ { _ | MEM } ] => pop { B | MEM } ; eval ... </s> [structural]
+  rule <s> bexp? B [ { KCELL | MEM } ] => push { KCELL | MEM } ; pop { B | MEM } ; eval ; #pred pop ... </s> [structural]
 endmodule
 ```
 
@@ -202,7 +202,7 @@ module IMP-SBC
 IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
 
 ```{.k .imp-kat}
-  rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ while) ... </s> [structural]
+  rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ while) ... </s> requires STATE =/=K #current [structural]
 ```
 
 ### Define `abstract`

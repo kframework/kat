@@ -54,28 +54,40 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? s <= 32)' su
 # happens at:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp
+krun --directory '../' -cSTRATEGY='step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp
 
 
 # And that one step prior the assertion was not violated:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 39 (bexp? s <= 32)' sum.imp
+krun --directory '../' -cSTRATEGY='step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp
 
 
 # ### Collatz
 
-# Check if calculating Collatz of 782 ever goes above 10000:
+# Check if calculating Collatz of 782 ever goes above 1000:
 
 
-krun --directory '../' -cSTRATEG='step-with skip ; bimc 5000 (bexp? n <= 10000)' collatz.imp
+krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp
 
+
+# Check if 1174 is the highest number that is reached:
+
+# Using the same technique, the sequence of maximum numbers generated is:
+
+# 1.  2644 at 60 steps in \#\#TIME\#\#
+# 2.  3238 at 730 steps in \#\#TIME\#\#
+# 3.  4858 at 750 steps in \#\#TIME\#\#
+# 4.  7288 at 770 steps in \#\#TIME\#\#
+# 5.  9232 at 870 steps in \#\#TIME\#\#
 
 # SBC
 # ---
 
 # Here, we compile each program into a simpler set of rules specific to that
-# program.
+# program. Compilation must be run with `--search` so that when the state of
+# symbolic execution splits at branch points (eg. `if(_)_else_` in IMP) we collect
+# rules for both branches.
 
 # ### Straight Line
 
@@ -86,7 +98,7 @@ krun --directory '../' -cSTRATEG='step-with skip ; bimc 5000 (bexp? n <= 10000)'
 # intermediate steps.
 
 
-krun --directory '../' -cSTRATEGY='compile' straight-line-1.imp
+krun --directory '../' --search -cSTRATEGY='compile' straight-line-1.imp
 
 
 # `straight-line-2` just has the effect of setting `x` to 5, skipping all
@@ -96,7 +108,7 @@ krun --directory '../' -cSTRATEGY='compile' straight-line-1.imp
 # this dead-code elimination practically for free.
 
 
-krun --directory '../' -cSTRATEGY='compile' straight-line-2.imp
+krun --directory '../' --search -cSTRATEGY='compile' straight-line-2.imp
 
 
 # ### Dead `if`
@@ -109,7 +121,7 @@ krun --directory '../' -cSTRATEGY='compile' straight-line-2.imp
 # directly, we get this branch elimination for free.
 
 
-krun --directory '../' -cSTRATEGY='compile' dead-if.imp
+krun --directory '../' --search -cSTRATEGY='compile' dead-if.imp
 
 
 # ### Sum and Sum Plus
@@ -123,7 +135,7 @@ krun --directory '../' -cSTRATEGY='compile' dead-if.imp
 #     the loop is false).
 
 
-krun --directory '../' -cSTRATEGY='compile' sum.imp
+krun --directory '../' --search -cSTRATEGY='compile' sum.imp
 
 
 # Sum Plus should generate the same rules, but the rule for the false branch of
@@ -131,15 +143,13 @@ krun --directory '../' -cSTRATEGY='compile' sum.imp
 # loop.
 
 
-krun --directory '../' -cSTRATEGY='compile' sum-plus.imp
+krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
 
 
 # ### Collatz {#collatz-1}
 
 # Finally, we pick a program that has a conditional inside the `while` loop.
-# Because the conditional splits execution state, we must use `--search` instead
-# to get all paths. Indeed, we get a summary of the Collatz program with four
-# rules:
+# Indeed, we get a summary of the Collatz program with four rules:
 
 # 1.  A rule that gets us to the beginning of the `while` loop (initialization).
 # 2.  A rule that has the effect of the `while` loop if the branch inside is true
