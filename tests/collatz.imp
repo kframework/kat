@@ -7,10 +7,7 @@
 // Looping
 // -------
 
-// This is the classic `sum` program, which just sums the numbers from 1 to 10.
-
-// This version of the `sum` proogram has additional statements after the main
-// while loop.
+// ### `collatz.imp`
 
 // Here the Collatz loop is provided, which calculates how many steps it takes a
 // given number to go to 1 using Collatz update.

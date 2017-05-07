@@ -7,6 +7,8 @@
 // Branching
 // ---------
 
+// ### `dead-if.imp`
+
 // This example exhibits a "dead" if statement; any good compiler would optimize it
 // away.
 

@@ -9,11 +9,15 @@ Straight Line Code
 
 These programs are "straight-line code" in IMP; they don't have any branching or looping.
 
+### `straight-line-1.imp`
+
 ```{.imp .straight-line-1 .k}
 int x ;
 x = 0 ;
 x = x + 15 ;
 ```
+
+### `straight-line-2.imp`
 
 ```{.imp .straight-line-2 .k}
 int x ;
@@ -24,6 +28,8 @@ x = x + -10 ;
 
 Branching
 ---------
+
+### `dead-if.imp`
 
 This example exhibits a "dead" if statement; any good compiler would optimize it away.
 
@@ -41,6 +47,8 @@ if (x <= 7) {
 Looping
 -------
 
+### `sum.imp`
+
 This is the classic `sum` program, which just sums the numbers from 1 to 10.
 
 ```{.imp .sum .k}
@@ -52,6 +60,8 @@ while (0 <= n) {
   s = s + n ;
 }
 ```
+
+### `sum-plus.imp`
 
 This version of the `sum` proogram has additional statements after the main while loop.
 
@@ -67,7 +77,9 @@ while (0 <= n) {
 s = s + 300 ;
 ```
 
-Here the Collatz loop is provided, which calculates how many steps it takes a given number to go to 1 using Collatz update.
+### `collatz.imp`
+
+Here the Collatz loop is provided, which calculates how many steps it takes a given number (in this case 782) to go to 1 using Collatz update.
 
 ```{.imp .collatz .k}
 int n , x ;
