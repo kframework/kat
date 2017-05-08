@@ -1,0 +1,36 @@
+// IMP Exmaples
+// ============
+
+// In this file several tests are provided for KAT. K commit `e14da0a` should be
+// used to kompile the definition and run the examples. Compile the definition with
+// `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k`. Run
+// the tests with `bash runtests.sh` in the `tests` directory.
+
+// Looping
+// -------
+
+// ### `collatz-all.imp`
+
+// Like `collatz`, though in this case calculates how many steps it takes for all
+// numbers up to a given number (in this case 10) to go to 1 using Collatz update.
+
+
+int b , n , x ;
+
+b = 1 ;
+n = 1 ;
+x = 0 ;
+
+while (b <= 10) {
+  n = b ;
+  while (2 <= n) {
+    if (n <= ((n / 2) * 2)) {
+      n = n / 2 ;
+    } else {
+      n = (3 * n) + 1 ;
+    }
+    x = x + 1 ;
+  }
+  b = b + 1 ;
+}
+

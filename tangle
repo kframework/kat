@@ -20,7 +20,7 @@ tangle_examples() {
 
     [[ ! -d tests ]] && mkdir tests
 
-    examples=(straight-line-1 straight-line-2 dead-if sum sum-plus collatz)
+    examples=(straight-line-1 straight-line-2 dead-if sum sum-plus collatz collatz-all)
 
     for example in $examples; do
         pandoc-tangle --from markdown --to code-k --code "$example" KAT-IMP-examples.md > "tests/$example.imp"
@@ -38,10 +38,10 @@ tangle_tests() {
 
     tests=( straight-line-1-bimc1 straight-line-1-bimc2
             straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
-            sum-bimc1 sum-bimc2 sum-bimc3 collatz-bimc
+            sum-bimc1 sum-bimc2 sum-bimc3 collatz-bimc collatz-all-bimc
             straight-line-1-sbc straight-line-2-sbc
             dead-if-sbc sum-sbc sum-plus-sbc
-            collatz-sbc
+            collatz-sbc collatz-all-sbc
           )
 
     for test in $tests; do
@@ -57,25 +57,28 @@ tangle_tests() {
 }
 
 tangle_benchmarks() {
-    echo "generating collatz-compiled ..."
-    echo "==============================="
-    [[ ! -d tests/collatz-compiled ]] && mkdir -p tests/collatz-compiled
-    pandoc-tangle --from markdown --to code-k --code collatz-compiled KAT-IMP-examples.md > tests/collatz-compiled/collatz.k
+    program="$1"
+    PROGRAM="$(echo "$program" | awk '{print toupper($0)}')"
 
-    echo "kompiling collatz-compiled ..."
+    echo "generating $program-compiled ..."
+    echo "==============================="
+    [[ ! -d "tests/$program-compiled" ]] && mkdir -p "tests/$program-compiled"
+    pandoc-tangle --from markdown --to code-k --code "$program-compiled" KAT-IMP-examples.md > "tests/$program-compiled/$program.k"
+
+    echo "kompiling $program-compiled ..."
     echo "=============================="
-    pushd tests/collatz-compiled
-    kompile --debug --main-module COLLATZ-COMPILED --syntax-module COLLATZ-COMPILED collatz.k || exit 1
+    pushd "tests/$program-compiled"
+    kompile --debug --main-module "$PROGRAM-COMPILED" --syntax-module "$PROGRAM-COMPILED" "$program.k" || exit 1
     popd
 
     echo "generating benchmarks ..."
     echo "========================="
-    pandoc-tangle --from markdown --to code-sh --code benchmark-collatz KAT-IMP-examples.md > tests/benchmark-collatz.sh
+    pandoc-tangle --from markdown --to code-sh --code "benchmark-$program" KAT-IMP-examples.md > "tests/benchmark-$program.sh"
 
     echo "running benchmarks ..."
     echo "======================"
     pushd tests
-    bash benchmark-collatz.sh
+    bash "benchmark-$program.sh"
     popd
 }
 

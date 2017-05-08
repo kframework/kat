@@ -99,6 +99,31 @@ while (2 <= n) {
 }
 ```
 
+### `collatz-all.imp`
+
+Like `collatz`, though in this case calculates how many steps it takes for all numbers up to a given number (in this case 10) to go to 1 using Collatz update.
+
+```{.imp .collatz-all .k}
+int b , n , x ;
+
+b = 1 ;
+n = 1 ;
+x = 0 ;
+
+while (b <= 10) {
+  n = b ;
+  while (2 <= n) {
+    if (n <= ((n / 2) * 2)) {
+      n = n / 2 ;
+    } else {
+      n = (3 * n) + 1 ;
+    }
+    x = x + 1 ;
+  }
+  b = b + 1 ;
+}
+```
+
 IMP-KAT Tests
 =============
 
@@ -558,6 +583,14 @@ Solution 2
   <mem> x |-> V2 n |-> V3 </mem>
  </imp>
 </kat-imp>
+```
+
+### Collatz-all
+
+```
+<kat-imp> <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map } --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false } --> { . | x |-> V0 b |-> V1 n |-> V2 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true } --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true } --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( 3 *Int V5 +Int 1 ) } > ) </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k> <mem> x |-> V6 b |-> V7 n |-> V8 </mem> </imp> </kat-imp>
+Solution 2
+<kat-imp> <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map } --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false } --> { . | x |-> V0 b |-> V1 n |-> V2 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true } --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true } --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( V5 /Int 2 ) } > ) </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k> <mem> x |-> V6 b |-> V7 n |-> V8 </mem> </imp> </kat-imp>
 ```
 
 SBC Benchmarking
