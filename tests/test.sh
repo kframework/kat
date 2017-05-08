@@ -107,6 +107,12 @@ test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
 test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out
 
 
+# ### Collatz All
+
+
+test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out
+
+
 # SBC
 # ---
 
@@ -192,6 +198,12 @@ test 'compile' sum-plus.imp sum-plus-sbc.out
 
 test 'compile' collatz.imp collatz-sbc.out
 
+
+# ### Collatz-all {#collatz-all-1}
+
+
+test 'compile' collatz-all.imp collatz-all-sbc.out
+
 exit $return_code
 
 
@@ -216,6 +228,14 @@ exit $return_code
 # definition could be because we're still using the strategy harness to control
 # execution (which introduces overhead).
 
+# And we also are timing the `collatz-all` program with
+
+#   program       concrete (ms)   compiled (ms)
+#   ------------- --------------- ---------------
+#   collatz       31952           2782
+#   collatz-all                   
+# 
+
 # ### BIMC Execution Time
 
 # In addition to concrete execution speedup, we get a speedup in the other
@@ -230,11 +250,14 @@ exit $return_code
 # number is the number of steps it took to get there. The third number is how long
 # it took to run on my laptop on a Sunday.
 
-# 1.  1000 at 20 steps in 19s
-# 2.  1174 at 40 steps in 22s
-# 3.  1762 at 60 steps in ??s
-# 4.  2644 at 730 steps in 2m34s
-# 5.  3238 at 750 steps in 3m07s
-# 6.  4858 at 770 steps in 3m44s
-# 7.  7288 at 870 steps in 9m01s
-# 8.  9232 at ??? steps in ?m??s
+#   bound   concrete (ms)   compiled (ms)   speedup
+#   ------- --------------- --------------- ---------
+#   1000    2154            596             3.61
+#   1174    3378            818             4.13
+#   1762    4497            966             4.66
+#   2644    43825           4673            9.78
+#   3238    45397           4521            10.04
+#   4858    44939           4707            9.55
+#   7288    53164           5209            10.21
+#   9323    71187           6851            10.39
+# 

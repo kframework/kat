@@ -1,0 +1,55 @@
+// IMP-KAT Tests
+// =============
+
+// We'll use a simple testing harness in `bash` which just checks the output of
+// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+
+// SBC
+// ---
+
+// Here, we compile each program into a simpler set of rules specific to that
+// program. Compilation must be run with `--search` so that when the state of
+// symbolic execution splits at branch points (eg. `if(_)_else_` in IMP) we collect
+// rules for both branches.
+
+// ### Collatz-all {#collatz-all-1}
+
+
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true }  --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( 3 *Int V5 +Int 1 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k>
+  <mem> x |-> V6 b |-> V7 n |-> V8 </mem>
+ </imp>
+</kat-imp>
+
+Solution 2
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true }  --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( V5 /Int 2 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k>
+  <mem> x |-> V6 b |-> V7 n |-> V8 </mem>
+ </imp>
+</kat-imp>
+

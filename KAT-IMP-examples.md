@@ -110,7 +110,7 @@ b = 1 ;
 n = 1 ;
 x = 0 ;
 
-while (b <= 10) {
+while (b <= 27) {
   n = b ;
   while (2 <= n) {
     if (n <= ((n / 2) * 2)) {
@@ -122,6 +122,12 @@ while (b <= 10) {
   }
   b = b + 1 ;
 }
+```
+
+### `krazy-loop.imp`
+
+```{.imp .krazy-loop-correct .k}
+int 
 ```
 
 IMP-KAT Tests
@@ -365,6 +371,27 @@ Solution 1
 </kat-imp>
 ```
 
+### Collatz All
+
+```{.sh .test}
+test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out
+```
+
+```{.k .collatz-all-bimc}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #true in 776 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> . </k>
+  <mem> x |-> 67 b |-> 11 n |-> 1 </mem>
+ </imp>
+</kat-imp>
+```
+
 SBC
 ---
 
@@ -533,8 +560,6 @@ Note that we effectively get a "summary" of the Collatz algorithm which is indep
 
 ```{.sh .test}
 test 'compile' collatz.imp collatz-sbc.out
-
-exit $return_code
 ```
 
 ```{.k .collatz-sbc}
@@ -587,10 +612,50 @@ Solution 2
 
 ### Collatz-all
 
+```{.sh .test}
+test 'compile' collatz-all.imp collatz-all-sbc.out
+
+exit $return_code
 ```
-<kat-imp> <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map } --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false } --> { . | x |-> V0 b |-> V1 n |-> V2 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true } --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true } --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( 3 *Int V5 +Int 1 ) } > ) </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k> <mem> x |-> V6 b |-> V7 n |-> V8 </mem> </imp> </kat-imp>
+
+```{.k .collatz-all-sbc}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true }  --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( 3 *Int V5 +Int 1 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k>
+  <mem> x |-> V6 b |-> V7 n |-> V8 </mem>
+ </imp>
+</kat-imp>
+
 Solution 2
-<kat-imp> <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map } --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false } --> { . | x |-> V0 b |-> V1 n |-> V2 } > ) , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true } --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > ) , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true } --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( V5 /Int 2 ) } > ) </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k> <mem> x |-> V6 b |-> V7 n |-> V8 </mem> </imp> </kat-imp>
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
+                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > )
+                                       , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true }  --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( V5 /Int 2 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k>
+  <mem> x |-> V6 b |-> V7 n |-> V8 </mem>
+ </imp>
+</kat-imp>
 ```
 
 SBC Benchmarking
@@ -620,6 +685,32 @@ module COLLATZ-COMPILED
 endmodule
 ```
 
+Here is the compiled version of Collatz all, which checks every Collatz number up to 27.
+
+-   `INIT` corresponds to the entire program.
+-   `OUTER` corresponds to the program starting at the outer `while` loop.
+-   `INNER` corresponds to the program starting at the inner `while` loop.
+-   `FINISHED` corresponds to the completed program.
+
+```{.k .collatz-all-compiled}
+requires "../../imp-kat.k"
+
+module COLLATZ-COMPILED
+  imports IMP-ANALYSIS
+  imports MAP
+
+  syntax Stmt ::= "INIT" | "OUTER" | "INNER" | "FINISHED"
+  syntax Id ::= "x" | "b" | "n"
+
+  rule <imp> <k> INIT  => OUTER  </k> <mem> .Map => x |-> 0                 b |-> 1                 n |-> 1                          </mem> </imp>
+  rule <imp> <k> OUTER => FINISH </k> <mem>         x |-> V0                b |-> V1                n |-> V2                         </mem> </imp> requires notBool (V1 <=Int 27)
+  rule <imp> <k> OUTER => INNER  </k> <mem>         x |-> V0                b |-> V1                n |-> (V2 => V1)                 </mem> </imp> requires (V1 <=Int 27)
+  rule <imp> <k> INNER => OUTER  </k> <mem>         x |-> V0                b |-> (V1 => V1 +Int 1) n |-> V2                         </mem> </imp> requires notBool (2 <=Int V2)
+  rule <imp> <k> INNER => INNER  </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <= ((V2 /Int 2) *Int 2))
+  rule <imp> <k> INNER => INNER  </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <= ((V2 /Int 2) *Int 2))
+endmodule
+```
+
 ### Concrete Execution Time
 
 First we'll demonstrate that execution time decreases drastically by running `collatz.imp` with the original semantics, and running `INIT` with the new semantics.
@@ -631,6 +722,20 @@ krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
 echo "Timing Compiled Collatz concrete ..."
 krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
 ```
+
+And we also are timing the `collatz-all` program concretely:
+
+```{.sh .benchmark-collatz}
+echo "Timing IMP Collatz All concrete ..."
+krun --directory '../' -cSTRATEGY='step until stuck?' collatz-all.imp
+echo "Timing Compiled Collatz All concrete ..."
+krun --directory 'collatz-all-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
+```
+
+| program     | concrete (ms) | compiled (ms) |
+|-------------|---------------|---------------|
+| collatz     | 31952         | 2782          |
+| collatz-all |               |               |
 
 ### BIMC Execution Time
 
@@ -655,22 +760,6 @@ The first number is the `bound` on how high we'll let Collatz go.
 The second number is the number of steps it took to get there.
 The third number is how long it took to run on my laptop on a Sunday.
 
-1.  1000 at 20 steps in 19s
-2.  1174 at 40 steps in 22s
-3.  1762 at 60 steps in ??s
-4.  2644 at 730 steps in 2m34s
-5.  3238 at 750 steps in 3m07s
-6.  4858 at 770 steps in 3m44s
-7.  7288 at 870 steps in 9m01s
-8.  9232 at ??? steps in ?m??s
-
-```
-Timing IMP Collatz concrete ...
-TIME: 31952
-Timing Compiled Collatz concrete ...
-TIME: 2782
-```
-
 | bound | concrete (ms) | compiled (ms) | speedup |
 |-------|---------------|---------------|---------|
 | 1000  | 2154          | 596           | 3.61    |
@@ -682,3 +771,15 @@ TIME: 2782
 | 7288  | 53164         | 5209          | 10.21   |
 | 9323  | 71187         | 6851          | 10.39   |
 
+
+```{.sh .benchmark-collatz}
+for bound in 20 40 60 80 100 150 200 250 300 350 400 500 600 700 800 900 1000 1200 1400 1600 1800 2000 4000 6000 8000 10000; do
+    echo
+    echo "Timing Collatz all bimc with bound '$bound' ..."
+    echo "Using concrete execution ..."
+    krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz-all.imp
+
+    echo "Using compiled execution ..."
+    krun --directory 'collatz-all-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
+done
+```

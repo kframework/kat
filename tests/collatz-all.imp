@@ -21,7 +21,7 @@ b = 1 ;
 n = 1 ;
 x = 0 ;
 
-while (b <= 10) {
+while (b <= 27) {
   n = b ;
   while (2 <= n) {
     if (n <= ((n / 2) * 2)) {
