@@ -17,9 +17,6 @@
 #     `while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }`
 # -   `FINISH` corresponds to the final state: `.`
 
-# Note that for parsing purposes, we also have to change the memory locations from
-# names `x` and `n` to names `0` and `1`.
-
 # ### Concrete Execution Time
 
 # First we'll demonstrate that execution time decreases drastically by running
@@ -31,7 +28,7 @@
 
 echo "Timing IMP Collatz concrete ..."
 time krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
-echo "Timing Compiled Compiled concrete ..."
+echo "Timing Compiled Collatz concrete ..."
 time krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
 
 
@@ -47,11 +44,12 @@ time krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='
 
 
 for bound in 1000 1174 1762 2644 3238 4858 7288 9323; do
-
-    echo "Timing IMP Collatz bimc with bound '$bound' ..."
+    echo
+    echo "Timing Collatz bimc with bound '$bound' ..."
+    echo "Using concrete execution ..."
     time krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
 
-    echo "Timing Compiled Collatz bimc with bound '$bound' ..."
+    echo "Using compiled execution ..."
     time krun --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
 done
 

@@ -23,8 +23,10 @@ requires "../../imp-kat.k"
 module COLLATZ-COMPILED
   imports IMP-ANALYSIS
   imports MAP
+  imports ID
 
   syntax Stmt ::= "INIT" | "LOOP" | "FINISHED"
+  syntax Id ::= "x" | "n"
 
   rule <imp> <k> INIT => LOOP      </k> <mem> .Map => x |-> 0                 n |-> 782                        </mem> </imp>
   rule <imp> <k> LOOP => FINISHED  </k> <mem>         x |-> V0                n |-> V1                         </mem> </imp> requires notBool (2 <=Int V1)                                         [tag(while)]
