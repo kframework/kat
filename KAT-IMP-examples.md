@@ -2,7 +2,9 @@ IMP Exmaples
 ============
 
 In this file several tests are provided for KAT.
-The file `tests/runtests.sh` should be run with K commit `e14da0a` from Github.
+K commit `e14da0a` should be used to kompile the definition and run the examples.
+Compile the definition with `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k`.
+Run the tests with `bash runtests.sh` in the `tests` directory.
 
 Straight Line Code
 ------------------
@@ -100,6 +102,41 @@ while (2 <= n) {
 Running KAT
 ===========
 
+We'll use a simple testing harness in `bash` which just checks the output of `krun --search` against a supplied file.
+Run this with `bash runtests.sh`.
+
+```{.sh .runtests}
+gecho() {
+    echo -e '\e[32m'$@'\e[39m'
+}
+recho() {
+    echo -e '\e[31m'$@'\e[39m'
+}
+strip_output() {
+    grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr --squeeze-repeats ' '
+}
+
+return_code="0"
+
+test() {
+    strategy="$1"
+    imp_file="$2"
+    out_file="output/$3"
+    for file in "$imp_file" "$out_file"; do
+        [[ ! -f "$file" ]] && recho "File '$out_file' does not exist ..." && exit 1
+    done
+
+    echo -e "\n\nRunning '$imp_file' with '$strategy' and comparing to '$out_file' ..."
+    diff <(cat "$out_file" | strip_output) <(krun --search --directory '../' -cSTRATEGY="$strategy" "$imp_file" | strip_output)
+    if [[ "$?" == '0' ]]; then
+        gecho "SUCCESS"
+    else
+        recho "FAILURE"
+        return-code="1"
+    fi
+}
+```
+
 BIMC
 ----
 
@@ -111,10 +148,11 @@ Then we issue some `bimc` query to check if the program obeys the given invarian
 Assertion not violated at step 2:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp
+test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-1-bimc1}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
  <imp>
@@ -129,10 +167,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' strai
 Assertion violation at step 3:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp
+test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-1-bimc2}
+Solution 1
 <kat>
   <s> #STUCK ~> #bimc-result #false in 3 steps </s>
   <imp>
@@ -149,10 +188,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' strai
 Assertion not violated up to step 2:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp
+test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-2-bimc1}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
  <imp>
@@ -167,10 +207,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' strai
 Assertion violated at step 3:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp
+test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-2-bimc2}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #false in 3 steps </s>
  <imp>
@@ -185,10 +226,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' strai
 Assertion still violated at step 3 (with extended bound):
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp
+test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-2-bimc3}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #false in 3 steps </s>
  <imp>
@@ -205,10 +247,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? x <= 7)' str
 Query with large bound to find which step pushed the sum above `32`:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp
+test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out
 ```
 
-```{.k .runtests-output}
+```{.k .sum-bimc1}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
  <imp>
@@ -223,10 +266,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? s <= 32)' su
 Show that the returned number is the correct step that an assertion violation happens at:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp
+test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out
 ```
 
-```{.k .runtests-output}
+```{.k .sum-bimc2}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
  <imp>
@@ -241,10 +285,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 41 (bexp? s <= 32)' sum
 And that one step prior the assertion was not violated:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp
+test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
 ```
 
-```{.k .runtests-output}
+```{.k .sum-bimc3}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #true in 40 steps </s>
  <imp>
@@ -261,10 +306,11 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 40 (bexp? s <= 32)' sum
 Check if calculating Collatz of 782 ever goes above 1000:
 
 ```{.sh .runtests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp
+test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc1.out
 ```
 
-```{.k .runtests-output}
+```{.k .collatz-bimc1}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #false in 20 steps </s>
  <imp>
@@ -278,11 +324,12 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= 1000)'
 
 Check if 1174 is the highest number that is reached:
 
-```{.sh .runstests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc (bexp? n <= 1174)' collatz.imp
+```{.sh .runtests}
+test 'step-with skip ; bimc 5000 (bexp? n <= 1174)' collatz.imp collatz-bimc2.out
 ```
 
-```{.k .runtests-output}
+```{.k .collatz-bimc2}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #false in 40 steps </s>
  <imp>
@@ -302,11 +349,12 @@ Using the same technique, the sequence of maximum numbers generated is:
 4.  7288 at 770 steps in ##TIME##
 5.  9232 at 870 steps in ##TIME##
 
-```{.sh .runstests}
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc (bexp? n <= 9232)' collatz.imp
+```{.sh .runtests}
+test 'step-with skip ; bimc 5000 (bexp? n <= 9232)' collatz.imp collatz-bimc3.out
 ```
 
-```{.k .runtests-output}
+```{.k .collatz-bimc3}
+Solution 1
 <kat>
  <s> #STUCK ~> #bimc-result #true in 1215 steps </s>
  <imp>
@@ -331,10 +379,10 @@ Straight line programs should yield one rule which summarizes the effect of the 
 `straight-line-1` just has the effect of setting `x` to 15, skipping all intermediate steps.
 
 ```{.sh .runtests}
-krun --directory '../' --search -cSTRATEGY='compile' straight-line-1.imp
+test 'compile' straight-line-1.imp straight-line-1-sbc.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-1-sbc}
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( .Rules
@@ -354,10 +402,10 @@ Note that before setting it to `5`, the original program sets it to 0 and then 1
 Because we are using the operational semantics of the language directly, we get this dead-code elimination practically for free.
 
 ```{.sh .runtests}
-krun --directory '../' --search -cSTRATEGY='compile' straight-line-2.imp
+test 'compile' straight-line-2.imp straight-line-2-sbc.out
 ```
 
-```{.k .runtests-output}
+```{.k .straight-line-2-sbc}
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( .Rules
@@ -379,10 +427,10 @@ In the `dead-if` program, the condition on the `if` is always true, so our rule 
 Once again, because we are using symbolic execution of the operational semantics directly, we get this branch elimination for free.
 
 ```{.sh .runtests}
-krun --directory '../' --search -cSTRATEGY='compile' dead-if.imp
+test 'compile' dead-if.imp dead-if-sbc.out
 ```
 
-```{.k .runtests-output}
+```{.k .deaf-if-sbc}
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( .Rules
@@ -406,10 +454,10 @@ Sum should generate three rules:
 3. One rule corresponding to an iteration of the `while` loop (if the condition on the loop is true).
 
 ```{.sh .runtests}
-krun --directory '../' --search -cSTRATEGY='compile' sum.imp
+test 'compile' sum.imp sum-sbc.out
 ```
 
-```{.k .runtests-output}
+```{.k .sum-sbc}
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
@@ -435,10 +483,10 @@ Solution 1
 Sum Plus should generate the same rules, but the rule for the false branch of the `while` loop should also include the effect of the code after the `while` loop (rule 2').
 
 ```{.sh .runtests}
-krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
+test 'compile' sum-plus.imp sum-plus-sbc.out
 ```
 
-```{.k .runtests-output}
+```{.k .sum-plus-sbc}
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
@@ -475,10 +523,12 @@ Rules 1 and 2 above will be generated in both solutions for `--search`, but rule
 Note that we effectively get a "summary" of the Collatz algorithm which is independent of how it's written down in IMP.
 
 ```{.sh .runtests}
-krun --directory '../' --search -cSTRATEGY='compile' collatz.imp
+test 'compile' collatz.imp collatz-sbc.out
+
+exit $return_code
 ```
 
-```{.k .runtests-output}
+```{.k .collatz-sbc}
 Solution 1
 <kat>
  <s> #STUCK ~> #compile-result ( ( ( .Rules

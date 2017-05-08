@@ -31,9 +31,22 @@ done
 # Tests
 # =====
 
-pandoc-tangle --from markdown --to code-sh --code runtests        KAT-IMP-examples.md > tests/runtests.sh
-pandoc-tangle --from markdown --to code-k  --code runtests-output KAT-IMP-examples.md > tests/runtests.out
+pandoc-tangle --from markdown --to code-sh --code runtests KAT-IMP-examples.md > tests/runtests.sh
 chmod u+x tests/runtests.sh
+
+tests=( straight-line-1-bimc1 straight-line-1-bimc2
+        straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
+        sum-bimc1 sum-bimc2 sum-bimc3
+        collatz-bimc1 collatz-bimc2 collatz-bimc3
+        straight-line-1-sbc straight-line-2-sbc
+        dead-if-sbc sum-sbc sum-plus-sbc
+        collatz-sbc
+      )
+
+for test in $tests; do
+    pandoc-tangle --from markdown --to code-k --code "$test" KAT-IMP-examples.md > tests/output/$test.out
+done
+
 
 # echo "running tests ..."
 # cat tests/runtests-outpu | grep -v -e '^//' -e '^$' | tr -squeeze-repeats ' '

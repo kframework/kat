@@ -1,6 +1,41 @@
 # Running KAT
 # ===========
 
+# We'll use a simple testing harness in `bash` which just checks the output of
+# `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+
+
+gecho() {
+    echo -e '\e[32m'$@'\e[39m'
+}
+recho() {
+    echo -e '\e[31m'$@'\e[39m'
+}
+strip_output() {
+    grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr --squeeze-repeats ' '
+}
+
+return_code="0"
+
+test() {
+    strategy="$1"
+    imp_file="$2"
+    out_file="output/$3"
+    for file in "$imp_file" "$out_file"; do
+        [[ ! -f "$file" ]] && recho "File '$out_file' does not exist ..." && exit 1
+    done
+
+    echo -e "\n\nRunning '$imp_file' with '$strategy' and comparing to '$out_file' ..."
+    diff <(cat "$out_file" | strip_output) <(krun --search --directory '../' -cSTRATEGY="$strategy" "$imp_file" | strip_output)
+    if [[ "$?" == '0' ]]; then
+        gecho "SUCCESS"
+    else
+        recho "FAILURE"
+        return-code="1"
+    fi
+}
+
+
 # BIMC
 # ----
 
@@ -13,13 +48,13 @@
 # Assertion not violated at step 2:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp
+test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out
 
 
 # Assertion violation at step 3:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp
+test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out
 
 
 # ### Straight Line 2
@@ -27,19 +62,19 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' strai
 # Assertion not violated up to step 2:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp
+test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out
 
 
 # Assertion violated at step 3:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp
+test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out
 
 
 # Assertion still violated at step 3 (with extended bound):
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp
+test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out
 
 
 # ### Sum
@@ -47,20 +82,20 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? x <= 7)' str
 # Query with large bound to find which step pushed the sum above `32`:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp
+test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out
 
 
 # Show that the returned number is the correct step that an assertion violation
 # happens at:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp
+test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out
 
 
 # And that one step prior the assertion was not violated:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp
+test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
 
 
 # ### Collatz
@@ -68,10 +103,14 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 40 (bexp? s <= 32)' sum
 # Check if calculating Collatz of 782 ever goes above 1000:
 
 
-krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp
+test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc1.out
 
 
 # Check if 1174 is the highest number that is reached:
+
+
+test 'step-with skip ; bimc 5000 (bexp? n <= 1174)' collatz.imp collatz-bimc2.out
+
 
 # Using the same technique, the sequence of maximum numbers generated is:
 
@@ -80,6 +119,10 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= 1000)'
 # 3.  4858 at 750 steps in \#\#TIME\#\#
 # 4.  7288 at 770 steps in \#\#TIME\#\#
 # 5.  9232 at 870 steps in \#\#TIME\#\#
+
+
+test 'step-with skip ; bimc 5000 (bexp? n <= 9232)' collatz.imp collatz-bimc3.out
+
 
 # SBC
 # ---
@@ -98,7 +141,7 @@ krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= 1000)'
 # intermediate steps.
 
 
-krun --directory '../' --search -cSTRATEGY='compile' straight-line-1.imp
+test 'compile' straight-line-1.imp straight-line-1-sbc.out
 
 
 # `straight-line-2` just has the effect of setting `x` to 5, skipping all
@@ -108,7 +151,7 @@ krun --directory '../' --search -cSTRATEGY='compile' straight-line-1.imp
 # this dead-code elimination practically for free.
 
 
-krun --directory '../' --search -cSTRATEGY='compile' straight-line-2.imp
+test 'compile' straight-line-2.imp straight-line-2-sbc.out
 
 
 # ### Dead `if`
@@ -121,7 +164,7 @@ krun --directory '../' --search -cSTRATEGY='compile' straight-line-2.imp
 # directly, we get this branch elimination for free.
 
 
-krun --directory '../' --search -cSTRATEGY='compile' dead-if.imp
+test 'compile' dead-if.imp dead-if-sbc.out
 
 
 # ### Sum and Sum Plus
@@ -135,7 +178,7 @@ krun --directory '../' --search -cSTRATEGY='compile' dead-if.imp
 #     on the loop is true).
 
 
-krun --directory '../' --search -cSTRATEGY='compile' sum.imp
+test 'compile' sum.imp sum-sbc.out
 
 
 # Sum Plus should generate the same rules, but the rule for the false branch of
@@ -143,7 +186,7 @@ krun --directory '../' --search -cSTRATEGY='compile' sum.imp
 # loop (rule 2').
 
 
-krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
+test 'compile' sum-plus.imp sum-plus-sbc.out
 
 
 # ### Collatz {#collatz-1}
@@ -164,5 +207,7 @@ krun --directory '../' --search -cSTRATEGY='compile' sum-plus.imp
 # it's written down in IMP.
 
 
-krun --directory '../' --search -cSTRATEGY='compile' collatz.imp
+test 'compile' collatz.imp collatz-sbc.out
+
+exit $return_code
 

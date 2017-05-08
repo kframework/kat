@@ -1,0 +1,33 @@
+// Running KAT
+// ===========
+
+// We'll use a simple testing harness in `bash` which just checks the output of
+// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+
+// BIMC
+// ----
+
+// Here, we allow each program to initialize (get through variable declarations) by
+// running `step-with skip`. Then we issue some `bimc` query to check if the
+// program obeys the given invariant up to the depth-bound.
+
+// ### Straight Line 2
+
+// Assertion not violated up to step 2:
+
+
+Solution 1
+<kat>
+ <s> #STUCK ~> #bimc-result #true in 2 steps </s>
+ <imp>
+  <k> x = 15 ; ~> ( x = x + -10 ; ) </k>
+  <mem> x |-> 0 </mem>
+ </imp>
+ <analysis> .Analysis </analysis>
+ <states> .States </states>
+</kat>
+
+
+// Assertion violated at step 3:
+
+// Assertion still violated at step 3 (with extended bound):
