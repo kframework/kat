@@ -7,18 +7,11 @@ Refer there for a more detailed explanation of the language.
 Configuration
 -------------
 
-The IMP language has a `k` cell for execution and a `mem` cell for storage.
 In IMP, base values are of sorts `Int` and `Bool`.
 
 ```{.k .imp-lang}
-module IMP
+module IMP-SYNTAX
   imports MAP
-  imports STRATEGY
-
-  configuration <imp>
-                  <k> $PGM:Stmt </k>
-                  <mem> .Map </mem>
-                </imp>
 
   syntax KResult  ::= Int | Bool
 ```
@@ -33,7 +26,7 @@ IMP has `AExp` for arithmetic expressions (over integers).
                  | AExp "/" AExp [left, strict]
                  | AExp "*" AExp [left, strict]
                  > AExp "-" AExp [left, strict]
-                 | AExp "+" AExp [left, strict] 
+                 | AExp "+" AExp [left, strict]
                  | "(" AExp ")"  [bracket]
 //----------------------------------------
   rule I1 + I2 => I1 +Int I2                      [structural]
@@ -61,41 +54,54 @@ IMP has `BExp` for boolean expressions.
   rule false && _ => false       [structural]
 ```
 
-Statements
-----------
-
-IMP has `{_}` for creating blocks and `int_;` for declaring variables.
+IMP has `{_}` for creating blocks of statements.
 
 ```{.k .imp-lang}
   syntax Block ::= "{" "}" | "{" Stmt "}"
 //---------------------------------------
   rule {}              => .        [structural]
   rule {S}             => S        [structural]
-
-  syntax Ids ::= List{Id,","}
-  syntax Stmt ::= "int" Ids ";"
-//-----------------------------
-  rule <k> int .Ids ; => .    ... </k> [structural]
-  rule <k> int (X,Xs => Xs) ; ... </k>
-       <mem> Rho:Map (.Map => X |-> 0) </mem>
-     requires notBool (X in keys(Rho))
-     [structural]
 ```
 
-IMP has `if_then_else_` for choice, `_=_;` for assignment, and `while(_)_` for looping.
+IMP has `int_;` for declaring variables, `if_then_else_` for choice, `_=_;` for assignment, and `while(_)_` for looping.
 
 ```{.k .imp-lang}
+  syntax Ids ::= List{Id,","}
   syntax Stmt  ::= Block
+                 | "int" Ids ";"
                  | Id "=" AExp ";"                      [strict(2)]
                  | "if" "(" BExp ")" Block "else" Block [strict(1)]
                  | "while" "(" BExp ")" Block
                  > Stmt Stmt                            [left]
 //------------------------------------------------------------
   rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
+endmodule
 ```
 
 Semantics
 ---------
+
+The IMP language has a `k` cell for execution and a `mem` cell for storage.
+
+```{.k .imp-lang}
+module IMP-SEMANTICS
+  imports IMP-SYNTAX
+
+  configuration <imp>
+                  <k> $PGM:Stmt </k>
+                  <mem> .Map </mem>
+                </imp>
+```
+
+We don't want to count these rules as transition steps since they are really just for initialization.
+
+```{.k .imp-lang}
+  rule <k> int .Ids ; => .    ... </k> [structural]
+  rule <k> int (X,Xs => Xs) ; ... </k>
+       <mem> Rho:Map (.Map => X |-> 0) </mem>
+     requires notBool (X in keys(Rho))
+     [structural]
+```
 
 All the rules above are "regular" rules, not to be considered transition steps by analysis tools.
 The rules below are named (with the attribute `tag`) so that strategy-based analysis tools can treat them specially.
@@ -124,13 +130,16 @@ requires "imp.k"
 requires "kat.k"
 
 module IMP-ANALYSIS
+  imports STRATEGY
   imports IMP-BIMC
   imports IMP-SBC
 endmodule
 
 module IMP-KAT
-  imports IMP
+  imports IMP-SEMANTICS
   imports KAT
+
+  configuration <kat-imp> initKatCell(Init) initImpCell(Init) </kat-imp>
 ```
 
 ### Define `push` and `pop`

@@ -6,15 +6,12 @@
 // execution state).
 
 
-requires "imp.k"
-
 module KAT
-  imports IMP
   imports KCELLS
+  imports STRATEGY
 
   configuration <kat>
                   initSCell(Init)
-                  initImpCell(Init)
                   <analysis> .Analysis </analysis>
                   <states> .States </states>
                 </kat>
@@ -227,7 +224,7 @@ module KAT
 
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> can? S => push ; (try? S) ; #pred pop ... </s> <imp> STATE </imp> [structural]
+  rule <s> can? S => push ; (try? S) ; #pred pop ... </s> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------

@@ -18,15 +18,12 @@ A simple imperative strategy language is supplied here.
 It has sequencing, choice, and looping (in addition to primitives related to controlling the execution state).
 
 ```{.k .kat}
-requires "imp.k"
-
 module KAT
-  imports IMP
   imports KCELLS
+  imports STRATEGY
 
   configuration <kat>
                   initSCell(Init)
-                  initImpCell(Init)
                   <analysis> .Analysis </analysis>
                   <states> .States </states>
                 </kat>
@@ -217,7 +214,7 @@ Strategy Macros
 ```{.k .kat}
   syntax Pred ::= "can?" Strategy
 //-------------------------------
-  rule <s> can? S => push ; (try? S) ; #pred pop ... </s> <imp> STATE </imp> [structural]
+  rule <s> can? S => push ; (try? S) ; #pred pop ... </s> [structural]
 
   syntax Pred ::= "stuck?"
 //------------------------

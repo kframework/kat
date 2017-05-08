@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
 tangle_defn() {
-
     echo "generating 'kat.k', 'imp-kat.k', 'imp.k' ..."
     echo "============================================"
 
@@ -15,19 +14,27 @@ tangle_defn() {
     kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
 }
 
-tangle_test() {
-    echo "generating tests ..."
-    echo "===================="
+tangle_examples() {
+    echo "generating examples ..."
+    echo "======================="
 
-    mkdir -p tests/output
+    [[ ! -d tests ]] && mkdir tests
 
     examples=(straight-line-1 straight-line-2 dead-if sum sum-plus collatz)
+
     for example in $examples; do
         pandoc-tangle --from markdown --to code-k --code "$example" KAT-IMP-examples.md > "tests/$example.imp"
     done
+}
 
-    pandoc-tangle --from markdown --to code-sh --code runtests KAT-IMP-examples.md > tests/runtests.sh
-    chmod u+x tests/runtests.sh
+tangle_tests() {
+    echo "generating tests ..."
+    echo "===================="
+
+    [[ ! -d tests/output ]] && mkdir -p tests/output
+
+    pandoc-tangle --from markdown --to code-sh --code runtests KAT-IMP-examples.md > tests/test.sh
+    chmod u+x tests/test.sh
 
     tests=( straight-line-1-bimc1 straight-line-1-bimc2
             straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
@@ -45,18 +52,43 @@ tangle_test() {
     echo "================="
 
     pushd tests
-    bash runtests.sh || exit 1
+    bash test.sh || exit 1
     popd
 }
 
-[[ "$#" == '0' ]] && set 'all'
+tangle_benchmarks() {
+    echo "generating collatz-compiled ..."
+    echo "==============================="
+    [[ ! -d tests/collatz-compiled ]] && mkdir -p tests/collatz-compiled
+    pandoc-tangle --from markdown --to code-k --code collatz-compiled KAT-IMP-examples.md > tests/collatz-compiled/collatz.k
+
+    echo "kompiling collatz-compiled ..."
+    echo "=============================="
+    pushd tests/collatz-compiled
+    kompile --debug --main-module COLLATZ-COMPILED --syntax-module COLLATZ-COMPILED collatz.k || exit 1
+    popd
+
+    echo "generating benchmarks ..."
+    echo "========================="
+    pandoc-tangle --from markdown --to code-sh --code benchmark-collatz KAT-IMP-examples.md > tests/benchmark-collatz.sh
+
+    echo "running benchmarks ..."
+    echo "======================"
+    pushd tests
+    bash benchmark-collatz.sh
+    popd
+}
+
+[[ "$#" == '0' ]] && set all
 
 while [[ "$#" -gt '0' ]]; do
     tangle_command="$1" && shift
     case "$tangle_command" in
-        all)  set defn test ;;
-        defn) tangle_defn ;;
-        test) tangle_test ;;
-        *)    echo "Unrecognized option: '$tangle_command' ..." ;;
+        all)      set defn examples test bench ;;
+        defn)     tangle_defn ;;
+        examples) tangle_examples ;;
+        test)     tangle_tests ;;
+        bench)    tangle_benchmarks ;;
+        *)        echo "Unrecognized option: '$tangle_command' ..." ;;
     esac
 done

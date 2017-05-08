@@ -12,13 +12,16 @@ requires "imp.k"
 requires "kat.k"
 
 module IMP-ANALYSIS
+  imports STRATEGY
   imports IMP-BIMC
   imports IMP-SBC
 endmodule
 
 module IMP-KAT
-  imports IMP
+  imports IMP-SEMANTICS
   imports KAT
+
+  configuration <kat-imp> initKatCell(Init) initImpCell(Init) </kat-imp>
 
 
 // ### Define `push` and `pop`

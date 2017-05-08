@@ -1,1 +1,37 @@
+// Running KAT
+// ===========
+
+// We'll use a simple testing harness in `bash` which just checks the output of
+// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+
+// SBC
+// ---
+
+// Here, we compile each program into a simpler set of rules specific to that
+// program. Compilation must be run with `--search` so that when the state of
+// symbolic execution splits at branch points (eg. `if(_)_else_` in IMP) we collect
+// rules for both branches.
+
+// ### Dead `if`
+
+// Because we are compiling using symbolic execution, we will often know if a
+// branch is dead (only ever evaluates to `true`/`false`). In the `dead-if`
+// program, the condition on the `if` is always true, so our rule summary only
+// generates a single rule corresponding to the true branch of the `if`. Once
+// again, because we are using symbolic execution of the operational semantics
+// directly, we get this branch elimination for free.
+
+
+Solution 1
+<kat>
+ <s> #STUCK ~> #compile-result ( .Rules
+                               , < { int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; } | .Map } --> { . | x |-> 1 } >
+                               ) </s>
+ <imp>
+  <k> . </k>
+  <mem> x |-> V0 </mem>
+ </imp>
+ <analysis> .Analysis </analysis>
+ <states> .States </states>
+</kat>
 
