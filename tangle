@@ -33,7 +33,7 @@ tangle_tests() {
 
     [[ ! -d tests/output ]] && mkdir -p tests/output
 
-    pandoc-tangle --from markdown --to code-sh --code runtests KAT-IMP-examples.md > tests/test.sh
+    pandoc-tangle --from markdown --to code-sh --code test KAT-IMP-examples.md > tests/test.sh
     chmod u+x tests/test.sh
 
     tests=( straight-line-1-bimc1 straight-line-1-bimc2

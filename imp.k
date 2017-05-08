@@ -13,6 +13,7 @@
 
 module IMP-SYNTAX
   imports MAP
+  imports STRATEGY
 
   syntax KResult  ::= Int | Bool
 

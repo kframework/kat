@@ -11,7 +11,6 @@ module KAT
   imports STRATEGY
 
   configuration <kat>
-                  initSCell(Init)
                   <analysis> .Analysis </analysis>
                   <states> .States </states>
                 </kat>

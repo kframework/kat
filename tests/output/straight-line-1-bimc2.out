@@ -19,13 +19,15 @@
 
 
 Solution 1
-<kat>
+<kat-imp>
   <s> #STUCK ~> #bimc-result #false in 3 steps </s>
+  <kat>
+   <analysis> .Analysis </analysis>
+   <states> .States </states>
+  </kat>
   <imp>
    <k> . </k>
    <mem> x |-> 15 </mem>
   </imp>
-  <analysis> .Analysis </analysis>
-  <states> .States </states>
-</kat>
+</kat-imp>
 

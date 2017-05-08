@@ -99,13 +99,13 @@ while (2 <= n) {
 }
 ```
 
-Running KAT
-===========
+IMP-KAT Tests
+=============
 
 We'll use a simple testing harness in `bash` which just checks the output of `krun --search` against a supplied file.
 Run this with `bash runtests.sh`.
 
-```{.sh .runtests}
+```{.sh .test}
 gecho() {
     echo -e '\e[32m'$@'\e[39m'
 }
@@ -147,179 +147,197 @@ Then we issue some `bimc` query to check if the program obeys the given invarian
 
 Assertion not violated at step 2:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out
 ```
 
 ```{.k .straight-line-1-bimc1}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> x = 15 ; </k>
   <mem> x |-> 0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 Assertion violation at step 3:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out
 ```
 
 ```{.k .straight-line-1-bimc2}
 Solution 1
-<kat>
+<kat-imp>
   <s> #STUCK ~> #bimc-result #false in 3 steps </s>
+  <kat>
+   <analysis> .Analysis </analysis>
+   <states> .States </states>
+  </kat>
   <imp>
    <k> . </k>
    <mem> x |-> 15 </mem>
   </imp>
-  <analysis> .Analysis </analysis>
-  <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 ### Straight Line 2
 
 Assertion not violated up to step 2:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out
 ```
 
 ```{.k .straight-line-2-bimc1}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> x = 15 ; ~> ( x = x + -10 ; ) </k>
   <mem> x |-> 0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 Assertion violated at step 3:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out
 ```
 
 ```{.k .straight-line-2-bimc2}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #false in 3 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) </k>
   <mem> x |-> 15 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 Assertion still violated at step 3 (with extended bound):
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out
 ```
 
 ```{.k .straight-line-2-bimc3}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #false in 3 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> x ~> #freezer_+_1 ( -10 ) ~> #freezer_=_;0 ( x ) </k>
   <mem> x |-> 15 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 ### Sum
 
 Query with large bound to find which step pushed the sum above `32`:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out
 ```
 
 ```{.k .sum-bimc1}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k>
   <mem> s |-> 35 n |-> 5 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 Show that the returned number is the correct step that an assertion violation happens at:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out
 ```
 
 ```{.k .sum-bimc2}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k>
   <mem> s |-> 35 n |-> 5 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 And that one step prior the assertion was not violated:
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
 ```
 
 ```{.k .sum-bimc3}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #true in 40 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> s = 35 ; ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k>
   <mem> s |-> 30 n |-> 5 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 ### Collatz
 
 Here we test if the Collatz sequence for `782` contains any numbers greater than `1000`.
 
-```{.sh .runtests}
+```{.sh .test}
 test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out
 ```
 
 ```{.k .collatz-bimc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #false in 20 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k>
   <mem> x |-> 1 n |-> 1174 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 SBC
@@ -334,46 +352,50 @@ Straight line programs should yield one rule which summarizes the effect of the 
 
 `straight-line-1` just has the effect of setting `x` to 15, skipping all intermediate steps.
 
-```{.sh .runtests}
+```{.sh .test}
 test 'compile' straight-line-1.imp straight-line-1-sbc.out
 ```
 
 ```{.k .straight-line-1-sbc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 0 ; x = x + 15 ; | .Map } --> { . | x |-> 15 } >
                                ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> . </k>
   <mem> x |-> V0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 `straight-line-2` just has the effect of setting `x` to 5, skipping all intermediate steps.
 Note that before setting it to `5`, the original program sets it to 0 and then 15, but the generated program does not have these steps.
 Because we are using the operational semantics of the language directly, we get this dead-code elimination practically for free.
 
-```{.sh .runtests}
+```{.sh .test}
 test 'compile' straight-line-2.imp straight-line-2-sbc.out
 ```
 
 ```{.k .straight-line-2-sbc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 0 ; x = x + 15 ; x = x + -10 ; | .Map } --> { . | x |-> 5 } >
                                ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> . </k>
   <mem> x |-> V0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 ### Dead `if`
@@ -382,23 +404,25 @@ Because we are compiling using symbolic execution, we will often know if a branc
 In the `dead-if` program, the condition on the `if` is always true, so our rule summary only generates a single rule corresponding to the true branch of the `if`.
 Once again, because we are using symbolic execution of the operational semantics directly, we get this branch elimination for free.
 
-```{.sh .runtests}
+```{.sh .test}
 test 'compile' dead-if.imp dead-if-sbc.out
 ```
 
 ```{.k .dead-if-sbc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; } | .Map } --> { . | x |-> 1 } >
                                ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> . </k>
   <mem> x |-> V0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 ### Sum and Sum Plus
@@ -409,13 +433,13 @@ Sum should generate three rules:
 2. One rule corresponding to jumping over the `while` loop (if the condition on the loop is false).
 3. One rule corresponding to an iteration of the `while` loop (if the condition on the loop is true).
 
-```{.sh .runtests}
+```{.sh .test}
 test 'compile' sum.imp sum-sbc.out
 ```
 
 ```{.k .sum-sbc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
                                      // RULE 1
@@ -427,24 +451,26 @@ Solution 1
                                      // RULE 3
                                    , < { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 | true }             --> { while ( true ) { n = n + -1 ; s = s + n ; } | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } >
                                    ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> while ( true ) { n = n + -1 ; s = s + n ; } </k>
   <mem> s |-> V2 n |-> V3 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 Sum Plus should generate the same rules, but the rule for the false branch of the `while` loop should also include the effect of the code after the `while` loop (rule 2').
 
-```{.sh .runtests}
+```{.sh .test}
 test 'compile' sum-plus.imp sum-plus-sbc.out
 ```
 
 ```{.k .sum-plus-sbc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
                                      // RULE 1
@@ -456,13 +482,15 @@ Solution 1
                                      // RULE 3
                                    , < { ( while ( 0 <= n ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> V0 n |-> V1 | true }  --> { ( while ( true ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } >
                                    ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> ( while ( true ) { n = n + -1 ; s = s + n ; } ) ~> ( s = s + 300 ; ) </k>
   <mem> s |-> V2 n |-> V3 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
 ### Collatz
@@ -478,7 +506,7 @@ Indeed, we get a summary of the Collatz program with four rules:
 Rules 1 and 2 above will be generated in both solutions for `--search`, but rules 3 and 4 are each only generated in one of the solutions.
 Note that we effectively get a "summary" of the Collatz algorithm which is independent of how it's written down in IMP.
 
-```{.sh .runtests}
+```{.sh .test}
 test 'compile' collatz.imp collatz-sbc.out
 
 exit $return_code
@@ -486,7 +514,7 @@ exit $return_code
 
 ```{.k .collatz-sbc}
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
                                      // RULE 1
@@ -498,16 +526,18 @@ Solution 1
                                      // RULE 3
                                    , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | true }                      --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( 3 *Int V1 +Int 1 ) } >
                                    ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k>
   <mem> x |-> V2 n |-> V3 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 
 Solution 2
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
                                      // RULE 1
@@ -519,42 +549,72 @@ Solution 2
                                      // RULE 4
                                    , < { while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> V0 n |-> V1 | true }                      --> { while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | x |-> ( V0 +Int 1 ) n |-> ( V1 /Int 2 ) } >
                                    ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k>
   <mem> x |-> V2 n |-> V3 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 ```
 
-This corresponds to the following K definition (which imports the `IMP-SYNTAX` to get the correct parser).
-I've also replaced the `k` cells with constants, which can be done automatically using hashing but here is done manually.
+SBC Benchmarking
+----------------
+
+The above `compile` result for Collatz corresponds to the following K definition.
+We've replaced the `k` cells with constants, which can be done automatically using hashing but here is done manually.
 
 -   `INIT` corresponds to the entire program: `int n , ( x , .Ids ) ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }`
 -   `LOOP` corresponds to just the loop: `while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }`
 -   `FINISH` corresponds to the final state: `.`
 
 ```{.k .collatz-compiled}
-requires "imp-kat.k"
+requires "../../imp-kat.k"
 
 module COLLATZ-COMPILED
   imports IMP-ANALYSIS
   imports MAP
 
-  syntax KItem ::= "INIT" | "LOOP" | "FINISHED"
+  syntax Stmt ::= "INIT" | "LOOP" | "FINISHED"
 
-  rule <imp> <k> INIT => LOOP      </k> <mem> .Map => x |-> 0 n |-> 782                             </mem> </imp>
-  rule <imp> <k> LOOP => FINISHED  </k> <mem> x |-> V0 n |-> V1                                     </mem> </imp> requires notBool (2 <=Int n)
-  rule <imp> <k> LOOP              </k> <mem> x |-> (V0 => V0 +Int 1) n |-> (V1 => V1 /Int 2)       </mem> </imp> requires (2 <=Int n) andBool (n <=Int ((n /Int 2) *Int 2))
-  rule <imp> <k> LOOP              </k> <mem> x |-> (V0 => V0 +Int 1) n |-> (V1 => (3 * V1) +Int 1) </mem> </imp> requires (2 <=Int n) andBool notBool (n <=Int ((n /Int 2) *Int 2))
+  rule <imp> <k> INIT => LOOP      </k> <mem> .Map => x |-> 0                 n |-> 782                        </mem> </imp>
+  rule <imp> <k> LOOP => FINISHED  </k> <mem>         x |-> V0                n |-> V1                         </mem> </imp> requires notBool (2 <=Int V1)                                         [tag(while)]
+  rule <imp> <k> LOOP              </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => V1 /Int 2)          </mem> </imp> requires (2 <=Int V1) andBool (V1 <=Int ((V1 /Int 2) *Int 2))         [tag(while)]
+  rule <imp> <k> LOOP              </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => (3 *Int V1) +Int 1) </mem> </imp> requires (2 <=Int V1) andBool notBool (V1 <=Int ((V1 /Int 2) *Int 2)) [tag(while)]
 endmodule
 ```
 
+### Concrete Execution Time
+
+First we'll demonstrate that execution time decreases drastically by running `collatz.imp` with the original semantics, and running `INIT` with the new semantics.
+Note that in both cases this is not as fast as an actual compiled definition could be because we're still using the strategy harness to control execution (which introduces overhead).
+
+```{.sh .benchmark-collatz}
+echo "Timing IMP Collatz concrete ..."
+time krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
+echo "Timing Compiled Collatz concrete ..."
+time krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
+```
+
+### BIMC Execution Time
+
+In addition to concrete execution speedup, we get a speedup in the other analysis tools that can be run after SBC.
 Here we'll check the runtime of BIMC for the Collatz program, then compare to the time of BIMC of the system generated by SBC.
 
-We'll find the highest number that is reached on Collatz of 782 by incrementally increasing the maximum bound we check for as an invariant.
-This is mostly for benchmarking purposes.
+To do this, we'll find the highest number that is reached on Collatz of 782 by incrementally increasing the maximum bound we check for as an invariant.
+
+```{.sh .benchmark-collatz}
+for bound in 1000 1174 1762 2644 3238 4858 7288 9323; do
+
+    echo "Timing IMP Collatz bimc with bound '$bound' ..."
+    time krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
+
+    echo "Timing Compiled Collatz bimc with bound '$bound' ..."
+    time krun --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
+done
+```
 
 The first number is the `bound` on how high we'll let Collatz go.
 The second number is the number of steps it took to get there.
@@ -568,12 +628,3 @@ The third number is how long it took to run on my laptop on a Sunday.
 6.  4858 at 770 steps in 3m44s
 7.  7288 at 870 steps in 9m01s
 8.  9232 at ??? steps in ?m??s
-
-```{.sh .benchmark-collatz}
-for bound in 1000 1174 1762 2644 3238 4858 7288 9323; do
-    echo "Timing IMP Collatz with bound '$bound' ..."
-    time krun --search --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
-    echo "Timing Compiled Collatz with bound '$bound' ..."
-    time krun --search --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
-done
-```

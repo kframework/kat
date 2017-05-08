@@ -12,6 +12,7 @@ In IMP, base values are of sorts `Int` and `Bool`.
 ```{.k .imp-lang}
 module IMP-SYNTAX
   imports MAP
+  imports STRATEGY
 
   syntax KResult  ::= Int | Bool
 ```
@@ -139,7 +140,7 @@ module IMP-KAT
   imports IMP-SEMANTICS
   imports KAT
 
-  configuration <kat-imp> initKatCell(Init) initImpCell(Init) </kat-imp>
+  configuration <kat-imp> initSCell(Init) initKatCell initImpCell(Init) </kat-imp>
 ```
 
 ### Define `push` and `pop`

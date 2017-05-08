@@ -28,15 +28,17 @@
 
 
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 0 ; x = x + 15 ; x = x + -10 ; | .Map } --> { . | x |-> 5 } >
                                ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> . </k>
   <mem> x |-> V0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 

@@ -224,3 +224,7 @@ exit $return_code
 # 6.  4858 at 770 steps in 3m44s
 # 7.  7288 at 870 steps in 9m01s
 # 8.  9232 at ??? steps in ?m??s
+
+
+krun --search --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
+

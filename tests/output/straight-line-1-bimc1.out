@@ -17,15 +17,17 @@
 
 
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> x = 15 ; </k>
   <mem> x |-> 0 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 
 
 // Assertion violation at step 3:

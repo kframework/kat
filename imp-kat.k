@@ -21,7 +21,7 @@ module IMP-KAT
   imports IMP-SEMANTICS
   imports KAT
 
-  configuration <kat-imp> initKatCell(Init) initImpCell(Init) </kat-imp>
+  configuration <kat-imp> initSCell(Init) initKatCell initImpCell(Init) </kat-imp>
 
 
 // ### Define `push` and `pop`

@@ -17,15 +17,17 @@
 
 
 Solution 1
-<kat>
+<kat-imp>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
  <imp>
   <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k>
   <mem> s |-> 35 n |-> 5 </mem>
  </imp>
- <analysis> .Analysis </analysis>
- <states> .States </states>
-</kat>
+</kat-imp>
 
 
 // Show that the returned number is the correct step that an assertion violation
