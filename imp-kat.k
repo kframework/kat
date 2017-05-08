@@ -80,7 +80,7 @@ module IMP-SBC
 
   syntax State ::= "{" K "|" Map "|" Bool "}"
 
-  rule <s> next-states [ { . | _ } ] => skip ... </s> [structural]
+  rule <s> next-states [ { . | _ } ] => skip ... </s> [strucural]
   rule <s> next-states [ { while ( BEXP:BExp ) BODY ~> REST | MEM } ]
         => push { while ( BEXP ) BODY ~> REST | MEM | true  }
          ; push { while ( BEXP ) BODY ~> REST | MEM | false }

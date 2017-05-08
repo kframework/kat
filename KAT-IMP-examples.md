@@ -576,7 +576,6 @@ requires "../../imp-kat.k"
 module COLLATZ-COMPILED
   imports IMP-ANALYSIS
   imports MAP
-  imports ID
 
   syntax Stmt ::= "INIT" | "LOOP" | "FINISHED"
   syntax Id ::= "x" | "n"
@@ -595,9 +594,9 @@ Note that in both cases this is not as fast as an actual compiled definition cou
 
 ```{.sh .benchmark-collatz}
 echo "Timing IMP Collatz concrete ..."
-time krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
+krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
 echo "Timing Compiled Collatz concrete ..."
-time krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
+krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
 ```
 
 ### BIMC Execution Time
@@ -612,10 +611,10 @@ for bound in 1000 1174 1762 2644 3238 4858 7288 9323; do
     echo
     echo "Timing Collatz bimc with bound '$bound' ..."
     echo "Using concrete execution ..."
-    time krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
+    krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
 
     echo "Using compiled execution ..."
-    time krun --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
+    krun --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
 done
 ```
 
@@ -634,127 +633,19 @@ The third number is how long it took to run on my laptop on a Sunday.
 
 ```
 Timing IMP Collatz concrete ...
-<kat-imp> <s> #STUCK </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> . </k> <mem> x |-> 121 n |-> 1 </mem> </imp> </kat-imp>
-
-real	0m37.876s
-user	1m1.012s
-sys	0m1.138s
+TIME: 31952
 Timing Compiled Collatz concrete ...
-<kat-imp> <s> #STUCK </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> FINISHED </k> <mem> n |-> 1 x |-> 121 </mem> </imp> </kat-imp>
-
-real	0m11.371s
-user	0m34.304s
-sys	0m1.445s
-
-Timing Collatz bimc with bound '1000' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 20 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 1 n |-> 1174 </mem> </imp> </kat-imp>
-
-real	0m9.133s
-user	0m31.784s
-sys	0m1.050s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 2 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 1174 x |-> 2 </mem> </imp> </kat-imp>
-
-real	0m9.014s
-user	0m27.511s
-sys	0m1.199s
-
-Timing Collatz bimc with bound '1174' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 40 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 3 n |-> 1762 </mem> </imp> </kat-imp>
-
-real	0m10.398s
-user	0m35.278s
-sys	0m1.103s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 4 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 1762 x |-> 4 </mem> </imp> </kat-imp>
-
-real	0m8.945s
-user	0m27.801s
-sys	0m1.158s
-
-Timing Collatz bimc with bound '1762' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 60 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 5 n |-> 2644 </mem> </imp> </kat-imp>
-
-real	0m11.679s
-user	0m36.563s
-sys	0m1.149s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 6 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 2644 x |-> 6 </mem> </imp> </kat-imp>
-
-real	0m9.642s
-user	0m29.451s
-sys	0m1.334s
-
-Timing Collatz bimc with bound '2644' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 730 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 72 n |-> 3238 </mem> </imp> </kat-imp>
-
-real	0m50.636s
-user	1m16.623s
-sys	0m1.227s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 73 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 3238 x |-> 73 </mem> </imp> </kat-imp>
-
-real	0m12.544s
-user	0m35.295s
-sys	0m1.246s
-
-Timing Collatz bimc with bound '3238' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 750 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 74 n |-> 4858 </mem> </imp> </kat-imp>
-
-real	0m51.281s
-user	1m18.253s
-sys	0m1.247s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 75 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 4858 x |-> 75 </mem> </imp> </kat-imp>
-
-real	0m13.276s
-user	0m36.625s
-sys	0m1.329s
-
-Timing Collatz bimc with bound '4858' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 770 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 76 n |-> 7288 </mem> </imp> </kat-imp>
-
-real	0m59.565s
-user	1m26.290s
-sys	0m1.430s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 77 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 7288 x |-> 77 </mem> </imp> </kat-imp>
-
-real	0m13.196s
-user	0m37.080s
-sys	0m1.261s
-
-Timing Collatz bimc with bound '7288' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 870 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> x ~> #freezer_+_1 ( 1 ) ~> #freezer_=_;0 ( x ) ~> while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } </k> <mem> x |-> 86 n |-> 9232 </mem> </imp> </kat-imp>
-
-real	0m57.226s
-user	1m22.112s
-sys	0m1.243s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #false in 87 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> LOOP </k> <mem> n |-> 9232 x |-> 87 </mem> </imp> </kat-imp>
-
-real	0m13.633s
-user	0m37.092s
-sys	0m1.277s
-
-Timing Collatz bimc with bound '9323' ...
-Using concrete execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #true in 1215 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> . </k> <mem> x |-> 121 n |-> 1 </mem> </imp> </kat-imp>
-
-real	1m26.480s
-user	1m55.728s
-sys	0m1.700s
-Using compiled execution ...
-<kat-imp> <s> #STUCK ~> #bimc-result #true in 122 steps </s> <kat> <analysis> .Analysis </analysis> <states> .States </states> </kat> <imp> <k> FINISHED </k> <mem> n |-> 1 x |-> 121 </mem> </imp> </kat-imp>
-
-real	0m15.696s
-user	0m39.400s
-sys	0m1.289s
+TIME: 2782
 ```
+
+ bound      concrete (ms)      compiled (ms)      speedup
+-------    ---------------    ---------------    ---------
+1000 2154 596 3.61
+1174 3378 818 4.13
+1762 4497 966 4.66
+2644 43825 4673 9.78
+3238 45397 4521 10.04
+4858 44939 4707 9.55
+7288 53164 5209 10.21
+9323 71187 6851 10.39
+

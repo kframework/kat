@@ -27,9 +27,9 @@
 
 
 echo "Timing IMP Collatz concrete ..."
-time krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
+krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
 echo "Timing Compiled Collatz concrete ..."
-time krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
+krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
 
 
 # ### BIMC Execution Time
@@ -47,10 +47,10 @@ for bound in 1000 1174 1762 2644 3238 4858 7288 9323; do
     echo
     echo "Timing Collatz bimc with bound '$bound' ..."
     echo "Using concrete execution ..."
-    time krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
+    krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz.imp
 
     echo "Using compiled execution ..."
-    time krun --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
+    krun --directory 'collatz-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
 done
 
 

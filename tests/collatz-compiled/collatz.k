@@ -23,7 +23,6 @@ requires "../../imp-kat.k"
 module COLLATZ-COMPILED
   imports IMP-ANALYSIS
   imports MAP
-  imports ID
 
   syntax Stmt ::= "INIT" | "LOOP" | "FINISHED"
   syntax Id ::= "x" | "n"
