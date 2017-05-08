@@ -132,7 +132,7 @@ test() {
         gecho "SUCCESS"
     else
         recho "FAILURE"
-        return-code="1"
+        return_code="1"
     fi
 }
 ```
@@ -303,7 +303,23 @@ Solution 1
 
 ### Collatz
 
-Check if calculating Collatz of 782 ever goes above 1000:
+Here we'll check the runtime of each test as well.
+We'll find the highest number that is reached on Collatz of 782 by incrementally increasing the maximum bound we check for as an invariant.
+This is mostly for benchmarking purposes.
+
+The first number is the `bound` on how high we'll let Collatz go.
+The second number is the number of steps it took to get there.
+The third number is how long it took to run on my laptop on a Sunday.
+
+1.  1000 at 20 steps in 18s
+2.  1174 at 40 steps in 22s
+3.  2644 at 60 steps in ##TIME##
+4.  3238 at 730 steps in ##TIME##
+5.  4858 at 750 steps in ##TIME##
+6.  7288 at 770 steps in ##TIME##
+7.  9232 at 870 steps in ##TIME##
+
+Bound 1000:
 
 ```{.sh .runtests}
 test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc1.out
@@ -322,7 +338,7 @@ Solution 1
 </kat>
 ```
 
-Check if 1174 is the highest number that is reached:
+Bound 1174:
 
 ```{.sh .runtests}
 test 'step-with skip ; bimc 5000 (bexp? n <= 1174)' collatz.imp collatz-bimc2.out
@@ -341,13 +357,7 @@ Solution 1
 </kat>
 ```
 
-Using the same technique, the sequence of maximum numbers generated is:
-
-1.  2644 at 60 steps in ##TIME##
-2.  3238 at 730 steps in ##TIME##
-3.  4858 at 750 steps in ##TIME##
-4.  7288 at 770 steps in ##TIME##
-5.  9232 at 870 steps in ##TIME##
+Bound 9232:
 
 ```{.sh .runtests}
 test 'step-with skip ; bimc 5000 (bexp? n <= 9232)' collatz.imp collatz-bimc3.out

@@ -3,21 +3,19 @@
 # KAT
 # ===
 
-# build the file `kat.k` from `KAT.md`
 pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
 
 # IMP-KAT
 # =======
 
-# build the files `imp.k` and `imp-kat.k` from `IMP-KAT.md`
 pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
 pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
 
 # Kompile
 # =======
 
-# echo "kompiling ..."
-# kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
+echo "kompiling ..."
+kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
 
 # Examples
 # ========
@@ -47,6 +45,7 @@ for test in $tests; do
     pandoc-tangle --from markdown --to code-k --code "$test" KAT-IMP-examples.md > tests/output/$test.out
 done
 
-
-# echo "running tests ..."
-# cat tests/runtests-outpu | grep -v -e '^//' -e '^$' | tr -squeeze-repeats ' '
+echo "running tests ..."
+pushd tests
+bash runtests.sh &> /dev/null || exit 1
+popd
