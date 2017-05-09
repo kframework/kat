@@ -5,17 +5,9 @@
 # `krun --search` against a supplied file. Run this with `bash runtests.sh`.
 
 
-gecho() {
-    echo -e '\e[32m'$@'\e[39m'
-}
-recho() {
-    echo -e '\e[31m'$@'\e[39m'
-}
 strip_output() {
     grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr -s ' '
 }
-
-return_code="0"
 
 test() {
     strategy="$1"
@@ -24,20 +16,13 @@ test() {
     for file in "$imp_file" "$out_file"; do
         [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
     done
-
-    echo -e "Running '$imp_file' with '$strategy' and comparing to '$out_file' ..."
+    echo "krun --search --directory '../' -cSTRATEGY='$strategy' '$imp_file'"
     diff <(cat "$out_file" | strip_output) <(krun --search --directory '../' -cSTRATEGY="$strategy" "$imp_file" | strip_output)
-    if [[ "$?" == '0' ]]; then
-        gecho "SUCCESS"
-    else
-        recho "FAILURE"
-        return_code="1"
-    fi
+    exit "$?"
 }
 
-while [[ "$#" -gt '0' ]]; do
-    test="$1" && shift
-    case "$test" in
+test="$1"
+case "$test" in
 
 
 # BIMC
@@ -233,8 +218,6 @@ while [[ "$#" -gt '0' ]]; do
 "krazy-loop-correct-sbc") test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out ;;
 esac
 done
-
-exit $return_code
 
 
 # SBC Benchmarking

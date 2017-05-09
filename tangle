@@ -25,31 +25,58 @@ compiled_programs=( collatz collatz-all
                     krazy-loop-incorrect krazy-loop-correct
                   )
 
+gecho() {
+    echo -e '\e[32m'$@'\e[39m'
+}
+
+recho() {
+    echo -e '\e[31m'$@'\e[39m'
+}
+
+h1() {
+    header="$1"
+    echo
+    echo "$header"
+    echo "$(echo "$header" | sed -n 's/./=/gp')"
+    echo
+}
+
+h2() {
+    header="$1"
+    echo "$header"
+    echo "$(echo "$header" | sed -n 's/./-/gp')"
+}
+
+h3() {
+    header="$1"
+    echo "### $header"
+}
+
 tangle_gen() {
 
-    echo "generating 'kat.k', 'imp-kat.k', 'imp.k' ..."
-    echo "============================================"
+    h2 "generating 'kat.k', 'imp-kat.k', 'imp.k' ..."
+    #  ----------------------------------------------
     pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
     pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
     pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
 
-    echo "generating examples ..."
-    echo "======================="
+    h2 "generating examples ..."
+    #  -------------------------
     [[ ! -d tests ]] && mkdir tests
     for example in $examples; do
         pandoc-tangle --from markdown --to code-k --code "$example" KAT-IMP-examples.md > "tests/$example.imp"
     done
 
-    echo "generating tests ..."
-    echo "===================="
+    h2 "generating tests ..."
+    #  ----------------------
     [[ ! -d tests/output ]] && mkdir -p tests/output
     pandoc-tangle --from markdown --to code-sh --code test KAT-IMP-examples.md > tests/test.sh
     for test in $tests; do
         pandoc-tangle --from markdown --to code-k --code "$test" KAT-IMP-examples.md > "tests/output/$test.out"
     done
 
-    echo "generating sbc-ed programs and benchmarks ..."
-    echo "============================================="
+    h2 "generating sbc-ed programs and benchmarks ..."
+    #  -----------------------------------------------
     for program in $compiled_programs; do
         [[ ! -d "tests/$program-compiled" ]] && mkdir -p "tests/$program-compiled"
         pandoc-tangle --from markdown --to code-k  --code "$program-compiled"  KAT-IMP-examples.md > "tests/$program-compiled/$program.k"
@@ -59,19 +86,23 @@ tangle_gen() {
 
 tangle_kompile() {
 
-    echo "running 'kompile' ..."
-    echo "====================="
+    h2 "running 'kompile' ..."
+    #  -----------------------
     kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
 }
 
 tangle_tests() {
 
-    echo "running tests ..."
-    echo "================="
     pushd tests
     for test in $tests; do
-        echo "### running '$test' ..."
-        bash test.sh $test || return='1'
+        h2 "running '$test' ..."
+        #  ---------------------
+        bash test.sh $test
+        if [[ "$?" == '0' ]]; then
+             gecho "SUCCESS"
+        else
+             recho "FAILURE"
+        fi
     done
     popd
 }
@@ -79,17 +110,19 @@ tangle_tests() {
 tangle_benchmarks() {
 
     for program in $compiled_programs; do
-        echo "running benchmarks for '$program' ..."
-        echo "====================================="
 
+        h2 "running benchmarks for '$program' ..."
+        #  ---------------------------------------
         PROGRAM="$(echo "$program" | awk '{print toupper($0)}')"
 
-        echo "### kompiling '$PROGRAM-COMPILED' ..."
+        h3 "kompiling '$PROGRAM-COMPILED' ..."
+        ###
         pushd "tests/$program-compiled"
         kompile --debug --main-module "$PROGRAM-COMPILED" --syntax-module "$PROGRAM-COMPILED" "$program.k" || exit 1
         popd
 
-        echo "### running benchmarks for '$program' ..."
+        h3 "running benchmarks for '$program' ..."
+        ###
         pushd tests
         bash "benchmark-$program.sh"
         popd
@@ -100,6 +133,10 @@ tangle_benchmarks() {
 
 while [[ "$#" -gt '0' ]]; do
     tangle_command="$1" && shift
+
+    h1 "running tangle command '$tangle_command' ..."
+    #  ==============================================
+
     case "$tangle_command" in
         all)          set gen kompile examples test bench ;;
         gen)          tangle_gen ;;
