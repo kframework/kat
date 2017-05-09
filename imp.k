@@ -8,12 +8,18 @@
 // Configuration
 // -------------
 
-// In IMP, base values are of sorts `Int` and `Bool`.
+// The IMP language has a `k` cell for execution and a `mem` cell for storage. In
+// IMP, base values are of sorts `Int` and `Bool`.
 
 
-module IMP-SYNTAX
+module IMP
   imports MAP
   imports STRATEGY
+
+  configuration <imp>
+                  <k> $PGM:Stmt </k>
+                  <mem> .Map </mem>
+                </imp>
 
   syntax KResult  ::= Int | Bool
 
@@ -24,6 +30,8 @@ module IMP-SYNTAX
 // IMP has `AExp` for arithmetic expressions (over integers).
 
 
+  syntax KItem ::= "div-zero-error"
+
   syntax AExp  ::= Int | Id
                  | AExp "/" AExp [left, strict]
                  | AExp "*" AExp [left, strict]
@@ -31,9 +39,11 @@ module IMP-SYNTAX
                  | AExp "+" AExp [left, strict]
                  | "(" AExp ")"  [bracket]
 //----------------------------------------
-  rule I1 + I2 => I1 +Int I2                      [structural]
-  rule I1 - I2 => I1 -Int I2                      [structural]
-  rule I1 * I2 => I1 *Int I2                      [structural]
+  rule I1 + I2 => I1 +Int I2
+  rule I1 - I2 => I1 -Int I2
+  rule I1 * I2 => I1 *Int I2
+  rule I1 / 0  => div-zero-error                  [tag(div-success)]
+  rule I1 / I2 => I1 /Int I2 requires I2 =/=Int 0 [tag(div-failure)]
 
 
 // IMP has `BExp` for boolean expressions.
@@ -47,12 +57,12 @@ module IMP-SYNTAX
                  > BExp "&&" BExp [left, strict(1)]
                  | "(" BExp ")"   [bracket]
 //-----------------------------------------
-  rule I1 <= I2   => I1 <=Int I2 [structural]
-  rule I1 <  I2   => I1 <Int  I2 [structural]
-  rule I1 == I2   => I1 ==Int I2 [structural]
-  rule ! T        => notBool T   [structural]
-  rule true  && B => B           [structural]
-  rule false && _ => false       [structural]
+  rule I1 <= I2   => I1 <=Int I2
+  rule I1 <  I2   => I1 <Int  I2
+  rule I1 == I2   => I1 ==Int I2
+  rule ! T        => notBool T
+  rule true  && B => B
+  rule false && _ => false
 
 
 // IMP has `{_}` for creating blocks of statements.
@@ -60,8 +70,8 @@ module IMP-SYNTAX
 
   syntax Block ::= "{" "}" | "{" Stmt "}"
 //---------------------------------------
-  rule {}              => .        [structural]
-  rule {S}             => S        [structural]
+  rule {}  => .
+  rule {S} => S
 
 
 // IMP has `int_;` for declaring variables, `if_then_else_` for choice, `_=_;` for
@@ -69,63 +79,25 @@ module IMP-SYNTAX
 
 
   syntax Ids ::= List{Id,","}
-  syntax Stmt  ::= Block
-                 | "int" Ids ";"
-                 | Id "=" AExp ";"                      [strict(2)]
-                 | "if" "(" BExp ")" Block "else" Block [strict(1)]
-                 | "while" "(" BExp ")" Block
-                 > Stmt Stmt                            [left]
-//------------------------------------------------------------
-  rule S1:Stmt S2:Stmt => S1 ~> S2 [structural]
-endmodule
+  syntax Stmt ::= Block
+                | "int" Ids ";"
+                | Id "=" AExp ";"                      [strict(2)]
+                | "if" "(" BExp ")" Block "else" Block [strict(1)]
+                | "while" "(" BExp ")" Block
+                > Stmt Stmt                            [left]
+//-----------------------------------------------------------
+  rule S1:Stmt S2:Stmt => S1 ~> S2
+  rule if (true)  B:Block else _ => B:Block [tag(if-true)]
+  rule if (false) _ else B:Block => B:Block [tag(if-false)]
 
-
-// Semantics
-// ---------
-
-// The IMP language has a `k` cell for execution and a `mem` cell for storage.
-
-
-module IMP-SEMANTICS
-  imports IMP-SYNTAX
-
-  configuration <imp>
-                  <k> $PGM:Stmt </k>
-                  <mem> .Map </mem>
-                </imp>
-
-
-// We don't want to count these rules as transition steps since they are really
-// just for initialization.
-
-
-  rule <k> int .Ids ; => .    ... </k> [structural]
+  rule int .Ids ; => .
   rule <k> int (X,Xs => Xs) ; ... </k>
        <mem> Rho:Map (.Map => X |-> 0) </mem>
-     requires notBool (X in keys(Rho))
-     [structural]
-
-
-// All the rules above are "regular" rules, not to be considered transition steps
-// by analysis tools. The rules below are named (with the attribute `tag`) so that
-// strategy-based analysis tools can treat them specially.
-
+    requires notBool (X in keys(Rho))
 
   rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [tag(lookup)]
   rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [tag(assignment)]
 
-  rule if (true)  B:Block else _ => B:Block [tag(if), transition]
-  rule if (false) _ else B:Block => B:Block [tag(if), transition]
-
   rule while (B) STMT => if (B) {STMT while (B) STMT} else {} [tag(while)]
-
-
-// Here we make a program error if division by zero occurs.
-
-
-  syntax KItem ::= "div-zero-error"
-//---------------------------------
-  rule <k> I1 / I2 => I1 /Int I2 ...      </k> requires I2 =/=Int 0 [tag(error), transition]
-  rule <k> I1 / I2 ~> _ => div-zero-error </k> requires I2 ==Int 0  [tag(error), transition]
 endmodule
 

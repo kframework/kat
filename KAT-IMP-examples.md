@@ -218,6 +218,10 @@ test() {
         return_code="1"
     fi
 }
+
+while [[ "$#" -gt '0' ]]; do
+    test="$1" && shift
+    case "$test" in
 ```
 
 BIMC
@@ -231,7 +235,7 @@ Then we issue some `bimc` query to check if the program obeys the given invarian
 Assertion not violated at step 2:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out
+"straight-line-1-bimc1") test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out ;;
 ```
 
 ```{.k .straight-line-1-bimc1}
@@ -252,7 +256,7 @@ Solution 1
 Assertion violation at step 3:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out
+"straight-line-1-bimc2") test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out ;;
 ```
 
 ```{.k .straight-line-1-bimc2}
@@ -275,7 +279,7 @@ Solution 1
 Assertion not violated up to step 2:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out
+"straight-line-2-bimc1") test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out ;;
 ```
 
 ```{.k .straight-line-2-bimc1}
@@ -296,7 +300,7 @@ Solution 1
 Assertion violated at step 3:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out
+"straight-line-2-bimc2") test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out ;;
 ```
 
 ```{.k .straight-line-2-bimc2}
@@ -317,7 +321,7 @@ Solution 1
 Assertion still violated at step 3 (with extended bound):
 
 ```{.sh .test}
-test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out
+"straight-line-2-bimc3") test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out ;;
 ```
 
 ```{.k .straight-line-2-bimc3}
@@ -340,7 +344,7 @@ Solution 1
 Query with large bound to find which step pushed the sum above `32`:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out
+"sum-bimc1") test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out ;;
 ```
 
 ```{.k .sum-bimc1}
@@ -361,7 +365,7 @@ Solution 1
 Show that the returned number is the correct step that an assertion violation happens at:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out
+"sum-bimc2") test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out ;;
 ```
 
 ```{.k .sum-bimc2}
@@ -382,7 +386,7 @@ Solution 1
 And that one step prior the assertion was not violated:
 
 ```{.sh .test}
-test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
+"sum-bimc3") test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out ;;
 ```
 
 ```{.k .sum-bimc3}
@@ -405,7 +409,7 @@ Solution 1
 Here we test if the Collatz sequence for `782` contains any numbers greater than `1000`.
 
 ```{.sh .test}
-test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out
+"collatz-bimc") test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out ;;
 ```
 
 ```{.k .collatz-bimc}
@@ -426,7 +430,7 @@ Solution 1
 ### Collatz All
 
 ```{.sh .test}
-test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out
+"collatz-all-bimc") test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out ;;
 ```
 
 ```{.k .collatz-all-bimc}
@@ -447,7 +451,7 @@ Solution 1
 ### Krazy Loop
 
 ```{.sh .test}
-test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out
+"krazy-loop-correct-bimc") test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out ;;
 ```
 
 ```{.k .krazy-loop-correct-bimc}
@@ -466,7 +470,7 @@ Solution 1
 ```
 
 ```{.sh .test}
-test 'bimc 5000 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc1.out
+"krazy-loop-incorrect-bimc1") test 'bimc 5000 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc1.out ;;
 ```
 
 ```{.k .krazy-loop-incorrect-bimc1}
@@ -485,7 +489,7 @@ Solution 1
 ```
 
 ```{.sh .test}
-test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc2.out
+"krazy-loop-incorrect-bimc2") test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc2.out ;;
 ```
 
 ```{.k .krazy-loop-incorrect-bimc2}
@@ -516,7 +520,7 @@ Straight line programs should yield one rule which summarizes the effect of the 
 `straight-line-1` just has the effect of setting `x` to 15, skipping all intermediate steps.
 
 ```{.sh .test}
-test 'compile' straight-line-1.imp straight-line-1-sbc.out
+"straight-line-1-sbc") test 'compile' straight-line-1.imp straight-line-1-sbc.out ;;
 ```
 
 ```{.k .straight-line-1-sbc}
@@ -541,7 +545,7 @@ Note that before setting it to `5`, the original program sets it to 0 and then 1
 Because we are using the operational semantics of the language directly, we get this dead-code elimination practically for free.
 
 ```{.sh .test}
-test 'compile' straight-line-2.imp straight-line-2-sbc.out
+"straight-line-2-sbc") test 'compile' straight-line-2.imp straight-line-2-sbc.out ;;
 ```
 
 ```{.k .straight-line-2-sbc}
@@ -568,7 +572,7 @@ In the `dead-if` program, the condition on the `if` is always true, so our rule 
 Once again, because we are using symbolic execution of the operational semantics directly, we get this branch elimination for free.
 
 ```{.sh .test}
-test 'compile' dead-if.imp dead-if-sbc.out
+"dead-if-sbc") test 'compile' dead-if.imp dead-if-sbc.out ;;
 ```
 
 ```{.k .dead-if-sbc}
@@ -597,7 +601,7 @@ Sum should generate three rules:
 3. One rule corresponding to an iteration of the `while` loop (if the condition on the loop is true).
 
 ```{.sh .test}
-test 'compile' sum.imp sum-sbc.out
+"sum-sbc") test 'compile' sum.imp sum-sbc.out ;;
 ```
 
 ```{.k .sum-sbc}
@@ -628,7 +632,7 @@ Solution 1
 Sum Plus should generate the same rules, but the rule for the false branch of the `while` loop should also include the effect of the code after the `while` loop (rule 2').
 
 ```{.sh .test}
-test 'compile' sum-plus.imp sum-plus-sbc.out
+"sum-plus-sbc") test 'compile' sum-plus.imp sum-plus-sbc.out ;;
 ```
 
 ```{.k .sum-plus-sbc}
@@ -670,7 +674,7 @@ Rules 1 and 2 above will be generated in both solutions for `--search`, but rule
 Note that we effectively get a "summary" of the Collatz algorithm which is independent of how it's written down in IMP.
 
 ```{.sh .test}
-test 'compile' collatz.imp collatz-sbc.out
+"collatz-sbc") test 'compile' collatz.imp collatz-sbc.out ;;
 ```
 
 ```{.k .collatz-sbc}
@@ -724,7 +728,7 @@ Solution 2
 ### Collatz All
 
 ```{.sh .test}
-test 'compile' collatz-all.imp collatz-all-sbc.out
+"collatz-all-sbc") test 'compile' collatz-all.imp collatz-all-sbc.out ;;
 ```
 
 ```{.k .collatz-all-sbc}
@@ -770,9 +774,7 @@ Solution 2
 ### Krazy Loop
 
 ```{.sh .test}
-test 'compile' krazy-loop-incorrect.imp krazy-loop-incorrect-sbc.out
-
-exit $return_code
+"krazy-loop-incorrect-sbc") test 'compile' krazy-loop-incorrect.imp krazy-loop-incorrect-sbc.out ;;
 ```
 
 ```{.k .krazy-loop-incorrect-sbc}
@@ -816,7 +818,11 @@ Solution 2
 ```
 
 ```{.sh .test}
-test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out
+"krazy-loop-correct-sbc") test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out ;;
+esac
+done
+
+exit $return_code
 ```
 
 ```{.k .krazy-loop-correct-sbc}

@@ -1,87 +1,92 @@
 #!/usr/bin/env zsh
 
-tangle_defn() {
+examples=( straight-line-1 straight-line-2
+           dead-if
+           sum sum-plus
+           collatz collatz-all
+           krazy-loop-correct krazy-loop-incorrect
+         )
+
+tests=( straight-line-1-bimc1 straight-line-1-bimc2
+        straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
+        sum-bimc1 sum-bimc2 sum-bimc3 collatz-bimc collatz-all-bimc
+        krazy-loop-correct-bimc krazy-loop-incorrect-bimc1 krazy-loop-incorrect-bimc2
+        straight-line-1-sbc straight-line-2-sbc
+        dead-if-sbc
+        sum-sbc sum-plus-sbc
+        collatz-sbc collatz-all-sbc
+        krazy-loop-correct-sbc
+      )
+
+compiled_programs=( collatz collatz-all
+                    krazy-loop-incorrect krazy-loop-correct
+                  )
+
+tangle_gen() {
+
     echo "generating 'kat.k', 'imp-kat.k', 'imp.k' ..."
     echo "============================================"
-
     pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
     pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
     pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
 
-    echo "running 'kompile' ..."
-    echo "====================="
-
-    kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
-}
-
-tangle_examples() {
     echo "generating examples ..."
     echo "======================="
-
     [[ ! -d tests ]] && mkdir tests
-
-    examples=(straight-line-1 straight-line-2 dead-if sum sum-plus collatz collatz-all krazy-loop-correct krazy-loop-incorrect)
-
     for example in $examples; do
         pandoc-tangle --from markdown --to code-k --code "$example" KAT-IMP-examples.md > "tests/$example.imp"
     done
+
+    echo "generating tests ..."
+    echo "===================="
+    [[ ! -d tests/output ]] && mkdir -p tests/output
+    pandoc-tangle --from markdown --to code-sh --code test KAT-IMP-examples.md > tests/test.sh
+    for test in $tests; do
+        pandoc-tangle --from markdown --to code-k --code "$test" KAT-IMP-examples.md > "tests/output/$test.out"
+    done
+
+    echo "generating sbc-ed programs and benchmarks ..."
+    echo "============================================="
+    for program in $compiled_programs; do
+        [[ ! -d "tests/$program-compiled" ]] && mkdir -p "tests/$program-compiled"
+        pandoc-tangle --from markdown --to code-k  --code "$program-compiled"  KAT-IMP-examples.md > "tests/$program-compiled/$program.k"
+        pandoc-tangle --from markdown --to code-sh --code "benchmark-$program" KAT-IMP-examples.md > "tests/benchmark-$program.sh"
+    done
+}
+
+tangle_kompile() {
+
+    echo "running 'kompile' ..."
+    echo "====================="
+    kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
 }
 
 tangle_tests() {
-    echo "generating tests ..."
-    echo "===================="
-
-    [[ ! -d tests/output ]] && mkdir -p tests/output
-
-    pandoc-tangle --from markdown --to code-sh --code test KAT-IMP-examples.md > tests/test.sh
-
-    tests=( straight-line-1-bimc1 straight-line-1-bimc2
-            straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
-            sum-bimc1 sum-bimc2 sum-bimc3 collatz-bimc collatz-all-bimc
-            krazy-loop-correct-bimc krazy-loop-incorrect-bimc1 krazy-loop-incorrect-bimc2
-            straight-line-1-sbc straight-line-2-sbc
-            dead-if-sbc
-            sum-sbc sum-plus-sbc
-            collatz-sbc collatz-all-sbc
-            krazy-loop-correct-sbc
-          )
-
-    for test in $tests; do
-        pandoc-tangle --from markdown --to code-k --code "$test" KAT-IMP-examples.md > tests/output/$test.out
-    done
 
     echo "running tests ..."
     echo "================="
-
     pushd tests
-    bash test.sh || exit 1
+    bash test.sh $tests || exit 1
     popd
 }
 
 tangle_benchmarks() {
-    program="$1"
-    PROGRAM="$(echo "$program" | awk '{print toupper($0)}')"
 
-    echo "generating $program-compiled ..."
-    echo "==============================="
-    [[ ! -d "tests/$program-compiled" ]] && mkdir -p "tests/$program-compiled"
-    pandoc-tangle --from markdown --to code-k --code "$program-compiled" KAT-IMP-examples.md > "tests/$program-compiled/$program.k"
+    for program in $compiled_programs; do
+        PROGRAM="$(echo "$program" | awk '{print toupper($0)}')"
 
-    echo "kompiling $program-compiled ..."
-    echo "=============================="
-    pushd "tests/$program-compiled"
-    kompile --debug --main-module "$PROGRAM-COMPILED" --syntax-module "$PROGRAM-COMPILED" "$program.k" || exit 1
-    popd
+        echo "kompiling $PROGRAM-COMPILED ..."
+        echo "==============================="
+        pushd "tests/$program-compiled"
+        kompile --debug --main-module "$PROGRAM-COMPILED" --syntax-module "$PROGRAM-COMPILED" "$program.k" || exit 1
+        popd
 
-    echo "generating benchmarks ..."
-    echo "========================="
-    pandoc-tangle --from markdown --to code-sh --code "benchmark-$program" KAT-IMP-examples.md > "tests/benchmark-$program.sh"
-
-    echo "running benchmarks ..."
-    echo "======================"
-    pushd tests
-    bash "benchmark-$program.sh"
-    popd
+        echo "running benchmarks ..."
+        echo "======================"
+        pushd tests
+        bash "benchmark-$program.sh"
+        popd
+    done
 }
 
 [[ "$#" == '0' ]] && set all
@@ -89,14 +94,12 @@ tangle_benchmarks() {
 while [[ "$#" -gt '0' ]]; do
     tangle_command="$1" && shift
     case "$tangle_command" in
-        all)      set defn examples test bench ;;
-        defn)     tangle_defn ;;
-        examples) tangle_examples ;;
-        test)     tangle_tests ;;
-        bench)    tangle_benchmarks collatz
-                  tangle_benchmarks collatz-all
-                  tangle_benchmarks krazy-loop-incorrect
-                  ;;
-        *)        echo "Unrecognized option: '$tangle_command' ..." ;;
+        all)          set gen kompile examples test bench ;;
+        gen)          tangle_gen ;;
+        defn|kompile) tangle_kompile ;;
+        examples)     tangle_examples ;;
+        test)         tangle_tests ;;
+        bench)        tangle_benchmarks ;;
+        *)            echo "Unrecognized option: '$tangle_command' ..." ;;
     esac
 done

@@ -35,6 +35,10 @@ test() {
     fi
 }
 
+while [[ "$#" -gt '0' ]]; do
+    test="$1" && shift
+    case "$test" in
+
 
 # BIMC
 # ----
@@ -48,13 +52,13 @@ test() {
 # Assertion not violated at step 2:
 
 
-test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out
+"straight-line-1-bimc1") test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc1.out ;;
 
 
 # Assertion violation at step 3:
 
 
-test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out
+"straight-line-1-bimc2") test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-1-bimc2.out ;;
 
 
 # ### Straight Line 2
@@ -62,19 +66,19 @@ test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-1.imp straight-line-
 # Assertion not violated up to step 2:
 
 
-test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out
+"straight-line-2-bimc1") test 'step-with skip ; bimc 2 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc1.out ;;
 
 
 # Assertion violated at step 3:
 
 
-test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out
+"straight-line-2-bimc2") test 'step-with skip ; bimc 3 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc2.out ;;
 
 
 # Assertion still violated at step 3 (with extended bound):
 
 
-test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out
+"straight-line-2-bimc3") test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-line-2-bimc3.out ;;
 
 
 # ### Sum
@@ -82,20 +86,20 @@ test 'step-with skip ; bimc 500 (bexp? x <= 7)' straight-line-2.imp straight-lin
 # Query with large bound to find which step pushed the sum above `32`:
 
 
-test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out
+"sum-bimc1") test 'step-with skip ; bimc 500 (bexp? s <= 32)' sum.imp sum-bimc1.out ;;
 
 
 # Show that the returned number is the correct step that an assertion violation
 # happens at:
 
 
-test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out
+"sum-bimc2") test 'step-with skip ; bimc 41 (bexp? s <= 32)' sum.imp sum-bimc2.out ;;
 
 
 # And that one step prior the assertion was not violated:
 
 
-test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
+"sum-bimc3") test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out ;;
 
 
 # ### Collatz
@@ -104,27 +108,27 @@ test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out
 # `1000`.
 
 
-test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out
+"collatz-bimc") test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out ;;
 
 
 # ### Collatz All
 
 
-test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out
+"collatz-all-bimc") test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out ;;
 
 
 # ### Krazy Loop
 
 
-test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out
+"krazy-loop-correct-bimc") test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out ;;
 
 
 
-test 'bimc 5000 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc1.out
+"krazy-loop-incorrect-bimc1") test 'bimc 5000 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc1.out ;;
 
 
 
-test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc2.out
+"krazy-loop-incorrect-bimc2") test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc2.out ;;
 
 
 # SBC
@@ -144,7 +148,7 @@ test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect
 # intermediate steps.
 
 
-test 'compile' straight-line-1.imp straight-line-1-sbc.out
+"straight-line-1-sbc") test 'compile' straight-line-1.imp straight-line-1-sbc.out ;;
 
 
 # `straight-line-2` just has the effect of setting `x` to 5, skipping all
@@ -154,7 +158,7 @@ test 'compile' straight-line-1.imp straight-line-1-sbc.out
 # this dead-code elimination practically for free.
 
 
-test 'compile' straight-line-2.imp straight-line-2-sbc.out
+"straight-line-2-sbc") test 'compile' straight-line-2.imp straight-line-2-sbc.out ;;
 
 
 # ### Dead `if`
@@ -167,7 +171,7 @@ test 'compile' straight-line-2.imp straight-line-2-sbc.out
 # directly, we get this branch elimination for free.
 
 
-test 'compile' dead-if.imp dead-if-sbc.out
+"dead-if-sbc") test 'compile' dead-if.imp dead-if-sbc.out ;;
 
 
 # ### Sum and Sum Plus
@@ -181,7 +185,7 @@ test 'compile' dead-if.imp dead-if-sbc.out
 #     on the loop is true).
 
 
-test 'compile' sum.imp sum-sbc.out
+"sum-sbc") test 'compile' sum.imp sum-sbc.out ;;
 
 
 # Sum Plus should generate the same rules, but the rule for the false branch of
@@ -189,7 +193,7 @@ test 'compile' sum.imp sum-sbc.out
 # loop (rule 2').
 
 
-test 'compile' sum-plus.imp sum-plus-sbc.out
+"sum-plus-sbc") test 'compile' sum-plus.imp sum-plus-sbc.out ;;
 
 
 # ### Collatz {#collatz-1}
@@ -210,25 +214,27 @@ test 'compile' sum-plus.imp sum-plus-sbc.out
 # it's written down in IMP.
 
 
-test 'compile' collatz.imp collatz-sbc.out
+"collatz-sbc") test 'compile' collatz.imp collatz-sbc.out ;;
 
 
 # ### Collatz All {#collatz-all-1}
 
 
-test 'compile' collatz-all.imp collatz-all-sbc.out
+"collatz-all-sbc") test 'compile' collatz-all.imp collatz-all-sbc.out ;;
 
 
 # ### Krazy Loop {#krazy-loop-1}
 
 
-test 'compile' krazy-loop-incorrect.imp krazy-loop-incorrect-sbc.out
+"krazy-loop-incorrect-sbc") test 'compile' krazy-loop-incorrect.imp krazy-loop-incorrect-sbc.out ;;
+
+
+
+"krazy-loop-correct-sbc") test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out ;;
+esac
+done
 
 exit $return_code
-
-
-
-test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out
 
 
 # SBC Benchmarking
