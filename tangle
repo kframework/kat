@@ -93,8 +93,8 @@ while [[ "$#" -gt '0' ]]; do
         defn)     tangle_defn ;;
         examples) tangle_examples ;;
         test)     tangle_tests ;;
-        bench)    tangle_benchmarks collatz
-                  tangle_benchmarks collatz-all
+        bench)    #tangle_benchmarks collatz
+                  #tangle_benchmarks collatz-all
                   tangle_benchmarks krazy-loop-incorrect
                   ;;
         *)        echo "Unrecognized option: '$tangle_command' ..." ;;

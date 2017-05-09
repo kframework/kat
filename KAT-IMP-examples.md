@@ -907,8 +907,8 @@ module COLLATZ-ALL-COMPILED
   rule <imp> <k> OUTER => FINISH </k> <mem>         x |-> V0                b |-> V1                n |-> V2                         </mem> </imp> requires notBool (V1 <=Int 10)
   rule <imp> <k> OUTER => INNER  </k> <mem>         x |-> V0                b |-> V1                n |-> (V2 => V1)                 </mem> </imp> requires (V1 <=Int 10)
   rule <imp> <k> INNER => OUTER  </k> <mem>         x |-> V0                b |-> (V1 => V1 +Int 1) n |-> V2                         </mem> </imp> requires notBool (2 <=Int V2)
-  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <= ((V2 /Int 2) *Int 2))
-  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <= ((V2 /Int 2) *Int 2))
+  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <=Int ((V2 /Int 2) *Int 2))
+  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <=Int ((V2 /Int 2) *Int 2))
 endmodule
 ```
 
@@ -945,7 +945,7 @@ krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
 
 And we also are timing the `collatz-all` program concretely:
 
-```{.sh .benchmark-collatz}
+```{.sh .benchmark-collatz-all}
 echo "Timing IMP Collatz All concrete ..."
 krun --directory '../' -cSTRATEGY='step until stuck?' collatz-all.imp
 echo "Timing Compiled Collatz All concrete ..."
@@ -991,7 +991,7 @@ The third number is how long it took to run on my laptop on a Sunday.
 | 7288  | 53164         | 5209          | 10.21   |
 | 9323  | 71187         | 6851          | 10.39   |
 
-```{.sh .benchmark-collatz}
+```{.sh .benchmark-collatz-all}
 for bound in 20 40 60 80 100 150 200; do
     echo
     echo "Timing Collatz all bimc with bound '$bound' ..."

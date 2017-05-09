@@ -17,6 +17,14 @@
 #     `while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }`
 # -   `FINISH` corresponds to the final state: `.`
 
+# Here is the compiled version of Collatz all, which checks every Collatz number
+# up to 10.
+
+# -   `INIT` corresponds to the entire program.
+# -   `OUTER` corresponds to the program starting at the outer `while` loop.
+# -   `INNER` corresponds to the program starting at the inner `while` loop.
+# -   `FINISHED` corresponds to the completed program.
+
 # ### Concrete Execution Time
 
 # First we'll demonstrate that execution time decreases drastically by running
@@ -31,6 +39,14 @@ krun --directory '../' -cSTRATEGY='step until stuck?' collatz.imp
 echo "Timing Compiled Collatz concrete ..."
 krun --directory 'collatz-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
 
+
+# And we also are timing the `collatz-all` program concretely:
+
+#   program       concrete (ms)   compiled (ms)
+#   ------------- --------------- ---------------
+#   collatz       31952           2782
+#   collatz-all                   
+# 
 
 # ### BIMC Execution Time
 
@@ -58,11 +74,14 @@ done
 # number is the number of steps it took to get there. The third number is how long
 # it took to run on my laptop on a Sunday.
 
-# 1.  1000 at 20 steps in 19s
-# 2.  1174 at 40 steps in 22s
-# 3.  1762 at 60 steps in ??s
-# 4.  2644 at 730 steps in 2m34s
-# 5.  3238 at 750 steps in 3m07s
-# 6.  4858 at 770 steps in 3m44s
-# 7.  7288 at 870 steps in 9m01s
-# 8.  9232 at ??? steps in ?m??s
+#   bound   concrete (ms)   compiled (ms)   speedup
+#   ------- --------------- --------------- ---------
+#   1000    2154            596             3.61
+#   1174    3378            818             4.13
+#   1762    4497            966             4.66
+#   2644    43825           4673            9.78
+#   3238    45397           4521            10.04
+#   4858    44939           4707            9.55
+#   7288    53164           5209            10.21
+#   9323    71187           6851            10.39
+# 

@@ -25,6 +25,29 @@
 # -   `INNER` corresponds to the program starting at the inner `while` loop.
 # -   `FINISHED` corresponds to the completed program.
 
+# ### Concrete Execution Time
+
+# First we'll demonstrate that execution time decreases drastically by running
+# `collatz.imp` with the original semantics, and running `INIT` with the new
+# semantics. Note that in both cases this is not as fast as an actual compiled
+# definition could be because we're still using the strategy harness to control
+# execution (which introduces overhead).
+
+# And we also are timing the `collatz-all` program concretely:
+
+
+echo "Timing IMP Collatz All concrete ..."
+krun --directory '../' -cSTRATEGY='step until stuck?' collatz-all.imp
+echo "Timing Compiled Collatz All concrete ..."
+krun --directory 'collatz-all-compiled/' -cSTRATEGY='step until stuck?' -cPGM='INIT'
+
+
+#   program       concrete (ms)   compiled (ms)
+#   ------------- --------------- ---------------
+#   collatz       31952           2782
+#   collatz-all                   
+# 
+
 # ### BIMC Execution Time
 
 # In addition to concrete execution speedup, we get a speedup in the other
@@ -52,10 +75,13 @@
 # 
 
 
-echo
-echo "Timing krazy-loop-incorrect ..."
-echo "Using concrete execution ..."
-krun --directory '../' -cSTRATEGY='bimc 5000 (not div-zero-error?)' krazy-loop-incorrect.imp
-echo "Using compiled execution ..."
-krun --directory 'krazy-loop-incorrect-compiled/' -cSTRATEGY='bimc 5000 (not div-zero-error?)' -cPGM='INIT'
+for bound in 20 40 60 80 100 150 200; do
+    echo
+    echo "Timing Collatz all bimc with bound '$bound' ..."
+    echo "Using concrete execution ..."
+    krun --directory '../' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' collatz-all.imp
+
+    echo "Using compiled execution ..."
+    krun --directory 'collatz-all-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
+done
 
