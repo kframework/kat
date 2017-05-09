@@ -9,28 +9,32 @@
 // Looping
 // -------
 
-// ### `collatz-all.imp`
-
-// Like `collatz`, though in this case calculates how many steps it takes for all
-// numbers up to a given number (in this case 10) to go to 1 using Collatz update.
+// ### `krazy-loop.imp`
 
 
-int b , n , x ;
+int i , j , k , l , m , s ;
 
-b = 1 ;
-n = 1 ;
-x = 0 ;
+i = 11 ;
+j = 11 ;
+k = 0 ;
+l = 0 ;
+m = 0 ;
+s = 0 ;
 
-while (b <= 10) {
-  n = b ;
-  while (2 <= n) {
-    if (n <= ((n / 2) * 2)) {
-      n = n / 2 ;
+while (0 < i) {
+  k = 0 ;
+  j = 11 ;
+  while (0 <= j) {
+    l = (3 * j) - (j + i) ;
+    m = (5 * i) + 1 ;
+    if (i <= ((i / 2) * 2)) {
+      k = k + (l / i) ;
     } else {
-      n = (3 * n) + 1 ;
+      k = k + (j / m) ;
     }
-    x = x + 1 ;
+    j = j - 1 ;
   }
-  b = b + 1 ;
+  s = s + ((i * k) / 3) ;
+  i = i - 1 ;
 }
 

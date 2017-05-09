@@ -39,7 +39,7 @@ module IMP-KAT
 // ### Define `#step`
 
 
-  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if ... </s> [structural]
+  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if | ^ error ... </s> [structural]
 
 
 // ### Define `bool?`
@@ -67,6 +67,11 @@ module IMP-BIMC
   syntax StatePred ::= "bexp?" BExp
 //---------------------------------
   rule <s> bexp? B [ { KCELL | MEM } ] => push { KCELL | MEM } ; pop { B | MEM } ; eval ; #pred pop ... </s> [structural]
+
+  syntax StatePred ::= "div-zero-error?"
+//--------------------------------------
+  rule <s> div-zero-error? [ { div-zero-error | _ } ] => #true  ... </s>                                    [structural]
+  rule <s> div-zero-error? [ { KCELL          | _ } ] => #false ... </s> requires KCELL =/=K div-zero-error [structural]
 endmodule
 
 
@@ -115,7 +120,7 @@ module IMP-SBC
   rule <s> #abstractKey X XS { KCELL | MEM } => #abstract XS { KCELL | MEM[X <- ?V:Int] } ... </s> [structural]
 
 
-// ### Define `_subsumes_`
+// ### Define `_subsumes?_`
 
 // Because the memory is fully abstract every time subsumption is checked, it's
 // enough to check that the `k` cell is identical for subsumption.

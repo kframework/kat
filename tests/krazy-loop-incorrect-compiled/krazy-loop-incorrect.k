@@ -17,23 +17,6 @@
 //     `while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }`
 // -   `FINISH` corresponds to the final state: `.`
 
-
-requires "../../imp-kat.k"
-
-module COLLATZ-COMPILED
-  imports IMP-ANALYSIS
-  imports MAP
-
-  syntax Stmt ::= "INIT" | "LOOP" | "FINISHED"
-  syntax Id ::= "x" | "n"
-
-  rule <imp> <k> INIT => LOOP      </k> <mem> .Map => x |-> 0                 n |-> 782                        </mem> </imp>
-  rule <imp> <k> LOOP => FINISHED  </k> <mem>         x |-> V0                n |-> V1                         </mem> </imp> requires notBool (2 <=Int V1)                                         [tag(while)]
-  rule <imp> <k> LOOP              </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => V1 /Int 2)          </mem> </imp> requires (2 <=Int V1) andBool (V1 <=Int ((V1 /Int 2) *Int 2))         [tag(while)]
-  rule <imp> <k> LOOP              </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => (3 *Int V1) +Int 1) </mem> </imp> requires (2 <=Int V1) andBool notBool (V1 <=Int ((V1 /Int 2) *Int 2)) [tag(while)]
-endmodule
-
-
 // Here is the compiled version of Collatz all, which checks every Collatz number
 // up to 10.
 
@@ -41,6 +24,25 @@ endmodule
 // -   `OUTER` corresponds to the program starting at the outer `while` loop.
 // -   `INNER` corresponds to the program starting at the inner `while` loop.
 // -   `FINISHED` corresponds to the completed program.
+
+
+requires "../../imp-kat.k"
+
+module KRAZY-LOOP-INCORRECT-COMPILED
+  imports IMP-ANALYSIS
+  imports MAP
+
+  syntax Stmt ::= "INIT" | "OUTER" | "INNER" | "FINISH"
+  syntax Id ::= "i" | "j" | "k" | "l" | "m" | "s"
+
+  rule <imp> <k> INIT  => OUTER  </k> <mem> .Map => i |-> 11                j |-> 11                k |-> 0                                                     l |-> 0                                   m |-> 0                        s |-> 0                           </mem> </imp>
+  rule <imp> <k> OUTER => FINISH </k> <mem>         i |-> V0                j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires notBool (0 <=Int V0)
+  rule <imp> <k> OUTER => INNER  </k> <mem>         i |-> V0                j |-> (V1 => 11)        k |-> (V2 => 0)                                             l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires (0 <=Int V0)
+  rule <imp> <k> INNER => OUTER  </k> <mem>         i |-> (V0 => V0 -Int 1) j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> (V5 +Int V0 *Int V2 /Int 3) </mem> </imp> requires notBool (0 <=Int V1)
+  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int V1 /Int (5 *Int V0 +Int 1))            l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool notBool (V0 <=Int (V0 /Int 2) *Int 2)
+  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int (3 *Int V1 -Int (V1 +Int V0)) /Int V0) l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool (V0 <=Int (V0 /Int 2) *Int 2)
+endmodule
+
 
 // ### Concrete Execution Time
 

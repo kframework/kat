@@ -119,5 +119,13 @@ module IMP-SEMANTICS
   rule if (false) _ else B:Block => B:Block [tag(if), transition]
 
   rule while (B) STMT => if (B) {STMT while (B) STMT} else {} [tag(while)]
+
+
+// Here we make a program error if division by zero occurs.
+
+
+  syntax KItem ::= "div-zero-error"
+//---------------------------------
+  rule <k> I:Int / 0 ~> _ => div-zero-error </k> [tag(error)]
 endmodule
 

@@ -12,7 +12,7 @@ recho() {
     echo -e '\e[31m'$@'\e[39m'
 }
 strip_output() {
-    grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr --squeeze-repeats ' '
+    grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr -s ' '
 }
 
 return_code="0"
@@ -113,6 +113,20 @@ test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz.imp collatz-bimc.out
 test 'step-with skip ; bimc 5000 (bexp? n <= 1000)' collatz-all.imp collatz-all-bimc.out
 
 
+# ### Krazy Loop
+
+
+test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out
+
+
+
+test 'bimc 5000 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc1.out
+
+
+
+test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc2.out
+
+
 # SBC
 # ---
 
@@ -199,12 +213,22 @@ test 'compile' sum-plus.imp sum-plus-sbc.out
 test 'compile' collatz.imp collatz-sbc.out
 
 
-# ### Collatz-all {#collatz-all-1}
+# ### Collatz All {#collatz-all-1}
 
 
 test 'compile' collatz-all.imp collatz-all-sbc.out
 
+
+# ### Krazy Loop {#krazy-loop-1}
+
+
+test 'compile' krazy-loop-incorrect.imp krazy-loop-incorrect-sbc.out
+
 exit $return_code
+
+
+
+test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out
 
 
 # SBC Benchmarking
@@ -220,6 +244,14 @@ exit $return_code
 #     `while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }`
 # -   `FINISH` corresponds to the final state: `.`
 
+# Here is the compiled version of Collatz all, which checks every Collatz number
+# up to 10.
+
+# -   `INIT` corresponds to the entire program.
+# -   `OUTER` corresponds to the program starting at the outer `while` loop.
+# -   `INNER` corresponds to the program starting at the inner `while` loop.
+# -   `FINISHED` corresponds to the completed program.
+
 # ### Concrete Execution Time
 
 # First we'll demonstrate that execution time decreases drastically by running
@@ -228,7 +260,7 @@ exit $return_code
 # definition could be because we're still using the strategy harness to control
 # execution (which introduces overhead).
 
-# And we also are timing the `collatz-all` program with
+# And we also are timing the `collatz-all` program concretely:
 
 #   program       concrete (ms)   compiled (ms)
 #   ------------- --------------- ---------------

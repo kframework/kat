@@ -110,7 +110,7 @@ b = 1 ;
 n = 1 ;
 x = 0 ;
 
-while (b <= 27) {
+while (b <= 10) {
   n = b ;
   while (2 <= n) {
     if (n <= ((n / 2) * 2)) {
@@ -127,7 +127,59 @@ while (b <= 27) {
 ### `krazy-loop.imp`
 
 ```{.imp .krazy-loop-correct .k}
-int 
+int i , j , k , l , m , s ;
+
+i = 11 ;
+j = 11 ;
+k = 0 ;
+l = 0 ;
+m = 0 ;
+s = 0 ;
+
+while (0 < i) {
+  k = 0 ;
+  j = 11 ;
+  while (0 <= j) {
+    l = (3 * j) - (j + i) ;
+    m = (5 * i) + 1 ;
+    if (i <= ((i / 2) * 2)) {
+      k = k + (l / i) ;
+    } else {
+      k = k + (j / m) ;
+    }
+    j = j - 1 ;
+  }
+  s = s + ((i * k) / 3) ;
+  i = i - 1 ;
+}
+```
+
+```{.imp .krazy-loop-incorrect .k}
+int i , j , k , l , m , s ;
+
+i = 11 ;
+j = 11 ;
+k = 0 ;
+l = 0 ;
+m = 0 ;
+s = 0 ;
+
+while (0 <= i) {
+  k = 0 ;
+  j = 11 ;
+  while (0 <= j) {
+    l = (3 * j) - (j + i) ;
+    m = (5 * i) + 1 ;
+    if (i <= ((i / 2) * 2)) {
+      k = k + (l / i) ;
+    } else {
+      k = k + (j / m) ;
+    }
+    j = j - 1 ;
+  }
+  s = s + ((i * k) / 3) ;
+  i = i - 1 ;
+}
 ```
 
 IMP-KAT Tests
@@ -144,7 +196,7 @@ recho() {
     echo -e '\e[31m'$@'\e[39m'
 }
 strip_output() {
-    grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr --squeeze-repeats ' '
+    grep -v -e '^$' -e '^\s*//' | tr '\n' ' ' | tr -s ' '
 }
 
 return_code="0"
@@ -392,6 +444,65 @@ Solution 1
 </kat-imp>
 ```
 
+### Krazy Loop
+
+```{.sh .test}
+test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out
+```
+
+```{.k .krazy-loop-correct-bimc}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #true in 1367 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> . </k>
+  <mem> l |-> -1 k |-> 4 s |-> 46 j |-> -1 i |-> 0 m |-> 6 </mem>
+ </imp>
+</kat-imp>
+```
+
+```{.sh .test}
+test 'bimc 5000 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc1.out
+```
+
+```{.k .krazy-loop-incorrect-bimc1}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #false in 1385 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> div-zero-error </k>
+  <mem> l |-> 18 k |-> 0 s |-> 46 j |-> 9 i |-> 0 m |-> 1 </mem>
+ </imp>
+</kat-imp>
+```
+
+```{.sh .test}
+test 'bimc 1384 (not div-zero-error?)' krazy-loop-incorrect krazy-loop-incorrect-bimc2.out
+```
+
+```{.k .krazy-loop-incorrect-bimc2}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #true in 1384 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( 18 / 0 ) ~> #freezer_+_0 ( 0 ) ~> #freezer_=_;0 ( k ) ~> ( j = j - 1 ; ) ~> ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( 0 <= i ) { k = 0 ; j = 9 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } </k>
+  <mem> l |-> 18 k |-> 0 s |-> 46 j |-> 9 i |-> 0 m |-> 1 </mem>
+ </imp>
+</kat-imp>
+```
+
 SBC
 ---
 
@@ -610,21 +721,19 @@ Solution 2
 </kat-imp>
 ```
 
-### Collatz-all
+### Collatz All
 
 ```{.sh .test}
 test 'compile' collatz-all.imp collatz-all-sbc.out
-
-exit $return_code
 ```
 
 ```{.k .collatz-all-sbc}
 Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
-                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
-                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
-                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
+                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
+                                       , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
+                                       , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
                                        , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > )
                                        , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true }  --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( 3 *Int V5 +Int 1 ) } >
                                        ) </s>
@@ -641,9 +750,9 @@ Solution 1
 Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
-                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
-                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
-                                       , < { while ( b <= 27 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
+                                       , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
+                                       , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | false }                                                                                                                                --> { . | x |-> V0 b |-> V1 n |-> V2 } > )
+                                       , < { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V2 | true }                                                                                                                                 --> { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V0 b |-> V1 n |-> V1 } > )
                                        , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | false } --> { while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> ( V4 +Int 1 ) n |-> V5 } > )
                                        , < { ( while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> V3 b |-> V4 n |-> V5 | true }  --> { ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> ( V3 +Int 1 ) b |-> V4 n |-> ( V5 /Int 2 ) } >
                                        ) </s>
@@ -654,6 +763,98 @@ Solution 2
  <imp>
   <k> ( while ( true ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ) ~> ( b = b + 1 ; ) ~> while ( true ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } </k>
   <mem> x |-> V6 b |-> V7 n |-> V8 </mem>
+ </imp>
+</kat-imp>
+```
+
+### Krazy Loop
+
+```{.sh .test}
+test 'compile' krazy-loop-incorrect.imp krazy-loop-incorrect-sbc.out
+
+exit $return_code
+```
+
+```{.k .krazy-loop-incorrect-sbc}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                            --> { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
+                                       , < { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | false }                                                                                                                                                                                                                          --> { . | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | true }                                                                                                                                                                                                                           --> { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> 0 j |-> 9 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | false } --> { while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> ( V9 -Int 1 ) s |-> ( V10 +Int V9 *Int V7 /Int 3 ) m |-> V11 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | true }  --> { ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> ( 3 *Int V8 -Int ( V8 +Int V9 ) ) k |-> ( V7 +Int V8 /Int ( 5 *Int V9 +Int 1 ) ) j |-> ( V8 -Int 1 ) i |-> V9 s |-> V10 m |-> ( 5 *Int V9 +Int 1 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } </k>
+  <mem> l |-> V12 k |-> V13 j |-> V14 i |-> V15 s |-> V16 m |-> V17 </mem>
+ </imp>
+</kat-imp>
+
+Solution 2
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                            --> { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
+                                       , < { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | false }                                                                                                                                                                                                                          --> { . | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | true }                                                                                                                                                                                                                           --> { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> 0 j |-> 9 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | false } --> { while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> ( V9 -Int 1 ) s |-> ( V10 +Int V9 *Int V7 /Int 3 ) m |-> V11 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | true }  --> { ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> ( 3 *Int V8 -Int ( V8 +Int V9 ) ) k |-> ( V7 +Int ( 3 *Int V8 -Int ( V8 +Int V9 ) ) /Int V9 ) j |-> ( V8 -Int 1 ) i |-> V9 s |-> V10 m |-> ( 5 *Int V9 +Int 1 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } </k>
+  <mem> l |-> V12 k |-> V13 j |-> V14 i |-> V15 s |-> V16 m |-> V17 </mem>
+ </imp>
+</kat-imp>
+```
+
+```{.sh .test}
+test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out
+```
+
+```{.k .krazy-loop-correct-sbc}
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                             --> { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
+                                       , < { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | false }                                                                                                                                                                                                                           --> { . | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | true }                                                                                                                                                                                                                            --> { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> 0 j |-> 9 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | false } --> { while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> ( V9 -Int 1 ) s |-> ( V10 +Int V9 *Int V7 /Int 3 ) m |-> V11 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | true }  --> { ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> ( 3 *Int V8 -Int ( V8 +Int V9 ) ) k |-> ( V7 +Int V8 /Int ( 5 *Int V9 +Int 1 ) ) j |-> ( V8 -Int 1 ) i |-> V9 s |-> V10 m |-> ( 5 *Int V9 +Int 1 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } </k>
+  <mem> l |-> V12 k |-> V13 j |-> V14 i |-> V15 s |-> V16 m |-> V17 </mem>
+ </imp>
+</kat-imp>
+
+Solution 2
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
+                                       , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                             --> { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
+                                       , < { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | false }                                                                                                                                                                                                                           --> { . | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> V1 j |-> V2 i |-> V3 s |-> V4 m |-> V5 | true }                                                                                                                                                                                                                            --> { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V0 k |-> 0 j |-> 9 i |-> V3 s |-> V4 m |-> V5 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | false } --> { while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> ( V9 -Int 1 ) s |-> ( V10 +Int V9 *Int V7 /Int 3 ) m |-> V11 } > )
+                                       , < { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> V9 s |-> V10 m |-> V11 | true }  --> { ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> ( 3 *Int V8 -Int ( V8 +Int V9 ) ) k |-> ( V7 +Int ( 3 *Int V8 -Int ( V8 +Int V9 ) ) /Int V9 ) j |-> ( V8 -Int 1 ) i |-> V9 s |-> V10 m |-> ( 5 *Int V9 +Int 1 ) } >
+                                       ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> ( while ( true ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } </k>
+  <mem> l |-> V12 k |-> V13 j |-> V14 i |-> V15 s |-> V16 m |-> V17 </mem>
  </imp>
 </kat-imp>
 ```
@@ -675,17 +876,17 @@ module COLLATZ-COMPILED
   imports IMP-ANALYSIS
   imports MAP
 
-  syntax Stmt ::= "INIT" | "LOOP" | "FINISHED"
+  syntax Stmt ::= "INIT" | "LOOP" | "FINISH"
   syntax Id ::= "x" | "n"
 
-  rule <imp> <k> INIT => LOOP      </k> <mem> .Map => x |-> 0                 n |-> 782                        </mem> </imp>
-  rule <imp> <k> LOOP => FINISHED  </k> <mem>         x |-> V0                n |-> V1                         </mem> </imp> requires notBool (2 <=Int V1)                                         [tag(while)]
-  rule <imp> <k> LOOP              </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => V1 /Int 2)          </mem> </imp> requires (2 <=Int V1) andBool (V1 <=Int ((V1 /Int 2) *Int 2))         [tag(while)]
-  rule <imp> <k> LOOP              </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => (3 *Int V1) +Int 1) </mem> </imp> requires (2 <=Int V1) andBool notBool (V1 <=Int ((V1 /Int 2) *Int 2)) [tag(while)]
+  rule <imp> <k> INIT => LOOP   </k> <mem> .Map => x |-> 0                 n |-> 782                        </mem> </imp>
+  rule <imp> <k> LOOP => FINISH </k> <mem>         x |-> V0                n |-> V1                         </mem> </imp> requires notBool (2 <=Int V1)                                         [tag(while)]
+  rule <imp> <k> LOOP           </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => V1 /Int 2)          </mem> </imp> requires (2 <=Int V1) andBool (V1 <=Int ((V1 /Int 2) *Int 2))         [tag(while)]
+  rule <imp> <k> LOOP           </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => (3 *Int V1) +Int 1) </mem> </imp> requires (2 <=Int V1) andBool notBool (V1 <=Int ((V1 /Int 2) *Int 2)) [tag(while)]
 endmodule
 ```
 
-Here is the compiled version of Collatz all, which checks every Collatz number up to 27.
+Here is the compiled version of Collatz all, which checks every Collatz number up to 10.
 
 -   `INIT` corresponds to the entire program.
 -   `OUTER` corresponds to the program starting at the outer `while` loop.
@@ -695,19 +896,38 @@ Here is the compiled version of Collatz all, which checks every Collatz number u
 ```{.k .collatz-all-compiled}
 requires "../../imp-kat.k"
 
-module COLLATZ-COMPILED
+module COLLATZ-ALL-COMPILED
   imports IMP-ANALYSIS
   imports MAP
 
-  syntax Stmt ::= "INIT" | "OUTER" | "INNER" | "FINISHED"
+  syntax Stmt ::= "INIT" | "OUTER" | "INNER" | "FINISH"
   syntax Id ::= "x" | "b" | "n"
 
   rule <imp> <k> INIT  => OUTER  </k> <mem> .Map => x |-> 0                 b |-> 1                 n |-> 1                          </mem> </imp>
-  rule <imp> <k> OUTER => FINISH </k> <mem>         x |-> V0                b |-> V1                n |-> V2                         </mem> </imp> requires notBool (V1 <=Int 27)
-  rule <imp> <k> OUTER => INNER  </k> <mem>         x |-> V0                b |-> V1                n |-> (V2 => V1)                 </mem> </imp> requires (V1 <=Int 27)
+  rule <imp> <k> OUTER => FINISH </k> <mem>         x |-> V0                b |-> V1                n |-> V2                         </mem> </imp> requires notBool (V1 <=Int 10)
+  rule <imp> <k> OUTER => INNER  </k> <mem>         x |-> V0                b |-> V1                n |-> (V2 => V1)                 </mem> </imp> requires (V1 <=Int 10)
   rule <imp> <k> INNER => OUTER  </k> <mem>         x |-> V0                b |-> (V1 => V1 +Int 1) n |-> V2                         </mem> </imp> requires notBool (2 <=Int V2)
-  rule <imp> <k> INNER => INNER  </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <= ((V2 /Int 2) *Int 2))
-  rule <imp> <k> INNER => INNER  </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <= ((V2 /Int 2) *Int 2))
+  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <= ((V2 /Int 2) *Int 2))
+  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <= ((V2 /Int 2) *Int 2))
+endmodule
+```
+
+```{.k .krazy-loop-incorrect-compiled}
+requires "../../imp-kat.k"
+
+module KRAZY-LOOP-INCORRECT-COMPILED
+  imports IMP-ANALYSIS
+  imports MAP
+
+  syntax Stmt ::= "INIT" | "OUTER" | "INNER" | "FINISH"
+  syntax Id ::= "i" | "j" | "k" | "l" | "m" | "s"
+
+  rule <imp> <k> INIT  => OUTER  </k> <mem> .Map => i |-> 11                j |-> 11                k |-> 0                                                     l |-> 0                                   m |-> 0                        s |-> 0                           </mem> </imp>
+  rule <imp> <k> OUTER => FINISH </k> <mem>         i |-> V0                j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires notBool (0 <=Int V0)
+  rule <imp> <k> OUTER => INNER  </k> <mem>         i |-> V0                j |-> (V1 => 11)        k |-> (V2 => 0)                                             l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires (0 <=Int V0)
+  rule <imp> <k> INNER => OUTER  </k> <mem>         i |-> (V0 => V0 -Int 1) j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> (V5 +Int V0 *Int V2 /Int 3) </mem> </imp> requires notBool (0 <=Int V1)
+  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int V1 /Int (5 *Int V0 +Int 1))            l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool notBool (V0 <=Int (V0 /Int 2) *Int 2)
+  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int (3 *Int V1 -Int (V1 +Int V0)) /Int V0) l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool (V0 <=Int (V0 /Int 2) *Int 2)
 endmodule
 ```
 
@@ -771,9 +991,8 @@ The third number is how long it took to run on my laptop on a Sunday.
 | 7288  | 53164         | 5209          | 10.21   |
 | 9323  | 71187         | 6851          | 10.39   |
 
-
 ```{.sh .benchmark-collatz}
-for bound in 20 40 60 80 100 150 200 250 300 350 400 500 600 700 800 900 1000 1200 1400 1600 1800 2000 4000 6000 8000 10000; do
+for bound in 20 40 60 80 100 150 200; do
     echo
     echo "Timing Collatz all bimc with bound '$bound' ..."
     echo "Using concrete execution ..."
@@ -782,4 +1001,13 @@ for bound in 20 40 60 80 100 150 200 250 300 350 400 500 600 700 800 900 1000 12
     echo "Using compiled execution ..."
     krun --directory 'collatz-all-compiled/' -cSTRATEGY='step-with skip ; bimc 5000 (bexp? n <= '"$bound"')' -cPGM='INIT'
 done
+```
+
+```{.sh .benchmark-krazy-loop-incorrect}
+echo
+echo "Timing krazy-loop-incorrect ..."
+echo "Using concrete execution ..."
+krun --directory '../' -cSTRATEGY='bimc 5000 (not div-zero-error?)' krazy-loop-incorrect.imp
+echo "Using compiled execution ..."
+krun --directory 'krazy-loop-incorrect-compiled/' -cSTRATEGY='bimc 5000 (not div-zero-error?)' -cPGM='INIT'
 ```

@@ -1,0 +1,29 @@
+// IMP-KAT Tests
+// =============
+
+// We'll use a simple testing harness in `bash` which just checks the output of
+// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+
+// BIMC
+// ----
+
+// Here, we allow each program to initialize (get through variable declarations) by
+// running `step-with skip`. Then we issue some `bimc` query to check if the
+// program obeys the given invariant up to the depth-bound.
+
+// ### Krazy Loop
+
+
+Solution 1
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #true in 1367 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> . </k>
+  <mem> l |-> -1 k |-> 4 s |-> 46 j |-> -1 i |-> 0 m |-> 6 </mem>
+ </imp>
+</kat-imp>
+
