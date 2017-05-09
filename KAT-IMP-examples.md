@@ -206,7 +206,7 @@ test() {
     imp_file="$2"
     out_file="output/$3"
     for file in "$imp_file" "$out_file"; do
-        [[ ! -f "$file" ]] && recho "File '$out_file' does not exist ..." && exit 1
+        [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
     done
 
     echo -e "Running '$imp_file' with '$strategy' and comparing to '$out_file' ..."
@@ -415,7 +415,7 @@ Here we test if the Collatz sequence for `782` contains any numbers greater than
 ```{.k .collatz-bimc}
 Solution 1
 <kat-imp>
- <s> #STUCK ~> #bimc-result #false in 20 steps </s>
+ <s> #STUCK ~> #bimc-result #false in 23 steps </s>
  <kat>
   <analysis> .Analysis </analysis>
   <states> .States </states>
@@ -451,7 +451,7 @@ Solution 1
 ### Krazy Loop
 
 ```{.sh .test}
-"krazy-loop-correct-bimc") test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out ;;
+"krazy-loop-correct-bimc") test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct.imp krazy-loop-correct-bimc.out ;;
 ```
 
 ```{.k .krazy-loop-correct-bimc}

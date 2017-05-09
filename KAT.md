@@ -428,12 +428,13 @@ Finally, semantics based compilation is provided as a macro.
   rule <s> ( compile-step
           => if subsumed?
              then drop
-             else pop
-                ; begin-rule
-                ; (step-with skip)*
-                ; end-rule
-                ; abstract
-                ; compile-step
+             else ( pop
+                  ; begin-rule
+                  ; (step-with skip)*
+                  ; end-rule
+                  ; abstract
+                  ; compile-step
+                  )
            )
            ...
        </s>
@@ -447,12 +448,13 @@ Finally, semantics based compilation is provided as a macro.
            ; pop
            ; if subsumed? or stuck?
              then drop
-             else begin-rule [ #current ]
-                ; step
-                ; step until (cut-point? or stuck?)
-                ; end-rule
-                ; abstract
-                ; next-states
+             else ( begin-rule [ #current ]
+                  ; step
+                  ; step until (cut-point? or stuck?)
+                  ; end-rule
+                  ; abstract
+                  ; next-states
+                  )
            )
            ...
        </s>

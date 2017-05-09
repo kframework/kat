@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+return='0'
+
 examples=( straight-line-1 straight-line-2
            dead-if
            sum sum-plus
@@ -9,13 +11,14 @@ examples=( straight-line-1 straight-line-2
 
 tests=( straight-line-1-bimc1 straight-line-1-bimc2
         straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
-        sum-bimc1 sum-bimc2 sum-bimc3 collatz-bimc collatz-all-bimc
+        sum-bimc1 sum-bimc2 sum-bimc3
+        collatz-bimc collatz-all-bimc
         krazy-loop-correct-bimc krazy-loop-incorrect-bimc1 krazy-loop-incorrect-bimc2
         straight-line-1-sbc straight-line-2-sbc
         dead-if-sbc
         sum-sbc sum-plus-sbc
         collatz-sbc collatz-all-sbc
-        krazy-loop-correct-sbc
+        krazy-loop-incorrect-sbc krazy-loop-correct-sbc
       )
 
 compiled_programs=( collatz collatz-all
@@ -66,7 +69,10 @@ tangle_tests() {
     echo "running tests ..."
     echo "================="
     pushd tests
-    bash test.sh $tests || exit 1
+    for test in $tests; do
+        echo "### running '$test' ..."
+        bash test.sh $test || return='1'
+    done
     popd
 }
 
@@ -103,3 +109,5 @@ while [[ "$#" -gt '0' ]]; do
         *)            echo "Unrecognized option: '$tangle_command' ..." ;;
     esac
 done
+
+exit "$return"

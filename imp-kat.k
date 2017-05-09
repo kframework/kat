@@ -39,7 +39,7 @@ module IMP-KAT
 // ### Define `#step`
 
 
-  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if | ^ error ... </s>
+  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ iftrue | ^ iffalse | ^ div | ^ divzero ... </s>
 
 
 // ### Define `bool?`

@@ -41,8 +41,8 @@ IMP has `AExp` for arithmetic expressions (over integers).
   rule I1 + I2 => I1 +Int I2
   rule I1 - I2 => I1 -Int I2
   rule I1 * I2 => I1 *Int I2
-  rule I1 / 0  => div-zero-error                  [tag(div-success)]
-  rule I1 / I2 => I1 /Int I2 requires I2 =/=Int 0 [tag(div-failure)]
+  rule <k>  I / 0  => div-zero-error ... </k>                      [tag(divzero)]
+  rule <k> I1 / I2 => I1 /Int I2     ... </k> requires I2 =/=Int 0 [tag(div)]
 ```
 
 IMP has `BExp` for boolean expressions.
@@ -73,30 +73,38 @@ IMP has `{_}` for creating blocks of statements.
   rule {S} => S
 ```
 
-IMP has `int_;` for declaring variables, `if_then_else_` for choice, `_=_;` for assignment, and `while(_)_` for looping.
+IMP has `int_;` for declaring variables and `_=_;` for assignment.
 
 ```{.k .imp-lang}
   syntax Ids ::= List{Id,","}
-  syntax Stmt ::= Block
-                | "int" Ids ";"
-                | Id "=" AExp ";"                      [strict(2)]
-                | "if" "(" BExp ")" Block "else" Block [strict(1)]
-                | "while" "(" BExp ")" Block
-                > Stmt Stmt                            [left]
-//-----------------------------------------------------------
-  rule S1:Stmt S2:Stmt => S1 ~> S2
-  rule if (true)  B:Block else _ => B:Block [tag(if-true)]
-  rule if (false) _ else B:Block => B:Block [tag(if-false)]
-
+  syntax Stmt ::= Block | "int" Ids ";"
+//-------------------------------------
   rule int .Ids ; => .
-  rule <k> int (X,Xs => Xs) ; ... </k>
-       <mem> Rho:Map (.Map => X |-> 0) </mem>
-    requires notBool (X in keys(Rho))
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> 0) </mem> requires notBool (X in keys(Rho))
 
+  syntax Stmt ::= Id "=" AExp ";" [strict(2)]
+//-------------------------------------------
   rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [tag(lookup)]
   rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [tag(assignment)]
+```
 
-  rule while (B) STMT => if (B) {STMT while (B) STMT} else {} [tag(while)]
+IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequencing.
+
+```{.k .imp-lang}
+  syntax Stmt ::= "if" "(" BExp ")" Block "else" Block [strict(1)]
+//----------------------------------------------------------------
+  rule <k> if (true)  B else _ => B ... </k> [tag(iftrue)]
+  rule <k> if (false) _ else B => B ... </k> [tag(iffalse)]
+
+  syntax Stmt ::= "while" "(" BExp ")" Block
+//------------------------------------------
+  rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [tag(while)]
+
+  syntax Stmt ::= Stmt Stmt [left]
+//--------------------------------
+  rule S1:Stmt S2:Stmt => S1 ~> S2
+
+  syntax priority int_; _=_; if(_)_else_ while(_)_ > __
 endmodule
 ```
 
@@ -139,7 +147,7 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 ### Define `#step`
 
 ```{.k .imp-kat}
-  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ if | ^ error ... </s>
+  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ iftrue | ^ iffalse | ^ div | ^ divzero ... </s>
 ```
 
 ### Define `bool?`

@@ -464,12 +464,13 @@ module KAT-SBC
            ; pop
            ; if subsumed? or stuck?
              then drop
-             else begin-rule [ #current ]
-                ; step
-                ; step until (cut-point? or stuck?)
-                ; end-rule
-                ; abstract
-                ; next-states
+             else ( begin-rule [ #current ]
+                  ; step
+                  ; step until (cut-point? or stuck?)
+                  ; end-rule
+                  ; abstract
+                  ; next-states
+                  )
            )
            ...
        </s>

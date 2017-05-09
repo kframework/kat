@@ -22,7 +22,7 @@ test() {
     imp_file="$2"
     out_file="output/$3"
     for file in "$imp_file" "$out_file"; do
-        [[ ! -f "$file" ]] && recho "File '$out_file' does not exist ..." && exit 1
+        [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
     done
 
     echo -e "Running '$imp_file' with '$strategy' and comparing to '$out_file' ..."
@@ -120,7 +120,7 @@ while [[ "$#" -gt '0' ]]; do
 # ### Krazy Loop
 
 
-"krazy-loop-correct-bimc") test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct krazy-loop-correct-bimc.out ;;
+"krazy-loop-correct-bimc") test 'bimc 5000 (not div-zero-error?)' krazy-loop-correct.imp krazy-loop-correct-bimc.out ;;
 
 
 

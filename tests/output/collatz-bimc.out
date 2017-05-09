@@ -19,7 +19,7 @@
 
 Solution 1
 <kat-imp>
- <s> #STUCK ~> #bimc-result #false in 20 steps </s>
+ <s> #STUCK ~> #bimc-result #false in 23 steps </s>
  <kat>
   <analysis> .Analysis </analysis>
   <states> .States </states>
