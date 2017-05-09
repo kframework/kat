@@ -79,16 +79,17 @@ tangle_tests() {
 tangle_benchmarks() {
 
     for program in $compiled_programs; do
+        echo "running benchmarks for '$program' ..."
+        echo "====================================="
+
         PROGRAM="$(echo "$program" | awk '{print toupper($0)}')"
 
-        echo "kompiling $PROGRAM-COMPILED ..."
-        echo "==============================="
+        echo "### kompiling '$PROGRAM-COMPILED' ..."
         pushd "tests/$program-compiled"
         kompile --debug --main-module "$PROGRAM-COMPILED" --syntax-module "$PROGRAM-COMPILED" "$program.k" || exit 1
         popd
 
-        echo "running benchmarks ..."
-        echo "======================"
+        echo "### running benchmarks for '$program' ..."
         pushd tests
         bash "benchmark-$program.sh"
         popd
