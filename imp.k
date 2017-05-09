@@ -34,7 +34,6 @@ module IMP-SYNTAX
   rule I1 + I2 => I1 +Int I2                      [structural]
   rule I1 - I2 => I1 -Int I2                      [structural]
   rule I1 * I2 => I1 *Int I2                      [structural]
-  rule I1 / I2 => I1 /Int I2 requires I2 =/=Int 0 [structural]
 
 
 // IMP has `BExp` for boolean expressions.
@@ -126,6 +125,7 @@ module IMP-SEMANTICS
 
   syntax KItem ::= "div-zero-error"
 //---------------------------------
-  rule <k> I:Int / 0 ~> _ => div-zero-error </k> [tag(error)]
+  rule <k> I1 / I2 => I1 /Int I2 ...      </k> requires I2 =/=Int 0 [tag(error), transition]
+  rule <k> I1 / I2 ~> _ => div-zero-error </k> requires I2 ==Int 0  [tag(error), transition]
 endmodule
 

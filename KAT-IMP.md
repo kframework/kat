@@ -33,7 +33,6 @@ IMP has `AExp` for arithmetic expressions (over integers).
   rule I1 + I2 => I1 +Int I2                      [structural]
   rule I1 - I2 => I1 -Int I2                      [structural]
   rule I1 * I2 => I1 *Int I2                      [structural]
-  rule I1 / I2 => I1 /Int I2 requires I2 =/=Int 0 [structural]
 ```
 
 IMP has `BExp` for boolean expressions.
@@ -122,7 +121,8 @@ Here we make a program error if division by zero occurs.
 ```{.k .imp-lang}
   syntax KItem ::= "div-zero-error"
 //---------------------------------
-  rule <k> I:Int / 0 ~> _ => div-zero-error </k> [tag(error)]
+  rule <k> I1 / I2 => I1 /Int I2 ...      </k> requires I2 =/=Int 0 [tag(error), transition]
+  rule <k> I1 / I2 ~> _ => div-zero-error </k> requires I2 ==Int 0  [tag(error), transition]
 endmodule
 ```
 

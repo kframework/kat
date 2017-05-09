@@ -858,6 +858,9 @@ Solution 2
  </imp>
 </kat-imp>
 ```
+```
+< { ( while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } ) ~> ( s = s + ( ( i * k ) / 3 ) ; ) ~> ( i = i - 1 ; ) ~> while ( true ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> V6 k |-> V7 j |-> V8 i |-> 0 s |-> V9 m |-> V10 | true } --> { div-zero-error | l |-> ( 3 *Int V8 -Int ( V8 +Int 0 ) ) k |-> V7 j |-> V8 i |-> 0 s |-> V9 m |-> 1 } >
+```
 
 SBC Benchmarking
 ----------------
@@ -904,11 +907,11 @@ module COLLATZ-ALL-COMPILED
   syntax Id ::= "x" | "b" | "n"
 
   rule <imp> <k> INIT  => OUTER  </k> <mem> .Map => x |-> 0                 b |-> 1                 n |-> 1                          </mem> </imp>
-  rule <imp> <k> OUTER => FINISH </k> <mem>         x |-> V0                b |-> V1                n |-> V2                         </mem> </imp> requires notBool (V1 <=Int 10)
-  rule <imp> <k> OUTER => INNER  </k> <mem>         x |-> V0                b |-> V1                n |-> (V2 => V1)                 </mem> </imp> requires (V1 <=Int 10)
-  rule <imp> <k> INNER => OUTER  </k> <mem>         x |-> V0                b |-> (V1 => V1 +Int 1) n |-> V2                         </mem> </imp> requires notBool (2 <=Int V2)
-  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <=Int ((V2 /Int 2) *Int 2))
-  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <=Int ((V2 /Int 2) *Int 2))
+  rule <imp> <k> OUTER => FINISH </k> <mem>         x |-> V0                b |-> V1                n |-> V2                         </mem> </imp> requires notBool (V1 <=Int 10) [tag(while)]
+  rule <imp> <k> OUTER => INNER  </k> <mem>         x |-> V0                b |-> V1                n |-> (V2 => V1)                 </mem> </imp> requires (V1 <=Int 10) [tag(while)]
+  rule <imp> <k> INNER => OUTER  </k> <mem>         x |-> V0                b |-> (V1 => V1 +Int 1) n |-> V2                         </mem> </imp> requires notBool (2 <=Int V2) [tag(while)]
+  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => (3 *Int V2) +Int 1) </mem> </imp> requires (2 <=Int V2) andBool notBool (V2 <=Int ((V2 /Int 2) *Int 2)) [tag(while)]
+  rule <imp> <k> INNER           </k> <mem>         x |-> (V0 => V0 +Int 1) b |-> V1                n |-> (V2 => V2 /Int 2)          </mem> </imp> requires (2 <=Int V2) andBool (V2 <=Int ((V2 /Int 2) *Int 2)) [tag(while)]
 endmodule
 ```
 
@@ -923,11 +926,11 @@ module KRAZY-LOOP-INCORRECT-COMPILED
   syntax Id ::= "i" | "j" | "k" | "l" | "m" | "s"
 
   rule <imp> <k> INIT  => OUTER  </k> <mem> .Map => i |-> 11                j |-> 11                k |-> 0                                                     l |-> 0                                   m |-> 0                        s |-> 0                           </mem> </imp>
-  rule <imp> <k> OUTER => FINISH </k> <mem>         i |-> V0                j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires notBool (0 <=Int V0)
-  rule <imp> <k> OUTER => INNER  </k> <mem>         i |-> V0                j |-> (V1 => 11)        k |-> (V2 => 0)                                             l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires (0 <=Int V0)
-  rule <imp> <k> INNER => OUTER  </k> <mem>         i |-> (V0 => V0 -Int 1) j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> (V5 +Int V0 *Int V2 /Int 3) </mem> </imp> requires notBool (0 <=Int V1)
-  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int V1 /Int (5 *Int V0 +Int 1))            l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool notBool (V0 <=Int (V0 /Int 2) *Int 2)
-  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int (3 *Int V1 -Int (V1 +Int V0)) /Int V0) l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool (V0 <=Int (V0 /Int 2) *Int 2)
+  rule <imp> <k> OUTER => FINISH </k> <mem>         i |-> V0                j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires notBool (0 <=Int V0) [tag(while)]
+  rule <imp> <k> OUTER => INNER  </k> <mem>         i |-> V0                j |-> (V1 => 11)        k |-> (V2 => 0)                                             l |-> V3                                  m |-> V4                       s |-> V5                          </mem> </imp> requires (0 <=Int V0) [tag(while)]
+  rule <imp> <k> INNER => OUTER  </k> <mem>         i |-> (V0 => V0 -Int 1) j |-> V1                k |-> V2                                                    l |-> V3                                  m |-> V4                       s |-> (V5 +Int V0 *Int V2 /Int 3) </mem> </imp> requires notBool (0 <=Int V1) [tag(while)]
+  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int V1 /Int (5 *Int V0 +Int 1))            l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool notBool (V0 <=Int (V0 /Int 2) *Int 2) [tag(while)]
+  rule <imp> <k> INNER           </k> <mem>         i |-> V0                j |-> (V1 => V1 -Int 1) k |-> (V2 => V2 +Int (3 *Int V1 -Int (V1 +Int V0)) /Int V0) l |-> (V3 => 3 *Int V1 -Int (V1 +Int V0)) m |-> (V4 => 5 *Int V0 +Int 1) s |-> V5                          </mem> </imp> requires (0 <=Int V1) andBool (V0 <=Int (V0 /Int 2) *Int 2) [tag(while)]
 endmodule
 ```
 
