@@ -1,8 +1,8 @@
 // IMP-KAT Tests
 // =============
 
-// We'll use a simple testing harness in `bash` which just checks the output of
-// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+// This is a simple testing harness driven by the `tangle` script. Call
+// `./tangle test` in the root directory to run the test-set.
 
 // SBC
 // ---
@@ -15,7 +15,6 @@
 // ### Collatz All {#collatz-all-1}
 
 
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
@@ -34,7 +33,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )

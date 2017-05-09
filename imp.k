@@ -42,8 +42,8 @@ module IMP
   rule I1 + I2 => I1 +Int I2
   rule I1 - I2 => I1 -Int I2
   rule I1 * I2 => I1 *Int I2
-  rule <k>  I / 0  => div-zero-error ... </k>                      [tag(divzero)]
-  rule <k> I1 / I2 => I1 /Int I2     ... </k> requires I2 =/=Int 0 [tag(div)]
+  rule <k>  I / 0 ~> _ => div-zero-error </k>                      [tag(divzero)]
+  rule <k> I1 / I2     => I1 /Int I2 ... </k> requires I2 =/=Int 0 [tag(div)]
 
 
 // IMP has `BExp` for boolean expressions.
@@ -81,7 +81,7 @@ module IMP
   syntax Stmt ::= Block | "int" Ids ";"
 //-------------------------------------
   rule int .Ids ; => .
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> 0) </mem> requires notBool (X in keys(Rho))
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem> requires notBool (X in keys(Rho))
 
   syntax Stmt ::= Id "=" AExp ";" [strict(2)]
 //-------------------------------------------

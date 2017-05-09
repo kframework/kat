@@ -1,8 +1,8 @@
 // IMP-KAT Tests
 // =============
 
-// We'll use a simple testing harness in `bash` which just checks the output of
-// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+// This is a simple testing harness driven by the `tangle` script. Call
+// `./tangle test` in the root directory to run the test-set.
 
 // SBC
 // ---
@@ -15,7 +15,6 @@
 // ### Krazy Loop {#krazy-loop-1}
 
 
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                            --> { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
@@ -34,7 +33,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                            --> { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )

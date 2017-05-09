@@ -1,8 +1,8 @@
 // IMP-KAT Tests
 // =============
 
-// We'll use a simple testing harness in `bash` which just checks the output of
-// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+// This is a simple testing harness driven by the `tangle` script. Call
+// `./tangle test` in the root directory to run the test-set.
 
 // SBC
 // ---
@@ -22,7 +22,6 @@
 // directly, we get this branch elimination for free.
 
 
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; } | .Map } --> { . | x |-> 1 } >

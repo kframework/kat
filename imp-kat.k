@@ -71,8 +71,8 @@ module IMP-BIMC
 
   syntax StatePred ::= "div-zero-error?"
 //--------------------------------------
-  rule <s> div-zero-error? [ { div-zero-error ~> REST | _ } ] => #true  ... </s>
-  rule <s> div-zero-error? [ { K              ~> REST | _ } ] => #false ... </s> requires K =/=K div-zero-error
+  rule <s> div-zero-error? [ { div-zero-error | _ } ] => #true  ... </s>
+  rule <s> div-zero-error? [ { KCELL          | _ } ] => #false ... </s> requires KCELL =/=K div-zero-error
 endmodule
 
 

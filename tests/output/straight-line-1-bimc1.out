@@ -16,7 +16,6 @@
 // Assertion not violated at step 2:
 
 
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
  <kat>

@@ -14,11 +14,11 @@ test() {
     imp_file="tests/$2"
     out_file="tests/output/$3"
     for file in "$imp_file" "$out_file"; do
-        [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
+        [[ ! -f "$file" ]] && echo "File '$file' does not exist ..." && exit 1
     done
 
-    echo "krun -cSTRATEGY='$strategy' '$imp_file'"
-    diff <(cat "$out_file" | strip_output) <(krun -cSTRATEGY="$strategy" "$imp_file" | strip_output)
+    echo "krun --search -cSTRATEGY='$strategy' '$imp_file'"
+    diff <(cat "$out_file" | strip_output) <(krun --search -cSTRATEGY="$strategy" "$imp_file" | strip_output)
     exit "$?"
 }
 
@@ -86,6 +86,18 @@ case "$test" in
 
 
 "sum-bimc3") test 'step-with skip ; bimc 40 (bexp? s <= 32)' sum.imp sum-bimc3.out ;;
+
+
+# ### Infinite Division
+
+# Here we test that BIMC is able to catch division by zero errors.
+
+
+"inf-div-bad-bimc") test 'bimc 5000 (not div-zero-error?)' inf-div-bad.imp inf-div-bad-bimc.out ;;
+
+
+
+"inf-div-good-bimc") test 'bimc 5000 (not div-zero-error?)' inf-div-good.imp inf-div-good-bimc.out ;;
 
 
 # ### Collatz

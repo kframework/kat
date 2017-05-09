@@ -41,8 +41,8 @@ IMP has `AExp` for arithmetic expressions (over integers).
   rule I1 + I2 => I1 +Int I2
   rule I1 - I2 => I1 -Int I2
   rule I1 * I2 => I1 *Int I2
-  rule <k>  I / 0  => div-zero-error ... </k>                      [tag(divzero)]
-  rule <k> I1 / I2 => I1 /Int I2     ... </k> requires I2 =/=Int 0 [tag(div)]
+  rule <k>  I / 0 ~> _ => div-zero-error </k>                      [tag(divzero)]
+  rule <k> I1 / I2     => I1 /Int I2 ... </k> requires I2 =/=Int 0 [tag(div)]
 ```
 
 IMP has `BExp` for boolean expressions.
@@ -80,7 +80,7 @@ IMP has `int_;` for declaring variables and `_=_;` for assignment.
   syntax Stmt ::= Block | "int" Ids ";"
 //-------------------------------------
   rule int .Ids ; => .
-  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> 0) </mem> requires notBool (X in keys(Rho))
+  rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem> requires notBool (X in keys(Rho))
 
   syntax Stmt ::= Id "=" AExp ";" [strict(2)]
 //-------------------------------------------
@@ -178,8 +178,8 @@ module IMP-BIMC
 
   syntax StatePred ::= "div-zero-error?"
 //--------------------------------------
-  rule <s> div-zero-error? [ { div-zero-error ~> REST | _ } ] => #true  ... </s>
-  rule <s> div-zero-error? [ { K              ~> REST | _ } ] => #false ... </s> requires K =/=K div-zero-error
+  rule <s> div-zero-error? [ { div-zero-error | _ } ] => #true  ... </s>
+  rule <s> div-zero-error? [ { KCELL          | _ } ] => #false ... </s> requires KCELL =/=K div-zero-error
 endmodule
 ```
 

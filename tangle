@@ -4,6 +4,7 @@ return='0'
 
 examples=( straight-line-1 straight-line-2
            dead-if
+           inf-div-bad inf-div-good
            sum sum-plus
            collatz collatz-all
            krazy-loop-correct krazy-loop-incorrect
@@ -11,13 +12,14 @@ examples=( straight-line-1 straight-line-2
 
 tests=( # straight-line-1-bimc1 straight-line-1-bimc2
         # straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
+        inf-div-bad-bimc inf-div-good-bimc
         # sum-bimc1 sum-bimc2 sum-bimc3
         # collatz-bimc collatz-all-bimc
         # krazy-loop-correct-bimc krazy-loop-incorrect-bimc1 krazy-loop-incorrect-bimc2
         # straight-line-1-sbc straight-line-2-sbc
         # dead-if-sbc
         # sum-sbc sum-plus-sbc
-        collatz-sbc # collatz-all-sbc
+        # collatz-sbc collatz-all-sbc
         # krazy-loop-incorrect-sbc krazy-loop-correct-sbc
       )
 

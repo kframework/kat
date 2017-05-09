@@ -30,7 +30,6 @@
 // it's written down in IMP.
 
 
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
@@ -53,7 +52,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 

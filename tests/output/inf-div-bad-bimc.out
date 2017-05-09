@@ -11,18 +11,9 @@
 // running `step-with skip`. Then we issue some `bimc` query to check if the
 // program obeys the given invariant up to the depth-bound.
 
-// ### Krazy Loop
+// ### Infinite Division
+
+// Here we test that BIMC is able to catch division by zero errors.
 
 
-<kat-imp>
- <s> #STUCK ~> #bimc-result #false in 1385 steps </s>
- <kat>
-  <analysis> .Analysis </analysis>
-  <states> .States </states>
- </kat>
- <imp>
-  <k> div-zero-error </k>
-  <mem> l |-> 18 k |-> 0 s |-> 46 j |-> 9 i |-> 0 m |-> 1 </mem>
- </imp>
-</kat-imp>
 

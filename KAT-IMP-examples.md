@@ -50,6 +50,33 @@ if (x <= 7) {
 Looping
 -------
 
+### `inf-div.imp`
+
+Here we have two programs that divide the first number an infinite number of times by the second number.
+The first exibits an off-by-one error which yields a division by zero, the second does not.
+
+```{.imp .inf-div-bad .k}
+int x , y ;
+
+x = 10 ;
+
+while (0 <= x) {
+  y = y / x ;
+  x = x - 1 ;
+}
+```
+
+```{.imp .inf-div-good .k}
+int x , y ;
+
+x = 10 ;
+
+while (0 < x) {
+  y = y / x ;
+  x = x - 1 ;
+}
+```
+
 ### `sum.imp`
 
 This is the classic `sum` program, which just sums the numbers from 1 to 10.
@@ -212,11 +239,11 @@ test() {
     imp_file="tests/$2"
     out_file="tests/output/$3"
     for file in "$imp_file" "$out_file"; do
-        [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
+        [[ ! -f "$file" ]] && echo "File '$file' does not exist ..." && exit 1
     done
 
-    echo "krun -cSTRATEGY='$strategy' '$imp_file'"
-    diff <(cat "$out_file" | strip_output) <(krun -cSTRATEGY="$strategy" "$imp_file" | strip_output)
+    echo "krun --search -cSTRATEGY='$strategy' '$imp_file'"
+    diff <(cat "$out_file" | strip_output) <(krun --search -cSTRATEGY="$strategy" "$imp_file" | strip_output)
     exit "$?"
 }
 
@@ -239,7 +266,6 @@ Assertion not violated at step 2:
 ```
 
 ```{.k .straight-line-1-bimc1}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
  <kat>
@@ -260,7 +286,6 @@ Assertion violation at step 3:
 ```
 
 ```{.k .straight-line-1-bimc2}
-Solution 1
 <kat-imp>
   <s> #STUCK ~> #bimc-result #false in 3 steps </s>
   <kat>
@@ -283,7 +308,6 @@ Assertion not violated up to step 2:
 ```
 
 ```{.k .straight-line-2-bimc1}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 2 steps </s>
  <kat>
@@ -304,7 +328,6 @@ Assertion violated at step 3:
 ```
 
 ```{.k .straight-line-2-bimc2}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 3 steps </s>
  <kat>
@@ -325,7 +348,6 @@ Assertion still violated at step 3 (with extended bound):
 ```
 
 ```{.k .straight-line-2-bimc3}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 3 steps </s>
  <kat>
@@ -348,7 +370,6 @@ Query with large bound to find which step pushed the sum above `32`:
 ```
 
 ```{.k .sum-bimc1}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
  <kat>
@@ -369,7 +390,6 @@ Show that the returned number is the correct step that an assertion violation ha
 ```
 
 ```{.k .sum-bimc2}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 41 steps </s>
  <kat>
@@ -390,7 +410,6 @@ And that one step prior the assertion was not violated:
 ```
 
 ```{.k .sum-bimc3}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 40 steps </s>
  <kat>
@@ -404,6 +423,26 @@ Solution 1
 </kat-imp>
 ```
 
+### Infinite Division
+
+Here we test that BIMC is able to catch division by zero errors.
+
+```{.sh .test}
+"inf-div-bad-bimc") test 'bimc 5000 (not div-zero-error?)' inf-div-bad.imp inf-div-bad-bimc.out ;;
+```
+
+```{.k .inf-div-bad-bimc}
+
+```
+
+```{.sh .test}
+"inf-div-good-bimc") test 'bimc 5000 (not div-zero-error?)' inf-div-good.imp inf-div-good-bimc.out ;;
+```
+
+```{.k .inf-div-good-bimc}
+
+```
+
 ### Collatz
 
 Here we test if the Collatz sequence for `782` contains any numbers greater than `1000`.
@@ -413,7 +452,6 @@ Here we test if the Collatz sequence for `782` contains any numbers greater than
 ```
 
 ```{.k .collatz-bimc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 23 steps </s>
  <kat>
@@ -434,7 +472,6 @@ Solution 1
 ```
 
 ```{.k .collatz-all-bimc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 776 steps </s>
  <kat>
@@ -455,7 +492,6 @@ Solution 1
 ```
 
 ```{.k .krazy-loop-correct-bimc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 1367 steps </s>
  <kat>
@@ -474,7 +510,6 @@ Solution 1
 ```
 
 ```{.k .krazy-loop-incorrect-bimc1}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 1385 steps </s>
  <kat>
@@ -493,7 +528,6 @@ Solution 1
 ```
 
 ```{.k .krazy-loop-incorrect-bimc2}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #true in 1384 steps </s>
  <kat>
@@ -524,7 +558,6 @@ Straight line programs should yield one rule which summarizes the effect of the 
 ```
 
 ```{.k .straight-line-1-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 0 ; x = x + 15 ; | .Map } --> { . | x |-> 15 } >
@@ -549,7 +582,6 @@ Because we are using the operational semantics of the language directly, we get 
 ```
 
 ```{.k .straight-line-2-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 0 ; x = x + 15 ; x = x + -10 ; | .Map } --> { . | x |-> 5 } >
@@ -576,7 +608,6 @@ Once again, because we are using symbolic execution of the operational semantics
 ```
 
 ```{.k .dead-if-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( .Rules
                                , < { int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; } | .Map } --> { . | x |-> 1 } >
@@ -605,7 +636,6 @@ Sum should generate three rules:
 ```
 
 ```{.k .sum-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
@@ -636,7 +666,6 @@ Sum Plus should generate the same rules, but the rule for the false branch of th
 ```
 
 ```{.k .sum-plus-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
@@ -678,7 +707,6 @@ Note that we effectively get a "summary" of the Collatz algorithm which is indep
 ```
 
 ```{.k .collatz-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
@@ -701,7 +729,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( .Rules
 
@@ -732,7 +759,6 @@ Solution 2
 ```
 
 ```{.k .collatz-all-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
@@ -751,7 +777,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int b , ( n , ( x , .Ids ) ) ; b = 1 ; n = 1 ; x = 0 ; while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | .Map }                                                                                                       --> { while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( ( n / 2 ) * 2 ) ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; } | x |-> 0 b |-> 1 n |-> 1 } > )
@@ -778,7 +803,6 @@ Solution 2
 ```
 
 ```{.k .krazy-loop-incorrect-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                            --> { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
@@ -797,7 +821,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                            --> { while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
@@ -827,7 +850,6 @@ esac
 ```
 
 ```{.k .krazy-loop-correct-sbc}
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                             --> { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )
@@ -846,7 +868,6 @@ Solution 1
  </imp>
 </kat-imp>
 
-Solution 2
 <kat-imp>
  <s> #STUCK ~> #compile-result ( ( ( ( ( .Rules
                                        , < { int i , ( j , ( k , ( l , ( m , ( s , .Ids ) ) ) ) ) ; i = 11 ; j = 11 ; k = 0 ; l = 0 ; m = 0 ; s = 0 ; while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | .Map }                                                                                                                                                                             --> { while ( 0 < i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( ( i / 2 ) * 2 ) ) { k = k + ( l / i ) ; } else { k = k + ( j / m ) ; } j = j - 1 ; } s = s + ( ( i * k ) / 3 ) ; i = i - 1 ; } | l |-> 0 s |-> 0 k |-> 0 j |-> 9 i |-> 7 m |-> 0 } > )

@@ -1,8 +1,8 @@
 // IMP-KAT Tests
 // =============
 
-// We'll use a simple testing harness in `bash` which just checks the output of
-// `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+// This is a simple testing harness driven by the `tangle` script. Call
+// `./tangle test` in the root directory to run the test-set.
 
 // BIMC
 // ----
@@ -17,7 +17,6 @@
 // `1000`.
 
 
-Solution 1
 <kat-imp>
  <s> #STUCK ~> #bimc-result #false in 23 steps </s>
  <kat>

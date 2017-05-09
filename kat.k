@@ -354,7 +354,20 @@ module KAT-BIMC
            ; #pred (drop until stack-empty?)
            )
            ...
-       </s> 
+       </s>
+
+  syntax Pred ::= "bmc" Int Strategy
+//----------------------------------
+  rule <s> bmc 0 S => #true ... </s>
+  rule <s> bmc N S => if (not try? S)
+                      then #false
+                      else if (try? step)
+                           then bmc (N -Int 1) S
+                           else #true
+           ...
+       </s>
+    requires N >Int 0
+  
 endmodule
 
 
