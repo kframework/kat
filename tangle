@@ -9,16 +9,16 @@ examples=( straight-line-1 straight-line-2
            krazy-loop-correct krazy-loop-incorrect
          )
 
-tests=( straight-line-1-bimc1 straight-line-1-bimc2
-        straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
-        sum-bimc1 sum-bimc2 sum-bimc3
-        collatz-bimc collatz-all-bimc
-        krazy-loop-correct-bimc krazy-loop-incorrect-bimc1 krazy-loop-incorrect-bimc2
-        straight-line-1-sbc straight-line-2-sbc
-        dead-if-sbc
-        sum-sbc sum-plus-sbc
-        collatz-sbc collatz-all-sbc
-        krazy-loop-incorrect-sbc krazy-loop-correct-sbc
+tests=( # straight-line-1-bimc1 straight-line-1-bimc2
+        # straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
+        # sum-bimc1 sum-bimc2 sum-bimc3
+        # collatz-bimc collatz-all-bimc
+        # krazy-loop-correct-bimc krazy-loop-incorrect-bimc1 krazy-loop-incorrect-bimc2
+        # straight-line-1-sbc straight-line-2-sbc
+        # dead-if-sbc
+        # sum-sbc sum-plus-sbc
+        collatz-sbc # collatz-all-sbc
+        # krazy-loop-incorrect-sbc krazy-loop-correct-sbc
       )
 
 compiled_programs=( collatz collatz-all
@@ -93,18 +93,16 @@ tangle_kompile() {
 
 tangle_tests() {
 
-    pushd tests
     for test in $tests; do
         h2 "running '$test' ..."
         #  ---------------------
-        bash test.sh $test
+        bash tests/test.sh $test
         if [[ "$?" == '0' ]]; then
              gecho "SUCCESS"
         else
              recho "FAILURE"
         fi
     done
-    popd
 }
 
 tangle_benchmarks() {
@@ -134,8 +132,8 @@ tangle_benchmarks() {
 while [[ "$#" -gt '0' ]]; do
     tangle_command="$1" && shift
 
-    h1 "running tangle command '$tangle_command' ..."
-    #  ==============================================
+    h1 "attempting tangle command '$tangle_command' ..."
+    #  =================================================
 
     case "$tangle_command" in
         all)          set gen kompile examples test bench ;;

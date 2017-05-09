@@ -190,16 +190,18 @@ module KAT
 
 // -   `step-with_` is used to specify that a given strategy should be executed
 //     admist heating and cooling.
-// -   `#step` defines what is a proper transition and must be provided by the
-//     programming language.
-// -   `step` is `step-with_` instantiated to `#step`.
+// -   `#transition` defines what is a proper transition and must be provided by
+//     the programming language.
+// -   `#normal` defines a normal transition in the programming language (not a
+//     step for analysis).
+// -   `step` is `step-with_` instantiated to `#normal | #transition`.
 
 
   syntax priority step-with_ > _*
-  syntax Strategy ::= "step-with" Strategy | "#step" | "step"
-//-----------------------------------------------------------
+  syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
+//-----------------------------------------------------------------------------
   rule <s> step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)* ... </s>
-  rule <s> step        => step-with #step                                   ... </s>
+  rule <s> step        => step-with (#normal | #transition)                 ... </s>
 
 
 // Things added to the sort `StateOp` will automatically load the current state for
@@ -460,13 +462,11 @@ module KAT-SBC
   syntax Strategy ::= "compile-step"
 //----------------------------------
   rule <s> ( compile-step
-          => dup
-           ; pop
-           ; if subsumed? or stuck?
+          => if subsumed?
              then drop
-             else ( begin-rule [ #current ]
-                  ; step
-                  ; step until (cut-point? or stuck?)
+             else ( pop
+                  ; begin-rule
+                  ; (step-with #normal)*
                   ; end-rule
                   ; abstract
                   ; next-states

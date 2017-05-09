@@ -93,10 +93,11 @@ module IMP
 // sequencing.
 
 
-  syntax Stmt ::= "if" "(" BExp ")" Block "else" Block [strict(1)]
-//----------------------------------------------------------------
-  rule <k> if (true)  B else _ => B ... </k> [tag(iftrue)]
-  rule <k> if (false) _ else B => B ... </k> [tag(iffalse)]
+  syntax Stmt ::= "if" "(" BExp ")" Block "else" Block
+//----------------------------------------------------
+  rule <k> true  ~> if (BE) B else _ => B ... </k> [tag(ifeval)]
+  rule <k> false ~> if (BE) _ else B => B ... </k> [tag(ifeval)]
+  rule <k> if (BE) B else B' => BE ~> if (BE) B else B' ... </k> [tag(if)]
 
   syntax Stmt ::= "while" "(" BExp ")" Block
 //------------------------------------------

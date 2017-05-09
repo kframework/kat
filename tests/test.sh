@@ -1,8 +1,8 @@
 # IMP-KAT Tests
 # =============
 
-# We'll use a simple testing harness in `bash` which just checks the output of
-# `krun --search` against a supplied file. Run this with `bash runtests.sh`.
+# This is a simple testing harness driven by the `tangle` script. Call
+# `./tangle test` in the root directory to run the test-set.
 
 
 strip_output() {
@@ -11,13 +11,14 @@ strip_output() {
 
 test() {
     strategy="$1"
-    imp_file="$2"
-    out_file="output/$3"
+    imp_file="tests/$2"
+    out_file="tests/output/$3"
     for file in "$imp_file" "$out_file"; do
         [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
     done
-    echo "krun --search --directory '../' -cSTRATEGY='$strategy' '$imp_file'"
-    diff <(cat "$out_file" | strip_output) <(krun --search --directory '../' -cSTRATEGY="$strategy" "$imp_file" | strip_output)
+
+    echo "krun -cSTRATEGY='$strategy' '$imp_file'"
+    diff <(cat "$out_file" | strip_output) <(krun -cSTRATEGY="$strategy" "$imp_file" | strip_output)
     exit "$?"
 }
 
@@ -216,8 +217,11 @@ case "$test" in
 
 
 "krazy-loop-correct-sbc") test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out ;;
+
+*) echo "Could not find test '$test' ..."
+   exit 1
+   ;;
 esac
-done
 
 
 # SBC Benchmarking

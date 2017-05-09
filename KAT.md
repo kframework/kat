@@ -183,15 +183,16 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 ```
 
 -   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
--   `#step` defines what is a proper transition and must be provided by the programming language.
--   `step` is `step-with_` instantiated to `#step`.
+-   `#transition` defines what is a proper transition and must be provided by the programming language.
+-   `#normal` defines a normal transition in the programming language (not a step for analysis).
+-   `step` is `step-with_` instantiated to `#normal | #transition`.
 
 ```{.k .kat}
   syntax priority step-with_ > _*
-  syntax Strategy ::= "step-with" Strategy | "#step" | "step"
-//-----------------------------------------------------------
+  syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
+//-----------------------------------------------------------------------------
   rule <s> step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)* ... </s>
-  rule <s> step        => step-with #step                                   ... </s>
+  rule <s> step        => step-with (#normal | #transition)                 ... </s>
 ```
 
 Things added to the sort `StateOp` will automatically load the current state for you, making it easier to define operations over the current state.
@@ -422,7 +423,7 @@ Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
 
-```
+```{.k .kat}
   syntax Strategy ::= "compile-step"
 //----------------------------------
   rule <s> ( compile-step
@@ -430,27 +431,7 @@ Finally, semantics based compilation is provided as a macro.
              then drop
              else ( pop
                   ; begin-rule
-                  ; (step-with skip)*
-                  ; end-rule
-                  ; abstract
-                  ; compile-step
-                  )
-           )
-           ...
-       </s>
-```
-
-```{.k .kat}
-  syntax Strategy ::= "compile-step"
-//----------------------------------
-  rule <s> ( compile-step
-          => dup
-           ; pop
-           ; if subsumed? or stuck?
-             then drop
-             else ( begin-rule [ #current ]
-                  ; step
-                  ; step until (cut-point? or stuck?)
+                  ; (step-with #normal)*
                   ; end-rule
                   ; abstract
                   ; next-states

@@ -36,10 +36,11 @@ module IMP-KAT
   rule <s> pop { KCELL | MEM } => .                    ... </s> <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp>
 
 
-// ### Define `#step`
+// ### Define `#transition` and `#normal`
 
 
-  rule <s> #step => ^ lookup | ^ assignment | ^ while | ^ iftrue | ^ iffalse | ^ div | ^ divzero ... </s>
+  rule <s> #transition => ^ if | ^ divzero                                    ... </s>
+  rule <s> #normal     => ^ while | ^ifeval | ^ lookup | ^ assignment | ^ div ... </s>
 
 
 // ### Define `bool?`
@@ -86,13 +87,19 @@ module IMP-SBC
   syntax State ::= "{" K "|" Map "|" Bool "}"
 
   rule <s> next-states [ { . | _ } ] => skip ... </s> [strucural]
-  rule <s> next-states [ { while ( BEXP:BExp ) BODY ~> REST | MEM } ]
-        => push { while ( BEXP ) BODY ~> REST | MEM | true  }
-         ; push { while ( BEXP ) BODY ~> REST | MEM | false }
+//  rule <s> next-states [ { while ( BEXP:BExp ) BODY ~> REST | MEM } ]
+//        => push { while ( BEXP ) BODY ~> REST | MEM | true  }
+//         ; push { while ( BEXP ) BODY ~> REST | MEM | false }
+//         ...
+//       </s>
+  rule <s> next-states [ { if ( BEXP:BExp ) S1 else S2 ~> REST | MEM } ]
+        => push { true  ~> if ( BEXP ) S1 else S2 ~> REST | MEM }
+         ; push { false ~> if ( BEXP ) S1 else S2 ~> REST | MEM }
          ...
        </s>
 
-  rule <s> pop { while ( BEXP ) BODY ~> REST | MEM | BOOL } => pop { while ( BOOL ) BODY ~> REST | MEM } ... </s>
+//  rule <s> pop { while ( BEXP ) BODY ~> REST     | MEM | BOOL } => pop { while ( BOOL ) BODY ~> REST    | MEM } ... </s>
+  rule <s> pop { if ( BEXP ) S1 else S2  ~> REST | MEM | BOOL } => pop { BOOL ~> if ( BEXP ) S1 else S2 ~> REST | MEM } ... </s>
 
 
 // ### Define `cut-point?`
@@ -125,9 +132,10 @@ module IMP-SBC
 // enough to check that the `k` cell is identical for subsumption.
 
 
-  rule <s> { KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>
-  rule <s> { KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL'
+  rule <s> { B:Bool ~> KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>
+  rule <s> { B:Bool ~> KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL'
 
-  rule <s> { while ( BEXP ) BODY ~> REST | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST | MEM } subsumes? [ STATE ] ... </s>
+//  rule <s> { while ( BEXP ) BODY ~> REST    | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST    | MEM } subsumes? [ STATE ] ... </s>
+//  rule <s> { if ( BEXP ) S1 else S2 ~> REST | MEM | BOOL } subsumes? [ STATE ] => { if ( BOOL ) S1 else S2 ~> REST | MEM } subsumes? [ STATE ] ... </s>
 endmodule
 

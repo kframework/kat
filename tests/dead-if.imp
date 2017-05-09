@@ -3,8 +3,9 @@
 
 // In this file several tests are provided for KAT. K commit `e14da0a` should be
 // used to kompile the definition and run the examples. Compile the definition with
-// `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k`. Run
-// the tests with `bash runtests.sh` in the `tests` directory.
+// `./tangle komplie` in the root directory. Run the tests with `./tangle test` in
+// the root directory. Run the benchmarks with `./tangle bench` in the root
+// directory.
 
 // Branching
 // ---------

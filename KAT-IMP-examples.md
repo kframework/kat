@@ -3,8 +3,9 @@ IMP Exmaples
 
 In this file several tests are provided for KAT.
 K commit `e14da0a` should be used to kompile the definition and run the examples.
-Compile the definition with `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k`.
-Run the tests with `bash runtests.sh` in the `tests` directory.
+Compile the definition with `./tangle komplie` in the root directory.
+Run the tests with `./tangle test` in the root directory.
+Run the benchmarks with `./tangle bench` in the root directory.
 
 Straight Line Code
 ------------------
@@ -126,6 +127,17 @@ while (b <= 10) {
 
 ### `krazy-loop.imp`
 
+Here we have a krazy loop which computes:
+
+$$
+\sum_{i = 1}^{11}
+    \frac{i}{3} * \sum_{i = 0}^{11}
+                      \texttt{ if } even(i)
+                      \texttt{ then } \frac{(3 * j) - (j + i)}{i}
+                      \texttt{ else } \frac{j}{(5 * i) + 1}
+                      \texttt{ fi }
+$$
+
 ```{.imp .krazy-loop-correct .k}
 int i , j , k , l , m , s ;
 
@@ -153,6 +165,8 @@ while (0 < i) {
   i = i - 1 ;
 }
 ```
+
+This version of the krazy-loop has an off-by-one error which causes a division by zero.
 
 ```{.imp .krazy-loop-incorrect .k}
 int i , j , k , l , m , s ;
@@ -185,8 +199,8 @@ while (0 <= i) {
 IMP-KAT Tests
 =============
 
-We'll use a simple testing harness in `bash` which just checks the output of `krun --search` against a supplied file.
-Run this with `bash runtests.sh`.
+This is a simple testing harness driven by the `tangle` script.
+Call `./tangle test` in the root directory to run the test-set.
 
 ```{.sh .test}
 strip_output() {
@@ -195,14 +209,14 @@ strip_output() {
 
 test() {
     strategy="$1"
-    imp_file="$2"
-    out_file="output/$3"
+    imp_file="tests/$2"
+    out_file="tests/output/$3"
     for file in "$imp_file" "$out_file"; do
         [[ ! -f "$file" ]] && recho "File '$file' does not exist ..." && exit 1
     done
 
-    echo "krun --search --directory '../' -cSTRATEGY='$strategy' '$imp_file'"
-    diff <(cat "$out_file" | strip_output) <(krun --search --directory '../' -cSTRATEGY="$strategy" "$imp_file" | strip_output)
+    echo "krun -cSTRATEGY='$strategy' '$imp_file'"
+    diff <(cat "$out_file" | strip_output) <(krun -cSTRATEGY="$strategy" "$imp_file" | strip_output)
     exit "$?"
 }
 
@@ -805,8 +819,11 @@ Solution 2
 
 ```{.sh .test}
 "krazy-loop-correct-sbc") test 'compile' krazy-loop-correct.imp krazy-loop-correct-sbc.out ;;
+
+*) echo "Could not find test '$test' ..."
+   exit 1
+   ;;
 esac
-done
 ```
 
 ```{.k .krazy-loop-correct-sbc}

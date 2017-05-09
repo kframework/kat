@@ -3,13 +3,28 @@
 
 // In this file several tests are provided for KAT. K commit `e14da0a` should be
 // used to kompile the definition and run the examples. Compile the definition with
-// `kompile --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k`. Run
-// the tests with `bash runtests.sh` in the `tests` directory.
+// `./tangle komplie` in the root directory. Run the tests with `./tangle test` in
+// the root directory. Run the benchmarks with `./tangle bench` in the root
+// directory.
 
 // Looping
 // -------
 
 // ### `krazy-loop.imp`
+
+// Here we have a krazy loop which computes:
+
+// $$
+// \sum_{i = 1}^{11}
+//     \frac{i}{3} * \sum_{i = 0}^{11}
+//                       \texttt{ if } even(i)
+//                       \texttt{ then } \frac{(3 * j) - (j + i)}{i}
+//                       \texttt{ else } \frac{j}{(5 * i) + 1}
+//                       \texttt{ fi }
+// $$
+
+// This version of the krazy-loop has an off-by-one error which causes a division
+// by zero.
 
 
 int i , j , k , l , m , s ;
