@@ -3,6 +3,13 @@
 build_dir:=.build
 defn_dir:=$(build_dir)/defn
 
+.PHONY: build deps ocaml-deps defn
+
+all: build
+
+clean:
+	rm -rf $(build_dir)
+
 # Tangle from *.md files
 # ----------------------
 
