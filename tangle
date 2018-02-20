@@ -56,12 +56,6 @@ h3() {
 
 tangle_gen() {
 
-    h2 "generating 'kat.k', 'imp-kat.k', 'imp.k' ..."
-    #  ----------------------------------------------
-    pandoc-tangle --from markdown --to code-k --code kat KAT.md > kat.k
-    pandoc-tangle --from markdown --to code-k --code imp-kat  KAT-IMP.md > imp-kat.k
-    pandoc-tangle --from markdown --to code-k --code imp-lang KAT-IMP.md > imp.k
-
     h2 "generating examples ..."
     #  -------------------------
     [[ ! -d tests ]] && mkdir tests
@@ -84,13 +78,6 @@ tangle_gen() {
         pandoc-tangle --from markdown --to code-k  --code "$program-compiled"  KAT-IMP-examples.md > "tests/$program-compiled/$program.k"
         pandoc-tangle --from markdown --to code-sh --code "benchmark-$program" KAT-IMP-examples.md > "tests/benchmark-$program.sh"
     done
-}
-
-tangle_kompile() {
-
-    h2 "running 'kompile' ..."
-    #  -----------------------
-    kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
 }
 
 tangle_tests() {
@@ -140,7 +127,6 @@ while [[ "$#" -gt '0' ]]; do
     case "$tangle_command" in
         all)          set gen kompile examples test bench ;;
         gen)          tangle_gen ;;
-        defn|kompile) tangle_kompile ;;
         examples)     tangle_examples ;;
         test)         tangle_tests ;;
         bench)        tangle_benchmarks ;;
