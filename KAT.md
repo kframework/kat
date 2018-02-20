@@ -188,7 +188,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `step` is `step-with_` instantiated to `#normal | #transition`.
 
 ```{.k .kat}
-  syntax priority step-with_ > _*
+  syntax priority step-with__KAT > _*_KAT
   syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
 //-----------------------------------------------------------------------------
   rule <s> step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)* ... </s>
@@ -224,7 +224,7 @@ Strategy Macros
 -   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
 
 ```{.k .kat}
-  syntax priority if_then_else_ > _*
+  syntax priority if_then_else__KAT > _*_KAT
   syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
 //-------------------------------------------------------------
   rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s>
@@ -234,14 +234,14 @@ Strategy Macros
 -   `_until_` will execute the given strategy until a predicate holds, and `_until__` implements a bounded version.
 
 ```{.k .kat}
-  syntax priority while__ while___ > _*
+  syntax priority while___KAT while____KAT > _*_KAT
   syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
 //---------------------------------------------------------------------
   rule <s> while   P S => P ; ? S ; while P S : skip            ... </s>
   rule <s> while 0 P S => .                                     ... </s>
   rule <s> while N P S => P ; ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0
 
-  syntax priority _until_ _until__ > _*
+  syntax priority _until__KAT _until___KAT > _*_KAT
   syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
 //---------------------------------------------------------------------
   rule <s> S until   P => while   (not P) S ... </s>
@@ -253,13 +253,13 @@ Strategy Macros
 -   `eval` executes a given state to completion and checks `bool?`, and `eval_` implements a bounded version.
 
 ```{.k .kat}
-  syntax priority exec_ > _*
+  syntax priority exec__KAT > _*_KAT
   syntax Strategy ::= "exec" | "exec" Int
 //---------------------------------------
   rule <s> exec         => step until   stuck? ... </s>
   rule <s> exec (N:Int) => step until N stuck? ... </s>
 
-  syntax priority eval_ > _*
+  syntax priority eval__KAT > _*_KAT
   syntax StatePred ::= "eval" | "eval" Int
 //----------------------------------------
   rule <s> eval   [ STATE ] => pop STATE ; exec   ; bool? ... </s> requires STATE =/=K #current
@@ -470,6 +470,7 @@ Finally, semantics based compilation is provided as a macro.
        </s>
 endmodule
 ```
+
 ### Future Work
 
 -   Post-processing steps including hashing any components of the state that are concrete for the entire execution (eg. the `k` cell).

@@ -105,7 +105,7 @@ IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequenci
 //--------------------------------
   rule S1:Stmt S2:Stmt => S1 ~> S2
 
-  syntax priority int_; _=_; if(_)_else_ while(_)_ > __
+  syntax priority int_;_IMP _=_;_IMP if(_)_else__IMP while(_)__IMP > ___IMP
 endmodule
 ```
 
