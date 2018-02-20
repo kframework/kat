@@ -12,8 +12,8 @@ In IMP, base values are of sorts `Int` and `Bool`.
 
 ```{.k .imp-lang}
 module IMP
-  imports MAP
   imports STRATEGY
+  imports DOMAINS
 
   configuration <imp>
                   <k> $PGM:Stmt </k>

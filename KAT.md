@@ -19,8 +19,8 @@ It has sequencing, choice, and looping (in addition to primitives related to con
 
 ```{.k .kat}
 module KAT
-  imports KCELLS
   imports STRATEGY
+  imports DOMAINS
 
   configuration <kat>
                   <analysis> .Analysis </analysis>
