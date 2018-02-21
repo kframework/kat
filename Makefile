@@ -63,7 +63,6 @@ ocaml-deps:
 # OCAML Backend
 
 build: $(defn_dir)/imp-kat-kompiled/interpreter deps
-    # kompile --debug --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS imp-kat.k || exit 1
 
 $(defn_dir)/imp-kat-kompiled/interpreter: $(defn_files)
 	@echo "== kompile: $@"
