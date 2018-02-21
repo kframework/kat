@@ -2,14 +2,6 @@
 
 return='0'
 
-examples=( straight-line-1 straight-line-2
-           dead-if
-           inf-div-bad inf-div-good
-           sum sum-plus
-           collatz collatz-all
-           krazy-loop-correct krazy-loop-incorrect
-         )
-
 tests=( # straight-line-1-bimc1 straight-line-1-bimc2
         # straight-line-2-bimc1 straight-line-2-bimc2 straight-line-2-bimc3
         inf-div-bad-bimc inf-div-good-bimc
@@ -55,13 +47,6 @@ h3() {
 }
 
 tangle_gen() {
-
-    h2 "generating examples ..."
-    #  -------------------------
-    [[ ! -d tests ]] && mkdir tests
-    for example in $examples; do
-        pandoc-tangle --from markdown --to code-k --code "$example" KAT-IMP-examples.md > "tests/$example.imp"
-    done
 
     h2 "generating tests ..."
     #  ----------------------

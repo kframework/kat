@@ -3,15 +3,17 @@
 build_dir:=.build
 defn_dir:=$(build_dir)/defn
 
-.PHONY: build deps ocaml-deps defn
+test_dir:=tests
+
+.PHONY: build deps ocaml-deps defn example-files
 
 all: build
 
 clean:
 	rm -rf $(build_dir)
 
-# Tangle from *.md files
-# ----------------------
+# Build definition
+# ----------------
 
 # Tangle *.k files
 
@@ -34,9 +36,6 @@ $(defn_dir)/imp.k: KAT-IMP.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to tangle.lua --metadata=code:imp-lang $< > $@
-
-# Build interpreters
-# ------------------
 
 # Dependencies
 
@@ -81,3 +80,22 @@ $(defn_dir)/imp-kat-kompiled/interpreter: $(defn_files)
 			-package gmp -package dynlink -package zarith -package str -package uuidm -package unix -package imp-kat-semantics-plugin \
 			-linkpkg -inline 20 -nodynlink -O3 -linkall \
 			constants.cmx prelude.cmx plugin.cmx parser.cmx lexer.cmx run.cmx interpreter.ml
+
+# Testing
+# -------
+
+# Tangle examples
+
+example_files:=straight-line-1.imp straight-line-2.imp \
+               dead-if.imp \
+               inf-div-bad.imp inf-div-good.imp \
+               sum.imp sum-plus.imp \
+               collatz.imp collatz-all.imp \
+               krazy-loop-correct.imp krazy-loop-incorrect.imp
+
+example-files: $(patsubst %, $(test_dir)/examples/%, $(example_files))
+
+$(test_dir)/examples/%.imp: KAT-IMP-examples.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc --from markdown --to tangle.lua --metadata=code:$* $< > $@
