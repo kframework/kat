@@ -76,19 +76,19 @@ $(defn_dir)/imp-kat-kompiled/interpreter: $(defn_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
 	$(k_bin)/kompile --debug --gen-ml-only -O3 --non-strict \
-					 --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) ; \
-	ocamlfind opt -c $(defn_dir)/imp-kat-kompiled/constants.ml -package gmp -package zarith ; \
-	ocamlfind opt -c -I $(defn_dir)/imp-kat-kompiled ; \
-	ocamlfind opt -a -o $(defn_dir)/semantics.cmxa ; \
-	ocamlfind remove imp-kat-semantics-plugin ; \
-	ocamlfind install imp-kat-semantics-plugin META $(defn_dir)/semantics.cmxa $(defn_dir)/semantics.a ; \
-	$(k_bin)/kompile --debug --packages imp-kat-semantics-plugin -O3 --non-strict \
-					 --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) ; \
-	cd $(defn_dir)/imp-kat-kompiled \
+					 --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) \
+		&& ocamlfind opt -c $(defn_dir)/imp-kat-kompiled/constants.ml -package gmp -package zarith \
+		&& ocamlfind opt -c -I $(defn_dir)/imp-kat-kompiled \
+		&& ocamlfind opt -a -o $(defn_dir)/semantics.cmxa \
+		&& ocamlfind remove imp-kat-semantics-plugin \
+		&& ocamlfind install imp-kat-semantics-plugin META $(defn_dir)/semantics.cmxa $(defn_dir)/semantics.a \
+		&& $(k_bin)/kompile --debug --packages imp-kat-semantics-plugin -O3 --non-strict \
+							--main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) \
+		&& cd $(defn_dir)/imp-kat-kompiled \
 		&& ocamlfind opt -o interpreter \
-			-package gmp -package dynlink -package zarith -package str -package uuidm -package unix -package imp-kat-semantics-plugin \
-			-linkpkg -inline 20 -nodynlink -O3 -linkall \
-			constants.cmx prelude.cmx plugin.cmx parser.cmx lexer.cmx run.cmx interpreter.ml
+						 -package gmp -package dynlink -package zarith -package str -package uuidm -package unix -package imp-kat-semantics-plugin \
+						 -linkpkg -inline 20 -nodynlink -O3 -linkall \
+						 constants.cmx prelude.cmx plugin.cmx parser.cmx lexer.cmx run.cmx interpreter.ml
 
 # Testing
 # -------
