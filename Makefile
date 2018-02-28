@@ -122,9 +122,10 @@ test_scripts:=straight-line-2-bimc1.sh straight-line-2-bimc2.sh straight-line-2-
               collatz-sbc.sh collatz-all-sbc.sh \
               krazy-loop-incorrect-sbc.sh krazy-loop-correct-sbc.sh
 
-test-scripts: $(patsubst %, $(test_dir)/examples/%, $(test_scripts))
+test-script: $(test_dir)/examples/run-tests.sh
 
-$(test_dir)/examples/%.sh: KAT-IMP-examples.md
+$(test_dir)/examples/run-tests.sh: KAT-IMP-examples.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:".sh.$*" KAT-IMP-examples.md > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:".sh.test" KAT-IMP-examples.md > $@
+	chmod u+x $@
