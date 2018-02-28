@@ -1,7 +1,15 @@
 # Settings
 
-build_dir:=.build
+build_dir:=$(CURDIR)/.build
 defn_dir:=$(build_dir)/defn
+
+k_submodule:=$(build_dir)/k
+k_bin:=$(k_submodule)/k-distribution/target/release/k/bin
+
+pandoc_tangle_submodule:=$(build_dir)/pandoc-tangle
+tangler:=$(pandoc_tangle_submodule)/tangle.lua
+LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
+export LUA_PATH
 
 test_dir:=tests
 
@@ -25,30 +33,31 @@ defn: $(defn_files)
 $(defn_dir)/kat.k: KAT.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to tangle.lua --metadata=code:kat $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.kat $< > $@
 
 $(defn_dir)/imp-kat.k: KAT-IMP.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to tangle.lua --metadata=code:imp-kat $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.imp-kat $< > $@
 
 $(defn_dir)/imp.k: KAT-IMP.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to tangle.lua --metadata=code:imp-lang $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.imp-lang $< > $@
 
 # Dependencies
 
-k_submodule:=$(build_dir)/k
-k_bin:=$(k_submodule)/k-distribution/target/release/k/bin
-
-deps: $(k_submodule)/make.timestamp ocaml-deps
+deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp ocaml-deps
 
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
 	cd $(k_submodule) \
 		&& mvn package -q -DskipTests
 	touch $(k_submodule)/make.timestamp
+
+$(pandoc_tangle_submodule)/make.timestamp:
+	git submodule update --init -- $(pandoc_tangle_submodule)
+	touch $(pandoc_tangle_submodule)/make.timestamp
 
 ocaml-deps:
 	opam init --quiet --no-setup
@@ -98,7 +107,7 @@ example-files: $(patsubst %, $(test_dir)/examples/%, $(example_files))
 $(test_dir)/examples/%.imp: KAT-IMP-examples.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to tangle.lua --metadata=code:$* $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.$* $< > $@
 
 # Tangle test scripts
 
@@ -118,4 +127,4 @@ test-scripts: $(patsubst %, $(test_dir)/examples/%, $(test_scripts))
 $(test_dir)/examples/%.sh: KAT-IMP-examples.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to tangle.lua --metadata=code:"sh $*" KAT-IMP-examples.md > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:".sh.$*" KAT-IMP-examples.md > $@
