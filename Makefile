@@ -99,3 +99,23 @@ $(test_dir)/examples/%.imp: KAT-IMP-examples.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to tangle.lua --metadata=code:$* $< > $@
+
+# Tangle test scripts
+
+test_scripts:=straight-line-2-bimc1.sh straight-line-2-bimc2.sh straight-line-2-bimc3.sh \
+              inf-div-bad-bimc.sh inf-div-good-bimc.sh \
+              sum-bimc1.sh sum-bimc2.sh sum-bimc3.sh \
+              collatz-bimc.sh collatz-all-bimc.sh \
+              krazy-loop-correct-bimc.sh krazy-loop-incorrect-bimc1.sh krazy-loop-incorrect-bimc2.sh \
+              straight-line-1-sbc.sh straight-line-2-sbc.sh \
+              dead-if-sbc.sh \
+              sum-sbc.sh sum-plus-sbc.sh \
+              collatz-sbc.sh collatz-all-sbc.sh \
+              krazy-loop-incorrect-sbc.sh krazy-loop-correct-sbc.sh
+
+test-scripts: $(patsubst %, $(test_dir)/examples/%, $(test_scripts))
+
+$(test_dir)/examples/%.sh: KAT-IMP-examples.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc --from markdown --to tangle.lua --metadata=code:"sh $*" KAT-IMP-examples.md > $@
