@@ -1,15 +1,6 @@
 Introduction
 ============
 
-The K Analysis Toolset (KAT) is a library of tools written in K itself for analyzing programming languages and programs.
-KAT uses the K strategy language to control execution of the programming languages, making it extensible in K itself.
-
-One design goal behind this effort is that the execution state of the program should be disturbed as little as possible.
-Thus, the strategy language is used as an all-powerful of monitor that executes next to the program.
-Computation that the strategy needs to accomplish should be done in the `strategy` cell, not on the `k` cell.
-
-Compile this markdown document to the relevant K files using `./tangle`.
-Compile the file `imp-kat.k` with the command `kompile --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k`.
 
 Strategy Language
 =================
