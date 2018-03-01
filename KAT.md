@@ -1,10 +1,6 @@
 Introduction
 ============
 
-Computation that the strategy needs to accomplish should be done in the `strategy` cell, not on the `k` cell.
-
-Compile this markdown document to the relevant K files using `./tangle`.
-Compile the file `imp-kat.k` with the command `kompile --main-module IMP-KAT --syntax-module IMP-KAT imp-kat.k`.
 
 Strategy Language
 =================
