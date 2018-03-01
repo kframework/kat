@@ -95,11 +95,11 @@ IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequenci
 //----------------------------------------------------
   rule <k> true  ~> if (BE) B else _ => B ... </k> [tag(ifeval)]
   rule <k> false ~> if (BE) _ else B => B ... </k> [tag(ifeval)]
-  rule <k> if (BE) B else B' => BE ~> if (BE) B else B' ... </k> [tag(if)]
+  rule <k> if (BE) B else B' => BE ~> if (BE) B else B' ... </k> [tag(ifIMP)]
 
   syntax Stmt ::= "while" "(" BExp ")" Block
 //------------------------------------------
-  rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [tag(while)]
+  rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [tag(whileIMP)]
 
   syntax Stmt ::= Stmt Stmt [left]
 //--------------------------------
@@ -148,8 +148,8 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 ### Define `#transition` and `#normal`
 
 ```{.k .imp-kat}
-  rule <s> #transition => ^ if | ^ divzero                                    ... </s>
-  rule <s> #normal     => ^ while | ^ifeval | ^ lookup | ^ assignment | ^ div ... </s>
+  rule <s> #transition => ^ ifIMP | ^ divzero                                    ... </s>
+  rule <s> #normal     => ^ whileIMP | ^ifeval | ^ lookup | ^ assignment | ^ div ... </s>
 ```
 
 ### Define `bool?`
@@ -214,7 +214,7 @@ module IMP-SBC
 IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
 
 ```{.k .imp-kat}
-  rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ while) ... </s> requires STATE =/=K #current
+  rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ whileIMP) ... </s> requires STATE =/=K #current
 ```
 
 ### Define `abstract`
