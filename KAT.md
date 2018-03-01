@@ -174,12 +174,12 @@ Strategies can manipulate the `state` cell (where program execution happens) and
   rule <s> drop => . ... </s> <states> STATE : STATES   => STATES                 </states>
 ```
 
--   `analysis_` sets the `analysis` cell to the given argument.
+-   `setAnalysis_` sets the `analysis` cell to the given argument.
 
 ```{.k .kat}
-  syntax Strategy ::= "analysis" Analysis
+  syntax Strategy ::= "setAnalysis" Analysis
 //---------------------------------------
-  rule <s> analysis A => . ... </s> <analysis> _ => A </analysis>
+  rule <s> setAnalysis A => . ... </s> <analysis> _ => A </analysis>
 ```
 
 -   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
@@ -328,7 +328,7 @@ After performing BIMC, we'll need a container for the results of the analysis.
 //------------------------------------
   rule <s> bimc N P => bimc? N P ~> #bimc-result ... </s>
   rule <s> ( bimc? N P
-          => analysis .Trace
+          => setAnalysis .Trace
            ; stack .States
            ; record
            ; (step ; record) until N ((not P) or stuck?)
@@ -460,7 +460,7 @@ Finally, semantics based compilation is provided as a macro.
   syntax Strategy ::= "compile"
 //-----------------------------
   rule <s> ( compile
-          => analysis .Rules
+          => setAnalysis .Rules
            ; stack .States
            ; push
            ; compile-step until stack-empty?
