@@ -94,11 +94,13 @@ Here, a wrapper around this functionality is provided which will try to execute 
   syntax Pred      ::= "try?" Strategy
   syntax Exception ::= "#try"
 //---------------------------
-  rule <s> try? S => push ; S ~> #try     ... </s>
-  rule <s> #try   => drop ; #true         ... </s>
-  rule <s> #STUCK ~> (S:Strategy => .)    ... </s>
-  rule <s> #STUCK ~> #try => pop ; #false ... </s>
-  rule <s> SA:StrategyApplied => .        ... </s>
+  rule <s> try? S => push ; S ~> #try ... </s>
+  rule <s> #try   => drop ; #true     ... </s>
+
+  rule <s> #STUCK() ~> (S:Strategy => .)    ... </s>
+  rule <s> #STUCK() ~> #try => pop ; #false ... </s>
+
+  rule <s> SA:StrategyApplied => . ... </s>
 ```
 
 -   `stack-empty?` is a predicate that checks whether the stack of states is empty or not.
