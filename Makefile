@@ -13,7 +13,7 @@ export LUA_PATH
 
 test_dir:=tests
 
-.PHONY: build deps ocaml-deps defn example-files
+.PHONY: build deps defn example-files
 
 all: build
 
@@ -47,7 +47,7 @@ $(defn_dir)/imp.k: KAT-IMP.md
 
 # Dependencies
 
-deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp ocaml-deps
+deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp
 
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
@@ -59,36 +59,14 @@ $(pandoc_tangle_submodule)/make.timestamp:
 	git submodule update --init -- $(pandoc_tangle_submodule)
 	touch $(pandoc_tangle_submodule)/make.timestamp
 
-ocaml-deps:
-	opam init --quiet --no-setup
-	opam repository add k "$(k_submodule)/k-distribution/target/release/k/lib/opam" \
-		|| opam repository set-url k "$(k_submodule)/k-distribution/target/release/k/lib/opam"
-	opam update
-	opam switch 4.03.0+k
-	eval $$(opam config env) \
-	opam install --yes mlgmp zarith uuidm
+# Java Backend
 
-# OCAML Backend
+build: .build/java/imp-analysis-kompiled/timestamp
 
-build: $(defn_dir)/imp-kat-kompiled/interpreter deps
-
-$(defn_dir)/imp-kat-kompiled/interpreter: $(defn_files)
+.build/java/imp-analysis-kompiled/timestamp: $(defn_files)
 	@echo "== kompile: $@"
-	eval $$(opam config env) \
-	$(k_bin)/kompile --debug --gen-ml-only -O3 --non-strict \
-					 --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) \
-		&& ocamlfind opt -c $(defn_dir)/imp-kat-kompiled/constants.ml -package gmp -package zarith \
-		&& ocamlfind opt -c -I $(defn_dir)/imp-kat-kompiled \
-		&& ocamlfind opt -a -o $(defn_dir)/semantics.cmxa \
-		&& ocamlfind remove imp-kat-semantics-plugin \
-		&& ocamlfind install imp-kat-semantics-plugin META $(defn_dir)/semantics.cmxa $(defn_dir)/semantics.a \
-		&& $(k_bin)/kompile --debug --packages imp-kat-semantics-plugin -O3 --non-strict \
-							--main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) \
-		&& cd $(defn_dir)/imp-kat-kompiled \
-		&& ocamlfind opt -o interpreter \
-						 -package gmp -package dynlink -package zarith -package str -package uuidm -package unix -package imp-kat-semantics-plugin \
-						 -linkpkg -inline 20 -nodynlink -O3 -linkall \
-						 constants.cmx prelude.cmx plugin.cmx parser.cmx lexer.cmx run.cmx interpreter.ml
+	$(k_bin)/kompile --debug --main-module IMP-ANALYSIS --backend java \
+					 --syntax-module IMP-ANALYSIS $< --directory .build/java
 
 # Testing
 # -------
