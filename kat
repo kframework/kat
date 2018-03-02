@@ -6,8 +6,7 @@ set -u      # Using undefined variables is an error. Exit immediately
 # Utilities
 # ---------
 
-progress() { echo "== $@" ; }
-die()      { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
+die() { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
 
 pretty_diff() {
     git --no-pager diff --no-index --word-diff "$@"
@@ -19,40 +18,41 @@ pretty_diff() {
 run_env() {
     local build_dir="$(pwd)/.build"
     local release_dir="$build_dir/k/k-distribution/target/release/k"
-    local lib_dir="$build_dir/local/lib"
     export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
-    export LD_LIBRARY_PATH="$release_dir/lib/native/linux64:$lib_dir:${LD_LIBRARY_PATH:-}"
-    eval $(opam config env)
 }
 
 # Runners
 # -------
 
 run_krun() {
-    local run_file=$1 ; shift
-    run_env "$run_file"
+    local run_file=$1   ; shift
+    local strategy="$1" ; shift
+    run_env
     export K_OPTS=-Xss500m
-    krun --directory .build/defn/ "$run_file" "$@"
+    krun --debug --directory .build/defn/ -cSTRATEGY="$strategy" \
+            "$run_file" "$@"
 }
 
-run_kdebug() {
-    progress "debugging: $1"
-    ( run_krun "$1" --debugger )
+run_ksearch() {
+    local run_file=$1   ; shift
+    local strategy="$1" ; shift
+    run_env
+    export K_OPTS=-Xss500m
+    krun --debug --directory .build/defn/ -cSTRATEGY="$strategy" \
+            --search "$run_file" "$@"
 }
 
 run_test() {
-    test_file="$1"; shift
-    case "$test_file" in
-        *examples/*) [[ -f "$test_file.out" ]] && output_expected_file="$test_file.out"
-                     ( output_file="$(mktemp output.XXXXXX)"
-                       trap "rm -rf $output_file" INT TERM EXIT
-                       run_krun "$test_file" > "$output_file"
-                       pretty_diff "$output_expected_file" "$output_file"
-                     )
-                     ;;
-        *          ) die "Do not know how to run '$test_file' as a test."
-                     ;;
-    esac
+    imp_file="$1"      ; shift
+    expected_file="$1" ; shift
+    strategy="$1"      ; shift
+    [[ -f "$imp_file" ]] || die "File '$imp_file' does not exist ..."
+    [[ -f "$expected_file" ]] || die "File '$expected_file' does not exist ..."
+    ( output_file="$(mktemp output.XXXXXX)"
+      trap "rm -rf $output_file" INT TERM EXIT
+      run_ksearch "$imp_file" "$strategy" > "$output_file"
+      pretty_diff "$expected_file" "$output_file"
+    )
 }
 
 # Main
@@ -65,21 +65,22 @@ run_command="$1" ; shift
 case "$run_command" in
 
     # Running
-    run)   run_krun   "$1" ;;
-    debug) run_kdebug "$1" ;;
+    run)    run_krun    "$@" ;;
+    search) run_ksearch "$@" ;;
 
     # Testing
-    test)  run_test   "$1" ;;
+    test) run_test "$@" ;;
 
     *) echo "
-    usage: $0 <cmd> <file> <K args>*
+    usage: $0 [run|debug] <file> <strategy> <K args>*
 
        # Running
        # -------
-       $0 run   <pgm>   Run a single KAT program
-       $0 debug <pgm>   Run a single KAT program in the debugger
+       $0 run    <pgm> <strategy>   Run a single IMP program using given strategy
+       $0 search <pgm> <strategy>   Search a single IMP program's executions using given strategy
 
-       Note: <pgm> is a path to a file containing a WASM program.
+       Note: <pgm> is a path to a file containing an IMP program.
+             <strategy> is a term in sort STRATEGY.
 
        # Testing
        # -------
