@@ -72,39 +72,34 @@ $(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 # Testing
 # -------
 
-# Tangle examples
+TEST=./kat test
 
-example_files:=straight-line-1.imp straight-line-2.imp \
-               dead-if.imp \
-               inf-div-bad.imp inf-div-good.imp \
-               sum.imp sum-plus.imp \
-               collatz.imp collatz-all.imp \
-               krazy-loop-correct.imp krazy-loop-incorrect.imp
+test: test-bimc test-sbc
 
-example-files: $(patsubst %, $(test_dir)/examples/%, $(example_files))
+test-bimc:
+	$(TEST) tests/examples/straight-line-1.imp      tests/examples/straight-line-1-bimc1.out      'step-with skip ; bimc 2 (bexp? x <= 7)'
+	$(TEST) tests/examples/straight-line-1.imp      tests/examples/straight-line-1-bimc2.out      'step-with skip ; bimc 3 (bexp? x <= 7)'
+	$(TEST) tests/examples/straight-line-2.imp      tests/examples/straight-line-2-bimc1.out      'step-with skip ; bimc 2 (bexp? x <= 7)'
+	$(TEST) tests/examples/straight-line-2.imp      tests/examples/straight-line-2-bimc2.out      'step-with skip ; bimc 3 (bexp? x <= 7)'
+	$(TEST) tests/examples/straight-line-2.imp      tests/examples/straight-line-2-bimc3.out      'step-with skip ; bimc 500 (bexp? x <= 7)'
+	$(TEST) tests/examples/sum.imp                  tests/examples/sum-bimc1.out                  'step-with skip ; bimc 500 (bexp? s <= 32)'
+	$(TEST) tests/examples/sum.imp                  tests/examples/sum-bimc2.out                  'step-with skip ; bimc 41 (bexp? s <= 32)'
+	$(TEST) tests/examples/sum.imp                  tests/examples/sum-bimc3.out                  'step-with skip ; bimc 40 (bexp? s <= 32)'
+	$(TEST) tests/examples/inf-div-bad.imp          tests/examples/inf-div-bad-bimc.out           'bimc 5000 (not div-zero-error?)'
+	$(TEST) tests/examples/inf-div-good.imp         tests/examples/inf-div-good-bimc.out          'bimc 5000 (not div-zero-error?)'
+	$(TEST) tests/examples/collatz.imp              tests/examples/collatz-bimc.out               'step-with skip ; bimc 5000 (bexp? n <= 1000)'
+	$(TEST) tests/examples/collatz-all.imp          tests/examples/collatz-all-bimc.out           'step-with skip ; bimc 5000 (bexp? n <= 1000)'
+	$(TEST) tests/examples/krazy-loop-correct.imp   tests/examples/krazy-loop-correct-bimc.out    'bimc 5000 (not div-zero-error?)'
+	$(TEST) tests/examples/krazy-loop-incorrect     tests/examples/krazy-loop-incorrect-bimc1.out 'bimc 5000 (not div-zero-error?)'
+	$(TEST) tests/examples/krazy-loop-incorrect     tests/examples/krazy-loop-incorrect-bimc2.out 'bimc 1384 (not div-zero-error?)'
 
-$(test_dir)/examples/%.imp: KAT-IMP-examples.md
-	@echo >&2 "==  tangle: $@"
-	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.$* $< > $@
-
-# Tangle test scripts
-
-test_scripts:=straight-line-2-bimc1.sh straight-line-2-bimc2.sh straight-line-2-bimc3.sh \
-              inf-div-bad-bimc.sh inf-div-good-bimc.sh \
-              sum-bimc1.sh sum-bimc2.sh sum-bimc3.sh \
-              collatz-bimc.sh collatz-all-bimc.sh \
-              krazy-loop-correct-bimc.sh krazy-loop-incorrect-bimc1.sh krazy-loop-incorrect-bimc2.sh \
-              straight-line-1-sbc.sh straight-line-2-sbc.sh \
-              dead-if-sbc.sh \
-              sum-sbc.sh sum-plus-sbc.sh \
-              collatz-sbc.sh collatz-all-sbc.sh \
-              krazy-loop-incorrect-sbc.sh krazy-loop-correct-sbc.sh
-
-test-script: $(test_dir)/examples/run-tests.sh
-
-$(test_dir)/examples/run-tests.sh: KAT-IMP-examples.md
-	@echo >&2 "==  tangle: $@"
-	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:".sh.test" KAT-IMP-examples.md > $@
-	chmod u+x $@
+test-sbc:
+	$(TEST) tests/examples/straight-line-1.imp      tests/examples/straight-line-1-sbc.out        'compile'
+	$(TEST) tests/examples/straight-line-2.imp      tests/examples/straight-line-2-sbc.out        'compile'
+	$(TEST) tests/examples/dead-if.imp              tests/examples/dead-if-sbc.out                'compile'
+	$(TEST) tests/examples/sum.imp                  tests/examples/sum-sbc.out                    'compile'
+	$(TEST) tests/examples/sum-plus.imp             tests/examples/sum-plus-sbc.out               'compile'
+	$(TEST) tests/examples/collatz.imp              tests/examples/collatz-sbc.out                'compile'
+	$(TEST) tests/examples/collatz-all.imp          tests/examples/collatz-all-sbc.out            'compile'
+	$(TEST) tests/examples/krazy-loop-incorrect.imp tests/examples/krazy-loop-incorrect-sbc.out   'compile'
+	$(TEST) tests/examples/krazy-loop-correct.imp   tests/examples/krazy-loop-correct-sbc.out     'compile'
