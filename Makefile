@@ -1,4 +1,5 @@
 # Settings
+# --------
 
 build_dir:=$(CURDIR)/.build
 defn_dir:=$(build_dir)/defn
@@ -61,12 +62,12 @@ $(pandoc_tangle_submodule)/make.timestamp:
 
 # Java Backend
 
-build: .build/java/imp-analysis-kompiled/timestamp
+build: $(defn_dir)/imp-analysis-kompiled/timestamp
 
-.build/java/imp-analysis-kompiled/timestamp: $(defn_files)
+$(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 	@echo "== kompile: $@"
 	$(k_bin)/kompile --debug --main-module IMP-ANALYSIS --backend java \
-					 --syntax-module IMP-ANALYSIS $< --directory .build/java
+					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)
 
 # Testing
 # -------
