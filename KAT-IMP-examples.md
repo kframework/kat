@@ -14,7 +14,7 @@ These programs are "straight-line code" in IMP; they don't have any branching or
 
 ### `straight-line-1.imp`
 
-```{.imp .straight-line-1 .k}
+```{.imp .straight-line-1}
 int x ;
 x = 0 ;
 x = x + 15 ;
@@ -22,7 +22,7 @@ x = x + 15 ;
 
 ### `straight-line-2.imp`
 
-```{.imp .straight-line-2 .k}
+```{.imp .straight-line-2}
 int x ;
 x = 0 ;
 x = x + 15 ;
@@ -36,7 +36,7 @@ Branching
 
 This example exhibits a "dead" if statement; any good compiler would optimize it away.
 
-```{.imp .dead-if .k}
+```{.imp .dead-if}
 int x ;
 
 x = 7 ;
@@ -55,7 +55,7 @@ Looping
 Here we have two programs that divide the first number an infinite number of times by the second number.
 The first exibits an off-by-one error which yields a division by zero, the second does not.
 
-```{.imp .inf-div-bad .k}
+```{.imp .inf-div-bad}
 int x , y ;
 
 x = 10 ;
@@ -66,7 +66,7 @@ while (0 <= x) {
 }
 ```
 
-```{.imp .inf-div-good .k}
+```{.imp .inf-div-good}
 int x , y ;
 
 x = 10 ;
@@ -81,7 +81,7 @@ while (0 < x) {
 
 This is the classic `sum` program, which just sums the numbers from 1 to 10.
 
-```{.imp .sum .k}
+```{.imp .sum}
 int n , s ;
 
 n = 10 ;
@@ -95,7 +95,7 @@ while (0 <= n) {
 
 This version of the `sum` proogram has additional statements after the main while loop.
 
-```{.imp .sum-plus .k}
+```{.imp .sum-plus}
 int n , s ;
 
 n = 10 ;
@@ -111,7 +111,7 @@ s = s + 300 ;
 
 Here the Collatz loop is provided, which calculates how many steps it takes a given number (in this case 782) to go to 1 using Collatz update.
 
-```{.imp .collatz .k}
+```{.imp .collatz}
 int n , x ;
 
 n = 782 ;
@@ -131,7 +131,7 @@ while (2 <= n) {
 
 Like `collatz`, though in this case calculates how many steps it takes for all numbers up to a given number (in this case 10) to go to 1 using Collatz update.
 
-```{.imp .collatz-all .k}
+```{.imp .collatz-all}
 int b , n , x ;
 
 b = 1 ;
@@ -165,7 +165,7 @@ $$
                       \texttt{ fi }
 $$
 
-```{.imp .krazy-loop-correct .k}
+```{.imp .krazy-loop-correct}
 int i , j , k , l , m , s ;
 
 i = 11 ;
@@ -195,7 +195,7 @@ while (0 < i) {
 
 This version of the krazy-loop has an off-by-one error which causes a division by zero.
 
-```{.imp .krazy-loop-incorrect .k}
+```{.imp .krazy-loop-incorrect}
 int i , j , k , l , m , s ;
 
 i = 11 ;
