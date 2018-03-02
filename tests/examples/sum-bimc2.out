@@ -1,0 +1,12 @@
+
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #false in 41 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> while ( 0 <= n ) { n = n + -1 ; s = s + n ; } </k>
+  <mem> s |-> 35 n |-> 5 </mem>
+ </imp>
+</kat-imp>

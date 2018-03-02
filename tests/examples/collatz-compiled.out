@@ -1,0 +1,12 @@
+
+requires "../../imp-kat.k"
+module COLLATZ-COMPILED
+  imports IMP-ANALYSIS
+  imports MAP
+  syntax Stmt ::= "INIT" | "LOOP" | "FINISH"
+  syntax Id ::= "x" | "n"
+  rule <imp> <k> INIT => LOOP   </k> <mem> .Map => x |-> 0                 n |-> 782                        </mem> </imp>
+  rule <imp> <k> LOOP => FINISH </k> <mem>         x |-> V0                n |-> V1                         </mem> </imp> requires notBool (2 <=Int V1)                                         [tag(while)]
+  rule <imp> <k> LOOP           </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => V1 /Int 2)          </mem> </imp> requires (2 <=Int V1) andBool (V1 <=Int ((V1 /Int 2) *Int 2))         [tag(while)]
+  rule <imp> <k> LOOP           </k> <mem>         x |-> (V0 => V0 +Int 1) n |-> (V1 => (3 *Int V1) +Int 1) </mem> </imp> requires (2 <=Int V1) andBool notBool (V1 <=Int ((V1 /Int 2) *Int 2)) [tag(while)]
+endmodule

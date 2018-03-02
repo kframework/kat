@@ -1,0 +1,19 @@
+
+<kat-imp>
+ <s> #STUCK ~> #compile-result ( ( ( .Rules
+                                     // RULE 1
+                                   , < { int n , ( s , .Ids ) ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | .Map } --> { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> 0 n |-> 10 } > )
+                                     // RULE 2
+                                   , < { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 | false }            --> { . | s |-> V0 n |-> V1 } > )
+                                     // RULE 3
+                                   , < { while ( 0 <= n ) { n = n + -1 ; s = s + n ; } | s |-> V0 n |-> V1 | true }             --> { while ( true ) { n = n + -1 ; s = s + n ; } | s |-> ( V0 +Int ( V1 +Int -1 ) ) n |-> ( V1 +Int -1 ) } >
+                                   ) </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> while ( true ) { n = n + -1 ; s = s + n ; } </k>
+  <mem> s |-> V2 n |-> V3 </mem>
+ </imp>
+</kat-imp>

@@ -1,0 +1,12 @@
+
+<kat-imp>
+ <s> #STUCK ~> #bimc-result #true in 2 steps </s>
+ <kat>
+  <analysis> .Analysis </analysis>
+  <states> .States </states>
+ </kat>
+ <imp>
+  <k> x = 15 ; ~> ( x = x + -10 ; ) </k>
+  <mem> x |-> 0 </mem>
+ </imp>
+</kat-imp>
