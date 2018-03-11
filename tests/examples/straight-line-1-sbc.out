@@ -1,14 +1,21 @@
-
-<kat-imp>
- <s> #STUCK ~> #compile-result ( .Rules
-                               , < { int x , .Ids ; x = 0 ; x = x + 15 ; | .Map } --> { . | x |-> 15 } >
-                               ) </s>
- <kat>
-  <analysis> .Analysis </analysis>
-  <states> .States </states>
- </kat>
- <imp>
-  <k> . </k>
-  <mem> x |-> V0 </mem>
- </imp>
+Result ==K <kat-imp>
+  <s>
+    #STUCK ( ) ~> #compile-result .Rules , < { int x , .Ids ; x = 0 ; x = x + 15 ; | .Map } --> { . | x |-> 15 } >
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <imp>
+    <k>
+      .
+    </k>
+    <mem>
+      x |-> V0
+    </mem>
+  </imp>
 </kat-imp>
