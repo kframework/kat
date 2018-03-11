@@ -9,7 +9,7 @@ set -u      # Using undefined variables is an error. Exit immediately
 die() { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
 
 pretty_diff() {
-    git --no-pager diff --no-index --word-diff "$@"
+    git --no-pager diff --no-index "$@"
 }
 
 # Environment Setup
