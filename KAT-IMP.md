@@ -148,8 +148,8 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 ### Define `#transition` and `#normal`
 
 ```{.k .imp-kat}
-  rule <s> #transition => ^ ifIMP | ^ divzero                                    ... </s>
-  rule <s> #normal     => ^ whileIMP | ^ifeval | ^ lookup | ^ assignment | ^ div ... </s>
+  rule <s> #transition => ^ ifIMP | ^ divzero                                     ... </s>
+  rule <s> #normal     => ^ whileIMP | ^ ifeval | ^ lookup | ^ assignment | ^ div ... </s>
 ```
 
 ### Define `bool?`
