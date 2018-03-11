@@ -236,8 +236,10 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
 
 ```{.k .imp-kat}
-  rule <s> { B:Bool ~> KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>
-  rule <s> { B:Bool ~> KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL'
+  rule <s> { (B:Bool => .) ~> KCELL | _ } subsumes? [ { KCELL' | _ } ] ... </s>
+
+  rule <s> { KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>
+  rule <s> { KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL'
 
 //  rule <s> { while ( BEXP ) BODY ~> REST    | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST    | MEM } subsumes? [ STATE ] ... </s>
 //  rule <s> { if ( BEXP ) S1 else S2 ~> REST | MEM | BOOL } subsumes? [ STATE ] => { if ( BOOL ) S1 else S2 ~> REST | MEM } subsumes? [ STATE ] ... </s>
