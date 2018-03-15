@@ -42,7 +42,7 @@ $(defn_dir)/imp-kat.k: KAT-IMP.md
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to "$(tangler)" --metadata=code:.imp-kat $< > $@
 
-$(defn_dir)/imp.k: KAT-IMP.md
+$(defn_dir)/imp.k: imp.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to "$(tangler)" --metadata=code:.imp-lang $< > $@
@@ -68,7 +68,7 @@ build: $(defn_dir)/imp-analysis-kompiled/timestamp
 $(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 	@echo "== kompile: $@"
 	$(k_bin)/kompile --debug --main-module IMP-ANALYSIS --backend java \
-					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)
+					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) --transition 'lookup assignment'
 
 # Testing
 # -------
