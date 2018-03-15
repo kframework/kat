@@ -49,16 +49,15 @@ run_ksearch() {
 }
 
 run_test() {
-    imp_file="$1"      ; shift
-    expected_file="$1" ; shift
-    strategy="$1"      ; shift
-    [[ -f "$imp_file" ]] || die "File '$imp_file' does not exist ..."
+    local imp_file="$1"               ; shift
+    local output_expected_prefix="$1" ; shift
+    local strategy="$1"               ; shift
+    local output_file="$output_expected_prefix.out"
+    local expected_file="$output_expected_prefix.expected"
+    [[ -f "$imp_file"      ]] || die "File '$imp_file' does not exist ..."
     [[ -f "$expected_file" ]] || die "File '$expected_file' does not exist ..."
-    ( output_file="$(mktemp output.XXXXXX)"
-      trap "rm -rf $output_file" INT TERM EXIT
-      run_ksearch "$imp_file" "$strategy" > "$output_file"
-      pretty_diff "$expected_file" "$output_file"
-    )
+    run_ksearch "$imp_file" "$strategy" > "$output_file"
+    pretty_diff "$expected_file" "$output_file"
 }
 
 # Main

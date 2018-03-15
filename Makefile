@@ -89,5 +89,5 @@ test-bimc:
 
 test-sbc: $(example_files:=.testsbc)
 
-$(example_dir)/%.imp.testsbc: $(example_dir)/%.imp
-	$(TEST) $< tests/examples/$*-sbc.out 'compile'
+$(example_dir)/%.imp.testsbc:
+	$(TEST) $(example_dir)/$*.imp $(example_dir)/sbc/$* 'compile'
