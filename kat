@@ -33,6 +33,12 @@ run_krun() {
             "$run_file" "$@"
 }
 
+run_kdebug() {
+    local run_file=$1   ; shift
+    local strategy="$1" ; shift
+    run_krun "$run_file" "$strategy" --debugger "$@"
+}
+
 run_ksearch() {
     local run_file=$1   ; shift
     local strategy="$1" ; shift
@@ -66,17 +72,19 @@ case "$run_command" in
 
     # Running
     run)    run_krun    "$@" ;;
+    debug)  run_kdebug  "$@" ;;
     search) run_ksearch "$@" ;;
 
     # Testing
     test) run_test "$@" ;;
 
     *) echo "
-    usage: $0 [run|debug] <file> <strategy> <K args>*
+    usage: $0 [run|debug|search] <file> <strategy> <K args>*
 
        # Running
        # -------
        $0 run    <pgm> <strategy>   Run a single IMP program using given strategy
+       $0 debug  <pgm> <strategy>   Run a single IMP program using given strategy in the debugger
        $0 search <pgm> <strategy>   Search a single IMP program's executions using given strategy
 
        Note: <pgm> is a path to a file containing an IMP program.
