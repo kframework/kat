@@ -27,7 +27,7 @@ clean:
 
 # Tangle *.k files
 
-k_files:=imp-kat.k imp.k kat.k
+k_files:=kat-imp.k imp.k kat.k
 defn_files:=$(patsubst %, $(defn_dir)/%, $(k_files))
 
 defn: $(defn_files)
