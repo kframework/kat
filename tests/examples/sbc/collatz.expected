@@ -1,14 +1,70 @@
-BAD OUTPUT: Only generating rules for one side of inner if branch.
+BAD OUTPUT: Only generating one side of rule for if branch.
 Result ==K <kat-imp>
   <s>
-    #STUCK ( ) ~> #compile-result .Rules , < { int n , x , .Ids ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | .Map } --> { if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { } | n |-> 782
-    x |-> 0 } > , < { false ~> if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { } | n |-> V0
-    x |-> V1 } --> { . | n |-> V0
-    x |-> V1 } > , < { true ~> if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { } | n |-> V0
-    x |-> V1 } --> { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } ~> x = x + 1 ; ~> while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | n |-> V0
-    x |-> V1 } > , < { false ~> if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } ~> x = x + 1 ; ~> while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } | n |-> V2
-    x |-> V3 } --> { if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { } | n |-> 3 *Int V2 +Int 1
-    x |-> V3 +Int 1 } >
+    #STUCK ( ) ~> #compile-result .Rules , < <imp>
+      <k>
+        int n , x , .Ids ; n = 782 ; x = 0 ; while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }
+      </k>
+      <mem>
+        .Map
+      </mem>
+    </imp> --> <imp>
+      <k>
+        if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { }
+      </k>
+      <mem>
+        n |-> 782
+        x |-> 0
+      </mem>
+    </imp> > , < <imp>
+      <k>
+        false ~> if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { }
+      </k>
+      <mem>
+        n |-> V0
+        x |-> V1
+      </mem>
+    </imp> --> <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        n |-> V0
+        x |-> V1
+      </mem>
+    </imp> > , < <imp>
+      <k>
+        true ~> if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { }
+      </k>
+      <mem>
+        n |-> V0
+        x |-> V1
+      </mem>
+    </imp> --> <imp>
+      <k>
+        if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } ~> x = x + 1 ; ~> while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }
+      </k>
+      <mem>
+        n |-> V0
+        x |-> V1
+      </mem>
+    </imp> > , < <imp>
+      <k>
+        false ~> if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } ~> x = x + 1 ; ~> while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; }
+      </k>
+      <mem>
+        n |-> V2
+        x |-> V3
+      </mem>
+    </imp> --> <imp>
+      <k>
+        if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { }
+      </k>
+      <mem>
+        n |-> 3 *Int V2 +Int 1
+        x |-> V3 +Int 1
+      </mem>
+    </imp> >
   </s>
   <kat>
     <analysis>
@@ -18,13 +74,15 @@ Result ==K <kat-imp>
       .States
     </states>
   </kat>
-  <imp>
-    <k>
-      if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { }
-    </k>
-    <mem>
-      n |-> V4
-      x |-> V5
-    </mem>
-  </imp>
+  <harness>
+    <imp>
+      <k>
+        if ( 2 <= n ) { { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } } else { }
+      </k>
+      <mem>
+        n |-> V4
+        x |-> V5
+      </mem>
+    </imp>
+  </harness>
 </kat-imp>

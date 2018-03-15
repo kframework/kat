@@ -1,11 +1,53 @@
 Result ==K <kat-imp>
   <s>
-    #STUCK ( ) ~> #compile-result .Rules , < { int x , y , .Ids ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; } | .Map } --> { if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { } | x |-> 10
-    y |-> V0 } > , < { false ~> if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { } | x |-> V1
-    y |-> V2 } --> { . | x |-> V1
-    y |-> V2 } > , < { true ~> if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { } | x |-> V1
-    y |-> V2 } --> { if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { } | x |-> V1 -Int 1
-    y |-> V2 /Int V1 } >
+    #STUCK ( ) ~> #compile-result .Rules , < <imp>
+      <k>
+        int x , y , .Ids ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+      </k>
+      <mem>
+        .Map
+      </mem>
+    </imp> --> <imp>
+      <k>
+        if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { }
+      </k>
+      <mem>
+        x |-> 10
+        y |-> V0
+      </mem>
+    </imp> > , < <imp>
+      <k>
+        false ~> if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { }
+      </k>
+      <mem>
+        x |-> V1
+        y |-> V2
+      </mem>
+    </imp> --> <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> V1
+        y |-> V2
+      </mem>
+    </imp> > , < <imp>
+      <k>
+        true ~> if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { }
+      </k>
+      <mem>
+        x |-> V1
+        y |-> V2
+      </mem>
+    </imp> --> <imp>
+      <k>
+        if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { }
+      </k>
+      <mem>
+        x |-> V1 -Int 1
+        y |-> V2 /Int V1
+      </mem>
+    </imp> >
   </s>
   <kat>
     <analysis>
@@ -15,13 +57,15 @@ Result ==K <kat-imp>
       .States
     </states>
   </kat>
-  <imp>
-    <k>
-      if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { }
-    </k>
-    <mem>
-      x |-> V3
-      y |-> V4
-    </mem>
-  </imp>
+  <harness>
+    <imp>
+      <k>
+        if ( 0 < x ) { { y = y / x ; x = x - 1 ; } while ( 0 < x ) { y = y / x ; x = x - 1 ; } } else { }
+      </k>
+      <mem>
+        x |-> V3
+        y |-> V4
+      </mem>
+    </imp>
+  </harness>
 </kat-imp>
