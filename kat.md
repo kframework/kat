@@ -17,7 +17,7 @@ Strategy Language
 A simple imperative strategy language is supplied here.
 It has sequencing, choice, and looping (in addition to primitives related to controlling the execution state).
 
-```{.k .kat}
+```k
 module KAT
     imports STRATEGY
     imports DOMAINS
@@ -39,7 +39,7 @@ Strategy Predicates
 The strategy language has its own sort `Pred` for predicates, separate from the `Bool` usually used by programming languages.
 Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
-```{.k .kat}
+```k
     syntax PredAtom ::= "#true" | "#false"
     syntax Pred     ::= PredAtom | "#pred" | "(" Pred ")" [bracket]
                       | "not" Pred | Pred "or" Pred | Pred "and" Pred
@@ -60,7 +60,7 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 State predicates are evaluated over the current execution state.
 If you declare something a `StatePred`, this code will automatically load the current state for you (making the definition of them easier).
 
-```{.k .kat}
+```k
     syntax StatePred
     syntax Pred ::= StatePred | StatePred "[" State "]"
  // ---------------------------------------------------
@@ -70,7 +70,7 @@ If you declare something a `StatePred`, this code will automatically load the cu
 
 -   `#pred_` is useful for propagating the result of a predicate through another strategy.
 
-```{.k .kat}
+```k
     syntax Strategy ::= "#pred" Strategy
  // ------------------------------------
     rule <s> PA:PredAtom ~> #pred S => S ; PA ... </s>
@@ -80,7 +80,7 @@ Often you'll want a way to translate from the sort `Bool` in the programming lan
 
 -   `bool?` checks if the `k` cell has just the constant `true`/`false` in it and must be defined for each programming language.
 
-```{.k .kat}
+```k
     syntax StatePred ::= "bool?"
  // ----------------------------
 ```
@@ -90,7 +90,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
 
 -   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
 
-```{.k .kat}
+```k
     syntax Pred      ::= "try?" Strategy
     syntax Exception ::= "#try"
  // ---------------------------
@@ -105,7 +105,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
 
 -   `stack-empty?` is a predicate that checks whether the stack of states is empty or not.
 
-```{.k .kat}
+```k
     syntax Pred ::= "stack-empty?"
  // ------------------------------
     rule <s> stack-empty? => #true  ... </s> <states> .States        </states>
@@ -124,7 +124,7 @@ The strategy language is a simple imperative language with sequencing and choice
 -   `_*` executes the given strategy until it cannot be executed anymore ("greedy Kleene star").
 -   `_|_` tries executing the first strategy, and on failure executes the second.
 
-```{.k .kat}
+```k
     syntax Strategy ::= Pred
                       > "skip"
                       | "(" Strategy ")"          [bracket]
@@ -155,7 +155,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `dup` duplicates the top element of the state stack.
 -   `drop` removes the top element of the state stack (without placing it in the execution harness).
 
-```{.k .kat}
+```k
     syntax Strategy ::= "push" | "push" State
  // -----------------------------------------
     rule <s> push STATE => . ... </s> <states> STATES => STATE : STATES </states>
@@ -178,7 +178,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 
 -   `setAnalysis_` sets the `analysis` cell to the given argument.
 
-```{.k .kat}
+```k
     syntax Strategy ::= "setAnalysis" Analysis
  // ---------------------------------------
     rule <s> setAnalysis A => . ... </s> <analysis> _ => A </analysis>
@@ -189,7 +189,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `#normal` defines a normal transition in the programming language (not a step for analysis).
 -   `step` is `step-with_` instantiated to `#normal | #transition`.
 
-```{.k .kat}
+```k
     syntax priority step-with__KAT > _*_KAT
     syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
  // -----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 
 Things added to the sort `StateOp` will automatically load the current state for you, making it easier to define operations over the current state.
 
-```{.k .kat}
+```k
     syntax StateOp
     syntax Strategy ::= StateOp | StateOp "[" State "]"
  // ---------------------------------------------------
@@ -213,7 +213,7 @@ Strategy Macros
 -   `can?_` tries to execute the given strategy, but restores the state afterwards.
 -   `stuck?` checks if the current state can take a step.
 
-```{.k .kat}
+```k
     syntax Pred ::= "can?" Strategy
  // -------------------------------
     rule <s> can? S => push ; (try? S) ; #pred pop ... </s>
@@ -225,7 +225,7 @@ Strategy Macros
 
 -   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
 
-```{.k .kat}
+```k
     syntax priority if_then_else__KAT > _*_KAT
     syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
  // -------------------------------------------------------------
@@ -235,7 +235,7 @@ Strategy Macros
 -   `while__` allows looping behavior (controlled by sort `Pred`), and `while___` implements a bounded version.
 -   `_until_` will execute the given strategy until a predicate holds, and `_until__` implements a bounded version.
 
-```{.k .kat}
+```k
     syntax priority while___KAT while____KAT > _*_KAT
     syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
  // ---------------------------------------------------------------------
@@ -254,7 +254,7 @@ Strategy Macros
     Note that `krun === exec`.
 -   `eval` executes a given state to completion and checks `bool?`, and `eval_` implements a bounded version.
 
-```{.k .kat}
+```k
     syntax priority exec__KAT > _*_KAT
     syntax Strategy ::= "exec" | "exec" Int
  // ---------------------------------------
@@ -280,7 +280,7 @@ Bounded Invariant Model Checking
 
 In bounded invariant model checking, the analysis being performed is a trace of the execution states that we have seen.
 
-```{.k .kat}
+```k
 module KAT-BIMC
     imports KAT
 
@@ -292,7 +292,7 @@ module KAT-BIMC
 
 -   `#length_` calculates the length of a trace.
 
-```{.k .kat}
+```k
     syntax Strategy ::= "#length" Trace | "#length" Int Trace | "#length" Int
  // -------------------------------------------------------------------------
     rule <s> #length T         => #length 0 T          ... </s>
@@ -302,7 +302,7 @@ module KAT-BIMC
 
 -   `record` copies the current execution state to the end of the trace.
 
-```{.k .kat}
+```k
     syntax StateOp ::= "record"
  // ---------------------------
     rule <s> record [ STATE ] => . ... </s> <analysis> T => T ; STATE </analysis> requires STATE =/=K #current
@@ -313,7 +313,7 @@ After performing BIMC, we'll need a container for the results of the analysis.
 -   `#bimc-result_in_steps` holds the result of a bimc analysis.
     The final state reached in the analysis cell will be in the execution harness.
 
-```{.k .kat}
+```k
     syntax Exception ::= "#bimc-result" | "#bimc-result" PredAtom "in" Int "steps"
  // ------------------------------------------------------------------------------
     rule <s> #length N:Int ~> #bimc-result PA in -1 steps => #bimc-result PA in (N -Int 1) steps ... </s>
@@ -324,7 +324,7 @@ After performing BIMC, we'll need a container for the results of the analysis.
 -   `bimc?__` is a predicate that checks if an invariant holds for each step up to a search-depth bound.
 -   `bimc__` turns the predicate `bimc?` into a standalone analysis.
 
-```{.k .kat}
+```k
     syntax Pred     ::= "bimc?" Int Pred
     syntax Strategy ::= "bimc"  Int Pred
  // ------------------------------------
@@ -372,7 +372,7 @@ Anytime we reach a state which is subsumed by the left-hand-side of one of our g
 
 I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `Rule`.
 
-```{.k .kat}
+```k
 module KAT-SBC
     imports KAT
 
@@ -393,7 +393,7 @@ The interface of this analysis requires you define when to abstract and how to a
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 -   `next-states` must push any new states to analyze onto the top of the `states` stack.
 
-```{.k .kat}
+```k
     syntax StatePred ::= "cut-point?" | State "subsumes?"
  // -----------------------------------------------------
 
@@ -403,7 +403,7 @@ The interface of this analysis requires you define when to abstract and how to a
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
 
-```{.k .kat}
+```k
     syntax Pred ::= "subsumed?" | "#subsumed?" Rules
  // ------------------------------------------------
     rule <s> subsumed? => #subsumed? RS ... </s> <analysis> RS </analysis>
@@ -418,7 +418,7 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 -   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
 -   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.
 
-```{.k .kat}
+```k
     syntax StateOp ::= "begin-rule" | "end-rule"
  // --------------------------------------------
     rule <s> begin-rule [ STATE ] => . ... </s> <analysis> RS => RS , < STATE >                </analysis> requires STATE =/=K #current
@@ -427,7 +427,7 @@ At cut-points, we'll finish the rule we've been building, abstract the state, st
 
 -   `#compile-result_` holds the result of a sbc analysis.
 
-```{.k .kat}
+```k
     syntax Exception ::= "#compile-result" | "#compile-result" Rules
  // ----------------------------------------------------------------
     rule <s> #compile-result => #compile-result RS ... </s> <analysis> RS => .Analysis </analysis>
@@ -437,7 +437,7 @@ Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
 
-```{.k .kat}
+```k
     syntax Strategy ::= "compile-step"
  // ----------------------------------
     rule <s> ( compile-step
@@ -457,7 +457,7 @@ Finally, semantics based compilation is provided as a macro.
 
 -   `compile` will initialize the stack to empty and the analysis to `.Rules`, then compile the current program to completion.
 
-```{.k .kat}
+```k
     syntax Strategy ::= "compile"
  // -----------------------------
     rule <s> ( compile

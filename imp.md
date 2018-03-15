@@ -10,7 +10,7 @@ Configuration
 The IMP language has a `k` cell for execution and a `mem` cell for storage.
 In IMP, base values are of sorts `Int` and `Bool`.
 
-```{.k .imp-lang}
+```k
 module IMP
     imports STRATEGY
     imports DOMAINS
@@ -28,7 +28,7 @@ Expressions
 
 IMP has `AExp` for arithmetic expressions (over integers).
 
-```{.k .imp-lang}
+```k
     syntax KItem ::= "div-zero-error"
 
     syntax AExp  ::= Int | Id
@@ -47,7 +47,7 @@ IMP has `AExp` for arithmetic expressions (over integers).
 
 IMP has `BExp` for boolean expressions.
 
-```{.k .imp-lang}
+```k
     syntax BExp  ::= Bool
                    | AExp "<=" AExp [seqstrict]
                    | AExp "<" AExp  [seqstrict]
@@ -66,7 +66,7 @@ IMP has `BExp` for boolean expressions.
 
 IMP has `{_}` for creating blocks of statements.
 
-```{.k .imp-lang}
+```k
     syntax Block ::= "{" "}" | "{" Stmt "}"
  // ---------------------------------------
     rule {}  => .
@@ -75,7 +75,7 @@ IMP has `{_}` for creating blocks of statements.
 
 IMP has `int_;` for declaring variables and `_=_;` for assignment.
 
-```{.k .imp-lang}
+```k
     syntax Ids ::= List{Id,","}
     syntax Stmt ::= Block | "int" Ids ";"
  // -------------------------------------
@@ -90,7 +90,7 @@ IMP has `int_;` for declaring variables and `_=_;` for assignment.
 
 IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequencing.
 
-```{.k .imp-lang}
+```k
     syntax Stmt ::= "if" "(" BExp ")" Block "else" Block
  // ----------------------------------------------------
     rule <k> true  ~> if (BE) B else _ => B ... </k> [tag(ifeval)]

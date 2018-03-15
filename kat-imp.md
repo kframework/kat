@@ -6,7 +6,7 @@ Instantiation of the progamming language to KAT should happen with the language 
 
 The module `IMP-KAT` includes all the supported analysis for the IMP language.
 
-```{.k .imp-kat}
+```k
 requires "imp.k"
 requires "kat.k"
 
@@ -27,7 +27,7 @@ module IMP-KAT
 
 Here the definition of a `State` for IMP is given, as well as the definitions of how to `push` and `pop` states.
 
-```{.k .imp-kat}
+```k
     syntax State ::= "{" K "|" Map "}"
  // ----------------------------------
     rule <s> push                => push { KCELL | MEM } ... </s> <imp> <k> KCELL      </k> <mem> MEM      </mem> </imp>
@@ -36,14 +36,14 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 
 ### Define `#transition` and `#normal`
 
-```{.k .imp-kat}
+```k
     rule <s> #transition => ^ ifIMP | ^ divzero                                     ... </s>
     rule <s> #normal     => ^ whileIMP | ^ ifeval | ^ lookup | ^ assignment | ^ div ... </s>
 ```
 
 ### Define `bool?`
 
-```{.k .imp-kat}
+```k
     rule <s> bool? [ { true  | _ } ] => #true  ... </s>
     rule <s> bool? [ { false | _ } ] => #false ... </s>
 endmodule
@@ -56,7 +56,7 @@ Here we provide a way to make queries about the current IMP memory using IMP's `
 
 -   `bexp?` is a predicate that allows us to make queries about the current execution memory.
 
-```{.k .imp-kat}
+```k
 module IMP-BIMC
     imports IMP-KAT
     imports KAT-BIMC
@@ -75,7 +75,7 @@ endmodule
 SBC
 ---
 
-```{.k .imp-kat}
+```k
 module IMP-SBC
     imports IMP-KAT
     imports KAT-SBC
@@ -102,7 +102,7 @@ module IMP-SBC
 
 IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
 
-```{.k .imp-kat}
+```k
     rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ whileIMP) ... </s> requires STATE =/=K #current
 ```
 
@@ -110,7 +110,7 @@ IMP will have a cut-point at the beginning of every `while` loop, allowing every
 
 IMP will abstract by turning all the values in memory into fresh symbolic values.
 
-```{.k .imp-kat}
+```k
     syntax Strategy ::= "#abstract" Set State | "#abstractKey" Id Set State
  // -----------------------------------------------------------------------
     rule <s> abstract [ { KCELL | MEM } ] => #abstract keys(MEM) { KCELL | MEM } ... </s>
@@ -124,7 +124,7 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 
 Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
 
-```{.k .imp-kat}
+```k
     rule <s> { (B:Bool => .) ~> KCELL | _ } subsumes? [ { KCELL' | _ } ] ... </s>
 
     rule <s> { KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>

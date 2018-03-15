@@ -35,17 +35,17 @@ defn: $(defn_files)
 $(defn_dir)/kat.k: kat.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.kat $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
 
 $(defn_dir)/imp-kat.k: kat-imp.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.imp-kat $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
 
 $(defn_dir)/imp.k: imp.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.imp-lang $< > $@
+	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
 
 # Dependencies
 
