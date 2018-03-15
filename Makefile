@@ -32,17 +32,7 @@ defn_files:=$(patsubst %, $(defn_dir)/%, $(k_files))
 
 defn: $(defn_files)
 
-$(defn_dir)/kat.k: kat.md
-	@echo >&2 "==  tangle: $@"
-	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
-
-$(defn_dir)/imp-kat.k: kat-imp.md
-	@echo >&2 "==  tangle: $@"
-	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
-
-$(defn_dir)/imp.k: imp.md
+$(defn_dir)/%.k: %.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
