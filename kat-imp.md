@@ -20,7 +20,7 @@ module IMP-KAT
     imports IMP
     imports KAT
 
-    configuration <kat-imp> initSCell(Init) initKatCell initImpCell(Init) </kat-imp>
+    configuration <kat-imp> initSCell(Init) initKatCell <harness> initImpCell(Init) </harness> </kat-imp>
 ```
 
 ### Define `push` and `pop`
@@ -28,10 +28,10 @@ module IMP-KAT
 Here the definition of a `State` for IMP is given, as well as the definitions of how to `push` and `pop` states.
 
 ```k
-    syntax State ::= "{" K "|" Map "}"
- // ----------------------------------
-    rule <s> push                => push { KCELL | MEM } ... </s> <imp> <k> KCELL      </k> <mem> MEM      </mem> </imp>
-    rule <s> pop { KCELL | MEM } => .                    ... </s> <imp> <k> _ => KCELL </k> <mem> _ => MEM </mem> </imp>
+    syntax State ::= ImpCell
+ // ------------------------
+    rule <s> push         => push IMPCELL ... </s> <harness> IMPCELL </harness>
+    rule <s> pop  IMPCELL => .            ... </s> <harness> _ => IMPCELL </harness>
 ```
 
 ### Define `#transition` and `#normal`
@@ -44,8 +44,8 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 ### Define `bool?`
 
 ```k
-    rule <s> bool? [ { true  | _ } ] => #true  ... </s>
-    rule <s> bool? [ { false | _ } ] => #false ... </s>
+    rule <s> bool? [ <imp> <k> true  ... </k> ... </imp> ] => #true  ... </s>
+    rule <s> bool? [ <imp> <k> false ... </k> ... </imp> ] => #false ... </s>
 endmodule
 ```
 
@@ -63,12 +63,12 @@ module IMP-BIMC
 
     syntax StatePred ::= "bexp?" BExp
  // ---------------------------------
-    rule <s> bexp? B [ { KCELL | MEM } ] => push { KCELL | MEM } ; pop { B | MEM } ; eval ; #pred pop ... </s>
+    rule <s> bexp? B [ IMPCELL ] => push IMPCELL ; pop IMPCELL ; eval ; #pred pop ... </s>
 
     syntax StatePred ::= "div-zero-error?"
  // --------------------------------------
-    rule <s> div-zero-error? [ { div-zero-error | _ } ] => #true  ... </s>
-    rule <s> div-zero-error? [ { KCELL          | _ } ] => #false ... </s> requires KCELL =/=K div-zero-error
+    rule <s> div-zero-error? [ <imp> <k> div-zero-error ... </k> ... </imp> ] => #true  ... </s>
+    rule <s> div-zero-error? [ <imp> <k> NEXT:K         ... </k> ... </imp> ] => #false ... </s> requires NEXT =/=K div-zero-error
 endmodule
 ```
 
@@ -82,20 +82,20 @@ module IMP-SBC
 
     syntax State ::= "{" K "|" Map "|" Bool "}"
 
-    rule <s> next-states [ { . | _ } ] => skip ... </s> [strucural]
+    rule <s> next-states [ <imp> <k> . </k> ... </imp> ] => skip ... </s> [strucural]
   //  rule <s> next-states [ { while ( BEXP:BExp ) BODY ~> REST | MEM } ]
   //        => push { while ( BEXP ) BODY ~> REST | MEM | true  }
   //         ; push { while ( BEXP ) BODY ~> REST | MEM | false }
   //         ...
   //       </s>
-    rule <s> next-states [ { if ( BEXP:BExp ) S1 else S2 ~> REST | MEM } ]
-          => push { true  ~> if ( BEXP ) S1 else S2 ~> REST | MEM }
-           ; push { false ~> if ( BEXP ) S1 else S2 ~> REST | MEM }
+    rule <s> next-states [ <imp> <k> if ( BEXP:BExp ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp> ]
+          => push <imp> <k> true  ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
+           ; push <imp> <k> false ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
            ...
          </s>
 
   //  rule <s> pop { while ( BEXP ) BODY ~> REST     | MEM | BOOL } => pop { while ( BOOL ) BODY ~> REST    | MEM } ... </s>
-    rule <s> pop { if ( BEXP ) S1 else S2  ~> REST | MEM | BOOL } => pop { BOOL ~> if ( BEXP ) S1 else S2 ~> REST | MEM } ... </s>
+  //  rule <s> pop <imp> <k> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> => pop <imp> <k> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp> ... </s>
 ```
 
 ### Define `cut-point?`
@@ -113,11 +113,11 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 ```k
     syntax Strategy ::= "#abstract" Set State | "#abstractKey" Id Set State
  // -----------------------------------------------------------------------
-    rule <s> abstract [ { KCELL | MEM } ] => #abstract keys(MEM) { KCELL | MEM } ... </s>
-    rule <s> #abstract .Set STATE         => pop STATE                           ... </s>
+    rule <s> abstract [ <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ] => #abstract keys(MEM) <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ... </s>
+    rule <s> #abstract .Set STATE                                      => pop STATE                                                        ... </s>
 
-    rule <s> #abstract (SetItem(X) XS) STATE   => #abstractKey X XS STATE                   ... </s>
-    rule <s> #abstractKey X XS { KCELL | MEM } => #abstract XS { KCELL | MEM[X <- ?V:Int] } ... </s>
+    rule <s> #abstract (SetItem(X) XS) STATE                                => #abstractKey X XS STATE                                                ... </s>
+    rule <s> #abstractKey X XS <imp> <k> KCELL </k> <mem> MEM </mem> </imp> => #abstract XS <imp> <k> KCELL </k> <mem> MEM[X <- ?V:Int] </mem> </imp> ... </s>
 ```
 
 ### Define `_subsumes?_`
@@ -125,10 +125,10 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
 
 ```k
-    rule <s> { (B:Bool => .) ~> KCELL | _ } subsumes? [ { KCELL' | _ } ] ... </s>
+    rule <s> <imp> <k> (B:Bool => .) ~> KCELL </k> ... </imp> subsumes? [ _ ] ... </s>
 
-    rule <s> { KCELL | _ } subsumes? [ { KCELL  | _ } ] => #true  ... </s>
-    rule <s> { KCELL | _ } subsumes? [ { KCELL' | _ } ] => #false ... </s> requires KCELL =/=K KCELL'
+    rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? [ <imp> <k> KCELL  </k> ... </imp> ] => #true  ... </s>
+    rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? [ <imp> <k> KCELL' </k> ... </imp> ] => #false ... </s> requires KCELL =/=K KCELL'
 
   //  rule <s> { while ( BEXP ) BODY ~> REST    | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST    | MEM } subsumes? [ STATE ] ... </s>
   //  rule <s> { if ( BEXP ) S1 else S2 ~> REST | MEM | BOOL } subsumes? [ STATE ] => { if ( BOOL ) S1 else S2 ~> REST | MEM } subsumes? [ STATE ] ... </s>
