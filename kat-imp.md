@@ -63,7 +63,13 @@ module IMP-BIMC
 
     syntax StatePred ::= "bexp?" BExp
  // ---------------------------------
-    rule <s> bexp? B [ IMPCELL ] => push IMPCELL ; pop IMPCELL ; eval ; #pred pop ... </s>
+    rule <s> bexp? B [ <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ]
+          => push <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
+           ; pop  <imp> <k> B     </k> <mem> MEM </mem> </imp>
+           ; eval
+           ; #pred pop
+         ...
+         </s>
 
     syntax StatePred ::= "div-zero-error?"
  // --------------------------------------
