@@ -65,9 +65,9 @@ module IMP-BIMC
  // ---------------------------------
     rule <s> bexp? B [ <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ]
           => push <imp> <k> KCELL </k> <mem> MEM </mem> </imp>
-           ; pop  <imp> <k> B     </k> <mem> MEM </mem> </imp>
-           ; eval
-           ; #pred pop
+          ~> pop  <imp> <k> B     </k> <mem> MEM </mem> </imp>
+          ~> eval
+          ~> #pred pop
          ...
          </s>
 
@@ -90,7 +90,7 @@ module IMP-SBC
 
     rule <s> next-states [ <imp> <k> if ( BEXP:BExp ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp> ]
           => push <imp> <k> true  ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
-           ; push <imp> <k> false ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
+          ~> push <imp> <k> false ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
            ...
          </s>
 ```
@@ -100,7 +100,7 @@ module IMP-SBC
 IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
 
 ```k
-    rule <s> cut-point? [ STATE ] => pop STATE ; can? (^ whileIMP) ... </s> requires STATE =/=K #current
+    rule <s> cut-point? [ STATE ] => pop STATE ~> can? (^ whileIMP) ... </s> requires STATE =/=K #current
 ```
 
 ### Define `abstract`

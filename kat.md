@@ -44,17 +44,17 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
     syntax Pred     ::= PredAtom | "#pred" | "(" Pred ")" [bracket]
                       | "not" Pred | Pred "or" Pred | Pred "and" Pred
  // -----------------------------------------------------------------
-    rule <s> not P               => P ; not #pred ... </s>
-    rule <s> #false ~> not #pred => #true         ... </s>
-    rule <s> #true  ~> not #pred => #false        ... </s>
+    rule <s> not P               => P ~> not #pred ... </s>
+    rule <s> #false ~> not #pred => #true          ... </s>
+    rule <s> #true  ~> not #pred => #false         ... </s>
 
-    rule <s> P or Q               => P ; #pred or Q ... </s>
-    rule <s> #true  ~> #pred or _ => #true          ... </s>
-    rule <s> #false ~> #pred or Q => Q              ... </s>
+    rule <s> P or Q               => P ~> #pred or Q ... </s>
+    rule <s> #true  ~> #pred or _ => #true           ... </s>
+    rule <s> #false ~> #pred or Q => Q               ... </s>
 
-    rule <s> P and Q               => P ; #pred and Q ... </s>
-    rule <s> #true  ~> #pred and Q => Q               ... </s>
-    rule <s> #false ~> #pred and _ => #false          ... </s>
+    rule <s> P and Q               => P ~> #pred and Q ... </s>
+    rule <s> #true  ~> #pred and Q => Q                ... </s>
+    rule <s> #false ~> #pred and _ => #false           ... </s>
 ```
 
 State predicates are evaluated over the current execution state.
@@ -64,8 +64,8 @@ If you declare something a `StatePred`, this code will automatically load the cu
     syntax StatePred
     syntax Pred ::= StatePred | StatePred "[" State "]"
  // ---------------------------------------------------
-    rule <s> SP:StatePred              => push ; SP [ #current ] ... </s>
-    rule <s> SP:StatePred [ #current ] => SP [ STATE ]           ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> SP:StatePred              => push ~> SP [ #current ] ... </s>
+    rule <s> SP:StatePred [ #current ] => SP [ STATE ]            ... </s> <states> STATE : STATES => STATES </states>
 ```
 
 -   `#pred_` is useful for propagating the result of a predicate through another strategy.
@@ -73,7 +73,7 @@ If you declare something a `StatePred`, this code will automatically load the cu
 ```k
     syntax Strategy ::= "#pred" Strategy
  // ------------------------------------
-    rule <s> PA:PredAtom ~> #pred S => S ; PA ... </s>
+    rule <s> PA:PredAtom ~> #pred S => S ~> PA ... </s>
 ```
 
 Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
@@ -94,11 +94,11 @@ Here, a wrapper around this functionality is provided which will try to execute 
     syntax Pred      ::= "try?" Strategy
     syntax Exception ::= "#try"
  // ---------------------------
-    rule <s> try? S => push ; S ~> #try ... </s>
-    rule <s> #try   => drop ; #true     ... </s>
+    rule <s> try? S => push ~> S ~> #try ... </s>
+    rule <s> #try   => drop ~> #true     ... </s>
 
-    rule <s> #STUCK() ~> (S:Strategy => .)    ... </s>
-    rule <s> #STUCK() ~> #try => pop ; #false ... </s>
+    rule <s> #STUCK() ~> (S:Strategy => .)     ... </s>
+    rule <s> #STUCK() ~> #try => pop ~> #false ... </s>
 
     rule <s> SA:StrategyApplied => . ... </s>
 ```
@@ -139,8 +139,8 @@ The strategy language is a simple imperative language with sequencing and choice
     rule <s> #true  ~> ? S : _ => S ... </s>
     rule <s> #false ~> ? _ : S => S ... </s>
 
-    rule <s> S*     => (try? S) ; ? S* : skip ... </s>
-    rule <s> S | S' => (try? S) ; ? skip : S' ... </s>
+    rule <s> S*     => (try? S) ~> ? S* : skip ... </s>
+    rule <s> S | S' => (try? S) ~> ? skip : S' ... </s>
 ```
 
 Strategy Primitives
@@ -193,8 +193,8 @@ Strategies can manipulate the `state` cell (where program execution happens) and
     syntax priority step-with__KAT > _*_KAT
     syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
  // -----------------------------------------------------------------------------
-    rule <s> step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)* ... </s>
-    rule <s> step        => step-with (#normal | #transition)                 ... </s>
+    rule <s> step-with S => (^ regular | ^ heat)* ~> S ~> (^ regular | ^ cool)* ... </s>
+    rule <s> step        => step-with (#normal | #transition)                   ... </s>
 ```
 
 Things added to the sort `StateOp` will automatically load the current state for you, making it easier to define operations over the current state.
@@ -203,8 +203,8 @@ Things added to the sort `StateOp` will automatically load the current state for
     syntax StateOp
     syntax Strategy ::= StateOp | StateOp "[" State "]"
  // ---------------------------------------------------
-    rule <s> SO:StateOp              => push ; SO [ #current ] ... </s>
-    rule <s> SO:StateOp [ #current ] => SO [ STATE ]           ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> SO:StateOp              => push ~> SO [ #current ] ... </s>
+    rule <s> SO:StateOp [ #current ] => SO [ STATE ]            ... </s> <states> STATE : STATES => STATES </states>
 ```
 
 Strategy Macros
@@ -216,7 +216,7 @@ Strategy Macros
 ```k
     syntax Pred ::= "can?" Strategy
  // -------------------------------
-    rule <s> can? S => push ; (try? S) ; #pred pop ... </s>
+    rule <s> can? S => push ~> (try? S) ~> #pred pop ... </s>
 
     syntax Pred ::= "stuck?"
  // ------------------------
@@ -229,7 +229,7 @@ Strategy Macros
     syntax priority if_then_else__KAT > _*_KAT
     syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
  // -------------------------------------------------------------
-    rule <s> if P then S1 else S2 => P ; ? S1 : S2 ... </s>
+    rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
 ```
 
 -   `while__` allows looping behavior (controlled by sort `Pred`), and `while___` implements a bounded version.
@@ -239,9 +239,9 @@ Strategy Macros
     syntax priority while___KAT while____KAT > _*_KAT
     syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
  // ---------------------------------------------------------------------
-    rule <s> while   P S => P ; ? S ; while P S : skip            ... </s>
-    rule <s> while 0 P S => .                                     ... </s>
-    rule <s> while N P S => P ; ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0
+    rule <s> while   P S => P ~> ? S ; while P S : skip            ... </s>
+    rule <s> while 0 P S => .                                      ... </s>
+    rule <s> while N P S => P ~> ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0
 
     syntax priority _until__KAT _until___KAT > _*_KAT
     syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
@@ -264,8 +264,8 @@ Strategy Macros
     syntax priority eval__KAT > _*_KAT
     syntax StatePred ::= "eval" | "eval" Int
  // ----------------------------------------
-    rule <s> eval   [ STATE ] => pop STATE ; exec   ; bool? ... </s> requires STATE =/=K #current
-    rule <s> eval N [ STATE ] => pop STATE ; exec N ; bool? ... </s> requires STATE =/=K #current
+    rule <s> eval   [ STATE ] => pop STATE ~> exec   ~> bool? ... </s> requires STATE =/=K #current
+    rule <s> eval N [ STATE ] => pop STATE ~> exec N ~> bool? ... </s> requires STATE =/=K #current
 endmodule
 ```
 
@@ -317,7 +317,7 @@ After performing BIMC, we'll need a container for the results of the analysis.
     syntax Exception ::= "#bimc-result" | "#bimc-result" PredAtom "in" Int "steps"
  // ------------------------------------------------------------------------------
     rule <s> #length N:Int ~> #bimc-result PA in -1 steps => #bimc-result PA in (N -Int 1) steps ... </s>
-    rule <s> PA:PredAtom ~> #bimc-result => pop STATE ; #length T ; STATE ~> #bimc-result PA in -1 steps ... </s>
+    rule <s> PA:PredAtom ~> #bimc-result => pop STATE ~> #length T ; STATE ~> #bimc-result PA in -1 steps ... </s>
          <analysis> T ; STATE => .Analysis </analysis>
 ```
 
@@ -331,11 +331,11 @@ After performing BIMC, we'll need a container for the results of the analysis.
     rule <s> bimc N P => bimc? N P ~> #bimc-result ... </s>
     rule <s> ( bimc? N P
             => setAnalysis .Trace
-             ; stack .States
-             ; record
-             ; (step ; record) until N ((not P) or stuck?)
-             ; P
-             ; #pred (drop until stack-empty?)
+            ~> stack .States
+            ~> record
+            ~> (step ; record) until N ((not P) or stuck?)
+            ~> P
+            ~> #pred (drop until stack-empty?)
              )
              ...
          </s>
@@ -462,9 +462,9 @@ Finally, semantics based compilation is provided as a macro.
  // -----------------------------
     rule <s> ( compile
             => setAnalysis .Rules
-             ; stack .States
-             ; push
-             ; compile-step until stack-empty?
+            ~> stack .States
+            ~> push
+            ~> compile-step until stack-empty?
             ~> #compile-result
              )
              ...
