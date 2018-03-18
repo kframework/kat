@@ -111,13 +111,12 @@ IMP will have a cut-point at the beginning of every `while` loop, allowing every
 IMP will abstract by turning all the values in memory into fresh symbolic values.
 
 ```k
-    syntax Strategy ::= "#abstract" Set State | "#abstractKey" Id Set State
- // -----------------------------------------------------------------------
+    syntax Strategy ::= "#abstract" Set State
+ // -----------------------------------------
     rule <s> abstract [ <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ] => #abstract keys(MEM) <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ... </s>
     rule <s> #abstract .Set STATE                                      => pop STATE                                                        ... </s>
 
-    rule <s> #abstract (SetItem(X) XS) STATE                                => #abstractKey X XS STATE                                                ... </s>
-    rule <s> #abstractKey X XS <imp> <k> KCELL </k> <mem> MEM </mem> </imp> => #abstract XS <imp> <k> KCELL </k> <mem> MEM[X <- ?V:Int] </mem> </imp> ... </s>
+    rule <s> #abstract ((SetItem(X) => .Set) XS) <imp> <mem> MEM => MEM[X <- ?V:Int] </mem> ... </imp> ... </s>
 ```
 
 ### Define `_subsumes?_`
