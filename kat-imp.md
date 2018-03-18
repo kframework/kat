@@ -80,22 +80,13 @@ module IMP-SBC
     imports IMP-KAT
     imports KAT-SBC
 
-    syntax State ::= "{" K "|" Map "|" Bool "}"
-
     rule <s> next-states [ <imp> <k> . </k> ... </imp> ] => skip ... </s> [strucural]
-  //  rule <s> next-states [ { while ( BEXP:BExp ) BODY ~> REST | MEM } ]
-  //        => push { while ( BEXP ) BODY ~> REST | MEM | true  }
-  //         ; push { while ( BEXP ) BODY ~> REST | MEM | false }
-  //         ...
-  //       </s>
+
     rule <s> next-states [ <imp> <k> if ( BEXP:BExp ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp> ]
           => push <imp> <k> true  ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
            ; push <imp> <k> false ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
            ...
          </s>
-
-  //  rule <s> pop { while ( BEXP ) BODY ~> REST     | MEM | BOOL } => pop { while ( BOOL ) BODY ~> REST    | MEM } ... </s>
-  //  rule <s> pop <imp> <k> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> => pop <imp> <k> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp> ... </s>
 ```
 
 ### Define `cut-point?`
@@ -128,8 +119,5 @@ Because the memory is fully abstract every time subsumption is checked, it's eno
 
     rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? [ <imp> <k> KCELL  </k> ... </imp> ] => #true  ... </s>
     rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? [ <imp> <k> KCELL' </k> ... </imp> ] => #false ... </s> requires KCELL =/=K KCELL'
-
-  //  rule <s> { while ( BEXP ) BODY ~> REST    | MEM | BOOL } subsumes? [ STATE ] => { while ( BOOL ) BODY ~> REST    | MEM } subsumes? [ STATE ] ... </s>
-  //  rule <s> { if ( BEXP ) S1 else S2 ~> REST | MEM | BOOL } subsumes? [ STATE ] => { if ( BOOL ) S1 else S2 ~> REST | MEM } subsumes? [ STATE ] ... </s>
 endmodule
 ```
