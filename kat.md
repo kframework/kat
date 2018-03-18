@@ -258,7 +258,7 @@ Strategy Macros
     syntax priority exec__KAT > _*_KAT
     syntax Strategy ::= "exec" | "exec" Int
  // ---------------------------------------
-    rule <s> exec         => step until   stuck? ... </s>
+    rule <s> exec         => step *              ... </s>
     rule <s> exec (N:Int) => step until N stuck? ... </s>
 
     syntax priority eval__KAT > _*_KAT
