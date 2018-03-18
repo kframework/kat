@@ -331,7 +331,6 @@ After performing BIMC, we'll need a container for the results of the analysis.
     rule <s> bimc N P => bimc? N P ~> #bimc-result ... </s>
     rule <s> ( bimc? N P
             => setAnalysis .Trace
-            ~> stack .States
             ~> record
             ~> (step ; record) until N ((not P) or stuck?)
             ~> P
