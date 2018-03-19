@@ -41,8 +41,8 @@ IMP has `AExp` for arithmetic expressions (over integers).
     rule I1 + I2 => I1 +Int I2
     rule I1 - I2 => I1 -Int I2
     rule I1 * I2 => I1 *Int I2
-    rule <k>  I / 0 ~> _ => div-zero-error </k>                      [tag(divzero)]
-    rule <k> I1 / I2     => I1 /Int I2 ... </k> requires I2 =/=Int 0 [tag(div)]
+    rule <k>  I / 0 ~> _ => div-zero-error </k>                      [divzero]
+    rule <k> I1 / I2     => I1 /Int I2 ... </k> requires I2 =/=Int 0 [div]
 ```
 
 IMP has `BExp` for boolean expressions.
@@ -84,8 +84,8 @@ IMP has `int_;` for declaring variables and `_=_;` for assignment.
 
     syntax Stmt ::= Id "=" AExp ";" [strict(2)]
  // -------------------------------------------
-    rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [tag(lookup)]
-    rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [tag(assignment)]
+    rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [lookup]
+    rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [assignment]
 ```
 
 IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequencing.
@@ -93,13 +93,13 @@ IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequenci
 ```k
     syntax Stmt ::= "if" "(" BExp ")" Block "else" Block
  // ----------------------------------------------------
-    rule <k> true  ~> if (BE) B else _ => B ... </k> [tag(ifeval)]
-    rule <k> false ~> if (BE) _ else B => B ... </k> [tag(ifeval)]
-    rule <k> if (BE) B else B' => BE ~> if (BE) B else B' ... </k> [tag(ifIMP)]
+    rule <k> true  ~> if (BE) B else _ => B ... </k> [ifeval]
+    rule <k> false ~> if (BE) _ else B => B ... </k> [ifeval]
+    rule <k> if (BE) B else B' => BE ~> if (BE) B else B' ... </k> [ifIMP]
 
     syntax Stmt ::= "while" "(" BExp ")" Block
  // ------------------------------------------
-    rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [tag(whileIMP)]
+    rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [whileIMP]
 
     syntax Stmt ::= Stmt Stmt [left]
  // --------------------------------
