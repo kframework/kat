@@ -87,9 +87,9 @@ $(example_dir)/straight-line-1.imp.testbimc:
 	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-2      'step-with skip ; step ; bimc 2 (bexp? x <= 7)'
 
 $(example_dir)/straight-line-2.imp.testbimc:
-	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-1      'step-with skip ; bimc 2 (bexp? x <= 7)'
-	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-2      'step-with skip ; bimc 3 (bexp? x <= 7)'
-	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-3      'step-with skip ; bimc 500 (bexp? x <= 7)'
+	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-1      'step-with skip ; step ; bimc 1 (bexp? x <= 7)'
+	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-2      'step-with skip ; step ; bimc 2 (bexp? x <= 7)'
+	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-3      'step-with skip ; step ; bimc 500 (bexp? x <= 7)'
 
 $(example_dir)/sum.imp.testbimc:
 	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-1                  'step-with skip ; bimc 500 (bexp? s <= 32)'
