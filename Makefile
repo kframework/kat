@@ -109,11 +109,11 @@ $(example_dir)/collatz-all.imp.testbimc:
 	$(TEST) $(example_dir)/collatz-all.imp          $(example_dir)/bimc/collatz-all-1          'step-with skip ; step ; step ; step ; bimc 5000 (bexp? n <= 1000)'
 
 $(example_dir)/krazy-loop-correct.imp.testbimc:
-	$(TEST) $(example_dir)/krazy-loop-correct.imp   $(example_dir)/bimc/krazy-loop-correct-1   'bimc 5000 (not div-zero-error?)'
+	$(TEST) $(example_dir)/krazy-loop-correct.imp   $(example_dir)/bimc/krazy-loop-correct-1   'step-with skip ; step ; step ; step ; step ; step ; step ; bimc 5000 (not div-zero-error?)'
 
 $(example_dir)/krazy-loop-incorrect.imp.testbimc:
-	$(TEST) $(example_dir)/krazy-loop-incorrect.imp $(example_dir)/bimc/krazy-loop-incorrect-1 'bimc 5000 (not div-zero-error?)'
-	$(TEST) $(example_dir)/krazy-loop-incorrect.imp $(example_dir)/bimc/krazy-loop-incorrect-2 'bimc 1384 (not div-zero-error?)'
+	$(TEST) $(example_dir)/krazy-loop-incorrect.imp $(example_dir)/bimc/krazy-loop-incorrect-1 'step-with skip ; step ; step ; step ; step ; step ; step ; bimc 5000 (not div-zero-error?)'
+	$(TEST) $(example_dir)/krazy-loop-incorrect.imp $(example_dir)/bimc/krazy-loop-incorrect-2 'step-with skip ; step ; step ; step ; step ; step ; step ; bimc 3114 (not div-zero-error?)'
 
 test-sbc: $(example_files:=.testsbc)
 
