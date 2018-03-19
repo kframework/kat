@@ -121,7 +121,7 @@ The strategy language is a simple imperative language with sequencing and choice
 -   `{_}` and `(_)` are syntactically used to make blocks in the strategy language.
 -   `_;_` is used to sequentially compose strategies.
 -   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to determine what to execute next.
--   `_*` executes the given strategy until it cannot be executed anymore ("greedy Kleene star").
+-   `__` and `_{_,_}` allow specifying repetition patterns over strategies.
 -   `_|_` tries executing the first strategy, and on failure executes the second.
 
 ```k
@@ -129,7 +129,8 @@ The strategy language is a simple imperative language with sequencing and choice
                       > "skip"
                       | "(" Strategy ")"          [bracket]
                       | "?" Strategy ":" Strategy
-                      > Strategy "*"
+                      > Strategy StrategyRep
+                      | Strategy "{" Int "," StrategyRep "}"
                       > Strategy ";" Strategy     [right]
                       > Strategy "|" Strategy     [right]
  // -----------------------------------------------------
@@ -141,8 +142,33 @@ The strategy language is a simple imperative language with sequencing and choice
     rule <s> #true  ~> ? S : _ => S ... </s>
     rule <s> #false ~> ? _ : S => S ... </s>
 
-    rule <s> S*     => (try? S) ~> ? S* : skip ... </s>
+    // rule <s> S*     => (try? S) ~> ? S* : skip ... </s>
     rule <s> S | S' => (try? S) ~> ? skip : S' ... </s>
+```
+
+-   `StrategyRep` allows repeating a given strategy between a given number of times.
+    This repetition is greedy, if only one bound is supplied it's an upper bound and the lower bound is zero.
+    If both bounds are supplied the strategy fails if the lower bound is not met.
+-   The repetition `*` is the "greedy Kleene star" which will attempt a strategy as many times as possible.
+
+```k
+    syntax StrategyRep ::= Int | "*"
+                         | #decrement ( StrategyRep ) [function]
+ // ------------------------------------------------------------
+    rule #decrement(0) => 0
+    rule #decrement(N) => N -Int 1 requires N =/=Int 0
+    rule #decrement(*) => *
+
+    rule <s> S SR:StrategyRep => S { 0 , SR } ... </s>
+
+    rule <s> S { 0 , N }
+          => #if N =/=K 0 #then try? S ~> ? S { 0 , #decrement(N) } : skip
+                          #else .
+             #fi
+         ...
+         </s>
+
+    rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N =/=Int 0
 ```
 
 Strategy Primitives
@@ -192,7 +218,6 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `step` is `step-with_` instantiated to `#normal | #transition`.
 
 ```k
-    syntax priority step-with__KAT > _*_KAT
     syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
  // -----------------------------------------------------------------------------
     rule <s> step-with S => (^ regular | ^ heat)* ~> S ~> (^ regular | ^ cool)* ... </s>
@@ -228,7 +253,6 @@ Strategy Macros
 -   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
 
 ```k
-    syntax priority if_then_else__KAT > _*_KAT
     syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
  // -------------------------------------------------------------
     rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
@@ -238,14 +262,12 @@ Strategy Macros
 -   `_until_` will execute the given strategy until a predicate holds, and `_until__` implements a bounded version.
 
 ```k
-    syntax priority while___KAT while____KAT > _*_KAT
     syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
  // ---------------------------------------------------------------------
     rule <s> while   P S => P ~> ? S ; while P S : skip            ... </s>
     rule <s> while 0 P S => .                                      ... </s>
     rule <s> while N P S => P ~> ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0
 
-    syntax priority _until__KAT _until___KAT > _*_KAT
     syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
  // ---------------------------------------------------------------------
     rule <s> S until   P => while   (not P) S ... </s>
@@ -257,17 +279,15 @@ Strategy Macros
 -   `eval` executes a given state to completion and checks `bool?`, and `eval_` implements a bounded version.
 
 ```k
-    syntax priority exec__KAT > _*_KAT
     syntax Strategy ::= "exec" | "exec" Int
  // ---------------------------------------
-    rule <s> exec         => step *              ... </s>
-    rule <s> exec (N:Int) => step until N stuck? ... </s>
+    rule <s> exec => step * ... </s>
+    // rule <s> exec (N:Int) => step until N stuck? ... </s>
 
-    syntax priority eval__KAT > _*_KAT
     syntax StatePred ::= "eval" | "eval" Int
  // ----------------------------------------
     rule <s> eval   [ STATE ] => pop STATE ~> exec   ~> bool? ... </s> requires STATE =/=K #current
-    rule <s> eval N [ STATE ] => pop STATE ~> exec N ~> bool? ... </s> requires STATE =/=K #current
+    // rule <s> eval N [ STATE ] => pop STATE ~> exec N ~> bool? ... </s> requires STATE =/=K #current
 endmodule
 ```
 
