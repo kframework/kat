@@ -85,14 +85,6 @@ SBC
 module IMP-SBC
     imports IMP-KAT
     imports KAT-SBC
-
-    rule <s> next-states [ <imp> <k> . </k> ... </imp> ] => skip ... </s> [strucural]
-
-    rule <s> next-states [ <imp> <k> if ( BEXP:BExp ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp> ]
-          => push <imp> <k> true  ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
-          ~> push <imp> <k> false ~> if ( BEXP ) S1 else S2 ~> REST </k> <mem> MEM </mem> </imp>
-           ...
-         </s>
 ```
 
 ### Define `abstract`

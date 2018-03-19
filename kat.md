@@ -379,14 +379,13 @@ The interface of this analysis requires you define when to abstract and how to a
 -   `_subsumes?` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
 -   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
--   `next-states` must push any new states to analyze onto the top of the `states` stack.
 
 ```k
     syntax StatePred ::= State "subsumes?"
  // --------------------------------------
 
-    syntax StateOp ::= "abstract" | "next-states"
- // ---------------------------------------------
+    syntax StateOp ::= "abstract"
+ // -----------------------------
 ```
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
