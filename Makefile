@@ -92,9 +92,9 @@ $(example_dir)/straight-line-2.imp.testbimc:
 	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-3      'step-with skip ; step ; bimc 500 (bexp? x <= 7)'
 
 $(example_dir)/sum.imp.testbimc:
-	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-1                  'step-with skip ; bimc 500 (bexp? s <= 32)'
-	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-2                  'step-with skip ; bimc 41 (bexp? s <= 32)'
-	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-3                  'step-with skip ; bimc 40 (bexp? s <= 32)'
+	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-1                  'step-with skip ; step ; step ; bimc 500 (bexp? s <= 32)'
+	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-2                  'step-with skip ; step ; step ; bimc 45 (bexp? s <= 32)'
+	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-3                  'step-with skip ; step ; step ; bimc 44 (bexp? s <= 32)'
 
 $(example_dir)/inf-div-bad.imp.testbimc:
 	$(TEST) $(example_dir)/inf-div-bad.imp          $(example_dir)/bimc/inf-div-bad-1          'bimc 5000 (not div-zero-error?)'
