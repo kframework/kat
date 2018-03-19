@@ -375,15 +375,14 @@ module KAT-SBC
 
 The interface of this analysis requires you define when to abstract and how to abstract.
 
--   `cut-point?` is a predicate that should hold when abstraction should occur.
 -   `_subsumes?` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
 -   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 -   `next-states` must push any new states to analyze onto the top of the `states` stack.
 
 ```k
-    syntax StatePred ::= "cut-point?" | State "subsumes?"
- // -----------------------------------------------------
+    syntax StatePred ::= State "subsumes?"
+ // --------------------------------------
 
     syntax StateOp ::= "abstract" | "next-states"
  // ---------------------------------------------
@@ -400,8 +399,6 @@ The interface of this analysis requires you define when to abstract and how to a
     rule <s> #subsumed? (RS , < STATE >)     => #subsumed? RS                      ... </s>
     rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes?) or (#subsumed? RS) ... </s>
 ```
-
-At cut-points, we'll finish the rule we've been building, abstract the state, start a building a new rule from that state.
 
 -   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
 -   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.

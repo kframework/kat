@@ -95,14 +95,6 @@ module IMP-SBC
          </s>
 ```
 
-### Define `cut-point?`
-
-IMP will have a cut-point at the beginning of every `while` loop, allowing every execution of IMP to terminate.
-
-```k
-    rule <s> cut-point? [ STATE ] => pop STATE ~> can? (^ whileIMP) ... </s> requires STATE =/=K #current
-```
-
 ### Define `abstract`
 
 IMP will abstract by turning all the values in memory into fresh symbolic values.
