@@ -125,7 +125,7 @@ The strategy language is a simple imperative language with sequencing and choice
 -   `_|_` tries executing the first strategy, and on failure executes the second.
 
 ```k
-    syntax Strategy ::= Pred
+    syntax Strategy ::= "#eval" Pred
                       > "skip"
                       | "(" Strategy ")"          [bracket]
                       | "?" Strategy ":" Strategy
@@ -133,6 +133,8 @@ The strategy language is a simple imperative language with sequencing and choice
                       > Strategy ";" Strategy     [right]
                       > Strategy "|" Strategy     [right]
  // -----------------------------------------------------
+    rule <s> #eval P => P ... </s>
+
     rule <s> skip    => .        ... </s>
     rule <s> S1 ; S2 => S1 ~> S2 ... </s>
 
@@ -333,7 +335,7 @@ After performing BIMC, we'll need a container for the results of the analysis.
     rule <s> #bimc N P
           => record
           ~> try? step
-          ~> ? P ; ? #bimc (N -Int 1) P : #bimc-result #false
+          ~> ? #eval P ; ? #bimc (N -Int 1) P : #bimc-result #false
              : #bimc-result #true
          ...
          </s>
