@@ -112,6 +112,19 @@ Here, a wrapper around this functionality is provided which will try to execute 
     rule <s> stack-empty? => #false ... </s> <states> STATE : STATES </states>
 ```
 
+-   `can?_` tries to execute the given strategy, but restores the state afterwards.
+-   `stuck?` checks if the current state can take a step.
+
+```k
+    syntax Pred ::= "can?" Strategy
+ // -------------------------------
+    rule <s> can? S => push ~> (try? S) ~> #pred pop ... </s>
+
+    syntax Pred ::= "stuck?"
+ // ------------------------
+    rule <s> stuck? => not can? step ... </s>
+```
+
 Strategy Statements
 -------------------
 
@@ -169,6 +182,28 @@ The strategy language is a simple imperative language with sequencing and choice
          </s>
 
     rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N =/=Int 0
+```
+
+-   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
+
+```k
+    syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
+ // -------------------------------------------------------------
+    rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
+```
+
+-   `exec` executes the given state to completion.
+    Note that `krun === exec`.
+-   `eval` executes a given state to completion and checks `bool?`.
+
+```k
+    syntax Strategy ::= "exec"
+ // --------------------------
+    rule <s> exec => step * ... </s>
+
+    syntax StatePred ::= "eval"
+ // ---------------------------
+    rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s> requires STATE =/=K #current
 ```
 
 Strategy Primitives
@@ -232,44 +267,6 @@ Things added to the sort `StateOp` will automatically load the current state for
  // ---------------------------------------------------
     rule <s> SO:StateOp              => push ~> SO [ #current ] ... </s>
     rule <s> SO:StateOp [ #current ] => SO [ STATE ]            ... </s> <states> STATE : STATES => STATES </states>
-```
-
-Strategy Macros
----------------
-
--   `can?_` tries to execute the given strategy, but restores the state afterwards.
--   `stuck?` checks if the current state can take a step.
-
-```k
-    syntax Pred ::= "can?" Strategy
- // -------------------------------
-    rule <s> can? S => push ~> (try? S) ~> #pred pop ... </s>
-
-    syntax Pred ::= "stuck?"
- // ------------------------
-    rule <s> stuck? => not can? step ... </s>
-```
-
--   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
-
-```k
-    syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
- // -------------------------------------------------------------
-    rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
-```
-
--   `exec` executes the given state to completion.
-    Note that `krun === exec`.
--   `eval` executes a given state to completion and checks `bool?`.
-
-```k
-    syntax Strategy ::= "exec"
- // --------------------------
-    rule <s> exec => step * ... </s>
-
-    syntax StatePred ::= "eval"
- // ---------------------------
-    rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s> requires STATE =/=K #current
 endmodule
 ```
 
