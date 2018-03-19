@@ -163,12 +163,14 @@ The strategy language is a simple imperative language with sequencing and choice
     This repetition is greedy, if only one bound is supplied it's an upper bound and the lower bound is zero.
     If both bounds are supplied the strategy fails if the lower bound is not met.
 -   The repetition `*` is the "greedy Kleene star" which will attempt a strategy as many times as possible.
+-   The repetition `?` will try a strategy at most once.
 
 ```k
-    syntax StrategyRep ::= Int | "*"
+    syntax StrategyRep ::= Int | "*" | "?"
                          | #decrement ( StrategyRep ) [function]
  // ------------------------------------------------------------
     rule #decrement(0) => 0
+    rule #decrement(?) => 0
     rule #decrement(N) => N -Int 1 requires N =/=Int 0
     rule #decrement(*) => *
 
