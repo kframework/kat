@@ -259,7 +259,6 @@ Strategy Macros
 ```
 
 -   `while__` allows looping behavior (controlled by sort `Pred`), and `while___` implements a bounded version.
--   `_until_` will execute the given strategy until a predicate holds, and `_until__` implements a bounded version.
 
 ```k
     syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
@@ -267,27 +266,20 @@ Strategy Macros
     rule <s> while   P S => P ~> ? S ; while P S : skip            ... </s>
     rule <s> while 0 P S => .                                      ... </s>
     rule <s> while N P S => P ~> ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0
-
-    syntax Strategy ::= Strategy "until" Pred | Strategy "until" Int Pred
- // ---------------------------------------------------------------------
-    rule <s> S until   P => while   (not P) S ... </s>
-    rule <s> S until N P => while N (not P) S ... </s>
 ```
 
--   `exec` executes the given state to completion, and `exec_` implements a bounded version.
+-   `exec` executes the given state to completion.
     Note that `krun === exec`.
--   `eval` executes a given state to completion and checks `bool?`, and `eval_` implements a bounded version.
+-   `eval` executes a given state to completion and checks `bool?`.
 
 ```k
-    syntax Strategy ::= "exec" | "exec" Int
- // ---------------------------------------
+    syntax Strategy ::= "exec"
+ // --------------------------
     rule <s> exec => step * ... </s>
-    // rule <s> exec (N:Int) => step until N stuck? ... </s>
 
-    syntax StatePred ::= "eval" | "eval" Int
- // ----------------------------------------
-    rule <s> eval   [ STATE ] => pop STATE ~> exec   ~> bool? ... </s> requires STATE =/=K #current
-    // rule <s> eval N [ STATE ] => pop STATE ~> exec N ~> bool? ... </s> requires STATE =/=K #current
+    syntax StatePred ::= "eval"
+ // ---------------------------
+    rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s> requires STATE =/=K #current
 endmodule
 ```
 
