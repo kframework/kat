@@ -2,7 +2,7 @@ Result ==K <kat-imp>
   <s>
     #STUCK ( ) ~> #compile-result .Rules , < <imp>
       <k>
-        int n , s , .Ids ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+        int n , s , .Ids ; n = 10 ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
       </k>
       <mem>
         .Map
@@ -13,39 +13,39 @@ Result ==K <kat-imp>
       </k>
       <mem>
         n |-> 10
-        s |-> V0
+        s |-> 0
       </mem>
     </imp> > , < <imp>
       <k>
         false ~> if ( 0 <= n ) { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } else { }
       </k>
       <mem>
-        n |-> V1
-        s |-> V2
+        n |-> V0
+        s |-> V1
       </mem>
     </imp> --> <imp>
       <k>
         .
       </k>
       <mem>
-        n |-> V1
-        s |-> V2
+        n |-> V0
+        s |-> V1
       </mem>
     </imp> > , < <imp>
       <k>
         true ~> if ( 0 <= n ) { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } else { }
       </k>
       <mem>
-        n |-> V1
-        s |-> V2
+        n |-> V0
+        s |-> V1
       </mem>
     </imp> --> <imp>
       <k>
         if ( 0 <= n ) { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } else { }
       </k>
       <mem>
-        n |-> V1 +Int -1
-        s |-> V2 +Int ( V1 +Int -1 )
+        n |-> V0 +Int -1
+        s |-> V1 +Int ( V0 +Int -1 )
       </mem>
     </imp> >
   </s>
@@ -63,8 +63,8 @@ Result ==K <kat-imp>
         if ( 0 <= n ) { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } else { }
       </k>
       <mem>
-        n |-> V3
-        s |-> V4
+        n |-> V2
+        s |-> V3
       </mem>
     </imp>
   </harness>
