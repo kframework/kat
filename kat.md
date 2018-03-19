@@ -317,20 +317,26 @@ After performing BIMC, we'll need a container for the results of the analysis.
     syntax Exception ::= "#bimc-result" PredAtom "in" Int "steps"
  // -------------------------------------------------------------
 
-    syntax Strategy ::= "#bimc-failure" Pred
- // ----------------------------------------
-    rule <s> #bimc-failure P => #bimc-result #false in #length(TRACE) steps ... </s>
+    syntax Strategy ::= "#bimc-result" PredAtom
+ // -------------------------------------------
+    rule <s> #bimc-result PA => #bimc-result PA in #length(TRACE) steps ... </s>
          <analysis> TRACE </analysis>
 
     syntax Strategy ::=  "bimc" Int Pred
                       | "#bimc" Int Pred
  // ------------------------------------
-    rule <s> bimc N P => setAnalysis .Trace ~> P ~> ? #bimc N P : #bimc-failure P ... </s>
+    rule <s> bimc N P => setAnalysis .Trace ~> P ~> ? #bimc N P : #bimc-result #false ... </s>
 
-    rule <s> #bimc 0 P => #bimc-result #true in #length(TRACE) steps ... </s>
+    rule <s> #bimc 0 P => #bimc-result #true ... </s>
          <analysis> TRACE </analysis>
 
-    rule <s> #bimc N P => record ~> step ~> P ~> ? #bimc (N -Int 1) P : #bimc-failure P ... </s>
+    rule <s> #bimc N P
+          => record
+          ~> try? step
+          ~> ? P ; ? #bimc (N -Int 1) P : #bimc-result #false
+             : #bimc-result #true
+         ...
+         </s>
       requires N =/=Int 0
 endmodule
 ```
