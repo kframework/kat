@@ -155,7 +155,6 @@ The strategy language is a simple imperative language with sequencing and choice
     rule <s> #true  ~> ? S : _ => S ... </s>
     rule <s> #false ~> ? _ : S => S ... </s>
 
-    // rule <s> S*     => (try? S) ~> ? S* : skip ... </s>
     rule <s> S | S' => (try? S) ~> ? skip : S' ... </s>
 ```
 
