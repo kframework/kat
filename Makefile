@@ -103,10 +103,10 @@ $(example_dir)/inf-div-good.imp.testbimc:
 	$(TEST) $(example_dir)/inf-div-good.imp         $(example_dir)/bimc/inf-div-good-1         'bimc 5000 (not div-zero-error?)'
 
 $(example_dir)/collatz.imp.testbimc:
-	$(TEST) $(example_dir)/collatz.imp              $(example_dir)/bimc/collatz-1              'step-with skip ; bimc 5000 (bexp? n <= 1000)'
+	$(TEST) $(example_dir)/collatz.imp              $(example_dir)/bimc/collatz-1              'step-with skip ; step ; step ; bimc 5000 (bexp? n <= 1000)'
 
 $(example_dir)/collatz-all.imp.testbimc:
-	$(TEST) $(example_dir)/collatz-all.imp          $(example_dir)/bimc/collatz-all-1          'step-with skip ; bimc 5000 (bexp? n <= 1000)'
+	$(TEST) $(example_dir)/collatz-all.imp          $(example_dir)/bimc/collatz-all-1          'step-with skip ; step ; step ; step ; bimc 5000 (bexp? n <= 1000)'
 
 $(example_dir)/krazy-loop-correct.imp.testbimc:
 	$(TEST) $(example_dir)/krazy-loop-correct.imp   $(example_dir)/bimc/krazy-loop-correct-1   'bimc 5000 (not div-zero-error?)'
