@@ -83,8 +83,8 @@ bimc_files:=straight-line-1.imp \
 test-bimc: $(patsubst %, $(example_dir)/%, $(bimc_files:=.testbimc))
 
 $(example_dir)/straight-line-1.imp.testbimc:
-	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-1      'step-with skip ; bimc 2 (bexp? x <= 7)'
-	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-2      'step-with skip ; bimc 3 (bexp? x <= 7)'
+	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-1      'step-with skip ; step ; bimc 1 (bexp? x <= 7)'
+	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-2      'step-with skip ; step ; bimc 2 (bexp? x <= 7)'
 
 $(example_dir)/straight-line-2.imp.testbimc:
 	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-1      'step-with skip ; bimc 2 (bexp? x <= 7)'
