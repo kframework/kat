@@ -258,16 +258,6 @@ Strategy Macros
     rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
 ```
 
--   `while__` allows looping behavior (controlled by sort `Pred`), and `while___` implements a bounded version.
-
-```k
-    syntax Strategy ::= "while" Pred Strategy | "while" Int Pred Strategy
- // ---------------------------------------------------------------------
-    rule <s> while   P S => P ~> ? S ; while P S : skip            ... </s>
-    rule <s> while 0 P S => .                                      ... </s>
-    rule <s> while N P S => P ~> ? S ; while (N -Int 1) P S : skip ... </s> requires N >Int 0
-```
-
 -   `exec` executes the given state to completion.
     Note that `krun === exec`.
 -   `eval` executes a given state to completion and checks `bool?`.
