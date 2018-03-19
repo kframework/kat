@@ -445,17 +445,20 @@ Finally, semantics based compilation is provided as a macro.
 -   `compile` will initialize the stack to empty and the analysis to `.Rules`, then compile the current program to completion.
 
 ```k
-    syntax Strategy ::= "compile"
- // -----------------------------
+    syntax Strategy ::= "compile" | "#compile"
+ // ------------------------------------------
     rule <s> ( compile
             => setAnalysis .Rules
             ~> stack .States
             ~> push
-            ~> compile-step until stack-empty?
+            ~> #compile
             ~> #compile-result
              )
              ...
          </s>
+
+    rule <s> #compile => .                   ... </s> <states> .States        </states>
+    rule <s> (. => compile-step) ~> #compile ... </s> <states> STATE : STATES </states>
 endmodule
 ```
 
