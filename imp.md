@@ -41,8 +41,8 @@ IMP has `AExp` for arithmetic expressions (over integers).
     rule I1 + I2 => I1 +Int I2
     rule I1 - I2 => I1 -Int I2
     rule I1 * I2 => I1 *Int I2
-    rule <k>  I / 0 ~> _ => div-zero-error </k>                      [divzero]
-    rule <k> I1 / I2     => I1 /Int I2 ... </k> requires I2 =/=Int 0 [div]
+    rule <k>  I / 0  => div-zero-error ... </k>                      [divzero]
+    rule <k> I1 / I2 => I1 /Int I2     ... </k> requires I2 =/=Int 0 [divnonzero]
 ```
 
 IMP has `BExp` for boolean expressions.
@@ -91,11 +91,10 @@ IMP has `int_;` for declaring variables and `_=_;` for assignment.
 IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequencing.
 
 ```k
-    syntax Stmt ::= "if" "(" BExp ")" Block "else" Block
- // ----------------------------------------------------
-    rule <k> true  ~> if (BE) B else _ => B ... </k> [ifeval]
-    rule <k> false ~> if (BE) _ else B => B ... </k> [ifeval]
-    rule <k> if (BE) B else B' => BE ~> if (BE) B else B' ... </k> [ifIMP]
+    syntax Stmt ::= "if" "(" BExp ")" Block "else" Block [strict(1)]
+ // ----------------------------------------------------------------
+    rule <k> if (true)  B1 else _  => B1 ... </k> [ifevalTrue]
+    rule <k> if (false) _  else B2 => B2 ... </k> [ifevalFalse]
 
     syntax Stmt ::= "while" "(" BExp ")" Block
  // ------------------------------------------
