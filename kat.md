@@ -429,11 +429,11 @@ Finally, semantics based compilation is provided as a macro.
             => if subsumed?
                then drop
                else ( pop
-                    ; begin-rule
-                    ; (step-with #normal) *
-                    ; (step-with #transition) ?
-                    ; end-rule
                     ; abstract
+                    ; begin-rule
+                    ; (step-with #transition) ?
+                    ; (step-with #normal) *
+                    ; end-rule
                     ; push
                     )
              )
