@@ -1,0 +1,2 @@
+step-with skip ; step ; step ; step ; bimc 5000 (bexp? n <= 1000)
+compile
