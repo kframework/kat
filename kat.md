@@ -115,19 +115,6 @@ Here, a wrapper around this functionality is provided which will try to execute 
     rule <s> stack-empty? => #false ... </s> <states> STATE : STATES </states>
 ```
 
--   `can?_` tries to execute the given strategy, but restores the state afterwards.
--   `stuck?` checks if the current state can take a step.
-
-```k
-    syntax Pred ::= "can?" Strategy
- // -------------------------------
-    rule <s> can? S => push ~> (try? S) ~> #pred pop ... </s>
-
-    syntax Pred ::= "stuck?"
- // ------------------------
-    rule <s> stuck? => not can? step ... </s>
-```
-
 Strategy Statements
 -------------------
 
@@ -282,6 +269,21 @@ Things added to the sort `StateOp` will automatically load the current state for
     rule <s> #renamed-vars S:State => pop S                             ... </s>
     rule <s> #rename-vars          => #renamed-vars #renameVariables(S) ... </s>
          <states> S : STATES => STATES </states>
+```
+
+-   `can?_` tries to execute the given strategy, but restores the state afterwards.
+-   `stuck?` checks if the current state can take a step.
+
+**TODO**: Are we losing the constraints on the current term by calling `rename-vars` on it?
+
+```k
+    syntax Pred ::= "can?" Strategy
+ // -------------------------------
+    rule <s> can? S => push ~> rename-vars ~> (try? S) ~> #pred pop ... </s>
+
+    syntax Pred ::= "stuck?"
+ // ------------------------
+    rule <s> stuck? => not can? step ... </s>
 endmodule
 ```
 
