@@ -58,7 +58,7 @@ build: $(defn_dir)/imp-analysis-kompiled/timestamp
 $(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 	@echo "== kompile: $@"
 	$(k_bin)/kompile --debug --main-module IMP-ANALYSIS --backend java \
-					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir) --transition 'ifevalTrue ifevalFalse divzero divnonzero'
+					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)
 
 # Testing
 # -------
