@@ -18,9 +18,12 @@ A simple imperative strategy language is supplied here.
 It has sequencing, choice, and looping (in addition to primitives related to controlling the execution state).
 
 ```k
+requires "unification.k"
+
 module KAT
     imports STRATEGY
     imports DOMAINS
+    imports UNIFICATION
 
     configuration <kat>
                     <analysis> .Analysis </analysis>
@@ -268,6 +271,17 @@ Things added to the sort `StateOp` will automatically load the current state for
  // ---------------------------------------------------
     rule <s> SO:StateOp              => push ~> SO [ #current ] ... </s>
     rule <s> SO:StateOp [ #current ] => SO [ STATE ]            ... </s> <states> STATE : STATES => STATES </states>
+```
+
+-   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
+
+```k
+    syntax Strategy ::= "rename-vars" | "#rename-vars" | "#renamed-vars" K
+ // ----------------------------------------------------------------------
+    rule <s> rename-vars           => push ~> #rename-vars              ... </s>
+    rule <s> #renamed-vars S:State => pop S                             ... </s>
+    rule <s> #rename-vars          => #renamed-vars #renameVariables(S) ... </s>
+         <states> S : STATES => STATES </states>
 endmodule
 ```
 
@@ -430,6 +444,7 @@ Finally, semantics based compilation is provided as a macro.
                then drop
                else ( pop
                     ; abstract
+                    ; rename-vars
                     ; begin-rule
                     ; (step-with #transition) ?
                     ; (step-with #normal) *
