@@ -63,59 +63,15 @@ $(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 # Testing
 # -------
 
-example_dir:=tests/examples
-example_files:=$(wildcard $(example_dir)/*.imp)
+test_dir:=tests
+test_files:=$(wildcard $(test_dir)/*.imp)
 
 TEST=./kat test
 
-test: test-bimc test-sbc
+test: $(test_files:=.test)
 
-bimc_files:=straight-line-1.imp \
-			straight-line-2.imp \
-			sum.imp \
-			inf-div-bad.imp \
-			inf-div-good.imp \
-			collatz.imp \
-			collatz-all.imp \
-			krazy-loop-correct.imp \
-			krazy-loop-incorrect.imp
+$(test_dir)/%.imp.test: $(test_dir)/%.imp $(test_dir)/%.strat $(test_dir)/%.expected
+	$(TEST) $^
 
-test-bimc: $(patsubst %, $(example_dir)/%, $(bimc_files:=.testbimc))
-
-$(example_dir)/straight-line-1.imp.testbimc:
-	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-1      'step-with skip ; step ; bimc 1 (bexp? x <= 7)'
-	$(TEST) $(example_dir)/straight-line-1.imp      $(example_dir)/bimc/straight-line-1-2      'step-with skip ; step ; bimc 2 (bexp? x <= 7)'
-
-$(example_dir)/straight-line-2.imp.testbimc:
-	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-1      'step-with skip ; step ; bimc 1 (bexp? x <= 7)'
-	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-2      'step-with skip ; step ; bimc 2 (bexp? x <= 7)'
-	$(TEST) $(example_dir)/straight-line-2.imp      $(example_dir)/bimc/straight-line-2-3      'step-with skip ; step ; bimc 500 (bexp? x <= 7)'
-
-$(example_dir)/sum.imp.testbimc:
-	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-1                  'step-with skip ; step ; step ; bimc 500 (bexp? s <= 32)'
-	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-2                  'step-with skip ; step ; step ; bimc 45 (bexp? s <= 32)'
-	$(TEST) $(example_dir)/sum.imp                  $(example_dir)/bimc/sum-3                  'step-with skip ; step ; step ; bimc 44 (bexp? s <= 32)'
-
-$(example_dir)/inf-div-bad.imp.testbimc:
-	$(TEST) $(example_dir)/inf-div-bad.imp          $(example_dir)/bimc/inf-div-bad-1          'bimc 5000 (not div-zero-error?)'
-
-$(example_dir)/inf-div-good.imp.testbimc:
-	$(TEST) $(example_dir)/inf-div-good.imp         $(example_dir)/bimc/inf-div-good-1         'bimc 5000 (not div-zero-error?)'
-
-$(example_dir)/collatz.imp.testbimc:
-	$(TEST) $(example_dir)/collatz.imp              $(example_dir)/bimc/collatz-1              'step-with skip ; step ; step ; bimc 5000 (bexp? n <= 1000)'
-
-$(example_dir)/collatz-all.imp.testbimc:
-	$(TEST) $(example_dir)/collatz-all.imp          $(example_dir)/bimc/collatz-all-1          'step-with skip ; step ; step ; step ; bimc 5000 (bexp? n <= 1000)'
-
-$(example_dir)/krazy-loop-correct.imp.testbimc:
-	$(TEST) $(example_dir)/krazy-loop-correct.imp   $(example_dir)/bimc/krazy-loop-correct-1   'step-with skip ; step ; step ; step ; step ; step ; step ; bimc 5000 (not div-zero-error?)'
-
-$(example_dir)/krazy-loop-incorrect.imp.testbimc:
-	$(TEST) $(example_dir)/krazy-loop-incorrect.imp $(example_dir)/bimc/krazy-loop-incorrect-1 'step-with skip ; step ; step ; step ; step ; step ; step ; bimc 5000 (not div-zero-error?)'
-	$(TEST) $(example_dir)/krazy-loop-incorrect.imp $(example_dir)/bimc/krazy-loop-incorrect-2 'step-with skip ; step ; step ; step ; step ; step ; step ; bimc 3114 (not div-zero-error?)'
-
-test-sbc: $(example_files:=.testsbc)
-
-$(example_dir)/%.imp.testsbc:
-	$(TEST) $(example_dir)/$*.imp $(example_dir)/sbc/$* 'compile'
+$(test_dir)/%.expected:
+	mkdir -p $@

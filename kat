@@ -49,15 +49,17 @@ run_ksearch() {
 }
 
 run_test() {
-    local imp_file="$1"               ; shift
-    local output_expected_prefix="$1" ; shift
-    local strategy="$1"               ; shift
-    local output_file="$output_expected_prefix.out"
-    local expected_file="$output_expected_prefix.expected"
+    local imp_file="$1"      ; shift
+    local strategy_file="$1" ; shift
+    local expected_dir="$1"  ; shift
     [[ -f "$imp_file"      ]] || die "File '$imp_file' does not exist ..."
-    [[ -f "$expected_file" ]] || die "File '$expected_file' does not exist ..."
-    run_ksearch "$imp_file" "$strategy" > "$output_file"
-    pretty_diff "$expected_file" "$output_file"
+    [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
+    local counter=1
+    while read strategy; do
+        run_krun "$imp_file" "$strategy" > "$expected_dir/$counter.out"
+        pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out"
+        counter=$((counter + 1))
+    done < "$strategy_file"
 }
 
 # Main
@@ -91,7 +93,10 @@ case "$run_command" in
 
        # Testing
        # -------
-       $0 test <pgm>    Run a single KAT program like it's a test
+       $0 test <pgm> <strat> Run a test from the `tests/` directory.
+
+       Note: <pgm> is the path to the program in `tests/`
+             <strat> is a file with one strategy per line
 
        Note: This command is more for devs and CI servers.
 " ; exit ;;
