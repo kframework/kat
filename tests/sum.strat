@@ -1,4 +1,3 @@
 step-with skip ; step ; bimc 500 (bexp? s <= 32)
 step-with skip ; step ; bimc 45 (bexp? s <= 32)
 step-with skip ; step ; bimc 44 (bexp? s <= 32)
-compile

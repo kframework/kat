@@ -1,3 +1,2 @@
 step-with skip ; step ; bimc 1 (bexp? x <= 7)
 step-with skip ; step ; bimc 2 (bexp? x <= 7)
-compile
