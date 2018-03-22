@@ -93,8 +93,8 @@ IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequenci
 ```k
     syntax Stmt ::= "if" "(" BExp ")" Block "else" Block [strict(1)]
  // ----------------------------------------------------------------
-    rule <k> if (true)  B1 else _  => B1 ... </k> [tag(ifevalTrue)]
-    rule <k> if (false) _  else B2 => B2 ... </k> [tag(ifevalFalse)]
+    rule <k> if (true)  B1 else _  => B1 ... </k> [tag(iftrue)]
+    rule <k> if (false) _  else B2 => B2 ... </k> [tag(iffalse)]
 
     syntax Stmt ::= "while" "(" BExp ")" Block
  // ------------------------------------------
