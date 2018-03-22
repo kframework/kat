@@ -284,6 +284,29 @@ Things added to the sort `StateOp` will automatically load the current state for
     syntax Pred ::= "stuck?"
  // ------------------------
     rule <s> stuck? => not can? step ... </s>
+```
+
+-   `which-can?_` checks which of the given choices of strategies can take a step.
+
+```k
+    syntax Strategy  ::= "#exception" Exception
+ // -------------------------------------------
+    rule <s> #exception E => E ... </s>
+
+    syntax Strategy  ::= "which-can?" Strategy
+    syntax Exception ::= "#which-can" Strategy
+ // ------------------------------------------
+    rule <s> which-can? (S1 | S2) => which-can? S1 ~> which-can? S2 ... </s>
+    rule <s> which-can? S => can? (step-with S) ~> ? #exception (#which-can S) : skip ... </s>
+      requires notBool #orStrategy(S)
+
+    rule <s> #which-can S1 ~> which-can? S2 => which-can? S2 ~> #which-can S1 ... </s>
+    rule <s> #which-can S1 ~> #which-can S2 => #which-can (S1 | S2)           ... </s>
+
+    syntax Bool ::= #orStrategy ( Strategy ) [function]
+ // ---------------------------------------------------
+    rule #orStrategy(S1 | S2) => true
+    rule #orStrategy(_)       => false [owise]
 endmodule
 ```
 
