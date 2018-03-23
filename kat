@@ -56,6 +56,7 @@ run_test() {
     [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
     local counter=1
     while read strategy; do
+        [[ "$strategy" != '' ]] || continue
         run_krun "$imp_file" "$strategy" > "$expected_dir/$counter.out"
         pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out"
         counter=$((counter + 1))
