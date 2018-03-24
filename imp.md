@@ -41,8 +41,8 @@ IMP has `AExp` for arithmetic expressions (over integers).
     rule I1 + I2 => I1 +Int I2
     rule I1 - I2 => I1 -Int I2
     rule I1 * I2 => I1 *Int I2
-    rule <k>  I / 0  => div-zero-error ... </k>                      [transition, tag(divzero)]
-    rule <k> I1 / I2 => I1 /Int I2     ... </k> requires I2 =/=Int 0 [transition, tag(divnonzero)]
+    rule  I / 0  => div-zero-error                      [tag(divzero)]
+    rule I1 / I2 => I1 /Int I2     requires I2 =/=Int 0 [tag(divnonzero)]
 ```
 
 IMP has `BExp` for boolean expressions.
