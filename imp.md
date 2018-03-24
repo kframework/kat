@@ -32,10 +32,10 @@ IMP has `AExp` for arithmetic expressions (over integers).
     syntax KItem ::= "div-zero-error"
 
     syntax AExp  ::= Int | Id
-                   | AExp "/" AExp [left, strict]
-                   | AExp "*" AExp [left, strict]
-                   > AExp "-" AExp [left, strict]
-                   | AExp "+" AExp [left, strict]
+                   | AExp "/" AExp [left, seqstrict]
+                   | AExp "*" AExp [left, seqstrict]
+                   > AExp "-" AExp [left, seqstrict]
+                   | AExp "+" AExp [left, seqstrict]
                    | "(" AExp ")"  [bracket]
  // ----------------------------------------
     rule I1 + I2 => I1 +Int I2
