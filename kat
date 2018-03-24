@@ -6,7 +6,8 @@ set -u      # Using undefined variables is an error. Exit immediately
 # Utilities
 # ---------
 
-die() { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
+die()      { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
+progress() { echo -e "== $@" >&2 ; }
 
 pretty_diff() {
     git --no-pager diff --no-index "$@"
@@ -57,6 +58,7 @@ run_test() {
     local counter=1
     while read strategy; do
         [[ "$strategy" != '' ]] || continue
+        progress "testing: '$imp_file' with strategy '$strategy'"
         run_krun "$imp_file" "$strategy" > "$expected_dir/$counter.out"
         pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out"
         counter=$((counter + 1))
