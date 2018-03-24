@@ -54,7 +54,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          n ~> #freezer_+__IMP0_ ( s ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          s ~> #freezer_+__IMP1_ ( n ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 9
@@ -62,7 +62,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          s ~> #freezer_+__IMP1_ ( 9 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          n ~> #freezer_+__IMP0_ ( 0 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 9
@@ -118,7 +118,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          n ~> #freezer_+__IMP0_ ( s ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          s ~> #freezer_+__IMP1_ ( n ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 8
@@ -126,7 +126,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          s ~> #freezer_+__IMP1_ ( 8 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          n ~> #freezer_+__IMP0_ ( 9 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 8
@@ -182,7 +182,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          n ~> #freezer_+__IMP0_ ( s ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          s ~> #freezer_+__IMP1_ ( n ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 7
@@ -190,7 +190,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          s ~> #freezer_+__IMP1_ ( 7 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          n ~> #freezer_+__IMP0_ ( 17 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 7
@@ -246,7 +246,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          n ~> #freezer_+__IMP0_ ( s ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          s ~> #freezer_+__IMP1_ ( n ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 6
@@ -254,7 +254,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          s ~> #freezer_+__IMP1_ ( 6 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          n ~> #freezer_+__IMP0_ ( 24 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 6
@@ -310,7 +310,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          n ~> #freezer_+__IMP0_ ( s ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          s ~> #freezer_+__IMP1_ ( n ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 5
@@ -318,7 +318,7 @@
         </mem>
       </imp> ; <imp>
         <k>
-          s ~> #freezer_+__IMP1_ ( 5 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          n ~> #freezer_+__IMP0_ ( 30 ) ~> #freezer_=_;_IMP0_ ( s ) ~> while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
         </k>
         <mem>
           n |-> 5
