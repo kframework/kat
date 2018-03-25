@@ -3,3 +3,4 @@ step ; which-can? (^ iftrue)
 step ; which-can? (^ iftrue | ^ iffalse)
 step ; which-can? (^ iffalse | ^ divzero)
 exec-to-branch
+compile
