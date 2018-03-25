@@ -310,6 +310,29 @@ Things added to the sort `StateOp` will automatically load the current state for
  // ---------------------------------------------------
     rule #orStrategy(S1 | S2) => true
     rule #orStrategy(_)       => false [owise]
+```
+
+-   `exec-to-branch` will execute a given state to a branch (or terminal) state (using `#normal` and `#transition` to limit choices about branch points).
+    If it is a terminal state, then the `<s>` cell will be emptied.
+    If it is a "fake" transition state (only one post state from `#transition`), it will continue execution.
+    If there are multiple successors, they will be left on the `<s>` cell with `#which-can`.
+
+```k
+    syntax Strategy ::= "exec-to-branch" | "#exec-to-branch"
+ // --------------------------------------------------------
+    rule <s> exec-to-branch
+          => (step-with #normal) *
+          ~> which-can? #transition
+          ~> #exec-to-branch
+         ...
+         </s>
+
+    rule <s> #exec-to-branch => . ... </s>
+    rule <s> #which-can S ~> #exec-to-branch => S ~> exec-to-branch ... </s> requires notBool #orStrategy(S)
+    rule <s> #which-can (S1 | S2) ~> (#exec-to-branch => .) ... </s>
+```
+
+```k
 endmodule
 ```
 
