@@ -244,10 +244,13 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `step` is `step-with_` instantiated to `#normal | #transition`.
 
 ```k
-    syntax Strategy ::= "step-with" Strategy | "#transition" | "#normal" | "step"
- // -----------------------------------------------------------------------------
-    rule <s> step-with S => (^ regular | ^ heat)* ~> S ~> (^ regular | ^ cool)* ... </s>
-    rule <s> step        => step-with (#normal | #transition)                   ... </s>
+    syntax Strategy ::= "step-with" Strategy [function]
+                      | "#transition"        [function]
+                      | "#normal"            [function]
+                      | "step"               [function]
+ // ---------------------------------------------------
+    rule step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)*
+    rule step        => step-with (#normal | #transition)
 ```
 
 Things added to the sort `StateOp` will automatically load the current state for you, making it easier to define operations over the current state.
