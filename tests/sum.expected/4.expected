@@ -1,0 +1,24 @@
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        { }
+      </k>
+      <mem>
+        n |-> -1
+        s |-> 44
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

@@ -1,0 +1,24 @@
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iffalse | ^ iftrue
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( 0 <=Int V0 ) { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } else { }
+      </k>
+      <mem>
+        n |-> V0
+        s |-> 0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
