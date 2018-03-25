@@ -469,10 +469,44 @@ The interface of this analysis requires you define when to abstract and how to a
 -   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.
 
 ```k
-    syntax StateOp ::= "begin-rule" | "end-rule"
- // --------------------------------------------
-    rule <s> begin-rule [ STATE ] => . ... </s> <analysis> RS => RS , < STATE >                </analysis> requires STATE =/=K #current
-    rule <s> end-rule   [ STATE ] => . ... </s> <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> requires STATE =/=K #current
+    syntax StateOp ::= "begin-rule"
+ // -------------------------------
+    rule <s> begin-rule [ STATE ] => . ... </s>
+         <analysis> RS => RS , < STATE > </analysis>
+      requires STATE =/=K #current
+
+    syntax StateOp  ::= "end-rule"
+ // ------------------------------
+    rule <s> end-rule [ STATE ] => . ... </s>
+         <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> requires STATE =/=K #current
+
+    syntax Strategy ::= "end-rules" | "#end-rules" Strategy Rule
+ // ------------------------------------------------------------
+    rule <s> end-rules => end-rule ... </s>
+
+    rule <s> #which-can S ~> end-rules => push ~> #end-rules S < LHS > ... </s>
+         <analysis> RS , < LHS > => RS </analysis>
+
+    rule <s> #end-rules S (< LHS > => < LHS --> RHS >) ... </s>
+         <states> RHS : STATES => STATES </states>
+
+    rule <s> #end-rules (S1 | S2) < LHS --> RHS >
+          => #end-rules S1 < LHS --> RHS >
+          ~> #end-rules S2 < LHS --> RHS >
+         ...
+         </s>
+
+    rule <s> #end-rules S < LHS --> RHS >
+          => #end-rule-rename #renameVariables(< LHS --> RHS >)
+          ~> S ~> push ~> end-rule
+         ...
+         </s>
+      requires notBool #orStrategy(S)
+
+    syntax Strategy ::= "#end-rule-rename" K
+ // ----------------------------------------
+    rule <s> #end-rule-rename < LHS --> RHS > => pop RHS ... </s>
+         <analysis> RS => RS , < LHS > </analysis>
 ```
 
 -   `#compile-result_` holds the result of a sbc analysis.
@@ -497,10 +531,8 @@ Finally, semantics based compilation is provided as a macro.
                     ; abstract
                     ; rename-vars
                     ; begin-rule
-                    ; (step-with #transition) ?
-                    ; (step-with #normal) *
-                    ; end-rule
-                    ; push
+                    ; exec-to-branch
+                    ; end-rules
                     )
              )
              ...
