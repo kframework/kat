@@ -2,3 +2,4 @@ step-with skip ; step ; bimc 500 (bexp? s <= 32)
 step-with skip ; step ; bimc 41  (bexp? s <= 32)
 step-with skip ; step ; bimc 40  (bexp? s <= 32)
 exec-to-branch
+compile

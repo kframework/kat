@@ -1,0 +1,39 @@
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #compile-result .Rules , < <imp>
+      <k>
+        int n , s , .Ids ; s = 0 ; n = 10 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+      </k>
+      <mem>
+        .Map
+      </mem>
+    </imp> --> <imp>
+      <k>
+        { }
+      </k>
+      <mem>
+        n |-> -1
+        s |-> 44
+      </mem>
+    </imp> >
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        { }
+      </k>
+      <mem>
+        n |-> -1
+        s |-> 44
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
