@@ -239,6 +239,8 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 ```
 
 -   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
+    **TODO**: Current backend actually tags heating and cooling rules as `regular` instead, so `step-with` has been appropriately simplified.
+              Perhaps we should investigate whether the backend's behaviour should be changed.
 -   `#transition` defines what is a proper transition and must be provided by the programming language.
 -   `#normal` defines a normal transition in the programming language (not a step for analysis).
 -   `step` is `step-with_` instantiated to `#normal | #transition`.
@@ -249,7 +251,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
                       | "#normal"            [function]
                       | "step"               [function]
  // ---------------------------------------------------
-    rule step-with S => (^ regular | ^ heat)* ; S ; (^ regular | ^ cool)*
+    rule step-with S => (^ regular)* ; S ; (^ regular)*
     rule step        => step-with (#normal | #transition)
 ```
 
