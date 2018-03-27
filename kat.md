@@ -447,8 +447,8 @@ The interface of this analysis requires you define when to abstract and how to a
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 
 ```k
-    syntax StatePred ::= State "subsumes?"
- // --------------------------------------
+    syntax Pred ::= State "subsumes?" State
+ // ---------------------------------------
 
     syntax StateOp ::= "abstract"
  // -----------------------------
@@ -461,9 +461,11 @@ The interface of this analysis requires you define when to abstract and how to a
  // ------------------------------------------------
     rule <s> subsumed? => #subsumed? RS ... </s> <analysis> RS </analysis>
 
-    rule <s> #subsumed? .Rules               => #false                             ... </s>
-    rule <s> #subsumed? (RS , < STATE >)     => #subsumed? RS                      ... </s>
-    rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes?) or (#subsumed? RS) ... </s>
+    rule <s> #subsumed? .Rules           => #false        ... </s>
+    rule <s> #subsumed? (RS , < STATE >) => #subsumed? RS ... </s>
+
+    rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes? STATE) or (#subsumed? RS) ... </s>
+         <states> STATE : STATES </states>
 ```
 
 -   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
