@@ -1,6 +1,6 @@
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #false in 2827 steps
+    #STUCK ( ) ~> #bimc-result #false in 2826 steps
   </s>
   <kat>
     <analysis>
@@ -33916,18 +33916,6 @@
           m |-> 1
           s |-> 90
         </mem>
-      </imp> ; <imp>
-        <k>
-          22 / 0 ~> #freezer_+__IMP0_ ( 0 ) ~> #freezer_=_;_IMP0_ ( k ) ~> j = j - 1 ; ~> while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( i / 2 ) * 2 ) { k = k + l / i ; } else { k = k + j / m ; } j = j - 1 ; } ~> s = s + ( i * k ) / 3 ; ~> i = i - 1 ; ~> while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( i / 2 ) * 2 ) { k = k + l / i ; } else { k = k + j / m ; } j = j - 1 ; } s = s + ( i * k ) / 3 ; i = i - 1 ; }
-        </k>
-        <mem>
-          i |-> 0
-          j |-> 11
-          k |-> 0
-          l |-> 22
-          m |-> 1
-          s |-> 90
-        </mem>
       </imp>
     </analysis>
     <states>
@@ -33937,7 +33925,7 @@
   <harness>
     <imp>
       <k>
-        div-zero-error ~> #freezer_+__IMP0_ ( 0 ) ~> #freezer_=_;_IMP0_ ( k ) ~> j = j - 1 ; ~> while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( i / 2 ) * 2 ) { k = k + l / i ; } else { k = k + j / m ; } j = j - 1 ; } ~> s = s + ( i * k ) / 3 ; ~> i = i - 1 ; ~> while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( i / 2 ) * 2 ) { k = k + l / i ; } else { k = k + j / m ; } j = j - 1 ; } s = s + ( i * k ) / 3 ; i = i - 1 ; }
+        22 / 0 ~> #freezer_+__IMP0_ ( 0 ) ~> #freezer_=_;_IMP0_ ( k ) ~> j = j - 1 ; ~> while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( i / 2 ) * 2 ) { k = k + l / i ; } else { k = k + j / m ; } j = j - 1 ; } ~> s = s + ( i * k ) / 3 ; ~> i = i - 1 ; ~> while ( 0 <= i ) { k = 0 ; j = 11 ; while ( 0 <= j ) { l = 3 * j - ( j + i ) ; m = 5 * i + 1 ; if ( i <= ( i / 2 ) * 2 ) { k = k + l / i ; } else { k = k + j / m ; } j = j - 1 ; } s = s + ( i * k ) / 3 ; i = i - 1 ; }
       </k>
       <mem>
         i |-> 0

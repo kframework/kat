@@ -1,6 +1,6 @@
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #true in 40 steps ~> ( ^ regular | ^ cool ) *
+    #STUCK ( ) ~> #bimc-result #true in 40 steps ~> ^ regular *
   </s>
   <kat>
     <analysis>
