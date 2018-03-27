@@ -510,14 +510,6 @@ The interface of this analysis requires you define when to abstract and how to a
          <analysis> RS => RS , < LHS > </analysis>
 ```
 
--   `#compile-result_` holds the result of a sbc analysis.
-
-```k
-    syntax Exception ::= "#compile-result" | "#compile-result" Rules
- // ----------------------------------------------------------------
-    rule <s> #compile-result => #compile-result RS ... </s> <analysis> RS => .Analysis </analysis>
-```
-
 Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
@@ -550,7 +542,6 @@ Finally, semantics based compilation is provided as a macro.
             ~> stack .States
             ~> push
             ~> #compile
-            ~> #compile-result
              )
              ...
          </s>
