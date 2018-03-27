@@ -105,9 +105,9 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
 
 ```k
-    rule <s> <imp> <k> (B:Bool => .) ~> KCELL </k> ... </imp> subsumes? _ ... </s>
-
-    rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? <imp> <k> KCELL  </k> ... </imp> => #true  ... </s>
-    rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? <imp> <k> KCELL' </k> ... </imp> => #false ... </s> requires KCELL =/=K KCELL'
+    rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? <imp> <k> KCELL' </k> ... </imp>
+          => #if KCELL ==K KCELL' #then #true #else #false #fi
+         ...
+         </s>
 endmodule
 ```
