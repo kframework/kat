@@ -1,2 +1,2 @@
-bimc 5000 (not div-zero-error?)
+bimc 5000 (not can? (^ divzero))
 compile

@@ -1,2 +1,2 @@
-step-with skip ; step ; step ; step ; step ; step ; step ; bimc 5000 (not div-zero-error?)
-step-with skip ; step ; step ; step ; step ; step ; step ; bimc 2826 (not div-zero-error?)
+step-with skip ; step ; step ; step ; step ; step ; step ; bimc 5000 (not can? (^ divzero))
+step-with skip ; step ; step ; step ; step ; step ; step ; bimc 2826 (not can? (^ divzero))

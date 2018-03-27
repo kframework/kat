@@ -1,3 +1,3 @@
-bimc 5000 (not div-zero-error?)
-bimc 97   (not div-zero-error?)
-bimc 96   (not div-zero-error?)
+bimc 5000 (not can? (^ divzero))
+bimc 97   (not can? (^ divzero))
+bimc 96   (not can? (^ divzero))

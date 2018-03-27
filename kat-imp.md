@@ -70,11 +70,6 @@ module IMP-BIMC
           ~> #pred pop
          ...
          </s>
-
-    syntax StatePred ::= "div-zero-error?"
- // --------------------------------------
-    rule <s> div-zero-error? [ <imp> <k> div-zero-error ... </k> ... </imp> ] => #true  ... </s>
-    rule <s> div-zero-error? [ <imp> <k> NEXT:K         ... </k> ... </imp> ] => #false ... </s> requires NEXT =/=K div-zero-error
 endmodule
 ```
 
