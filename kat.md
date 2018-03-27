@@ -483,32 +483,33 @@ The interface of this analysis requires you define when to abstract and how to a
     rule <s> end-rule [ STATE ] => . ... </s>
          <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> requires STATE =/=K #current
 
-    syntax Strategy ::= "end-rules" | "#end-rules" Strategy Rule
- // ------------------------------------------------------------
-    rule <s> end-rules => end-rule ... </s>
-
-    rule <s> #which-can S ~> end-rules => push ~> #end-rules S < LHS > ... </s>
+    syntax Strategy ::= "end-rules" | "transition-finish" Strategy Rule
+ // -------------------------------------------------------------------
+    rule <s>                 end-rules => end-rule                            ... </s>
+    rule <s> #which-can S ~> end-rules => push ~> transition-finish S < LHS > ... </s>
          <analysis> RS , < LHS > => RS </analysis>
 
-    rule <s> #end-rules S (< LHS > => < LHS --> RHS >) ... </s>
+    rule <s> transition-finish S (< LHS > => < LHS --> RHS >) ... </s>
          <states> RHS : STATES => STATES </states>
 
-    rule <s> #end-rules (S1 | S2) < LHS --> RHS >
-          => #end-rules S1 < LHS --> RHS >
-          ~> #end-rules S2 < LHS --> RHS >
+    rule <s> transition-finish (S1 | S2) < LHS --> RHS >
+          => transition-finish S1        < LHS --> RHS >
+          ~> transition-finish S2        < LHS --> RHS >
          ...
          </s>
 
-    rule <s> #end-rules S < LHS --> RHS >
-          => #end-rule-rename #renameVariables(< LHS --> RHS >)
-          ~> S ~> push ~> end-rule
+    rule <s> transition-finish S < LHS --> RHS >
+          => #transition-rename #renameVariables(< LHS --> RHS >)
+          ~> S
+          ~> push
+          ~> end-rule
          ...
          </s>
       requires notBool #orStrategy(S)
 
-    syntax Strategy ::= "#end-rule-rename" K
- // ----------------------------------------
-    rule <s> #end-rule-rename < LHS --> RHS > => pop RHS ... </s>
+    syntax Strategy ::= "#transition-rename" K
+ // ------------------------------------------
+    rule <s> #transition-rename < LHS --> RHS > => pop RHS ... </s>
          <analysis> RS => RS , < LHS > </analysis>
 ```
 
