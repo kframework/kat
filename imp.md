@@ -69,8 +69,8 @@ IMP has `{_}` for creating blocks of statements.
 ```k
     syntax Block ::= "{" "}" | "{" Stmt "}"
  // ---------------------------------------
-    rule {}  => .
-    rule {S} => S
+    rule {   } => .
+    rule { S } => S
 ```
 
 IMP has `int_;` for declaring variables and `_=_;` for assignment.
