@@ -322,6 +322,7 @@ Things added to the sort `StateOp` will automatically load the current state for
  // --------------------------------------------------------
     rule <s> exec-to-branch
           => (step-with #normal) *
+          ~> (^ regular) *
           ~> which-can? #transition
           ~> #exec-to-branch
          ...
