@@ -13,7 +13,7 @@
   <harness>
     <imp>
       <k>
-        { }
+        .
       </k>
       <mem>
         n |-> -1

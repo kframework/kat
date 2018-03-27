@@ -1,24 +1,24 @@
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #compile-result .Rules , < <imp>
-      <k>
-        int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
-      </k>
-      <mem>
-        .Map
-      </mem>
-    </imp> --> <imp>
-      <k>
-        .
-      </k>
-      <mem>
-        x |-> 1
-      </mem>
-    </imp> >
+    #STUCK ( )
   </s>
   <kat>
     <analysis>
-      .Analysis
+      .Rules , < <imp>
+        <k>
+          int x , .Ids ; x = 7 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> 1
+        </mem>
+      </imp> >
     </analysis>
     <states>
       .States

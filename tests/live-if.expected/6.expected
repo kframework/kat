@@ -1,66 +1,66 @@
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #compile-result .Rules , < <imp>
-      <k>
-        int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
-      </k>
-      <mem>
-        .Map
-      </mem>
-    </imp> --> <imp>
-      <k>
-        { x = -1 ; }
-      </k>
-      <mem>
-        x |-> V0
-      </mem>
-    </imp> > , < <imp>
-      <k>
-        int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
-      </k>
-      <mem>
-        .Map
-      </mem>
-    </imp> --> <imp>
-      <k>
-        { x = 1 ; }
-      </k>
-      <mem>
-        x |-> V1
-      </mem>
-    </imp> > , < <imp>
-      <k>
-        { x = 1 ; }
-      </k>
-      <mem>
-        x |-> V2
-      </mem>
-    </imp> --> <imp>
-      <k>
-        .
-      </k>
-      <mem>
-        x |-> 1
-      </mem>
-    </imp> > , < <imp>
-      <k>
-        { x = -1 ; }
-      </k>
-      <mem>
-        x |-> V3
-      </mem>
-    </imp> --> <imp>
-      <k>
-        .
-      </k>
-      <mem>
-        x |-> -1
-      </mem>
-    </imp> >
+    #STUCK ( )
   </s>
   <kat>
     <analysis>
-      .Analysis
+      .Rules , < <imp>
+        <k>
+          int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { x = -1 ; }
+        </k>
+        <mem>
+          x |-> V0
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { x = 1 ; }
+        </k>
+        <mem>
+          x |-> V1
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { x = 1 ; }
+        </k>
+        <mem>
+          x |-> V2
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> 1
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { x = -1 ; }
+        </k>
+        <mem>
+          x |-> V3
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> -1
+        </mem>
+      </imp> >
     </analysis>
     <states>
       .States

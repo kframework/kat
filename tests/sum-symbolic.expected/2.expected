@@ -1,72 +1,88 @@
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #compile-result .Rules , < <imp>
-      <k>
-        int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
-      </k>
-      <mem>
-        .Map
-      </mem>
-    </imp> --> <imp>
-      <k>
-        { }
-      </k>
-      <mem>
-        n |-> V0
-        s |-> 0
-      </mem>
-    </imp> > , < <imp>
-      <k>
-        int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
-      </k>
-      <mem>
-        .Map
-      </mem>
-    </imp> --> <imp>
-      <k>
-        { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
-      </k>
-      <mem>
-        n |-> V1
-        s |-> 0
-      </mem>
-    </imp> > , < <imp>
-      <k>
-        { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
-      </k>
-      <mem>
-        n |-> V2
-        s |-> V3
-      </mem>
-    </imp> --> <imp>
-      <k>
-        { }
-      </k>
-      <mem>
-        n |-> V2 +Int -1
-        s |-> V3 +Int ( V2 +Int -1 )
-      </mem>
-    </imp> > , < <imp>
-      <k>
-        { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
-      </k>
-      <mem>
-        n |-> V4
-        s |-> V5
-      </mem>
-    </imp> --> <imp>
-      <k>
-        { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
-      </k>
-      <mem>
-        n |-> V4 +Int -1
-        s |-> V5 +Int ( V4 +Int -1 )
-      </mem>
-    </imp> >
+    #STUCK ( )
   </s>
   <kat>
     <analysis>
-      .Analysis
+      .Rules , < <imp>
+        <k>
+          int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { }
+        </k>
+        <mem>
+          n |-> V0
+          s |-> 0
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+        </k>
+        <mem>
+          n |-> V1
+          s |-> 0
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+        </k>
+        <mem>
+          n |-> V2
+          s |-> V3
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { }
+        </k>
+        <mem>
+          n |-> V2 +Int -1
+          s |-> V3 +Int ( V2 +Int -1 )
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+        </k>
+        <mem>
+          n |-> V4
+          s |-> V5
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+        </k>
+        <mem>
+          n |-> V4 +Int -1
+          s |-> V5 +Int ( V4 +Int -1 )
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { }
+        </k>
+        <mem>
+          n |-> V6
+          s |-> V7
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          n |-> V6
+          s |-> V7
+        </mem>
+      </imp> >
     </analysis>
     <states>
       .States
@@ -75,11 +91,11 @@
   <harness>
     <imp>
       <k>
-        { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+        .
       </k>
       <mem>
-        n |-> V4 +Int -1
-        s |-> V5 +Int ( V4 +Int -1 )
+        n |-> V6
+        s |-> V7
       </mem>
     </imp>
   </harness>
