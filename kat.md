@@ -151,19 +151,24 @@ The strategy language is a simple imperative language with sequencing and choice
 -   `StrategyRep` allows repeating a given strategy between a given number of times.
     This repetition is greedy, if only one bound is supplied it's an upper bound and the lower bound is zero.
     If both bounds are supplied the strategy fails if the lower bound is not met.
--   The repetition `*` is the "greedy Kleene star" which will attempt a strategy as many times as possible.
 -   The repetition `?` will try a strategy at most once.
+-   The repetition `*` is the "greedy Kleene star" which will attempt a strategy as many times as possible.
+-   The repetition `+` is the "greedy Kleene star" which will attempt a strategy as many times as possible, but at least once.
 
 ```k
-    syntax StrategyRep ::= Int | "*" | "?"
+    syntax StrategyRep ::= Int | "?" | "*" | "+"
                          | #decrement ( StrategyRep ) [function]
  // ------------------------------------------------------------
     rule #decrement(0) => 0
-    rule #decrement(?) => 0
     rule #decrement(N) => N -Int 1 requires N =/=Int 0
+    rule #decrement(?) => 0
+    rule #decrement(+) => *
     rule #decrement(*) => *
 
-    rule <s> S SR:StrategyRep => S { 0 , SR } ... </s>
+    rule <s> S N => S { N , N } ... </s>
+    rule <s> S ? => S { 0 , 1 } ... </s>
+    rule <s> S * => S { 0 , * } ... </s>
+    rule <s> S + => S { 1 , * } ... </s>
 
     rule <s> S { 0 , N }
           => #if N =/=K 0 #then try? S ~> ? S { 0 , #decrement(N) } : skip
