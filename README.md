@@ -46,3 +46,10 @@ After installing the above dependencies, the following command will build submod
 make deps
 make build
 ```
+
+This Repository
+---------------
+
+-   [kat.md] defines the strategy language used, as well as the analysis algorithms implemented in that language.
+-   [imp.md] defines the IMP language (modified to work well with stratagies).
+-   [kat-imp.md] hooks KAT up to IMP, providing the needed definitions.
