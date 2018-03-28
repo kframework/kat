@@ -323,8 +323,7 @@ Things added to the sort `StateOp` will automatically load the current state for
     syntax Strategy ::= "exec-to-branch" | "#exec-to-branch"
  // --------------------------------------------------------
     rule <s> exec-to-branch
-          => (step-with #normal) *
-          ~> (^ regular) *
+          => (#normal | ^ regular) *
           ~> which-can? #transition
           ~> #exec-to-branch
          ...
