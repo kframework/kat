@@ -1,1 +1,2 @@
 step ; step ; step ; which-can? (^ divzero | ^ divnonzero)
+compile
