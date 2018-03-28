@@ -1,0 +1,5 @@
+int x , y ;
+while (0 <= x) {
+  y = y / x ;
+  x = x - 1 ;
+}
