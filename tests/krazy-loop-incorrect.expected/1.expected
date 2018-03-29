@@ -1,6 +1,6 @@
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #false in 2826 steps
+    #STUCK ( ) ~> #bimc-result #false in 2826 steps ~> ^ regular *
   </s>
   <kat>
     <analysis>
