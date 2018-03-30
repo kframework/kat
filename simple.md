@@ -183,8 +183,8 @@ So if we use `Stmt` instead of `Stmts` in the production of `for` above then we 
  // ------------------------------------
 ```
 
-I wish I were able to write the following instead, but confuses the parser.
-With this, I could have also eliminated the empty block
+**TODO**: I wish I were able to write the following instead, but confuses the parser.
+          With this, I could have also eliminated the empty block.
 
 ```
     syntax Stmts ::= List{Stmt,""}
