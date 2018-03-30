@@ -278,14 +278,7 @@ One can add more control structures in the `control` cell, such as a stack for b
 Note that all cells except for `k` are also initialized, in that they contain a ground term of their corresponding sort.
 The `k` cell is initialized with the program that will be passed to the K tool, as indicated by the `$PGM` variable, followed by the `execute` task (defined shortly).
 
-**TODO**: The syntax declarations below are required because the sorts are referenced directly by a production and, because of the way KIL to KORE is implemented, the configuration syntax is not available yet.
-          Should simply work once KIL is removed completely check other definitions for this hack as well.
-
 ```k
-    syntax ControlCell
-    syntax ControlCellFragment
- // --------------------------
-
     configuration
         <threads>
           <thread multiplicity="*">
