@@ -236,9 +236,9 @@ Like in IMP and other languages, we finally tell the tool that values are K resu
 
 ```k
     syntax Val ::= Int | Bool | String
-                 | array(Int,Int)
-                 | lambda(Ids,Stmt)
- // -------------------------------
+                 | array  ( Int , Int  )
+                 | lambda ( Ids , Stmt )
+ // ------------------------------------
 
     syntax Exp     ::= Val
     syntax Exps    ::= Vals
