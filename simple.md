@@ -252,7 +252,7 @@ If writing the semantics directly on the K AST, using the associated labels inst
 
 ### Configuration
 
-The K configuration of SIMPLE consists of a top level cell, `T`, holding:
+The K configuration of SIMPLE consists of a several top level cells:
 
 -   a `threads` cell,
 -   a global environment map cell `genv` mapping the global variables and function names to their locations,
