@@ -152,8 +152,8 @@ The `print` statement construct is variadic, that is, it takes an arbitrary numb
 
 ```k
     syntax Block ::= "{" "}"
-                  | "{" Stmts "}"
- // -----------------------------
+                   | "{" Stmts "}"
+ // ------------------------------
 
     syntax Stmt ::= Decl | Block
                   | Exp ";"                               [seqstrict]
