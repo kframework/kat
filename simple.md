@@ -4,33 +4,33 @@ SIMPLE Programming Language
 Abstract
 --------
 
-This is the \K semantic definition of the untyped SIMPLE language.
+This is the K semantic definition of the untyped SIMPLE language.
 SIMPLE is intended to be a pedagogical and research language that captures the essence of the imperative programming paradigm, extended with several features often encountered in imperative programming languages.
 A program consists of a set of global variable declarations and function definitions.
 Like in C, function definitions cannot be nested and each program must have one function called \texttt{main}, which is invoked when the program is executed.
 To make it more interesting and to highlight some of K's strengths, SIMPLE includes the following features in addition to the conventional imperative expression and statement constructs:
 
-Multidimensional arrays and array references:
-:   An array evaluates to an array reference, which is a special value holding a location (where the elements of the array start) together with the size of the array; the elements of the array can be array references themselves (particularly when the array is multi-dimensional).
-    Array references are ordinary values, so they can be assigned to variables and passed/received by functions.
+*Multidimensional arrays and array references:*
+An array evaluates to an array reference, which is a special value holding a location (where the elements of the array start) together with the size of the array; the elements of the array can be array references themselves (particularly when the array is multi-dimensional).
+Array references are ordinary values, so they can be assigned to variables and passed/received by functions.
 
-Functions and function values:
-:   Functions can have zero or more parameters and can return abruptly using a \texttt{return} statement.
-    SIMPLE follows a call-by-value parameter passing style, with static scoping.
-    Function names evaluate to function abstractions, which hereby become ordinary values in the language, same like the array references.
+*Functions and function values:*
+Functions can have zero or more parameters and can return abruptly using a \texttt{return} statement.
+SIMPLE follows a call-by-value parameter passing style, with static scoping.
+Function names evaluate to function abstractions, which hereby become ordinary values in the language, same like the array references.
 
-Blocks with locals:
-:   SIMPLE variables can be declared anywhere, their scope being from the place where they are declared until the end of the most nested enclosing block.
+*Blocks with locals:*
+SIMPLE variables can be declared anywhere, their scope being from the place where they are declared until the end of the most nested enclosing block.
 
-Input/Output:
-:   The expression \texttt{read()} evaluates to the next value in the input buffer, and the statement \texttt{write(e)} evaluates \texttt{e} and outputs its value to the output buffer.
-    The input and output buffers are lists of values. \item Exceptions.
-    SIMPLE has parametric exceptions (the value thrown as an exception can be caught and bound).
+*Input/Output:*
+The expression \texttt{read()} evaluates to the next value in the input buffer, and the statement \texttt{write(e)} evaluates \texttt{e} and outputs its value to the output buffer.
+The input and output buffers are lists of values. \item Exceptions.
+SIMPLE has parametric exceptions (the value thrown as an exception can be caught and bound).
 
-Concurrency via dynamic thread creation/termination and synchronization:
-:   One can spawn a thread to execute any statement.
-    The spawned thread shares with its parent its environment at creation time.
-    Threads can be synchronized via a join command which blocks the current thread until the joined thread completes, via re-entrant locks which can be acquired and released, as well as through rendezvous commands.
+*Concurrency via dynamic thread creation/termination and synchronization:*
+One can spawn a thread to execute any statement.
+The spawned thread shares with its parent its environment at creation time.
+Threads can be synchronized via a join command which blocks the current thread until the joined thread completes, via re-entrant locks which can be acquired and released, as well as through rendezvous commands.
 
 Like in many other languages, some of SIMPLE's constructs can be desugared into a smaller set of basic constructs.
 We do that at the end of the syntax module, and then we only give semantics to the core constructs.
