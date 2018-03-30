@@ -462,15 +462,15 @@ They rewrite the language constructs to their library counterparts when their ar
 ```k
     rule <k> S1 +  S2 => S1 +String S2 ... </k>
 
-    rule <k> I1 +  I2 => I1 +Int  I2 ... </k>
-    rule <k> I1 -  I2 => I1 -Int  I2 ... </k>
-    rule <k> I1 *  I2 => I1 *Int  I2 ... </k>
-    rule <k> I1 /  I2 => I1 /Int  I2 ... </k> requires I2 =/=K 0
-    rule <k> I1 %  I2 => I1 %Int  I2 ... </k> requires I2 =/=K 0
-    rule <k>    -  I  =>  0 -Int  I  ... </k>
-    rule <k> I1 <  I2 => I1 <Int  I2 ... </k>
+    rule <k> I1 +  I2 => I1  +Int I2 ... </k>
+    rule <k> I1 -  I2 => I1  -Int I2 ... </k>
+    rule <k> I1 *  I2 => I1  *Int I2 ... </k>
+    rule <k> I1 /  I2 => I1  /Int I2 ... </k> requires I2 =/=K 0
+    rule <k> I1 %  I2 => I1  %Int I2 ... </k> requires I2 =/=K 0
+    rule <k>    -  I  =>  0  -Int I  ... </k>
+    rule <k> I1 <  I2 => I1  <Int I2 ... </k>
     rule <k> I1 <= I2 => I1 <=Int I2 ... </k>
-    rule <k> I1 >  I2 => I1 >Int  I2 ... </k>
+    rule <k> I1 >  I2 => I1  >Int I2 ... </k>
     rule <k> I1 >= I2 => I1 >=Int I2 ... </k>
 ```
 
