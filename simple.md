@@ -428,7 +428,7 @@ All (top-level) functions end up having their names bound in the global environm
 
 ### Variable Lookup and Increment
 
-When a variable `X` is the first computational task, and `X` is bound to some location `L` in the environment, and `L` is mapped to some value $V$ in the store, then we rewrite `X` into `V`.
+When a variable `X` is the first computational task, and `X` is bound to some location `L` in the environment, and `L` is mapped to some value `V` in the store, then we rewrite `X` into `V`.
 
 ```k
     rule <k> X:Id => V ... </k>
@@ -449,8 +449,8 @@ Location values, also defined at the end of the file, are integers wrapped with 
 ```k
     context ++(HOLE => lvalue(HOLE))
  // --------------------------------
-    rule <k> ++loc(L) => I +Int 1 ...</k>
-         <store>... L |-> (I => I +Int 1) ...</store>
+    rule <k> ++loc(L) => I +Int 1 ... </k>
+         <store> ... L |-> (I => I +Int 1) ... </store>
       [tag(increment)]
 ```
 
