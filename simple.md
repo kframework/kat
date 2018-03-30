@@ -7,7 +7,7 @@ Abstract
 This is the K semantic definition of the untyped SIMPLE language.
 SIMPLE is intended to be a pedagogical and research language that captures the essence of the imperative programming paradigm, extended with several features often encountered in imperative programming languages.
 A program consists of a set of global variable declarations and function definitions.
-Like in C, function definitions cannot be nested and each program must have one function called \texttt{main}, which is invoked when the program is executed.
+Like in C, function definitions cannot be nested and each program must have one function called `main`, which is invoked when the program is executed.
 To make it more interesting and to highlight some of K's strengths, SIMPLE includes the following features in addition to the conventional imperative expression and statement constructs:
 
 *Multidimensional arrays and array references:*
@@ -15,7 +15,7 @@ An array evaluates to an array reference, which is a special value holding a loc
 Array references are ordinary values, so they can be assigned to variables and passed/received by functions.
 
 *Functions and function values:*
-Functions can have zero or more parameters and can return abruptly using a \texttt{return} statement.
+Functions can have zero or more parameters and can return abruptly using a `return` statement.
 SIMPLE follows a call-by-value parameter passing style, with static scoping.
 Function names evaluate to function abstractions, which hereby become ordinary values in the language, same like the array references.
 
@@ -23,7 +23,7 @@ Function names evaluate to function abstractions, which hereby become ordinary v
 SIMPLE variables can be declared anywhere, their scope being from the place where they are declared until the end of the most nested enclosing block.
 
 *Input/Output:*
-The expression \texttt{read()} evaluates to the next value in the input buffer, and the statement \texttt{write(e)} evaluates \texttt{e} and outputs its value to the output buffer.
+The expression `read()` evaluates to the next value in the input buffer, and the statement `write(e)` evaluates `e` and outputs its value to the output buffer.
 The input and output buffers are lists of values. \item Exceptions.
 SIMPLE has parametric exceptions (the value thrown as an exception can be caught and bound).
 
@@ -495,7 +495,7 @@ The logical negation is clear, but the logical conjunction and disjunction are s
 Untyped SIMPLE does not check array bounds (the dynamically typed version of it, in [examples/simple/typed/dynamic], does check for array out of bounds).
 The first rule below desugars the multi-dimensional array access to uni-dimensional array access; recall that the array access operation was declared strict, so all sub-expressions involved are already values at this stage.
 The second rule rewrites the array access to a lookup operation at a precise location; we prefer to do it this way to avoid locking the store.
-The semantics of the auxiliary \texttt{lookup} operation is straightforward, and is defined at the end of the file.
+The semantics of the auxiliary `lookup` operation is straightforward, and is defined at the end of the file.
 
 **NOTE**: The `[anywhere]` feature is underused, because it would only be used at the top of the computation or inside the lvalue wrapper.
           So it may not be worth, or we may need to come up with a special notation allowing us to enumerate contexts for `[anywhere]` rules.
