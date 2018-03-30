@@ -38,8 +38,8 @@ We do that at the end of the syntax module, and then we only give semantics to t
 Syntax
 ------
 
-```
-module SIMPLE-UNTYPED-SYNTAX
+```k
+module SIMPLE-SYNTAX
     imports DOMAINS-SYNTAX
 ```
 
@@ -214,8 +214,8 @@ Semantics
 ---------
 
 ```k
-module SIMPLE-UNTYPED
-    imports SIMPLE-UNTYPED-SYNTAX
+module SIMPLE
+    imports SIMPLE-SYNTAX
     imports DOMAINS
 ```
 
@@ -534,8 +534,8 @@ We add an artificial `nothing` value to the language, which is returned by the n
  // --------------------------------------------------
     rule <k> lambda(XS,S)(Vs:Vals) ~> K => mkDecls(XS,Vs) S return; </k>
          <control>
-           <fstack> .List => ListItem((ENV,K,C)) ...</fstack>
-           ...
+           <fstack> .List => ListItem((ENV,K,C)) ... </fstack>
+           C
          </control>
          <env> ENV => GENV </env>
          <genv> GENV </genv>
