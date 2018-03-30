@@ -331,7 +331,10 @@ As the configuration above states, the `k` and `env` cells are actually located 
  // ----------------------------
     rule <k> var X:Id; => . ...</k>
          <env> ENV => ENV[X <- L] </env>
-         <store> ... .Map => L |-> undefined ... </store>
+         <store>
+           .Map => L |-> undefined
+           ...
+         </store>
          <nextLoc> L => L +Int 1 </nextLoc>
 ```
 
@@ -349,8 +352,10 @@ Note that, since the dimensions of array declarations can be arbitrary expressio
  // -----------------------
     rule <k> var X:Id[N:Int]; => . ...</k>
          <env> Env => Env[X <- L] </env>
-         <store>... .Map => L |-> array(L +Int 1, N)
-                            (L +Int 1) ... (L +Int N) |-> undefined ...</store>
+         <store>
+           .Map => L |-> array(L +Int 1, N) (L +Int 1) ... (L +Int N) |-> undefined
+           ...
+         </store>
          <nextLoc> L => L +Int 1 +Int N </nextLoc>
       requires N >=Int 0
 ```
@@ -365,7 +370,7 @@ The first variable, `$1`, iterates through and initializes each element of the f
 
 ```k
     syntax Id ::= "$1" | "$2"
- // -----------------------
+ // -------------------------
     rule <k> var X:Id[N1:Int, N2:Int, Vs:Vals];
           => var X[N1];
              {
