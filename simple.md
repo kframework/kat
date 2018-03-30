@@ -440,7 +440,7 @@ When a variable `X` is the first computational task, and `X` is bound to some lo
 Note that the rule above excludes reading `undefined`, because `undefined` is not a value and `V` is checked at runtime to be a value.
 
 This is tricky, because we want to allow both `++x` and `++a[5]`.
-Therefore, we need to extract the lvalue of the expression to increment.
+Therefore, we need to extract the `lvalue` of the expression to increment.
 To do that, we state that the expression to increment should be wrapped by the auxiliary `lvalue` operation and then evaluated.
 The semantics of this auxiliary operation is defined at the end of this file.
 For now, all we need to know is that it takes an expression and evaluates to a location value.
@@ -498,7 +498,7 @@ The first rule below desugars the multi-dimensional array access to uni-dimensio
 The second rule rewrites the array access to a lookup operation at a precise location; we prefer to do it this way to avoid locking the store.
 The semantics of the auxiliary `lookup` operation is straightforward, and is defined at the end of the file.
 
-**NOTE**: The `[anywhere]` feature is underused, because it would only be used at the top of the computation or inside the lvalue wrapper.
+**NOTE**: The `[anywhere]` feature is underused, because it would only be used at the top of the computation or inside the `lvalue` wrapper.
           So it may not be worth, or we may need to come up with a special notation allowing us to enumerate contexts for `[anywhere]` rules.
 
 ```k
@@ -580,7 +580,7 @@ We append each of its evaluated arguments to the output buffer, and discard the 
 In SIMPLE, like in C, assignments are expression constructs and not statement constructs.
 To make it a statement all one needs to do is to follow it by a semi-colon `;` (see the semantics for expression statements below).
 Like for the increment, we want to allow assignments not only to variables but also to array elements, e.g., `e1[e2] = e3` where `e1` evaluates to an array reference, `e2` to a natural number, and `e3` to any value.
-Thus, we first compute the lvalue of the left-hand-side expression that appears in an assignment, and then we do the actual assignment to the resulting location.
+Thus, we first compute the `lvalue` of the left-hand-side expression that appears in an assignment, and then we do the actual assignment to the resulting location.
 
 ```k
     context (HOLE => lvalue(HOLE)) = _
@@ -847,7 +847,7 @@ The elegant rule below does precisely that, thus avoiding the unnecessary comput
 In fact, the above follows a common convention in K for recovery operations of cell contents: the meaning of a computation task of the form `cell(C)` that reaches the top of the computation is that the current contents of cell `cell` is discarded and gets replaced with `C`.
 We did not add support for these special computation tasks in our current implementation of K, so we need to define them as above.
 
-For convenience in giving the semantics of constructs like the increment and the assignment, that we want to operate the same way on variables and on array elements, we used an auxiliary `lvalue(E)` construct which was expected to evaluate to the lvalue of the expression `E`.
+For convenience in giving the semantics of constructs like the increment and the assignment, that we want to operate the same way on variables and on array elements, we used an auxiliary `lvalue(E)` construct which was expected to evaluate to the `lvalue` of the expression `E`.
 This is only defined when `E` has an `lvalue`, that is, when `E` is either a variable or evaluates to an array element.
 `lvalue(E)` evaluates to a value of the form `loc(L)`, where `L` is the location where the value of `E` can be found; for clarity, we use `loc` to structurally distinguish natural numbers from location values.
 In giving semantics to `lvalue` there are two cases to consider.
@@ -855,7 +855,7 @@ In giving semantics to `lvalue` there are two cases to consider.
 (2) If `E` is an array element, then we first evaluate the array and its index in order to identify the exact location of the element of concern, and then return that location.
 The last rule below works because its preceding context declarations ensure that the array and its index are evaluated, and then the rule for array lookup (defined above) rewrites the evaluated array access construct to its corresponding store lookup operation.
 
-**NOTE**: For parsing reasons, we prefer to allow lvalue to take a `K`.
+**NOTE**: For parsing reasons, we prefer to allow `lvalue` to take a `K`.
 
 ```k
     syntax Exp ::= lvalue(K)
