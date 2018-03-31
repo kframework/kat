@@ -51,10 +51,7 @@ run_kdebug() {
 run_ksearch() {
     local run_file=$1   ; shift
     local strategy="$1" ; shift
-    run_env
-    export K_OPTS=-Xss500m
-    krun --directory .build/defn/kcompile -cSTRATEGY="$strategy" \
-            --search "$run_file" "$@"
+    run_krun "$run_file" "$strategy" --search "$@"
 }
 
 run_test() {
