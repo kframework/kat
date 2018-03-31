@@ -124,11 +124,11 @@ case "$run_command" in
 
        # Running
        # -------
-       $0 run    <pgm> <strategy>   Run a single IMP program using given strategy
-       $0 debug  <pgm> <strategy>   Run a single IMP program using given strategy in the debugger
-       $0 search <pgm> <strategy>   Search a single IMP program's executions using given strategy
+       $0 run    <pgm> <strategy>   Run a single program using given strategy
+       $0 debug  <pgm> <strategy>   Run a single program using given strategy in the debugger
+       $0 search <pgm> <strategy>   Search a single program's executions using given strategy
 
-       Note: <pgm> is a path to a file containing an IMP program.
+       Note: <pgm> is a path to a file containing an IMP (*.imp) or SIMPLE (*.simple) program.
              <strategy> is a term in sort STRATEGY.
 
        # Testing
