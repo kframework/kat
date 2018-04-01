@@ -469,9 +469,11 @@ We've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `
 ```k
 module KAT-SBC
     imports KAT
+    imports K-REFLECTION
 
     syntax Rule ::= "<" State ">"
                   | "<" State "-->" State ">"
+                  | "<" State "-->" State "requires" K ">"
 
     syntax Rules ::= ".Rules"
                    | Rules "," Rule
@@ -495,6 +497,8 @@ The interface of this analysis requires you define when to abstract and how to a
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
 
+**TODO**: Need to check implication of condition as well!
+
 ```k
     syntax StatePred ::= "subsumed?"
     syntax Pred      ::= "#subsumed?" State Rules
@@ -507,6 +511,11 @@ The interface of this analysis requires you define when to abstract and how to a
 
     rule <s> #subsumed? STATE (RS , < LHS --> _ >)
           => (LHS subsumes? STATE) or (#subsumed? STATE RS)
+         ...
+         </s>
+
+    rule <s> #subsumed? STATE (RS , < LHS --> _ requires _>)
+          => (LHS subsumes? STATE) or (#subsumed? RS)
          ...
          </s>
 ```
@@ -523,7 +532,7 @@ The interface of this analysis requires you define when to abstract and how to a
     syntax StateOp  ::= "end-rule"
  // ------------------------------
     rule <s> end-rule [ STATE ] => . ... </s>
-         <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
+         <analysis> RS , (< LHS > => < LHS --> STATE requires #getConstraint(< LHS --> STATE >)>) </analysis>
 
     syntax Strategy ::= "end-rules" | "transition-finish" Strategy Rule
  // -------------------------------------------------------------------
