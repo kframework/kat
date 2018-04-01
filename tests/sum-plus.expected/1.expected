@@ -19,7 +19,7 @@
           n |-> V0
           s |-> V1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V0 ==K false > , < <imp>
         <k>
           int n , s , .Ids ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } s = s + 300 ;
         </k>
@@ -34,7 +34,7 @@
           n |-> V2
           s |-> V3
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V2 ==K true > , < <imp>
         <k>
           { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } ~> s = s + 300 ;
         </k>
@@ -50,7 +50,7 @@
           n |-> V4 +Int -1
           s |-> V5 +Int ( V4 +Int -1 )
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V4 +Int -1 ==K false > , < <imp>
         <k>
           { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } ~> s = s + 300 ;
         </k>
@@ -66,7 +66,7 @@
           n |-> V6 +Int -1
           s |-> V7 +Int ( V6 +Int -1 )
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V6 +Int -1 ==K true > , < <imp>
         <k>
           { } ~> s = s + 300 ;
         </k>
@@ -82,7 +82,7 @@
           n |-> V8
           s |-> V9 +Int 300
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States

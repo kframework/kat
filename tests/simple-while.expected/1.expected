@@ -19,7 +19,7 @@
           x |-> -1
           y |-> 22
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States

@@ -18,7 +18,7 @@
         <mem>
           x |-> V0
         </mem>
-      </imp> > , < <imp>
+      </imp> requires V0 <=Int 7 ==K false > , < <imp>
         <k>
           int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
         </k>
@@ -32,7 +32,7 @@
         <mem>
           x |-> V1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires V1 <=Int 7 ==K true > , < <imp>
         <k>
           { x = 1 ; }
         </k>
@@ -46,7 +46,7 @@
         <mem>
           x |-> 1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           { x = -1 ; }
         </k>
@@ -60,7 +60,7 @@
         <mem>
           x |-> -1
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States

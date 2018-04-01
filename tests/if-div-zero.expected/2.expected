@@ -19,7 +19,7 @@
           x |-> V0
           y |-> 7
         </mem>
-      </imp> > , < <imp>
+      </imp> requires V0 ==K 0 ==K false > , < <imp>
         <k>
           int x , y , .Ids ; y = 7 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
         </k>
@@ -34,7 +34,7 @@
           x |-> 0
           y |-> 7
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           div-zero-error ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
         </k>
@@ -50,7 +50,7 @@
           x |-> V1
           y |-> V2
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           7 /Int V3 ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
         </k>
@@ -66,7 +66,7 @@
           x |-> V4
           y |-> V5
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 7 /Int V3 <=Int 3 ==K false > , < <imp>   // Should be 7 /Int V4 <=Int 3 ==K false
         <k>
           7 /Int V6 ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
         </k>
@@ -82,7 +82,7 @@
           x |-> V7
           y |-> V8
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 7 /Int V6 <=Int 3 ==K true > , < <imp>    // Should be 7 /Int V7 <=Int 3 ==K true
         <k>
           { x = 1 ; }
         </k>
@@ -98,7 +98,7 @@
           x |-> 1
           y |-> V10
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           { x = -1 ; }
         </k>
@@ -114,7 +114,7 @@
           x |-> -1
           y |-> V12
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States

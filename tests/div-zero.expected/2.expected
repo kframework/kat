@@ -19,7 +19,7 @@
           x |-> V0
           y |-> V1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires V0 ==K 0 ==K false > , < <imp>
         <k>
           int x , y , .Ids ; y = 7 / x ;
         </k>
@@ -34,7 +34,7 @@
           x |-> 0
           y |-> V2
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           div-zero-error ~> #freezer_=_;_IMP0_ ( y )
         </k>
@@ -50,7 +50,7 @@
           x |-> V3
           y |-> V4
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           7 /Int V5 ~> #freezer_=_;_IMP0_ ( y )
         </k>
@@ -64,9 +64,9 @@
         </k>
         <mem>
           x |-> V6
-          y |-> 7 /Int V5
+          y |-> 7 /Int V5   // should be 7 /Int V6
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States
