@@ -19,7 +19,7 @@
           x |-> V0
           y |-> V1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V0 ==K false > , < <imp>
         <k>
           int x , y , .Ids ; while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
@@ -34,7 +34,7 @@
           x |-> V2
           y |-> V3
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V2 ==K true > , < <imp>
         <k>
           { { y = y / x ; x = x - 1 ; } while ( 0 <= x ) { y = y / x ; x = x - 1 ; } }
         </k>
@@ -50,7 +50,7 @@
           x |-> V4
           y |-> V5
         </mem>
-      </imp> > , < <imp>
+      </imp> requires V4 ==K 0 ==K false > , < <imp>
         <k>
           { { y = y / x ; x = x - 1 ; } while ( 0 <= x ) { y = y / x ; x = x - 1 ; } }
         </k>
@@ -66,7 +66,7 @@
           x |-> 0
           y |-> V6
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
@@ -82,7 +82,7 @@
           x |-> V7
           y |-> V8
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
           V9 /Int V10 ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
@@ -96,9 +96,9 @@
         </k>
         <mem>
           x |-> V11 -Int 1
-          y |-> V9 /Int V10
+          y |-> V9 /Int V10     // Should be V12 /Int V11
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V11 -Int 1 ==K false > , < <imp>
         <k>
           V13 /Int V14 ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
@@ -112,9 +112,9 @@
         </k>
         <mem>
           x |-> V15 -Int 1
-          y |-> V13 /Int V14
+          y |-> V13 /Int V14    // Should be V16 /Int V15
         </mem>
-      </imp> > , < <imp>
+      </imp> requires 0 <=Int V15 -Int 1 ==K true > , < <imp>
         <k>
           { }
         </k>
@@ -130,7 +130,7 @@
           x |-> V17
           y |-> V18
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States

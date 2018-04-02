@@ -18,7 +18,7 @@
         <mem>
           x |-> 1
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States

@@ -436,9 +436,11 @@ I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `R
 ```k
 module KAT-SBC
     imports KAT
+    imports K-REFLECTION
 
     syntax Rule ::= "<" State ">"
                   | "<" State "-->" State ">"
+                  | "<" State "-->" State "requires" K ">"
 
     syntax Rules ::= ".Rules"
                    | Rules "," Rule
@@ -462,6 +464,8 @@ The interface of this analysis requires you define when to abstract and how to a
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
 
+**TODO**: Need to check implication of condition as well!
+
 ```k
     syntax Pred ::= "subsumed?" | "#subsumed?" Rules
  // ------------------------------------------------
@@ -471,6 +475,9 @@ The interface of this analysis requires you define when to abstract and how to a
     rule <s> #subsumed? (RS , < STATE >) => #subsumed? RS ... </s>
 
     rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes? STATE) or (#subsumed? RS) ... </s>
+         <states> STATE : STATES </states>
+
+    rule <s> #subsumed? (RS , < LHS --> _ requires _>) => (LHS subsumes? STATE) or (#subsumed? RS) ... </s>
          <states> STATE : STATES </states>
 ```
 
@@ -487,7 +494,8 @@ The interface of this analysis requires you define when to abstract and how to a
     syntax StateOp  ::= "end-rule"
  // ------------------------------
     rule <s> end-rule [ STATE ] => . ... </s>
-         <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> requires STATE =/=K #current
+         <analysis> RS , (< LHS > => < LHS --> STATE requires #getConstraint(< LHS --> STATE >)>) </analysis>
+      requires STATE =/=K #current
 
     syntax Strategy ::= "end-rules" | "transition-finish" Strategy Rule
  // -------------------------------------------------------------------
