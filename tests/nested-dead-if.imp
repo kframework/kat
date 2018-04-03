@@ -1,0 +1,12 @@
+int x , y ;
+x = symbolicInt ;
+y = symbolicInt ;
+if(x <= y) {
+  if(x <= y) {
+    x = 10 ;
+  } else {
+    x = 11 ;
+  }
+} else {
+  x = 12 ;
+}
