@@ -214,6 +214,48 @@ The strategy language is a simple imperative language with sequencing and choice
     rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s>
 ```
 
+Meta Strategies
+---------------
+
+The following strategies get information about the current state or manipulate the current state in standard ways.
+
+-   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
+
+```k
+    syntax StateOp  ::= "rename-vars"
+    syntax Strategy ::= "#rename-vars" K
+ // ------------------------------------
+    rule <s> rename-vars [ STATE ]    => #rename-vars #renameVariables(STATE) ... </s>
+    rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
+```
+
+-   `stuck?` checks if the current state can take a step.
+
+```k
+    syntax Pred ::= "stuck?"
+ // ------------------------
+    rule <s> stuck? => not can? step ... </s>
+```
+
+-   `which-can?_` checks which of the given choices of strategies can take a step.
+
+```k
+    syntax Strategy  ::= "which-can?" Strategy
+    syntax Exception ::= "#which-can" Strategy
+ // ------------------------------------------
+    rule <s> which-can? (S1 | S2) => which-can? S1 ~> which-can? S2 ... </s>
+    rule <s> which-can? S => can? S ~> ? #exception (#which-can S) : skip ... </s>
+      requires notBool #orStrategy(S)
+
+    rule <s> #which-can S1 ~> which-can? S2 => which-can? S2 ~> #which-can S1 ... </s>
+    rule <s> #which-can S1 ~> #which-can S2 => #which-can (S1 | S2)           ... </s>
+
+    syntax Bool ::= #orStrategy ( Strategy ) [function]
+ // ---------------------------------------------------
+    rule #orStrategy(S1 | S2) => true
+    rule #orStrategy(_)       => false [owise]
+```
+
 Strategy Primitives
 -------------------
 
@@ -281,47 +323,6 @@ Things added to the sort `StateOp` will automatically load the current state for
  // ---------------------------------------------------
     rule <s> (. => push ~> #state-op) ~> SO:StateOp  ... </s>
     rule <s> #state-op ~> SO:StateOp => SO [ STATE ] ... </s> <states> STATE : STATES => STATES </states>
-```
-
--   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
-
-```k
-    syntax StateOp  ::= "rename-vars"
-    syntax Strategy ::= "#rename-vars" K
- // ------------------------------------
-    rule <s> rename-vars [ STATE ]    => #rename-vars #renameVariables(STATE) ... </s>
-    rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
-```
-
--   `stuck?` checks if the current state can take a step.
-
-```k
-    syntax Pred ::= "stuck?"
- // ------------------------
-    rule <s> stuck? => not can? step ... </s>
-```
-
--   `which-can?_` checks which of the given choices of strategies can take a step.
-
-```k
-    syntax Strategy  ::= "#exception" Exception
- // -------------------------------------------
-    rule <s> #exception E => E ... </s>
-
-    syntax Strategy  ::= "which-can?" Strategy
-    syntax Exception ::= "#which-can" Strategy
- // ------------------------------------------
-    rule <s> which-can? (S1 | S2) => which-can? S1 ~> which-can? S2 ... </s>
-    rule <s> which-can? S => can? S ~> ? #exception (#which-can S) : skip ... </s>
-      requires notBool #orStrategy(S)
-
-    rule <s> #which-can S1 ~> which-can? S2 => which-can? S2 ~> #which-can S1 ... </s>
-    rule <s> #which-can S1 ~> #which-can S2 => #which-can (S1 | S2)           ... </s>
-
-    syntax Bool ::= #orStrategy ( Strategy ) [function]
- // ---------------------------------------------------
-    rule #orStrategy(S1 | S2) => true
-    rule #orStrategy(_)       => false [owise]
 ```
 
 -   `_until_` will execute the first strategy until the second strategy applies.
