@@ -307,7 +307,7 @@ Things added to the sort `StateOp` will automatically load the current state for
     syntax Exception ::= "#which-can" Strategy
  // ------------------------------------------
     rule <s> which-can? (S1 | S2) => which-can? S1 ~> which-can? S2 ... </s>
-    rule <s> which-can? S => can? (step-with S) ~> ? #exception (#which-can S) : skip ... </s>
+    rule <s> which-can? S => can? S ~> ? #exception (#which-can S) : skip ... </s>
       requires notBool #orStrategy(S)
 
     rule <s> #which-can S1 ~> which-can? S2 => which-can? S2 ~> #which-can S1 ... </s>
