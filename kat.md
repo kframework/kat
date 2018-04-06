@@ -528,48 +528,71 @@ The interface of this analysis requires you define when to abstract, how to abst
          </s>
 ```
 
--   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
+-   `begin-rule` will use the current state as the left- and right-hand-sides of a new rule in the record of rules.
 -   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.
 
 ```k
     syntax StateOp ::= "begin-rule"
- // -------------------------------
-    rule <s> begin-rule [ STATE ] => . ... </s>
-         <analysis> RS => RS , < STATE > </analysis>
+ // ------------------------------
+    rule <analysis> RS => RS , < STATE --> STATE requires #getFullConstraint > </analysis>
+         <s> begin-rule [ STATE ] => . ... </s>
 
     syntax StateOp  ::= "end-rule"
- // ------------------------------
-    rule <s> end-rule [ STATE ] => . ... </s>
-         <analysis> RS , (< LHS > => < LHS --> STATE requires #getConstraint(< LHS --> STATE >)>) </analysis>
+    syntax Strategy ::= "#end-rule" K
+ // ---------------------------------
+    rule <analysis> RS , < LHS > => RS </analysis>
+         <s> end-rule [ RHS ] => #end-rule #renameVariables(< LHS --> RHS requires #getFullConstraint >) ... </s>
 
-    syntax Strategy ::= "end-rules" | "transition-finish" Strategy Rule
- // -------------------------------------------------------------------
-    rule <s>                 end-rules => end-rule                            ... </s>
-    rule <s> #which-can S ~> end-rules => push ~> transition-finish S < LHS > ... </s>
-         <analysis> RS , < LHS > => RS </analysis>
+    rule <rules> RS => RS , R </rules>
+         <s> #end-rule R => . ... </s>
+```
 
-    rule <s> transition-finish S (< LHS > => < LHS --> RHS >) ... </s>
-         <states> RHS : STATES => STATES </states>
+-   `store-rule` is similar to `end-rule`, but leaves the rule in the `analysis` cell for further analysis.
+-   `store-rules` expects a `#which-can_` at the top of the cell, telling it the relevant next-steps to take for finishing off the current rule into multiple rules.
 
-    rule <s> transition-finish (S1 | S2) < LHS --> RHS >
-          => transition-finish S1        < LHS --> RHS >
-          ~> transition-finish S2        < LHS --> RHS >
+```k
+    syntax StateOp ::= "store-rule"
+    syntax Strateg ::= "#store-rule" K
+ // ----------------------------------
+    rule <analysis> RS , < LHS > => RS </analysis>
+         <s> store-rule [ RHS ] => #store-rule #renameVariables(< LHS --> RHS requires #getFullConstraint >) ... </s>
+
+    rule <analysis> RS => RS , R </analysis>
+         <s> #store-rule R => . ... </s>
+
+    syntax Strategy ::= "store-rules" | "#end-with" Strategy Rule
+    syntax StateOp  ::= "#store-rules" Strategy Rule
+ // ------------------------------------------------
+    rule <s> store-rules => store-rule ... </s>
+
+    rule <analysis> RS , < LHS > => RS </analysis>
+         <s> #which-can S ~> store-rules => #store-rules S < LHS > ... </s>
+
+    rule <s> #store-rules S < LHS > [ RHS ]
+          => #end-with S < LHS --> RHS requires #getFullConstraint >
          ...
          </s>
 
-    rule <s> transition-finish S < LHS --> RHS >
-          => #transition-rename #renameVariables(< LHS --> RHS >)
-          ~> S
-          ~> push
-          ~> end-rule
+    rule <s> #end-with S1 | S2 < LHS --> RHS requires C >
+          => #end-with S1      < LHS --> RHS requires C >
+          ~> #end-with      S2 < LHS --> RHS requires C >
          ...
          </s>
+
+    rule <s> #end-with S R => #extend-with S #renameVariables(R) ... </s>
       requires notBool #orStrategy(S)
 
-    syntax Strategy ::= "#transition-rename" K
- // ------------------------------------------
-    rule <s> #transition-rename < LHS --> RHS > => pop RHS ... </s>
-         <analysis> RS => RS , < LHS > </analysis>
+    syntax Strategy ::= "#extend-with" Strategy K
+ // ---------------------------------------------
+    rule <analysis> RS => RS , < LHS > </analysis>
+         <s> #extend-with S < LHS --> RHS requires C >
+          => set-constraint C
+          ~> pop RHS
+          ~> S
+          ~> store-rule
+         ...
+         </s>
+
 ```
 
 Finally, semantics based compilation is provided as a macro.
