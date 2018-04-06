@@ -98,6 +98,10 @@ Here, a wrapper around this functionality is provided which will try to execute 
 **TODO**: Are we losing the constraints on the current term by calling `rename-vars` on it?
 
 ```k
+    syntax Strategy ::= "#exception" Exception
+ // ------------------------------------------
+    rule <s> #exception E => E ... </s>
+
     syntax Exception ::= "#can"
     syntax Pred      ::= "can?" Strategy
  // ------------------------------------
