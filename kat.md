@@ -219,6 +219,25 @@ Meta Strategies
 
 The following strategies get information about the current state or manipulate the current state in standard ways.
 
+-   `#error_` and `#metaTry__` can be used in conjunction for calling meta-level debugging operators.
+
+```k
+    syntax Exception ::= "#error" String
+                       | "#metaTry" Bool Exception
+ // ----------------------------------------------
+    rule <s> #metaTry true _ => . ... </s>
+```
+
+-   `print-constraint` has the side-effect of printing the current top-level constraint.
+-   `set-constraint_` replaces the current top-level constraint with the given one.
+
+```k
+    syntax Strategy ::= "print-constraint" | "set-constraint" K
+ // -----------------------------------------------------------
+    rule <s> print-constraint => #metaTry #printConstraint  #error "#printConstraint failure" ... </s>
+    rule <s> set-constraint C => #metaTry #setConstraint(C) #error "#setConstraint failure"   ... </s>
+```
+
 -   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
 
 ```k
