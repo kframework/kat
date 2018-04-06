@@ -602,20 +602,29 @@ Finally, semantics based compilation is provided as a macro.
 ```k
     syntax Strategy ::= "compile-step"
  // ----------------------------------
-    rule <s> ( compile-step
-            => dup
-            ~> pop
-            ~> if subsumed?
-               then drop
-               else ( pop
-                    ; abstract
-                    ; rename-vars
-                    ; begin-rule
-                    ; exec-to-branch
-                    ; end-rules
-                    )
-             )
-             ...
+    rule <analysis> RS , (< LHS --> RHS requires C > => < LHS >) </analysis>
+         <s> compile-step
+          => set-constraint C
+          ~> pop RHS
+          ~> if subsumed?
+                then end-rule
+             else if can? #loop
+                then ( end-rule
+                     ; abstract
+                     ; begin-rule
+                     ; (which-can? #loop)
+                     ; store-rules
+                     )
+             else if can? #branch
+                then ( (which-can? #branch)
+                     ; store-rules
+                     )
+             else if try? (^ regular | #normal)
+                then ( (^ regular | #normal)*
+                     ; store-rule
+                     )
+             else end-rule
+         ...
          </s>
 ```
 
@@ -625,16 +634,17 @@ Finally, semantics based compilation is provided as a macro.
     syntax Strategy ::= "compile" | "#compile"
  // ------------------------------------------
     rule <s> ( compile
-            => setAnalysis .Rules
+            => setRules    .Rules
+            ~> setAnalysis .Rules
             ~> setStates   .States
-            ~> push
+            ~> begin-rule
             ~> #compile
              )
              ...
          </s>
 
-    rule <s> #compile => .                   ... </s> <states> .States        </states>
-    rule <s> (. => compile-step) ~> #compile ... </s> <states> STATE : STATES </states>
+    rule <s> #compile => .                   ... </s> <analysis> .Rules </analysis>
+    rule <s> (. => compile-step) ~> #compile ... </s> <analysis> RS , R </analysis>
 endmodule
 ```
 
