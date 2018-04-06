@@ -274,12 +274,11 @@ Things added to the sort `StateOp` will automatically load the current state for
 -   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
 
 ```k
-    syntax Strategy ::= "rename-vars" | "#rename-vars" | "#renamed-vars" K
- // ----------------------------------------------------------------------
-    rule <s> rename-vars           => push ~> #rename-vars              ... </s>
-    rule <s> #renamed-vars S:State => pop S                             ... </s>
-    rule <s> #rename-vars          => #renamed-vars #renameVariables(S) ... </s>
-         <states> S : STATES => STATES </states>
+    syntax StateOp  ::= "rename-vars"
+    syntax Strategy ::= "#rename-vars" K
+ // ------------------------------------
+    rule <s> rename-vars [ STATE ]    => #rename-vars #renameVariables(STATE) ... </s>
+    rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
 ```
 
 -   `can?_` tries to execute the given strategy, but restores the state afterwards.
