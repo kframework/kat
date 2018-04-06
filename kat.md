@@ -431,7 +431,7 @@ However, if the abstraction is too strong, the transition system will not be red
 As we execute, we'll collect new the states we've seen so far as a new `Rule` of the smaller transition system.
 Anytime we reach a state which is subsumed by the left-hand-side of one of our generated rules, we'll stop exploring that path.
 
-I've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `Rule`.
+We've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `Rule`.
 
 ```k
 module KAT-SBC
