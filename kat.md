@@ -95,6 +95,10 @@ Here, a wrapper around this functionality is provided which will try to execute 
 -   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
 
 ```k
+    syntax Strategy ::= "#exception" Exception
+ // ------------------------------------------
+    rule <s> #exception E => E ... </s>
+
     syntax Pred      ::= "try?" Strategy
     syntax Exception ::= "#try"
  // ---------------------------
