@@ -92,19 +92,26 @@ Often you'll want a way to translate from the sort `Bool` in the programming lan
 The current K backend will place the token `#STUCK` at the front of the `s` cell when execution cannot continue.
 Here, a wrapper around this functionality is provided which will try to execute the given strategy and will roll back the state on failure.
 
--   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
+-   `can?_` tries to execute the given strategy, but restores the state afterwards and places `#true` on the cell on succes and `#false` on failure.
+-   `try?_` behaves the same as `can?_`, but makes sure that the step is taken afterwards.
+
+**TODO**: Are we losing the constraints on the current term by calling `rename-vars` on it?
 
 ```k
-    syntax Pred      ::= "try?" Strategy
-    syntax Exception ::= "#try"
- // ---------------------------
-    rule <s> try? S => push ~> S ~> #try ... </s>
-    rule <s> #try   => drop ~> #true     ... </s>
+    syntax Exception ::= "#can"
+    syntax Pred      ::= "can?" Strategy
+ // ------------------------------------
+    rule <s> can? S => push ~> rename-vars ~> S ~> #can ... </s>
 
-    rule <s> #STUCK() ~> (S:Strategy => .)     ... </s>
-    rule <s> #STUCK() ~> #try => pop ~> #false ... </s>
+    rule <s> #STUCK() ~> #can => pop ~> #false ... </s>
+    rule <s>             #can => pop ~> #true  ... </s>
 
-    rule <s> SA:StrategyApplied => . ... </s>
+    rule <s> #STUCK() ~> S:Strategy => #STUCK() ... </s>
+    rule <s> SA:StrategyApplied     => .        ... </s>
+
+    syntax Pred ::= "try?" Strategy
+ // -------------------------------
+    rule <s> try? S => can? S ~> ? S ; #eval #true : #eval #false ... </s>
 ```
 
 -   `stack-empty?` is a predicate that checks whether the stack of states is empty or not.
@@ -281,16 +288,9 @@ Things added to the sort `StateOp` will automatically load the current state for
     rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
 ```
 
--   `can?_` tries to execute the given strategy, but restores the state afterwards.
 -   `stuck?` checks if the current state can take a step.
 
-**TODO**: Are we losing the constraints on the current term by calling `rename-vars` on it?
-
 ```k
-    syntax Pred ::= "can?" Strategy
- // -------------------------------
-    rule <s> can? S => push ~> rename-vars ~> (try? S) ~> #pred pop ... </s>
-
     syntax Pred ::= "stuck?"
  // ------------------------
     rule <s> stuck? => not can? step ... </s>
