@@ -34,11 +34,12 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
     rule <s> pop  IMPCELL => .            ... </s> <harness> _ => IMPCELL </harness>
 ```
 
-### Define `#transition` and `#normal`
+### Define `#branch` and `#normal`
 
 ```k
-    rule #transition => ^ iftrue | ^ iffalse | ^ divzero | ^ divnonzero
-    rule #normal     => ^ whileIMP | ^ lookup | ^ assignment
+    rule #normal => ^ lookup | ^ assignment
+    rule #branch => ^ iftrue | ^ iffalse | ^ divzero | ^ divnonzero
+    rule #loop   => ^ whileIMP
 ```
 
 ### Define `bool?`

@@ -253,18 +253,19 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
     **TODO**: Current backend actually tags heating and cooling rules as `regular` instead, so `step-with` has been appropriately simplified.
               Perhaps we should investigate whether the backend's behaviour should be changed.
--   `#transition` defines what is a proper transition and must be provided by the programming language.
+-   `#branch` defines what is a proper transition and must be provided by the programming language.
 -   `#normal` defines a normal transition in the programming language (not a step for analysis).
--   `step` is `step-with_` instantiated to `#normal | #transition`.
+-   `step` is `step-with_` instantiated to `#normal | #branch`.
 
 ```k
     syntax Strategy ::= "step-with" Strategy [function]
-                      | "#transition"        [function]
                       | "#normal"            [function]
+                      | "#branch"            [function]
+                      | "#loop"              [function]
                       | "step"               [function]
  // ---------------------------------------------------
     rule step-with S => (^ regular)* ; S ; (^ regular)*
-    rule step        => step-with (#normal | #transition)
+    rule step        => step-with (#normal | #branch | #loop)
 ```
 
 Things added to the sort `StateOp` will automatically load the current state for you, making it easier to define operations over the current state.
@@ -327,17 +328,17 @@ Things added to the sort `StateOp` will automatically load the current state for
     rule <s> S1 until S2 => can? S2 ~> ? skip : (S1 ; (S1 until S2)) ... </s>
 ```
 
--   `exec-to-branch` will execute a given state to a branch (or terminal) state (using `#normal` and `#transition` to limit choices about branch points).
+-   `exec-to-branch` will execute a given state to a branch (or terminal) state (using `#normal` and `#branch` to limit choices about branch points).
     If it is a terminal state, then the `<s>` cell will be emptied.
-    If it is a "fake" transition state (only one post state from `#transition`), it will continue execution.
+    If it is a "fake" transition state (only one post state from `#branch`), it will continue execution.
     If there are multiple successors, they will be left on the `<s>` cell with `#which-can`.
 
 ```k
     syntax Strategy ::= "exec-to-branch" | "#exec-to-branch"
  // --------------------------------------------------------
     rule <s> exec-to-branch
-          => (#normal | ^ regular) *
-          ~> which-can? #transition
+          => (#normal | #loop | ^ regular) *
+          ~> which-can? #branch
           ~> #exec-to-branch
          ...
          </s>
