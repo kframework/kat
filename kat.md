@@ -269,11 +269,11 @@ The following strategies get information about the current state or manipulate t
 -   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
 
 ```k
-    syntax StateOp  ::= "rename-vars"
+    syntax CStateOp ::= "rename-vars"
     syntax Strategy ::= "#rename-vars" K
  // ------------------------------------
-    rule <s> rename-vars [ STATE ]    => #rename-vars #renameVariables(STATE) ... </s>
-    rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
+    rule <s> rename-vars [ CSTATE ] => #rename-vars #renameVariables(CSTATE) ... </s>
+    rule <s> #rename-vars CSTATE    => popC CSTATE                           ... </s>
 ```
 
 -   `stuck?` checks if the current state can take a step.
