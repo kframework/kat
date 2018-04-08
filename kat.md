@@ -174,19 +174,21 @@ The strategy language is a simple imperative language with sequencing and choice
 -   `{_}` and `(_)` are syntactically used to make blocks in the strategy language.
 -   `_;_` is used to sequentially compose strategies.
 -   `?_:_` (choice) uses the `Pred` value at the top of the strategy cell to determine what to execute next.
+-   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
 -   `__` and `_{_,_}` allow specifying repetition patterns over strategies.
 -   `_|_` tries executing the first strategy, and on failure executes the second.
 
 ```k
     syntax Strategy ::= "#eval" Pred
                       > "skip"
-                      | "(" Strategy ")"                     [bracket]
+                      | "(" Strategy ")"                          [bracket]
                       | "?" Strategy ":" Strategy
+                      | "if" Pred "then" Strategy "else" Strategy
                       > Strategy StrategyRep
                       | Strategy "{" Int "," StrategyRep "}"
-                      > Strategy ";" Strategy                [right]
-                      > Strategy "|" Strategy                [right]
- // ----------------------------------------------------------------
+                      > Strategy ";" Strategy                     [right]
+                      > Strategy "|" Strategy                     [right]
+ // ---------------------------------------------------------------------
     rule <s> #eval P => P ... </s>
 
     rule <s> skip    => .        ... </s>
@@ -194,6 +196,8 @@ The strategy language is a simple imperative language with sequencing and choice
 
     rule <s> #true  ~> ? S : _ => S ... </s>
     rule <s> #false ~> ? _ : S => S ... </s>
+
+    rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
 
     rule <s> S | S' => (try? S) ~> ? skip : S' ... </s>
 ```
@@ -228,14 +232,6 @@ The strategy language is a simple imperative language with sequencing and choice
          </s>
 
     rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N =/=Int 0
-```
-
--   `if_then_else_` provides a familiar wrapper around the more primitive `?_:_` functionality.
-
-```k
-    syntax Strategy ::= "if" Pred "then" Strategy "else" Strategy
- // -------------------------------------------------------------
-    rule <s> if P then S1 else S2 => P ~> ? S1 : S2 ... </s>
 ```
 
 -   `exec` executes the given state to completion.
