@@ -217,7 +217,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 
 -   `push_` copies the current execution state onto the stack of states and must be provided by the programming language.
 -   `pop_` places the given state in the execution harness and must be provided by the programming language.
--   `stack_` sets the `states` cell to the given state stack.
+-   `setStates_` sets the `states` cell to the given state stack.
 -   `swap` swaps the top two elements of the state stack.
 -   `dup` duplicates the top element of the state stack.
 -   `drop` removes the top element of the state stack (without placing it in the execution harness).
@@ -231,9 +231,9 @@ Strategies can manipulate the `state` cell (where program execution happens) and
  // ---------------------------------------
     rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
 
-    syntax Strategy ::= "stack" States
- // ----------------------------------
-    rule <s> stack STATES => . ... </s> <states> _ => STATES </states>
+    syntax Strategy ::= "setStates" States
+ // --------------------------------------
+    rule <s> setStates STATES => . ... </s> <states> _ => STATES </states>
 
     syntax Strategy ::= "swap" | "dup" | "drop"
  // -------------------------------------------
@@ -555,7 +555,7 @@ Finally, semantics based compilation is provided as a macro.
  // ------------------------------------------
     rule <s> ( compile
             => setAnalysis .Rules
-            ~> stack .States
+            ~> setStates   .States
             ~> push
             ~> #compile
              )
