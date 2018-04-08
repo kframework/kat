@@ -357,14 +357,21 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 ```
 
 Things added to the sort `StateOp` will automatically load the current state for you, making it easier to define operations over the current state.
+Note the variant `CStateOp` for constraint-aware state operations.
 
 ```k
-    syntax StateOp
+    syntax  StateOp
+    syntax CStateOp
     syntax Strategy ::= "#state-op"
-    syntax Strategy ::= StateOp | StateOp "[" State "]"
- // ---------------------------------------------------
-    rule <s> (. => push ~> #state-op) ~> SO:StateOp  ... </s>
-    rule <s> #state-op ~> SO:StateOp => SO [ STATE ] ... </s> <states> STATE : STATES => STATES </states>
+    syntax Strategy ::=  StateOp |  StateOp "["  State "]"
+                      | CStateOp | CStateOp "[" CState "]"
+ // ------------------------------------------------------
+    rule <s> (. => push ~> #state-op) ~>  SO:StateOp  ... </s>
+    rule <s> (. => push ~> #state-op) ~> CSO:CStateOp ... </s>
+    rule <states> STATE | _ : STATES => STATES </states>
+         <s> #state-op ~> SO:StateOp => SO [ STATE ] ... </s>
+    rule <states> CSTATE : STATES => STATES </states>
+         <s> #state-op ~> CSO:CStateOp => CSO [ CSTATE ] ... </s>
 ```
 
 -   `_until_` will execute the first strategy until the second strategy applies.
