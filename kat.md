@@ -209,9 +209,9 @@ The strategy language is a simple imperative language with sequencing and choice
  // --------------------------
     rule <s> exec => step * ... </s>
 
-    syntax StatePred ::= "eval"
- // ---------------------------
-    rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s>
+    syntax Pred ::= "eval"
+ // ----------------------
+    rule <s> eval => push ~> exec ~> bool? ~> #pred pop ... </s>
 ```
 
 Meta Strategies
