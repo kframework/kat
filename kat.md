@@ -572,11 +572,11 @@ The interface of this analysis requires you define when to abstract, how to abst
     rule <analysis> RS => RS , < STATE --> STATE requires C > </analysis>
          <s> begin-rule [ STATE | C ] => . ... </s>
 
-    syntax StateOp  ::= "end-rule"
+    syntax CStateOp ::= "end-rule"
     syntax Strategy ::= "#end-rule" K
  // ---------------------------------
     rule <analysis> RS , < LHS > => RS </analysis>
-         <s> end-rule [ RHS ] => #end-rule #renameVariables(< LHS --> RHS requires #getFullConstraint >) ... </s>
+         <s> end-rule [ RHS | C ] => #end-rule #renameVariables(< LHS --> RHS requires C >) ... </s>
 
     rule <rules> RS => RS , R </rules>
          <s> #end-rule R => . ... </s>
