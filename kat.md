@@ -129,14 +129,22 @@ Lazy semantics ("short-circuit") are given via controlled heating and cooling.
 
 State predicates are evaluated over the current execution state.
 If you declare something a `StatePred`, this code will automatically load the current state for you (making the definition of them easier).
+Note the variant `CStatePred` for declaring that this operation cares about the constraint on the state.
 
 ```k
-    syntax StatePred
+    syntax  StatePred
+    syntax CStatePred
     syntax Strategy ::= "#state-pred"
-    syntax Pred ::= StatePred | StatePred "[" State "]"
- // ---------------------------------------------------
-    rule <s> (. => push ~> #state-pred) ~> SP:StatePred  ... </s>
-    rule <s> #state-pred ~> SP:StatePred => SP [ STATE ] ... </s> <states> STATE : STATES => STATES </states>
+    syntax Pred ::=  StatePred |  StatePred "["  State "]"
+                  | CStatePred | CStatePred "[" CState "]"
+ // ------------------------------------------------------
+    rule <s> (. => push ~> #state-pred) ~>  SP:StatePred  ... </s>
+    rule <s> (. => push ~> #state-pred) ~> CSP:CStatePred ... </s>
+
+    rule <states> STATE | _ : STATES => STATES </states>
+         <s> #state-pred ~> SP:StatePred => SP [ STATE ] ... </s>
+    rule <states> CSTATE : STATES => STATES </states>
+         <s> #state-pred ~> CSP:CStatePred => CSP [ CSTATE ] ... </s>
 ```
 
 -   `#pred_` is useful for propagating the result of a predicate through another strategy.
