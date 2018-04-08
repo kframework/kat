@@ -24,6 +24,7 @@ module KAT
     imports STRATEGY
     imports DOMAINS
     imports UNIFICATION
+    imports K-REFLECTION
 
     configuration
       <kat>
@@ -32,9 +33,12 @@ module KAT
         <states>   .States   </states>
       </kat>
 
-    syntax State
-    syntax States   ::= ".States"
-                      | State ":" States
+    syntax  State
+    syntax CState ::= State "|" K
+    syntax AState ::= State | CState
+    syntax States ::= ".States"
+                    | AState ":" States
+
     syntax Analysis ::= ".Analysis"
 ```
 
@@ -290,13 +294,18 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 -   `drop` removes the top element of the state stack (without placing it in the execution harness).
 
 ```k
-    syntax Strategy ::= "push" | "push" State
- // -----------------------------------------
-    rule <s> push STATE => . ... </s> <states> STATES => STATE : STATES </states>
+    syntax Strategy ::= "push" | "push" State | "pushC" CState | "#push" K
+ // ----------------------------------------------------------------------
+    rule <s> push STATE => pushC STATE | #getFullConstraint ... </s>
+    rule <s> pushC CS   => #push #renameVariables(CS)       ... </s>
+    rule <states> STATES => CS : STATES </states>
+         <s> #push CS:CState => . ... </s>
 
-    syntax Strategy ::= "pop" | "pop" State
- // ---------------------------------------
-    rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
+    syntax Strategy ::= "pop" | "pop" State | "popC" CState
+ // -------------------------------------------------------
+    rule <s> popC STATE | C => pop STATE ~> set-constraint C ... </s>
+    rule <states> STATE | C : STATES => STATES </states>
+         <s> pop => popC STATE | C ... </s>
 
     syntax Strategy ::= "setStates" States
  // --------------------------------------
@@ -476,7 +485,6 @@ We've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `
 ```k
 module KAT-SBC
     imports KAT
-    imports K-REFLECTION
 
     syntax Rule ::= "<" State ">"
                   | "<" State "-->" State ">"
