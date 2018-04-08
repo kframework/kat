@@ -616,8 +616,7 @@ The interface of this analysis requires you define when to abstract, how to abst
  // ---------------------------------------------
     rule <analysis> RS => RS , < LHS > </analysis>
          <s> #extend-with S < LHS --> RHS requires C >
-          => set-constraint C
-          ~> pop RHS
+          => popC RHS | C
           ~> S
           ~> store-rule
          ...
@@ -634,8 +633,7 @@ Finally, semantics based compilation is provided as a macro.
  // ----------------------------------
     rule <analysis> RS , (< LHS --> RHS requires C > => < LHS >) </analysis>
          <s> compile-step
-          => set-constraint C
-          ~> pop RHS
+          => popC RHS | C
           ~> if subsumed?
                 then end-rule
              else if can? #loop
