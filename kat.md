@@ -33,8 +33,8 @@ module KAT
     syntax Analysis ::= ".Analysis"
 ```
 
-State Manipulation
-------------------
+Basic Strategies
+----------------
 
 KAT assumes that we're working over some basic sort `State`.
 Usually this will be some `*Cell` sort.
@@ -60,6 +60,43 @@ States have associated constraints as well, which are stored/restored using meta
     syntax Strategy ::= "pop" | "pop" State
  // ---------------------------------------
     rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
+```
+
+The current K backend will place the token `#STUCK` at the front of the `s` cell when execution cannot continue.
+Here, a wrapper around this functionality is provided which will try to execute the given strategy and will roll back the state on failure.
+
+-   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
+-   `can?_` tries a given strategy, but restores the previous state on success (still reporting `#true` or `#false`).
+
+**TODO:** constraints are not restored correctly on `can?` and `try?`.
+
+```k
+    syntax Strategy ::= "#exception" Exception
+ // ------------------------------------------
+    rule <s> #exception E => E ... </s>
+
+    syntax Pred      ::= "try?" Strategy
+    syntax Exception ::= "#try"
+ // ---------------------------
+    rule <s> try? S => push ~> S ~> #try ... </s>
+    rule <s> #try   => drop ~> #true     ... </s>
+
+    rule <s> #STUCK() ~> (S:Strategy => .)     ... </s>
+    rule <s> #STUCK() ~> #try => pop ~> #false ... </s>
+
+    rule <s> SA:StrategyApplied => . ... </s>
+
+    syntax Pred ::= "can?" Strategy
+ // -------------------------------
+    rule <s> can? S => push ~> rename-vars ~> (try? S) ~> #pred pop ... </s>
+```
+
+-   `#exception_` can be used as a place-holder to turn an exception into a strategy.
+
+```k
+    syntax Strategy ::= "#exception" Exception
+ // ------------------------------------------
+    rule <s> #exception E => E ... </s>
 ```
 
 Strategy Predicates
@@ -113,35 +150,6 @@ Often you'll want a way to translate from the sort `Bool` in the programming lan
 ```k
     syntax StatePred ::= "bool?"
  // ----------------------------
-```
-
-The current K backend will place the token `#STUCK` at the front of the `s` cell when execution cannot continue.
-Here, a wrapper around this functionality is provided which will try to execute the given strategy and will roll back the state on failure.
-
--   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
--   `can?_` tries a given strategy, but restores the previous state on success (still reporting `#true` or `#false`).
-
-**TODO:** constraints are not restored correctly on `can?` and `try?`.
-
-```k
-    syntax Strategy ::= "#exception" Exception
- // ------------------------------------------
-    rule <s> #exception E => E ... </s>
-
-    syntax Pred      ::= "try?" Strategy
-    syntax Exception ::= "#try"
- // ---------------------------
-    rule <s> try? S => push ~> S ~> #try ... </s>
-    rule <s> #try   => drop ~> #true     ... </s>
-
-    rule <s> #STUCK() ~> (S:Strategy => .)     ... </s>
-    rule <s> #STUCK() ~> #try => pop ~> #false ... </s>
-
-    rule <s> SA:StrategyApplied => . ... </s>
-
-    syntax Pred ::= "can?" Strategy
- // -------------------------------
-    rule <s> can? S => push ~> rename-vars ~> (try? S) ~> #pred pop ... </s>
 ```
 
 -   `stack-empty?` is a predicate that checks whether the stack of states is empty or not.
