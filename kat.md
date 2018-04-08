@@ -56,12 +56,11 @@ States have associated constraints as well, which are stored/restored using meta
 -   `pop_` places the given state in the execution harness and must be provided by the programming language.
 
 ```k
-    syntax Strategy ::= "push" | "push" State | "pushC" CState | "#push" K
- // ----------------------------------------------------------------------
+    syntax Strategy ::= "push" | "push" State | "pushC" CState
+ // ----------------------------------------------------------
     rule <s> push STATE => pushC STATE | #getFullConstraint ... </s>
-    rule <s> pushC CS   => #push #renameVariables(CS)       ... </s>
     rule <states> STATES => CS : STATES </states>
-         <s> #push CS:CState => . ... </s>
+         <s> pushC CS:CState => . ... </s>
 
     syntax Strategy ::= "pop" | "pop" State | "popC" CState
  // -------------------------------------------------------
