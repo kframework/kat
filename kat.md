@@ -230,20 +230,6 @@ The strategy language is a simple imperative language with sequencing and choice
     rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N =/=Int 0
 ```
 
--   `exec` executes the given state to completion.
-    Note that `krun === exec`.
--   `eval` executes a given state to completion and checks `bool?`.
-
-```k
-    syntax Strategy ::= "exec"
- // --------------------------
-    rule <s> exec => step * ... </s>
-
-    syntax Pred ::= "eval"
- // ----------------------
-    rule <s> eval => push ~> exec ~> bool? ~> #pred pop ... </s>
-```
-
 Meta Strategies
 ---------------
 
@@ -370,6 +356,20 @@ Things added to the sort `StateOp` will automatically load the current state for
     syntax Strategy ::= Strategy "until" Strategy
  // ---------------------------------------------
     rule <s> S1 until S2 => can? S2 ~> ? skip : (S1 ; (S1 until S2)) ... </s>
+```
+
+-   `exec` executes the given state to completion.
+    Note that `krun === exec`.
+-   `eval` executes a given state to completion and checks `bool?`.
+
+```k
+    syntax Strategy ::= "exec"
+ // --------------------------
+    rule <s> exec => step * ... </s>
+
+    syntax Pred ::= "eval"
+ // ----------------------
+    rule <s> eval => push ~> exec ~> bool? ~> #pred pop ... </s>
 ```
 
 -   `exec-to-branch` will execute a given state to a branch (or terminal) state (using `#normal` and `#branch` to limit choices about branch points).
