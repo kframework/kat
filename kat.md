@@ -596,25 +596,20 @@ The interface of this analysis requires you define when to abstract, how to abst
          <s> #store-rule R => . ... </s>
 
     syntax Strategy ::= "store-rules" | "#end-with" Strategy Rule
-    syntax StateOp  ::= "#store-rules" Strategy Rule
+    syntax CStateOp ::= "#store-rules" Strategy Rule
  // ------------------------------------------------
     rule <s> store-rules => store-rule ... </s>
 
     rule <analysis> RS , < LHS > => RS </analysis>
          <s> #which-can S ~> store-rules => #store-rules S < LHS > ... </s>
 
-    rule <s> #store-rules S < LHS > [ RHS ]
-          => #end-with S < LHS --> RHS requires #getFullConstraint >
+    rule <s> #store-rules S1 | S2 < LHS > [ RHS | C ]
+          => #store-rules S1      < LHS > [ RHS | C ]
+          ~> #store-rules      S2 < LHS > [ RHS | C ]
          ...
          </s>
 
-    rule <s> #end-with S1 | S2 < LHS --> RHS requires C >
-          => #end-with S1      < LHS --> RHS requires C >
-          ~> #end-with      S2 < LHS --> RHS requires C >
-         ...
-         </s>
-
-    rule <s> #end-with S R => #extend-with S #renameVariables(R) ... </s>
+    rule <s> #store-rules S < LHS > [ RHS | C ] => #extend-with S #renameVariables(< LHS --> RHS requires C >) ... </s>
       requires notBool #orStrategy(S)
 
     syntax Strategy ::= "#extend-with" Strategy K
