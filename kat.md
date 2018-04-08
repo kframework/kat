@@ -30,10 +30,36 @@ module KAT
                     <states> .States </states>
                   </kat>
 
-    syntax State
-    syntax States   ::= ".States"
-                      | State ":" States
     syntax Analysis ::= ".Analysis"
+```
+
+State Manipulation
+------------------
+
+KAT assumes that we're working over some basic sort `State`.
+Usually this will be some `*Cell` sort.
+States have associated constraints as well, which are stored/restored using meta-level functionality.
+
+```k
+    syntax  State
+    syntax CState ::= State "|" K
+    syntax AState ::= State | CState
+    syntax States ::= ".States"
+                    | AState ":" States
+ // -----------------------------------
+```
+
+-   `push_` copies the current execution state onto the stack of states and must be provided by the programming language.
+-   `pop_` places the given state in the execution harness and must be provided by the programming language.
+
+```k
+    syntax Strategy ::= "push" | "push" State
+ // -----------------------------------------
+    rule <s> push STATE => . ... </s> <states> STATES => STATE : STATES </states>
+
+    syntax Strategy ::= "pop" | "pop" State
+ // ---------------------------------------
+    rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
 ```
 
 Strategy Predicates
@@ -280,22 +306,12 @@ Strategy Primitives
 
 Strategies can manipulate the `state` cell (where program execution happens) and the `analysis` cell (a memory/storage for the strategy language).
 
--   `push_` copies the current execution state onto the stack of states and must be provided by the programming language.
--   `pop_` places the given state in the execution harness and must be provided by the programming language.
 -   `setStates_` sets the `states` cell to the given state stack.
 -   `swap` swaps the top two elements of the state stack.
 -   `dup` duplicates the top element of the state stack.
 -   `drop` removes the top element of the state stack (without placing it in the execution harness).
 
 ```k
-    syntax Strategy ::= "push" | "push" State
- // -----------------------------------------
-    rule <s> push STATE => . ... </s> <states> STATES => STATE : STATES </states>
-
-    syntax Strategy ::= "pop" | "pop" State
- // ---------------------------------------
-    rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
-
     syntax Strategy ::= "setStates" States
  // --------------------------------------
     rule <s> setStates STATES => . ... </s> <states> _ => STATES </states>
