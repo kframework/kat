@@ -568,10 +568,10 @@ The interface of this analysis requires you define when to abstract, how to abst
 -   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.
 
 ```k
-    syntax StateOp ::= "begin-rule"
- // ------------------------------
-    rule <analysis> RS => RS , < STATE --> STATE requires #getFullConstraint > </analysis>
-         <s> begin-rule [ STATE ] => . ... </s>
+    syntax CStateOp ::= "begin-rule"
+ // --------------------------------
+    rule <analysis> RS => RS , < STATE --> STATE requires C > </analysis>
+         <s> begin-rule [ STATE | C ] => . ... </s>
 
     syntax StateOp  ::= "end-rule"
     syntax Strategy ::= "#end-rule" K
