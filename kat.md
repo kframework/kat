@@ -586,11 +586,11 @@ The interface of this analysis requires you define when to abstract, how to abst
 -   `store-rules` expects a `#which-can_` at the top of the cell, telling it the relevant next-steps to take for finishing off the current rule into multiple rules.
 
 ```k
-    syntax StateOp ::= "store-rule"
-    syntax Strateg ::= "#store-rule" K
- // ----------------------------------
+    syntax CStateOp ::= "store-rule"
+    syntax Strategy ::= "#store-rule" K
+ // -----------------------------------
     rule <analysis> RS , < LHS > => RS </analysis>
-         <s> store-rule [ RHS ] => #store-rule #renameVariables(< LHS --> RHS requires #getFullConstraint >) ... </s>
+         <s> store-rule [ RHS | C ] => #store-rule #renameVariables(< LHS --> RHS requires C >) ... </s>
 
     rule <analysis> RS => RS , R </analysis>
          <s> #store-rule R => . ... </s>
