@@ -1,0 +1,12 @@
+[test "all"]
+    command      = make clean && make deps && make build && make test -j4 -k
+    trackedFiles = tests/output
+
+[test "smoke-compile"]
+    trackedFiles = tests/output
+    command      = make clean && make deps && make build \
+                    && make -k -j4 \
+                        tests/inf-div-unknown.imp.test \
+                        tests/sum-symbolic.imp.test \
+                        tests/sum-plus.imp.test \
+                        tests/if-div-zero.imp.test
