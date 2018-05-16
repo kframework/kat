@@ -13,6 +13,7 @@ LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
 export LUA_PATH
 
 test_dir:=tests
+test_output:=$(wildcard $(test_dir)/output/*.out)
 
 .PHONY: build deps defn example-files \
 		test-bimc test-sbc test
@@ -20,7 +21,7 @@ test_dir:=tests
 all: build
 
 clean:
-	rm -rf $(build_dir)
+	rm -rf $(build_dir) $(test_output)
 
 # Build definition
 # ----------------
@@ -63,15 +64,14 @@ $(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 # Testing
 # -------
 
-test_dir:=tests
 test_files:=$(wildcard $(test_dir)/*.imp)
 
 TEST=./kat test
 
 test: $(test_files:=.test)
 
-$(test_dir)/%.imp.test: $(test_dir)/%.imp $(test_dir)/%.strat $(test_dir)/%.expected
-	$(TEST) $^
+$(test_dir)/%.imp.test:
+	$(TEST) $(test_dir)/$*.imp $(test_dir)/$*.strat
 
 $(test_dir)/%.expected:
 	mkdir -p $@

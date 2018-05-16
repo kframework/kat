@@ -49,15 +49,15 @@ run_ksearch() {
 }
 
 run_test() {
-    local imp_file strategy_file test_number counter expected_dir exit_status
-
+    local imp_file strategy_file test_number counter output_dir output_prefix exit_status
     imp_file="$1"      ; shift
     strategy_file="$1" ; shift
-    expected_dir="$1"  ; shift
     { test_number="$1" && shift ; } || test_number="*"
+    output_dir="tests/output"
 
     [[ -f "$imp_file"      ]] || die "File '$imp_file' does not exist ..."
     [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
+    mkdir -p "$output_dir"
 
     exit_status=0
     counter=0
@@ -66,11 +66,11 @@ run_test() {
         counter=$((counter + 1))
         [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
 
-        progress "testing: '$imp_file' with strategy '$strategy'"
-        run_krun "$imp_file" "$strategy" > "$expected_dir/$counter.out"
-        pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out" || exit_status="$?"
+        output_prefix="$output_dir/$(echo $(basename $imp_file) $strategy | md5sum | cut --delimiter=' ' --field=1)"
+        progress "testing: '$imp_file' with strategy '$strategy', output to $output_prefix.out"
+        run_krun "$imp_file" "$strategy" > "$output_prefix.out"
+        pretty_diff "$output_prefix.expected" "$output_prefix.out" || exit_status="$?"
     done < "$strategy_file"
-
     return "$exit_status"
 }
 
