@@ -30,7 +30,7 @@ module KAT
                     <states> .States </states>
                   </kat>
 
-    syntax State    ::= "#current"
+    syntax State
     syntax States   ::= ".States"
                       | State ":" States
     syntax Analysis ::= ".Analysis"
@@ -65,10 +65,11 @@ If you declare something a `StatePred`, this code will automatically load the cu
 
 ```k
     syntax StatePred
+    syntax Strategy ::= "#state-pred"
     syntax Pred ::= StatePred | StatePred "[" State "]"
  // ---------------------------------------------------
-    rule <s> SP:StatePred              => push ~> SP [ #current ] ... </s>
-    rule <s> SP:StatePred [ #current ] => SP [ STATE ]            ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> (. => push ~> #state-pred) ~> SP:StatePred  ... </s>
+    rule <s> #state-pred ~> SP:StatePred => SP [ STATE ] ... </s> <states> STATE : STATES => STATES </states>
 ```
 
 -   `#pred_` is useful for propagating the result of a predicate through another strategy.
@@ -199,7 +200,7 @@ The strategy language is a simple imperative language with sequencing and choice
 
     syntax StatePred ::= "eval"
  // ---------------------------
-    rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s> requires STATE =/=K #current
+    rule <s> eval [ STATE ] => pop STATE ~> exec ~> bool? ... </s>
 ```
 
 Strategy Primitives
@@ -221,8 +222,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 
     syntax Strategy ::= "pop" | "pop" State
  // ---------------------------------------
-    rule <s> pop #current => .         ... </s>
-    rule <s> pop          => pop STATE ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
 
     syntax Strategy ::= "stack" States
  // ----------------------------------
@@ -264,10 +264,11 @@ Things added to the sort `StateOp` will automatically load the current state for
 
 ```k
     syntax StateOp
+    syntax Strategy ::= "#state-op"
     syntax Strategy ::= StateOp | StateOp "[" State "]"
  // ---------------------------------------------------
-    rule <s> SO:StateOp              => push ~> SO [ #current ] ... </s>
-    rule <s> SO:StateOp [ #current ] => SO [ STATE ]            ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> (. => push ~> #state-op) ~> SO:StateOp  ... </s>
+    rule <s> #state-op ~> SO:StateOp => SO [ STATE ] ... </s> <states> STATE : STATES => STATES </states>
 ```
 
 -   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
@@ -386,7 +387,7 @@ module KAT-BIMC
 ```k
     syntax StateOp ::= "record"
  // ---------------------------
-    rule <s> record [ STATE ] => . ... </s> <analysis> T => T ; STATE </analysis> requires STATE =/=K #current
+    rule <s> record [ STATE ] => . ... </s> <analysis> T => T ; STATE </analysis>
 ```
 
 After performing BIMC, we'll need a container for the results of the analysis.
@@ -490,12 +491,11 @@ The interface of this analysis requires you define when to abstract and how to a
  // -------------------------------
     rule <s> begin-rule [ STATE ] => . ... </s>
          <analysis> RS => RS , < STATE > </analysis>
-      requires STATE =/=K #current
 
     syntax StateOp  ::= "end-rule"
  // ------------------------------
     rule <s> end-rule [ STATE ] => . ... </s>
-         <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis> requires STATE =/=K #current
+         <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
 
     syntax Strategy ::= "end-rules" | "transition-finish" Strategy Rule
  // -------------------------------------------------------------------
