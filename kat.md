@@ -511,7 +511,8 @@ The interface of this analysis requires you define when to abstract and how to a
     syntax Pred      ::= "#subsumed?" State Rules
  // ---------------------------------------------
     rule <analysis> RS  </analysis>
-         <s> subsumed? [ STATE ] => (#subsumed? STATE RS) ... </s>
+         <rules>    RS' </rules>
+         <s> subsumed? [ STATE ] => (#subsumed? STATE RS) or (#subsumed? STATE RS') ... </s>
 
     rule <s> #subsumed? STATE .Rules         => #false              ... </s>
     rule <s> #subsumed? STATE (RS , < LHS >) => #subsumed? STATE RS ... </s>
