@@ -25,12 +25,14 @@ module KAT
     imports DOMAINS
     imports UNIFICATION
 
-    configuration <kat>
-                    <analysis> .Analysis </analysis>
-                    <states> .States </states>
-                  </kat>
+    configuration
+      <kat>
+        <analysis> .Analysis </analysis>
+        <rules>    .Analysis </rules>
+        <states>   .States   </states>
+      </kat>
 
-    syntax State    ::= "#current"
+    syntax State
     syntax States   ::= ".States"
                       | State ":" States
     syntax Analysis ::= ".Analysis"
@@ -308,11 +310,16 @@ Strategies can manipulate the `state` cell (where program execution happens) and
 ```
 
 -   `setAnalysis_` sets the `analysis` cell to the given argument.
+-   `setRules_` dose a similar thing for the `rules` cell.
 
 ```k
     syntax Strategy ::= "setAnalysis" Analysis
  // ---------------------------------------
     rule <s> setAnalysis A => . ... </s> <analysis> _ => A </analysis>
+
+    syntax Strategy ::= "setRules" Analysis
+ // ---------------------------------------
+    rule <s> setRules RS => . ... </s> <rules> _ => RS </rules>
 ```
 
 -   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
