@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e      # Exit immediately if any command fails
-set -u      # Using undefined variables is an error. Exit immediately
 
 # Utilities
 # ---------
@@ -50,19 +49,29 @@ run_ksearch() {
 }
 
 run_test() {
-    local imp_file="$1"      ; shift
-    local strategy_file="$1" ; shift
-    local expected_dir="$1"  ; shift
+    local imp_file strategy_file test_number counter expected_dir exit_status
+
+    imp_file="$1"      ; shift
+    strategy_file="$1" ; shift
+    expected_dir="$1"  ; shift
+    { test_number="$1" && shift ; } || test_number="*"
+
     [[ -f "$imp_file"      ]] || die "File '$imp_file' does not exist ..."
     [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
-    local counter=1
+
+    exit_status=0
+    counter=0
     while read strategy; do
         [[ "$strategy" != '' ]] || continue
+        counter=$((counter + 1))
+        [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
+
         progress "testing: '$imp_file' with strategy '$strategy'"
         run_krun "$imp_file" "$strategy" > "$expected_dir/$counter.out"
-        pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out"
-        counter=$((counter + 1))
+        pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out" || exit_status="$?"
     done < "$strategy_file"
+
+    return "$exit_status"
 }
 
 # Main
