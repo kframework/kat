@@ -1,6 +1,6 @@
 int n , s ;
 while (0 <= n) {
-  n = n + -1 ;
   s = s + n ;
+  n = n + -1 ;
 }
 s = s + 300 ;

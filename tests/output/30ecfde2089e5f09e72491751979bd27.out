@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int n , s , .Ids ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } s = s + 300 ;
+          int n , s , .Ids ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; } s = s + 300 ;
         </k>
         <mem>
           .Map
@@ -24,14 +24,14 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          int n , s , .Ids ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; } s = s + 300 ;
+          int n , s , .Ids ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; } s = s + 300 ;
         </k>
         <mem>
           .Map
         </mem>
       </imp> --> <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } ~> s = s + 300 ;
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } } ~> s = s + 300 ;
         </k>
         <mem>
           n |-> V2
@@ -39,7 +39,7 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } ~> s = s + 300 ;
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } } ~> s = s + 300 ;
         </k>
         <mem>
           n |-> V4
@@ -51,11 +51,11 @@ Strategy: compile
         </k>
         <mem>
           n |-> V4 +Int -1
-          s |-> V5 +Int ( V4 +Int -1 )
+          s |-> V5 +Int V4
         </mem>
       </imp> > , < <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } ~> s = s + 300 ;
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } } ~> s = s + 300 ;
         </k>
         <mem>
           n |-> V6
@@ -63,11 +63,11 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } ~> s = s + 300 ;
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } } ~> s = s + 300 ;
         </k>
         <mem>
           n |-> V6 +Int -1
-          s |-> V7 +Int ( V6 +Int -1 )
+          s |-> V7 +Int V6
         </mem>
       </imp> > , < <imp>
         <k>

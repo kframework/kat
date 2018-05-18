@@ -1,9 +1,6 @@
-Program:  tests/sum.imp
-Strategy: step-with skip ; step ; bimc 500 (bexp? s <= 32)
-================================================================================
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #false in 31 steps
+    #STUCK ( ) ~> #bimc-result #true in 30 steps ~> ^ regular *
   </s>
   <kat>
     <analysis>
@@ -247,14 +244,6 @@ Strategy: step-with skip ; step ; bimc 500 (bexp? s <= 32)
           n |-> 7
           s |-> 27
         </mem>
-      </imp> ; <imp>
-        <k>
-          s = 34 ; ~> n = n + -1 ; ~> while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
-        </k>
-        <mem>
-          n |-> 7
-          s |-> 27
-        </mem>
       </imp>
     </analysis>
     <states>
@@ -264,11 +253,11 @@ Strategy: step-with skip ; step ; bimc 500 (bexp? s <= 32)
   <harness>
     <imp>
       <k>
-        n ~> #freezer_+__IMP1_ ( -1 ) ~> #freezer_=_;_IMP0_ ( n ) ~> while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        s = 34 ; ~> n = n + -1 ; ~> while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
       </k>
       <mem>
         n |-> 7
-        s |-> 34
+        s |-> 27
       </mem>
     </imp>
   </harness>

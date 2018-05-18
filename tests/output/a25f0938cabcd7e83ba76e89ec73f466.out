@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
         </k>
         <mem>
           .Map
@@ -24,14 +24,14 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { n = n + -1 ; s = s + n ; }
+          int n , s , .Ids ; s = 0 ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
         </k>
         <mem>
           .Map
         </mem>
       </imp> --> <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
         </k>
         <mem>
           n |-> V1
@@ -39,7 +39,7 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
         </k>
         <mem>
           n |-> V2
@@ -51,11 +51,11 @@ Strategy: compile
         </k>
         <mem>
           n |-> V2 +Int -1
-          s |-> V3 +Int ( V2 +Int -1 )
+          s |-> V3 +Int V2
         </mem>
       </imp> > , < <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
         </k>
         <mem>
           n |-> V4
@@ -63,11 +63,11 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
-          { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } }
+          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
         </k>
         <mem>
           n |-> V4 +Int -1
-          s |-> V5 +Int ( V4 +Int -1 )
+          s |-> V5 +Int V4
         </mem>
       </imp> > , < <imp>
         <k>

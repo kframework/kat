@@ -16,7 +16,7 @@ Strategy: exec-to-branch
   <harness>
     <imp>
       <k>
-        if ( 0 <=Int V0 ) { { n = n + -1 ; s = s + n ; } while ( 0 <= n ) { n = n + -1 ; s = s + n ; } } else { }
+        if ( 0 <=Int V0 ) { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } } else { }
       </k>
       <mem>
         n |-> V0

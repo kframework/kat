@@ -20,7 +20,7 @@ Strategy: exec-to-branch
       </k>
       <mem>
         n |-> -1
-        s |-> 44
+        s |-> 55
       </mem>
     </imp>
   </harness>
