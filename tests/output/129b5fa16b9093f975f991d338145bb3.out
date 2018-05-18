@@ -142,11 +142,11 @@ Strategy: compile
   <harness>
     <imp>
       <k>
-        .
+        { }
       </k>
       <mem>
-        x |-> V17
-        y |-> V18
+        x |-> V0
+        y |-> V1
       </mem>
     </imp>
   </harness>

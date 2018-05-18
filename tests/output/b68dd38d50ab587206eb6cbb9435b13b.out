@@ -1,5 +1,5 @@
 Program:  tests/if-div-zero.imp
-Strategy: step 3 ; which-can? (^ divzero | ^ divnonzero)
+Strategy: step 4 ; which-can? (^ divzero | ^ divnonzero)
 ================================================================================
 <kat-imp>
   <s>

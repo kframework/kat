@@ -1,5 +1,5 @@
 Program:  tests/live-if.imp
-Strategy: step ; which-can? (^ iftrue | ^ iffalse)
+Strategy: step 2 ; which-can? (^ iftrue | ^ iffalse)
 ================================================================================
 <kat-imp>
   <s>
