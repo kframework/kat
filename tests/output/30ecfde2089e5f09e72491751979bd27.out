@@ -94,11 +94,11 @@ Strategy: compile
   <harness>
     <imp>
       <k>
-        .
+        { } ~> s = s + 300 ;
       </k>
       <mem>
-        n |-> V8
-        s |-> V9 +Int 300
+        n |-> V0
+        s |-> V1
       </mem>
     </imp>
   </harness>

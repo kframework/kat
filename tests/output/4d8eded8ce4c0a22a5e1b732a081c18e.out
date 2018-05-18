@@ -1,5 +1,5 @@
 Program:  tests/live-if.imp
-Strategy: step ; ^ iftrue
+Strategy: step 2 ; ^ iftrue
 ================================================================================
 <kat-imp>
   <s>

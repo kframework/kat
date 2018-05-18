@@ -1,5 +1,5 @@
 Program:  tests/live-if.imp
-Strategy: step ; which-can? (^ iffalse | ^ divzero)
+Strategy: step 2 ; which-can? (^ iffalse | ^ divzero)
 ================================================================================
 <kat-imp>
   <s>

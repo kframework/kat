@@ -496,15 +496,19 @@ The interface of this analysis requires you define when to abstract and how to a
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
 
 ```k
-    syntax Pred ::= "subsumed?" | "#subsumed?" Rules
- // ------------------------------------------------
-    rule <s> subsumed? => #subsumed? RS ... </s> <analysis> RS </analysis>
+    syntax StatePred ::= "subsumed?"
+    syntax Pred      ::= "#subsumed?" State Rules
+ // ---------------------------------------------
+    rule <analysis> RS  </analysis>
+         <s> subsumed? [ STATE ] => (#subsumed? STATE RS) ... </s>
 
-    rule <s> #subsumed? .Rules           => #false        ... </s>
-    rule <s> #subsumed? (RS , < STATE >) => #subsumed? RS ... </s>
+    rule <s> #subsumed? STATE .Rules         => #false              ... </s>
+    rule <s> #subsumed? STATE (RS , < LHS >) => #subsumed? STATE RS ... </s>
 
-    rule <s> #subsumed? (RS , < LHS --> _ >) => (LHS subsumes? STATE) or (#subsumed? RS) ... </s>
-         <states> STATE : STATES </states>
+    rule <s> #subsumed? STATE (RS , < LHS --> _ >)
+          => (LHS subsumes? STATE) or (#subsumed? STATE RS)
+         ...
+         </s>
 ```
 
 -   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
@@ -559,7 +563,9 @@ Finally, semantics based compilation is provided as a macro.
     syntax Strategy ::= "compile-step"
  // ----------------------------------
     rule <s> ( compile-step
-            => if subsumed?
+            => dup
+            ~> pop
+            ~> if subsumed?
                then drop
                else ( pop
                     ; abstract
