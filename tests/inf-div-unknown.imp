@@ -1,4 +1,6 @@
 int x , y ;
+x = symbolicInt ;
+y = symbolicInt ;
 while (0 <= x) {
   y = y / x ;
   x = x - 1 ;

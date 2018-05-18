@@ -1,2 +1,2 @@
-step 3 ; which-can? (^ divzero | ^ divnonzero)
+step 4 ; which-can? (^ divzero | ^ divnonzero)
 compile

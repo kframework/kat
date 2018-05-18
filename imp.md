@@ -23,6 +23,14 @@ module IMP
     syntax KResult ::= Int | Bool
 ```
 
+### Symbolic Integers
+
+```k
+    syntax Int ::= "symbolicInt" [function]
+ // ---------------------------------------
+    rule symbolicInt => ?V:Int
+```
+
 Expressions
 -----------
 
@@ -80,7 +88,8 @@ IMP has `int_;` for declaring variables and `_=_;` for assignment.
     syntax Stmt ::= Block | "int" Ids ";"
  // -------------------------------------
     rule int .Ids ; => .
-    rule <k> int (X,Xs => Xs) ; ... </k> <mem> Rho:Map (.Map => X |-> ?V:Int) </mem> requires notBool (X in keys(Rho))
+    rule <k> int (X, XS => XS) ; ... </k>
+         <mem> MEM => MEM [ X <- 0 ] </mem>
 
     syntax Stmt ::= Id "=" AExp ";" [strict(2)]
  // -------------------------------------------

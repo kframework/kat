@@ -1,4 +1,6 @@
 int n , s ;
+n = symbolicInt ;
+s = symbolicInt ;
 while (0 <= n) {
   s = s + n ;
   n = n + -1 ;

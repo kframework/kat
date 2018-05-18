@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+          int x , .Ids ; x = V0 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
         </k>
         <mem>
           .Map
@@ -23,7 +23,7 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          int x , .Ids ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+          int x , .Ids ; x = V1 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
         </k>
         <mem>
           .Map

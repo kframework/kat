@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int x , y , .Ids ; y = 7 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
+          int x , y , .Ids ; y = 7 ; x = V0 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
         </k>
         <mem>
           .Map
@@ -24,7 +24,7 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          int x , y , .Ids ; y = 7 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
+          int x , y , .Ids ; y = 7 ; x = 0 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
         </k>
         <mem>
           .Map

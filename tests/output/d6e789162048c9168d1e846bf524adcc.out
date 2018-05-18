@@ -3,16 +3,24 @@ Strategy: bimc 5000 (not can? (^ divzero))
 ================================================================================
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #true in 95 steps
+    #STUCK ( ) ~> #bimc-result #true in 96 steps
   </s>
   <kat>
     <analysis>
       .Trace ; <imp>
         <k>
-          int x , y , .Ids ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+          int x , y , .Ids ; y = V0 ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; }
         </k>
         <mem>
           .Map
+        </mem>
+      </imp> ; <imp>
+        <k>
+          x = 10 ; ~> while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V0
         </mem>
       </imp> ; <imp>
         <k>

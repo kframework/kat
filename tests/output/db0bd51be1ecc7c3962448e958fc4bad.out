@@ -3,16 +3,24 @@ Strategy: bimc 95   (not can? (^ divzero))
 ================================================================================
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #true in 95 steps
+    #STUCK ( ) ~> #bimc-result #false in 97 steps
   </s>
   <kat>
     <analysis>
       .Trace ; <imp>
         <k>
-          int x , y , .Ids ; x = 10 ; while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+          int x , y , .Ids ; y = V0 ; x = 10 ; while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
         <mem>
           .Map
+        </mem>
+      </imp> ; <imp>
+        <k>
+          x = 10 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V0
         </mem>
       </imp> ; <imp>
         <k>
@@ -766,6 +774,14 @@ Strategy: bimc 95   (not can? (^ divzero))
           x |-> 0
           y |-> V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1
         </mem>
+      </imp> ; <imp>
+        <k>
+          x ~> #freezer_/__IMP0_ ( V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1 ) ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1
+        </mem>
       </imp>
     </analysis>
     <states>
@@ -775,7 +791,7 @@ Strategy: bimc 95   (not can? (^ divzero))
   <harness>
     <imp>
       <k>
-        x ~> #freezer_/__IMP0_ ( V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1 ) ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1 / 0 ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
       </k>
       <mem>
         x |-> 0

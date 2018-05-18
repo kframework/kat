@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int x , y , .Ids ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+          int x , y , .Ids ; y = V0 ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; }
         </k>
         <mem>
           .Map

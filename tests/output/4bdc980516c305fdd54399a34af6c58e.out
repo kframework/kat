@@ -9,7 +9,7 @@
           n = 10 ; ~> while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
         </k>
         <mem>
-          n |-> V0
+          n |-> 0
           s |-> 0
         </mem>
       </imp> ; <imp>

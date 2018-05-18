@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int x , y , .Ids ; y = 7 / x ;
+          int x , y , .Ids ; x = V0 ; y = V1 ; y = 7 / x ;
         </k>
         <mem>
           .Map
@@ -24,7 +24,7 @@ Strategy: compile
         </mem>
       </imp> > , < <imp>
         <k>
-          int x , y , .Ids ; y = 7 / x ;
+          int x , y , .Ids ; x = 0 ; y = V2 ; y = 7 / x ;
         </k>
         <mem>
           .Map
