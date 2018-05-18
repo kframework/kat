@@ -1,2 +1,3 @@
 step 4 ; which-can? (^ divzero | ^ divnonzero)
+(#normal | ^ regular) until (^ divzero | ^ divnonzero)
 compile

@@ -130,13 +130,13 @@ The strategy language is a simple imperative language with sequencing and choice
 ```k
     syntax Strategy ::= "#eval" Pred
                       > "skip"
-                      | "(" Strategy ")"          [bracket]
+                      | "(" Strategy ")"                     [bracket]
                       | "?" Strategy ":" Strategy
                       > Strategy StrategyRep
                       | Strategy "{" Int "," StrategyRep "}"
-                      > Strategy ";" Strategy     [right]
-                      > Strategy "|" Strategy     [right]
- // -----------------------------------------------------
+                      > Strategy ";" Strategy                [right]
+                      > Strategy "|" Strategy                [right]
+ // ----------------------------------------------------------------
     rule <s> #eval P => P ... </s>
 
     rule <s> skip    => .        ... </s>
@@ -317,6 +317,14 @@ Things added to the sort `StateOp` will automatically load the current state for
  // ---------------------------------------------------
     rule #orStrategy(S1 | S2) => true
     rule #orStrategy(_)       => false [owise]
+```
+
+-   `_until_` will execute the first strategy until the second strategy applies.
+
+```k
+    syntax Strategy ::= Strategy "until" Strategy
+ // ---------------------------------------------
+    rule <s> S1 until S2 => can? S2 ~> ? skip : (S1 ; (S1 until S2)) ... </s>
 ```
 
 -   `exec-to-branch` will execute a given state to a branch (or terminal) state (using `#normal` and `#transition` to limit choices about branch points).

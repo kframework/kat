@@ -1,0 +1,24 @@
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        7 / V0 ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+      </k>
+      <mem>
+        x |-> V0
+        y |-> 7
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
