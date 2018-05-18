@@ -13,7 +13,6 @@ LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
 export LUA_PATH
 
 test_dir:=tests
-test_output:=$(wildcard $(test_dir)/output/*.out)
 
 .PHONY: build deps defn example-files \
 		test-bimc test-sbc test
@@ -21,7 +20,7 @@ test_output:=$(wildcard $(test_dir)/output/*.out)
 all: build
 
 clean:
-	rm -rf $(build_dir) $(test_output)
+	rm -rf $(build_dir)
 
 # Build definition
 # ----------------
