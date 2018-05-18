@@ -1,3 +1,6 @@
+Program:  tests/if-div-zero.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

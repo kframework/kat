@@ -1,3 +1,6 @@
+Program:  tests/dead-if.imp
+Strategy: step 2 ; which-can? (^ iftrue)
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #which-can ^ iftrue

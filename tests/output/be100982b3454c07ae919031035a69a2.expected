@@ -1,3 +1,6 @@
+Program:  tests/sum.imp
+Strategy: step-with skip ; step ; bimc 41  (bexp? s <= 32)
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #bimc-result #false in 41 steps

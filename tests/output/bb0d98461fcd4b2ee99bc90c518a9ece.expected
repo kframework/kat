@@ -1,3 +1,6 @@
+Program:  tests/live-if.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

@@ -1,3 +1,6 @@
+Program:  tests/dead-if.imp
+Strategy: step 2 ; ^ iftrue
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

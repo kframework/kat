@@ -1,3 +1,6 @@
+Program:  tests/inf-div-good.imp
+Strategy: bimc 5000 (not can? (^ divzero))
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #bimc-result #true in 95 steps

@@ -1,3 +1,6 @@
+Program:  tests/collatz-all.imp
+Strategy: step-with skip ; step 3 ; bimc 5000 (bexp? n <= 1000)
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #bimc-result #true in 891 steps

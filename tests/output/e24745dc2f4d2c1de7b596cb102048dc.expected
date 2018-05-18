@@ -1,3 +1,6 @@
+Program:  tests/div-zero.imp
+Strategy: exec-to-branch
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #which-can ^ divnonzero | ^ divzero

@@ -1,3 +1,6 @@
+Program:  tests/simple-while.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

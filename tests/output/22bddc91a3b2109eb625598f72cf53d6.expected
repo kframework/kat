@@ -1,3 +1,6 @@
+Program:  tests/dead-if.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

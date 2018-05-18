@@ -1,3 +1,6 @@
+Program:  tests/sum-plus.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

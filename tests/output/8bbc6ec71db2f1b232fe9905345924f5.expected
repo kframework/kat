@@ -1,3 +1,6 @@
+Program:  tests/live-if.imp
+Strategy: step ; which-can? (^ iftrue)
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #which-can ^ iftrue

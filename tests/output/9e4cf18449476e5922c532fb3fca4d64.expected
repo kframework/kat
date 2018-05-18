@@ -1,3 +1,6 @@
+Program:  tests/sum.imp
+Strategy: exec-to-branch
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

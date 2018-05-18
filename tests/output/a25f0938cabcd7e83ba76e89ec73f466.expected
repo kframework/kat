@@ -1,3 +1,6 @@
+Program:  tests/sum-symbolic.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

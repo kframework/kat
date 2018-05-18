@@ -1,3 +1,6 @@
+Program:  tests/inf-div-good.imp
+Strategy: compile
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( )

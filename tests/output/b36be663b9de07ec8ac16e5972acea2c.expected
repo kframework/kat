@@ -1,3 +1,6 @@
+Program:  tests/if-div-zero.imp
+Strategy: step 3 ; which-can? (^ divzero | ^ divnonzero)
+================================================================================
 <kat-imp>
   <s>
     #STUCK ( ) ~> #which-can ^ divnonzero | ^ divzero
