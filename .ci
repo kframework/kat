@@ -1,9 +1,13 @@
+[test "all-status"]
+    command      = make clean && make deps && make build && make test -j4 -k
+    trackedFiles = .build/logs/failing.lastrun
+
 [test "all"]
     command      = make clean && make deps && make build && make test -j4 -k
-    trackedFiles = tests/output
+    trackedFiles = .build/logs/failing.lastrun .build/logs/output
 
 [test "smoke-compile"]
-    trackedFiles = tests/output
+    trackedFiles = .build/logs/failing.lastrun .build/logs/output
     command      = make clean && make deps && make build \
                     && make -k -j4 \
                         tests/inf-div-unknown.imp.test \
