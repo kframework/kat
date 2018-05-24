@@ -25,10 +25,11 @@ module KAT
     imports DOMAINS
     imports UNIFICATION
 
-    configuration <kat>
-                    <analysis> .Analysis </analysis>
-                    <states> .States </states>
-                  </kat>
+    configuration
+      <kat>
+        <analysis> .Analysis </analysis>
+        <states> .States </states>
+      </kat>
 
     syntax Analysis ::= ".Analysis"
 ```
