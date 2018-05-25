@@ -82,6 +82,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
 
 -   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
 -   `can?_` tries a given strategy, but restores the previous state on success (still reporting `#true` or `#false`).
+-   `try-state?_` will check if a given state description is feasibly by executing its associated strategy.
 
 **TODO:** constraints are not restored correctly on `can?` and `try?`.
 
@@ -104,6 +105,10 @@ Here, a wrapper around this functionality is provided which will try to execute 
     syntax Pred ::= "can?" Strategy
  // -------------------------------
     rule <s> can? S => push ~> rename-vars ~> (try? S) ~> #pred pop ... </s>
+
+    syntax Pred ::= "try-state?" State
+ // ----------------------------------
+    rule <s> try-state? STATE => push ~> pop-fresh STATE ~> #try ... </s>
 ```
 
 -   `#exception_` can be used as a place-holder to turn an exception into a strategy.
