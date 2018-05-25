@@ -42,12 +42,19 @@ Usually this will be some `*Cell` sort.
 States have associated constraints as well, which are stored/restored using meta-level functionality.
 
 ```k
-    syntax  State
     syntax CState ::= State "|" K
     syntax AState ::= State | CState
     syntax States ::= ".States"
                     | AState ":" States
  // -----------------------------------
+
+    syntax PreState
+    syntax State ::= PreState
+    syntax State ::= State "<" Strategy ">"
+    syntax State ::= #stripStrat ( State ) [function]
+ // -------------------------------------------------
+    rule #stripStrat(STATE < S >) => #stripStrat(STATE)
+    rule #stripStrat(STATE)       => STATE              requires isPreState(STATE)
 ```
 
 -   `push_` copies the current execution state onto the stack of states and must be provided by the programming language.
@@ -61,6 +68,7 @@ States have associated constraints as well, which are stored/restored using meta
     syntax Strategy ::= "pop" | "pop" State
  // ---------------------------------------
     rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> pop STATE < S > => pop STATE ~> S ... </s>
 ```
 
 The current K backend will place the token `#STUCK` at the front of the `s` cell when execution cannot continue.
