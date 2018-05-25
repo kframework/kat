@@ -69,6 +69,12 @@ States have associated constraints as well, which are stored/restored using meta
  // ---------------------------------------
     rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
     rule <s> pop STATE < S > => pop STATE ~> S ... </s>
+
+    syntax Strategy ::= "pop-fresh" | "pop-fresh" State | "#pop-fresh" K
+ // --------------------------------------------------------------------
+    rule <s> pop-fresh => pop-fresh STATE </s> <states> STATE : STATES => STATES </states>
+    rule <s> pop-fresh STATE:State => #pop-fresh #renameVariables(STATE) ... </s>
+    rule <s> #pop-fresh STATE:State => pop STATE ... </s>
 ```
 
 The current K backend will place the token `#STUCK` at the front of the `s` cell when execution cannot continue.
@@ -266,11 +272,9 @@ The following strategies get information about the current state or manipulate t
 -   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
 
 ```k
-    syntax StateOp  ::= "rename-vars"
-    syntax Strategy ::= "#rename-vars" K
- // ------------------------------------
-    rule <s> rename-vars [ STATE ]    => #rename-vars #renameVariables(STATE) ... </s>
-    rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
+    syntax StateOp ::= "rename-vars"
+ // --------------------------------
+    rule <s> rename-vars [ STATE ] => pop-fresh STATE ... </s>
 ```
 
 -   `stuck?` checks if the current state can take a step.
@@ -532,7 +536,7 @@ The interface of this analysis requires you define when to abstract and how to a
     syntax StatePred ::= "subsumed?"
     syntax Pred      ::= "#subsumed?" State Rules
  // ---------------------------------------------
-    rule <analysis> RS  </analysis>
+    rule <analysis> RS </analysis>
          <s> subsumed? [ STATE ] => (#subsumed? STATE RS) ... </s>
 
     rule <s> #subsumed? STATE .Rules         => #false              ... </s>
