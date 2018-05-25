@@ -1,6 +1,6 @@
-step ; ^ iftrue
-step ; which-can? (^ iftrue)
-step ; which-can? (^ iftrue | ^ iffalse)
-step ; which-can? (^ iffalse | ^ divzero)
+step 2 ; ^ iftrue
+step 2 ; which-can? (^ iftrue)
+step 2 ; which-can? (^ iftrue | ^ iffalse)
+step 2 ; which-can? (^ iffalse | ^ divzero)
 exec-to-branch
 compile

@@ -1,2 +1,4 @@
 int x , y ;
+x = symbolicInt ;
+y = symbolicInt ;
 y = 7 / x ;

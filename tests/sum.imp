@@ -2,6 +2,6 @@ int n , s ;
 s = 0 ;
 n = 10 ;
 while (0 <= n) {
-  n = n + -1 ;
   s = s + n ;
+  n = n + -1 ;
 }

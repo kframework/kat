@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
 set -e      # Exit immediately if any command fails
-set -u      # Using undefined variables is an error. Exit immediately
+
+build_dir="$(pwd)/.build"
+test_logs="$build_dir/logs"
+failing_log="$test_logs/failing.lastrun"
+mkdir -p "$test_logs"
+
+test_expected_dir="tests/output"
+test_output_dir="$test_logs/output"
+mkdir -p "$test_expected_dir" "$test_output_dir"
 
 # Utilities
 # ---------
@@ -17,7 +25,6 @@ pretty_diff() {
 # -----------------
 
 run_env() {
-    local build_dir="$(pwd)/.build"
     local release_dir="$build_dir/k/k-distribution/target/release/k"
     export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
 }
@@ -50,19 +57,41 @@ run_ksearch() {
 }
 
 run_test() {
-    local imp_file="$1"      ; shift
-    local strategy_file="$1" ; shift
-    local expected_dir="$1"  ; shift
+    local imp_file strategy_file test_number counter exit_status current_status
+    local test_id test_output_file test_expected_file
+    imp_file="$1"      ; shift
+    strategy_file="$1" ; shift
+    { test_number="$1" && shift ; } || test_number="*"
+
     [[ -f "$imp_file"      ]] || die "File '$imp_file' does not exist ..."
     [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
-    local counter=1
+
+    exit_status=0
+    counter=0
     while read strategy; do
         [[ "$strategy" != '' ]] || continue
-        progress "testing: '$imp_file' with strategy '$strategy'"
-        run_krun "$imp_file" "$strategy" > "$expected_dir/$counter.out"
-        pretty_diff "$expected_dir/$counter.expected" "$expected_dir/$counter.out"
         counter=$((counter + 1))
+        [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
+
+        test_id="$(echo $(basename $imp_file) $strategy | md5sum | cut --delimiter=' ' --field=1)"
+        test_output_file="$test_output_dir/$test_id.out"
+        test_expected_file="$test_expected_dir/$test_id.out"
+        progress "testing: '$imp_file' with strategy '$strategy', expected output $test_expected_file"
+        [[ -f "$test_expected_file" ]] || die "Expected output file does not exist: $test_expected_file"
+
+        echo "Program:  $imp_file"           > "$test_output_file"
+        echo "Strategy: $strategy"          >> "$test_output_file"
+        { printf '=%.0s' {1..80} ; echo ; } >> "$test_output_file"
+        run_krun "$imp_file" "$strategy"    >> "$test_output_file"
+
+        current_status='0'
+        pretty_diff "$test_expected_file" "$test_output_file" || current_status="$?"
+        if [[ "$current_status" != '0' ]]; then
+            echo "$imp_file with strategy '$strategy'" >> "$failing_log"
+            exit_status="$current_status"
+        fi
     done < "$strategy_file"
+    return "$exit_status"
 }
 
 # Main

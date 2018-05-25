@@ -1,4 +1,4 @@
 bimc 5000 (not can? (^ divzero))
+bimc 97   (not can? (^ divzero))
 bimc 96   (not can? (^ divzero))
-bimc 95   (not can? (^ divzero))
 compile

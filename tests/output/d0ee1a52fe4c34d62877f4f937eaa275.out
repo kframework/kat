@@ -1,0 +1,42 @@
+Program:  tests/simple-while.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , .Ids ; x = 10 ; y = 0 ; while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } y = y * 2 ;
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> -1
+          y |-> 22
+        </mem>
+      </imp> >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> -1
+        y |-> 22
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

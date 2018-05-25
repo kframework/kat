@@ -63,15 +63,14 @@ $(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
 # Testing
 # -------
 
-test_dir:=tests
 test_files:=$(wildcard $(test_dir)/*.imp)
 
 TEST=./kat test
 
 test: $(test_files:=.test)
 
-$(test_dir)/%.imp.test: $(test_dir)/%.imp $(test_dir)/%.strat $(test_dir)/%.expected
-	$(TEST) $^
+$(test_dir)/%.imp.test:
+	$(TEST) $(test_dir)/$*.imp $(test_dir)/$*.strat
 
 $(test_dir)/%.expected:
 	mkdir -p $@

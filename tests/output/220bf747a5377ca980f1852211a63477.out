@@ -1,0 +1,26 @@
+Program:  tests/dead-if.imp
+Strategy: step 2 ; which-can? (^ iftrue | ^ iffalse)
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iftrue
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( true ) { x = 1 ; } else { x = -1 ; }
+      </k>
+      <mem>
+        x |-> 7
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

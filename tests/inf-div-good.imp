@@ -1,5 +1,5 @@
-
 int x , y ;
+y = symbolicInt ;
 x = 10 ;
 while (0 < x) {
   y = y / x ;

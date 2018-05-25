@@ -1,0 +1,42 @@
+Program:  tests/sum.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int n , s , .Ids ; s = 0 ; n = 10 ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          n |-> -1
+          s |-> 55
+        </mem>
+      </imp> >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        n |-> -1
+        s |-> 55
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

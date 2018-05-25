@@ -34,11 +34,12 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
     rule <s> pop  IMPCELL => .            ... </s> <harness> _ => IMPCELL </harness>
 ```
 
-### Define `#transition` and `#normal`
+### Define `#branch` and `#normal`
 
 ```k
-    rule #transition => ^ iftrue | ^ iffalse | ^ divzero | ^ divnonzero
-    rule #normal     => ^ whileIMP | ^ lookup | ^ assignment
+    rule #normal => ^ lookup | ^ assignment
+    rule #branch => ^ iftrue | ^ iffalse | ^ divzero | ^ divnonzero
+    rule #loop   => ^ whileIMP
 ```
 
 ### Define `bool?`
@@ -80,6 +81,7 @@ SBC
 module IMP-SBC
     imports IMP-KAT
     imports KAT-SBC
+    imports MATCHING
 ```
 
 ### Define `abstract`
@@ -97,12 +99,18 @@ IMP will abstract by turning all the values in memory into fresh symbolic values
 
 ### Define `_subsumes?_`
 
-Because the memory is fully abstract every time subsumption is checked, it's enough to check that the `k` cell is identical for subsumption.
+Subsumption will be based on matching one `<k>` cell with the other.
+This is correct because the memory is fully abstracted at the beginning of each rule.
+
+**TODO**: We should be able to match on the entire configuration, not just the `<k>` cell.
 
 ```k
     rule <s> <imp> <k> KCELL </k> ... </imp> subsumes? <imp> <k> KCELL' </k> ... </imp>
-          => #if KCELL ==K KCELL' #then #true #else #false #fi
+          => #if #matches(KCELL', KCELL) #then #true #else #false #fi
          ...
          </s>
+```
+
+```k
 endmodule
 ```

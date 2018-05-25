@@ -1,0 +1,137 @@
+Program:  tests/if-div-zero.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , .Ids ; y = 7 ; x = V0 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          7 /Int V0 ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+        </k>
+        <mem>
+          x |-> V0
+          y |-> 7
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          int x , y , .Ids ; y = 7 ; x = 0 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          div-zero-error ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+        </k>
+        <mem>
+          x |-> 0
+          y |-> 7
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          div-zero-error ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+        </k>
+        <mem>
+          x |-> V1
+          y |-> V2
+        </mem>
+      </imp> --> <imp>
+        <k>
+          div-zero-error ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+        </k>
+        <mem>
+          x |-> V1
+          y |-> V2
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          7 /Int V3 ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+        </k>
+        <mem>
+          x |-> V4
+          y |-> V5
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { x = -1 ; }
+        </k>
+        <mem>
+          x |-> V4
+          y |-> V5
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          7 /Int V6 ~> #freezer_<=__IMP1_ ( 3 ) ~> #freezerif(_)_else__IMP1_ ( { x = 1 ; } , { x = -1 ; } )
+        </k>
+        <mem>
+          x |-> V7
+          y |-> V8
+        </mem>
+      </imp> --> <imp>
+        <k>
+          { x = 1 ; }
+        </k>
+        <mem>
+          x |-> V7
+          y |-> V8
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { x = 1 ; }
+        </k>
+        <mem>
+          x |-> V9
+          y |-> V10
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> 1
+          y |-> V10
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          { x = -1 ; }
+        </k>
+        <mem>
+          x |-> V11
+          y |-> V12
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> -1
+          y |-> V12
+        </mem>
+      </imp> >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> -1
+        y |-> V12
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

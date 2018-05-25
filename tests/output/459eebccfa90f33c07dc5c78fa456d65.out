@@ -1,0 +1,89 @@
+Program:  tests/div-zero.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , .Ids ; x = V0 ; y = V1 ; y = 7 / x ;
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          7 /Int V0 ~> #freezer_=_;_IMP0_ ( y )
+        </k>
+        <mem>
+          x |-> V0
+          y |-> V1
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          int x , y , .Ids ; x = 0 ; y = V2 ; y = 7 / x ;
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          div-zero-error ~> #freezer_=_;_IMP0_ ( y )
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V2
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          div-zero-error ~> #freezer_=_;_IMP0_ ( y )
+        </k>
+        <mem>
+          x |-> V3
+          y |-> V4
+        </mem>
+      </imp> --> <imp>
+        <k>
+          div-zero-error ~> #freezer_=_;_IMP0_ ( y )
+        </k>
+        <mem>
+          x |-> V3
+          y |-> V4
+        </mem>
+      </imp> > , < <imp>
+        <k>
+          7 /Int V5 ~> #freezer_=_;_IMP0_ ( y )
+        </k>
+        <mem>
+          x |-> V6
+          y |-> V7
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> V6
+          y |-> 7 /Int V5
+        </mem>
+      </imp> >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> V6
+        y |-> 7 /Int V5
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

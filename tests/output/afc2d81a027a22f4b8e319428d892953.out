@@ -1,0 +1,26 @@
+Program:  tests/dead-if.imp
+Strategy: exec-to-branch
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> 1
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

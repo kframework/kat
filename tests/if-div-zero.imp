@@ -1,5 +1,6 @@
 int x , y ;
 y = 7 ;
+x = symbolicInt ;
 
 if ((y / x) <= 3) {
     x = 1 ;
