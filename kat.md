@@ -602,6 +602,33 @@ The interface of this analysis requires you define when to abstract and how to a
          <analysis> RS => RS , < LHS > </analysis>
 ```
 
+-   `mk-rule` will build a rule given a `State`, by assuming the base of the state a the LHS of the rule and the state after executing the strategy as the RHS.
+-   `init-rules` will build new rules (using `split-rules`) starting in the top-stack state with the given strategy, if the current state is not subsumed.
+-   `split-rules` will take a given state + strategy and split it into all the feasible initial states to be analyzed.
+
+```k
+    syntax Strategy ::= "mk-rule" State | "#mk-rule" K | "#mk-rule"
+ // ---------------------------------------------------------------
+    rule <s> mk-rule STATE => #mk-rule #renameVariables(STATE) ... </s>
+    rule <s> #mk-rule STATE:State => push STATE ~> pop STATE ~> push ~> #mk-rule ... </s>
+    rule <analysis> RS => RS , < #stripStrat(LHS) --> RHS requires #getConstraint(< LHS --> RHS >) > </analysis>
+         <states> RHS : LHS : STATES => STATES </states>
+         <s> #mk-rule => . ... </s>
+
+    syntax Strategy ::= "init-rules" Strategy | "#init-rules" Strategy
+ // ------------------------------------------------------------------
+    rule <s> init-rules S => push ~> #init-rules S ... </s>
+    rule <states> STATE : STATES => STATES </states>
+         <analysis> RS </analysis>
+         <s> #init-rules S => pop-fresh STATE ~> if subsumed? then skip else split-rules STATE S ... </s>
+
+    syntax Strategy ::= "split-rules" State Strategy
+ // ------------------------------------------------
+    rule <s> split-rules STATE (S1 | S2) => split-rules STATE S1 ~> split-rules STATE S2 ... </s>
+    rule <s> split-rules STATE S => if try-state? STATE < S > then push STATE < S > else skip ... </s>
+      requires notBool #orStrategy(S)
+```
+
 Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
@@ -609,19 +636,20 @@ Finally, semantics based compilation is provided as a macro.
 ```k
     syntax Strategy ::= "compile-step"
  // ----------------------------------
-    rule <s> ( compile-step
-            => dup
-            ~> pop
-            ~> if subsumed?
-               then drop
-               else ( pop
-                    ; abstract
-                    ; rename-vars
-                    ; begin-rule
-                    ; exec-to-branch
-                    ; end-rules
-                    )
-             )
+    rule <states> STATE : STATES => STATES </states>
+         <s> compile-step
+          => if try-state? STATE < #loop >
+              then ( mk-rule STATE
+                   ; pop-fresh STATE
+                   ; abstract
+                   ; init-rules #loop
+                   )
+             else if try-state? STATE < #branch >
+              then ( split-rules STATE #branch
+                   )
+             else if try-state? STATE < #normal | ^ regular >
+              then ( push STATE < (#normal | ^ regular) * > )
+             else  ( mk-rule STATE )
              ...
          </s>
 ```
