@@ -16,13 +16,62 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 10
+          y |-> V0
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V1
+          y |-> V2
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> V1
+          y |-> V2
+        </mem>
+      </imp> requires 0 <=Int V1 ==K false > , < <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V3
+          y |-> V4
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V3 -Int 1
+          y |-> V4 /Int V3
+        </mem>
+      </imp> requires 0 <=Int V3 ==K true #And
+      V3 ==K 0 ==K false > , < <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V5
+        </mem>
+      </imp> --> <imp>
+        <k>
           div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
         <mem>
           x |-> 0
-          y |-> V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1
+          y |-> V5
         </mem>
-      </imp> >
+      </imp> requires #True >
     </analysis>
     <states>
       .States
@@ -35,7 +84,7 @@ Strategy: compile
       </k>
       <mem>
         x |-> 0
-        y |-> V0 /Int 10 /Int 9 /Int 8 /Int 7 /Int 6 /Int 5 /Int 4 /Int 3 /Int 2 /Int 1
+        y |-> V5
       </mem>
     </imp>
   </harness>

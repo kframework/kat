@@ -16,12 +16,12 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
-          { x = -1 ; }
+          .
         </k>
         <mem>
-          x |-> V0
+          x |-> -1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires V0 <=Int 7 ==K false > , < <imp>
         <k>
           int x , .Ids ; x = V1 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
         </k>
@@ -30,40 +30,12 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
-          { x = 1 ; }
-        </k>
-        <mem>
-          x |-> V1
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { x = 1 ; }
-        </k>
-        <mem>
-          x |-> V2
-        </mem>
-      </imp> --> <imp>
-        <k>
           .
         </k>
         <mem>
           x |-> 1
         </mem>
-      </imp> > , < <imp>
-        <k>
-          { x = -1 ; }
-        </k>
-        <mem>
-          x |-> V3
-        </mem>
-      </imp> --> <imp>
-        <k>
-          .
-        </k>
-        <mem>
-          x |-> -1
-        </mem>
-      </imp> >
+      </imp> requires V1 <=Int 7 ==K true >
     </analysis>
     <states>
       .States
@@ -75,7 +47,7 @@ Strategy: compile
         .
       </k>
       <mem>
-        x |-> -1
+        x |-> 1
       </mem>
     </imp>
   </harness>

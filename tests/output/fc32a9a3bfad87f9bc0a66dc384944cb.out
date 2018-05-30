@@ -1,4 +1,4 @@
-Program:  tests/div-zero.imp
+Program:  tests/nested-dead-if.imp
 Strategy: compile
 ================================================================================
 <kat-imp>
@@ -9,7 +9,7 @@ Strategy: compile
     <analysis>
       .Rules , < <imp>
         <k>
-          int x , y , .Ids ; x = V0 ; y = V1 ; y = 7 / x ;
+          int x , y , .Ids ; x = V0 ; y = V1 ; if ( x <= y ) { if ( x <= y ) { x = 10 ; } else { x = 11 ; } } else { x = 12 ; }
         </k>
         <mem>
           .Map
@@ -19,25 +19,25 @@ Strategy: compile
           .
         </k>
         <mem>
-          x |-> V0
-          y |-> 7 /Int V0
+          x |-> 12
+          y |-> V1
         </mem>
-      </imp> requires V0 ==K 0 ==K false > , < <imp>
+      </imp> requires V0 <=Int V1 ==K false > , < <imp>
         <k>
-          int x , y , .Ids ; x = 0 ; y = V2 ; y = 7 / x ;
+          int x , y , .Ids ; x = V2 ; y = V3 ; if ( x <= y ) { if ( x <= y ) { x = 10 ; } else { x = 11 ; } } else { x = 12 ; }
         </k>
         <mem>
           .Map
         </mem>
       </imp> --> <imp>
         <k>
-          div-zero-error ~> #freezer_=_;_IMP0_ ( y )
+          .
         </k>
         <mem>
-          x |-> 0
-          y |-> V2
+          x |-> 10
+          y |-> V3
         </mem>
-      </imp> requires #True >
+      </imp> requires V2 <=Int V3 ==K true >
     </analysis>
     <states>
       .States
@@ -46,11 +46,11 @@ Strategy: compile
   <harness>
     <imp>
       <k>
-        div-zero-error ~> #freezer_=_;_IMP0_ ( y )
+        .
       </k>
       <mem>
-        x |-> 0
-        y |-> V2
+        x |-> 10
+        y |-> V3
       </mem>
     </imp>
   </harness>

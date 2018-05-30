@@ -16,124 +16,62 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
-          { }
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
         <mem>
           x |-> V0
           y |-> V1
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
-          int x , y , .Ids ; x = V2 ; y = V3 ; while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          .Map
-        </mem>
-      </imp> --> <imp>
-        <k>
-          { { y = y / x ; x = x - 1 ; } while ( 0 <= x ) { y = y / x ; x = x - 1 ; } }
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
         <mem>
           x |-> V2
           y |-> V3
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { { y = y / x ; x = x - 1 ; } while ( 0 <= x ) { y = y / x ; x = x - 1 ; } }
-        </k>
-        <mem>
-          x |-> V4
-          y |-> V5
-        </mem>
-      </imp> --> <imp>
-        <k>
-          V5 /Int V4 ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          x |-> V4
-          y |-> V5
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { { y = y / x ; x = x - 1 ; } while ( 0 <= x ) { y = y / x ; x = x - 1 ; } }
-        </k>
-        <mem>
-          x |-> 0
-          y |-> V6
-        </mem>
-      </imp> --> <imp>
-        <k>
-          div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          x |-> 0
-          y |-> V6
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          x |-> V7
-          y |-> V8
-        </mem>
-      </imp> --> <imp>
-        <k>
-          div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          x |-> V7
-          y |-> V8
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          V9 /Int V10 ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          x |-> V11
-          y |-> V12
-        </mem>
-      </imp> --> <imp>
-        <k>
-          { }
-        </k>
-        <mem>
-          x |-> V11 -Int 1
-          y |-> V9 /Int V10
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          V13 /Int V14 ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
-        </k>
-        <mem>
-          x |-> V15
-          y |-> V16
-        </mem>
-      </imp> --> <imp>
-        <k>
-          { { y = y / x ; x = x - 1 ; } while ( 0 <= x ) { y = y / x ; x = x - 1 ; } }
-        </k>
-        <mem>
-          x |-> V15 -Int 1
-          y |-> V13 /Int V14
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { }
-        </k>
-        <mem>
-          x |-> V17
-          y |-> V18
         </mem>
       </imp> --> <imp>
         <k>
           .
         </k>
         <mem>
-          x |-> V17
-          y |-> V18
+          x |-> V2
+          y |-> V3
         </mem>
-      </imp> >
+      </imp> requires 0 <=Int V2 ==K false > , < <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V4
+          y |-> V5
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V4 -Int 1
+          y |-> V5 /Int V4
+        </mem>
+      </imp> requires 0 <=Int V4 ==K true #And
+      V4 ==K 0 ==K false > , < <imp>
+        <k>
+          while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V6
+        </mem>
+      </imp> --> <imp>
+        <k>
+          div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 0
+          y |-> V6
+        </mem>
+      </imp> requires #True >
     </analysis>
     <states>
       .States
@@ -142,11 +80,11 @@ Strategy: compile
   <harness>
     <imp>
       <k>
-        { }
+        div-zero-error ~> #freezer_=_;_IMP0_ ( y ) ~> x = x - 1 ; ~> while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
       </k>
       <mem>
-        x |-> V0
-        y |-> V1
+        x |-> 0
+        y |-> V6
       </mem>
     </imp>
   </harness>
