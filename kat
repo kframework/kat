@@ -74,7 +74,7 @@ run_test() {
         counter=$((counter + 1))
         [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
 
-        test_id="$(echo $(basename $imp_file) $strategy | md5sum | cut --delimiter=' ' --field=1)"
+        test_id="$(echo "$(basename $imp_file) $strategy" | md5sum | cut --delimiter=' ' --field=1)"
         test_output_file="$test_output_dir/$test_id.out"
         progress "testing: '$imp_file' with strategy '$strategy', output $test_output_file"
 
@@ -84,15 +84,16 @@ run_test() {
         run_krun "$imp_file" "$strategy"    >> "$test_output_file"
 
         test_expected_file="$test_expected_dir/$test_id.out"
-        [[ -f "$test_expected_file" ]] || { warn "Expected output file does not exist: $test_expected_file"
-                                            exit_status='1'
-                                          }
-
-        current_status='0'
-        pretty_diff "$test_expected_file" "$test_output_file" || current_status="$?"
-        if [[ "$current_status" != '0' ]]; then
-            echo "$imp_file with strategy '$strategy'" >> "$failing_log"
-            exit_status="$current_status"
+        if [[ ! -f "$test_expected_file" ]]; then
+            warn "Expected output file does not exist: $test_expected_file"
+            exit_status='1'
+        else
+            current_status='0'
+            pretty_diff "$test_expected_file" "$test_output_file" || current_status="$?"
+            if [[ "$current_status" != '0' ]]; then
+                echo "$imp_file with strategy '$strategy'" >> "$failing_log"
+                exit_status="$current_status"
+            fi
         fi
     done < "$strategy_file"
     return "$exit_status"
