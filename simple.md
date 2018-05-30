@@ -336,6 +336,7 @@ As the configuration above states, the `k` and `env` cells are actually located 
            ...
          </store>
          <nextLoc> L => L +Int 1 </nextLoc>
+      [tag(storeAlloc)]
 ```
 
 ### Array Declaration
@@ -358,6 +359,7 @@ Note that, since the dimensions of array declarations can be arbitrary expressio
          </store>
          <nextLoc> L => L +Int 1 +Int N </nextLoc>
       requires N >=Int 0
+    [tag(storeArrayAlloc)]
 ```
 
 SIMPLE allows multi-dimensional arrays.
@@ -408,6 +410,7 @@ The type checker of SIMPLE, also defined in K (see [examples/simple/typed/static
            ...
          </store>
          <nextLoc> L => L +Int 1 </nextLoc>
+      [tag(storeFuncAlloc)]
 ```
 
 When we are done with the first pass (pre-processing), the computation
@@ -424,6 +427,7 @@ All (top-level) functions end up having their names bound in the global environm
     rule <k> execute => main(.Exps); </k>
          <env> Env </env>
          <genv> .Map => Env </genv>
+      [tag(execute)]
 ```
 
 ### Variable Lookup and Increment
@@ -434,7 +438,7 @@ When a variable `X` is the first computational task, and `X` is bound to some lo
     rule <k> X:Id => V ... </k>
          <env> ... X |-> L ... </env>
          <store> ... L |-> V:Val ... </store>
-      [tag(lookup)]
+      [tag(storeLookup)]
 ```
 
 Note that the rule above excludes reading `undefined`, because `undefined` is not a value and `V` is checked at runtime to be a value.
@@ -451,7 +455,7 @@ Location values, also defined at the end of the file, are integers wrapped with 
  // --------------------------------
     rule <k> ++loc(L) => I +Int 1 ... </k>
          <store> ... L |-> (I => I +Int 1) ... </store>
-      [tag(increment)]
+      [tag(storeLocIncrement)]
 ```
 
 ### Arithmetic/Boolean Operators
@@ -539,6 +543,7 @@ We add an artificial `nothing` value to the language, which is returned by the n
          </control>
          <env> ENV => GENV </env>
          <genv> GENV </genv>
+      [tag(funcCall)]
 
     rule <k> return(V:Val); ~> _ => V ~> K </k>
          <control>
@@ -564,14 +569,16 @@ Instead, we want the behavior to be unspecified; in particular, if one is carefu
 The `read()` expression construct simply evaluates to the next input value, at the same time discarding the input value from the `in` cell.
 
 ```k
-    rule <k> read() => I ...</k> <input> ListItem(I:Int) => .List ...</input> [tag(read)]
+    rule <k> read() => I ...</k> <input> ListItem(I:Int) => .List ...</input>
+      [tag(readInput)]
 ```
 
 The `print` statement was strict, so all its arguments are now evaluated (recall that `print` is variadic).
 We append each of its evaluated arguments to the output buffer, and discard the residual `print` statement with an empty list of arguments.
 
 ```k
-    rule <k> print(V:Val, Es => Es); ... </k> <output>... .List => ListItem(V) </output> [tag(print)]
+    rule <k> print(V:Val, Es => Es); ... </k> <output>... .List => ListItem(V) </output>
+      [tag(printOutput)]
     rule <k> print(.Vals); => .      ... </k>
 ```
 
@@ -585,7 +592,8 @@ Thus, we first compute the `lvalue` of the left-hand-side expression that appear
 ```k
     context (HOLE => lvalue(HOLE)) = _
  // ----------------------------------
-    rule <k> loc(L) = V:Val => V ...</k> <store>... L |-> (_ => V) ...</store> [tag(assignment)]
+    rule <k> loc(L) = V:Val => V ...</k> <store>... L |-> (_ => V) ...</store>
+      [tag(storeAssignment)]
 ```
 
 ### Blocks
@@ -643,8 +651,8 @@ Since the conditional was declared with the `strict(1)` attribute, we can assume
 The rules below cover the only two possibilities in which the conditional is allowed to proceed (otherwise the rewriting process gets stuck).
 
 ```k
-    rule <k> if ( true) S else _ => S ... </k> [tag(ifevalTrue)]
-    rule <k> if (false) _ else S => S ... </k> [tag(ifevalFalse)]
+    rule <k> if (B:Bool) S else _ => S ... </k> requires         B [tag(ifevalTrue)]
+    rule <k> if (B:Bool) _ else S => S ... </k> requires notBool B [tag(ifevalFalse)]
 ```
 
 The simplest way to give the semantics of the while loop is by unrolling.
@@ -654,7 +662,7 @@ The simple while loop semantics below works because our while loops in SIMPLE ar
 If we allowed break/continue of loops then we would need a completely different semantics, which would also involve the `control` cell.
 
 ```k
-    rule <k> while (E) S => if (E) {S while(E) S} ... </k>
+    rule <k> while (E) S => if (E) {S while(E) S} ... </k> [tag(whileLoop)]
 ```
 
 SIMPLE allows parametric exceptions, in that one can throw and catch a particular value.
@@ -727,6 +735,7 @@ This is part of K's configuration abstraction mechanism.
            )
            ...
          </threads>
+      [tag(threadSpawn)]
 ```
 
 Dually to the above, when a thread terminates its assigned computation (the contents of its `k` cell) is empty, so the thread can be dissolved.
@@ -747,6 +756,7 @@ The unique identifier of the terminated thread is also collected into the `termi
          )
          <busy> BUSY => BUSY -Set keys(H) </busy>
          <terminated> ... .Set => SetItem(T) ... </terminated>
+      [tag(threadEnd)]
 ```
 
 Thread joining is now straightforward: all we need to do is to check whether the identifier of the thread to be joined is in the `terminated` cell.
@@ -755,6 +765,7 @@ If yes, then the `join` statement dissolves and the joining thread continues nor
 ```k
     rule <k> join T:Int; => . ... </k>
          <terminated> ... SetItem(T) ... </terminated>
+      [tag(threadJoin)]
 ```
 
 There are two cases to distinguish when a thread attempts to acquire a lock (in SIMPLE any value can be used as a lock):
@@ -769,7 +780,7 @@ These two cases are captured by the two rules below:
          <holds> ... .Map => V |-> 0 ... </holds>
          <busy> BUSY (.Set => SetItem(V)) </busy>
       requires notBool (V in BUSY)
-      [tag(acquire)]
+      [tag(threadAcquire)]
 
     rule <k> acquire V; => . ... </k>
          <holds> ... V:Val |-> (N => N +Int 1) ... </holds>
@@ -787,6 +798,7 @@ Similarly, there are two corresponding cases to distinguish when a thread releas
 
     rule <k> release V; => . ... </k> <holds> ... V:Val |-> 0 => .Map ... </holds>
          <busy> ... SetItem(V) => .Set ... </busy>
+      [tag(threadRelease)]
 ```
 
 In addition to synchronization through acquire and release of locks, SIMPLE also provides a construct for rendezvous synchronization.
@@ -797,7 +809,8 @@ Note, however, that, again, it is K's mechanism for configuration abstraction th
 
 ```k
     rule <k> rendezvous V:Val; => . ... </k>
-         <k> rendezvous V;     => . ... </k> [rendezvous]
+         <k> rendezvous V;     => . ... </k>
+      [tag(rendezvous)]
 ```
 
 ### Auxiliary Declarations
@@ -820,7 +833,8 @@ This way, both rules will be considered transitions when we include the `lookup`
 ```k
     syntax Exp ::= lookup ( Int )
  // -----------------------------
-    rule <k> lookup(L) => V ...</k> <store>... L |-> V:Val ...</store> [tag(lookup)]
+    rule <k> lookup(L) => V ...</k> <store>... L |-> V:Val ...</store>
+      [tag(threadLookup)]
 ```
 
 We have already discussed the environment recovery auxiliary operation in the IMP++ tutorial:
