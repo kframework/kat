@@ -129,10 +129,11 @@ case "$run_command" in
 
        # Testing
        # -------
-       $0 test <pgm> <strat> Run a test from the `tests/` directory.
+       $0 test <pgm> <strat> [<strat-num>] Run a test from the `tests/` directory.
 
-       Note: <pgm> is the path to the program in `tests/`
-             <strat> is a file with one strategy per line
+       Note: <pgm>          is the path to the program in `tests/`
+             <strat>        is a file with one strategy per line
+             <strat-num>    is which strategy from <strat> to run (default '*')
 
        Note: This command is more for devs and CI servers.
 " ; exit ;;
