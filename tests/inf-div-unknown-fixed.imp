@@ -1,0 +1,9 @@
+int x , y ;
+x = symbolicInt ;
+y = symbolicInt ;
+while (0 <= x) {
+  if (0 < x) {
+    y = y / x ;
+  } else { }
+  x = x - 1 ;
+}
