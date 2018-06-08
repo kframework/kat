@@ -105,3 +105,23 @@ $(test_dir)/%.imp.test:
 
 $(test_dir)/%.expected:
 	mkdir -p $@
+
+# SBC Benchmarking
+# ----------------
+
+sbced_files:=$(wildcard $(test_dir)/sbced/*.k)
+
+$(test_dir)/sbced/%/diff.runtime: $(test_dir)/sbced/%/original.runtime $(test_dir)/sbced/%/compiled.runtime
+	git diff --no-index --ignore-space-change $^ || true
+
+$(test_dir)/sbced/%/original.runtime: $(defn_dir)/krun/imp-kompiled/interpreter $(test_dir)/%.imp
+	eval $$(opam config env) ; \
+		time ( $(krun) --directory $(defn_dir)/krun $(test_dir)/$*.imp &>$@ ) &>> $@
+
+$(test_dir)/sbced/%/compiled-kompiled/interpreter: $(test_dir)/sbced/%/compiled.k
+	eval $$(opam config env) ; \
+		$(kompile) --backend ocaml --main-module COMPILED --syntax-module COMPILED $< --directory $(test_dir)/sbced/$*
+
+$(test_dir)/sbced/%/compiled.runtime: $(test_dir)/sbced/%/compiled-kompiled/interpreter $(test_dir)/%.imp
+	eval $$(opam config env) ; \
+		time ( $(krun) --directory tests/sbced/$* -cN=10000 &>$@ ) &>> $@
