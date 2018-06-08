@@ -16,7 +16,8 @@ export LUA_PATH
 
 test_dir:=tests
 
-.PHONY: build deps defn example-files \
+.PHONY: build build-krun build-kompile deps ocaml-deps \
+		defn defn-krun defn-kompile example-files \
 		test-bimc test-sbc test
 
 all: build
@@ -24,24 +25,10 @@ all: build
 clean:
 	rm -rf $(build_dir)
 
-# Build definition
-# ----------------
-
-# Tangle *.k files
-
-k_files:=kat-imp.k imp.k kat.k
-defn_files:=$(patsubst %, $(defn_dir)/%, $(k_files))
-
-defn: $(defn_files)
-
-$(defn_dir)/%.k: %.md
-	@echo >&2 "==  tangle: $@"
-	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
-
 # Dependencies
+# ------------
 
-deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp
+deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp ocaml-deps
 
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
@@ -53,14 +40,56 @@ $(pandoc_tangle_submodule)/make.timestamp:
 	git submodule update --init -- $(pandoc_tangle_submodule)
 	touch $(pandoc_tangle_submodule)/make.timestamp
 
+ocaml-deps:
+	opam init --quiet --no-setup
+	opam repository add k "$(k_submodule)/k-distribution/target/release/k/lib/opam" \
+	    || opam repository set-url k "$(k_submodule)/k-distribution/target/release/k/lib/opam"
+	opam update
+	opam switch 4.03.0+k
+	eval $$(opam config env) \
+	    opam install --yes mlgmp zarith uuidm ocaml-protoc rlp yojson hex ocp-ocamlres
+
+# Build definition
+# ----------------
+
+# Tangle *.k files
+
+k_files:=kat-imp.k imp.k kat.k
+kcompile_files:=$(patsubst %, $(defn_dir)/kcompile/%, $(k_files))
+krun_files:=$(defn_dir)/krun/imp.k
+
+defn: defn-kcompile defn-krun
+
+defn-kcompile: $(kcompile_files)
+defn-krun: $(krun_files)
+
+$(defn_dir)/kcompile/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.kcompile' $< > $@
+
+$(defn_dir)/krun/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.krun' $< > $@
+
 # Java Backend
 
-build: $(defn_dir)/imp-analysis-kompiled/timestamp
+build: build-kcompile build-krun
 
-$(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
+build-kcompile: $(defn_dir)/kcompile/kat-imp-kompiled/timestamp
+build-krun: $(defn_dir)/krun/imp-kompiled/interpreter
+
+$(defn_dir)/kcompile/kat-imp-kompiled/timestamp: $(kcompile_files)
 	@echo "== kompile: $@"
-	$(k_bin)/kompile --debug --main-module IMP-ANALYSIS --backend java \
-					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)
+	$(kompile) --main-module IMP-ANALYSIS --backend java \
+				 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)/kcompile
+
+$(defn_dir)/krun/imp-kompiled/interpreter: $(krun_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module IMP --backend ocaml \
+					 --syntax-module IMP $< --directory $(defn_dir)/krun
 
 # Testing
 # -------

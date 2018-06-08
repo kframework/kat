@@ -38,7 +38,7 @@ run_krun() {
     local strategy="$1" ; shift
     run_env
     export K_OPTS=-Xss500m
-    krun --directory .build/defn/ -cSTRATEGY="$strategy" \
+    krun --directory .build/defn/kcompile -cSTRATEGY="$strategy" \
             "$run_file" "$@"
 }
 
@@ -53,7 +53,7 @@ run_ksearch() {
     local strategy="$1" ; shift
     run_env
     export K_OPTS=-Xss500m
-    krun --directory .build/defn/ -cSTRATEGY="$strategy" \
+    krun --directory .build/defn/kcompile -cSTRATEGY="$strategy" \
             --search "$run_file" "$@"
 }
 

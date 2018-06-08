@@ -12,9 +12,14 @@ In IMP, base values are of sorts `Int` and `Bool`.
 
 ```k
 module IMP
-    imports STRATEGY
     imports DOMAINS
+```
 
+```kcompile
+    imports STRATEGY
+```
+
+```k
     configuration <imp>
                     <k> $PGM:Stmt </k>
                     <mem> .Map </mem>
@@ -25,7 +30,7 @@ module IMP
 
 ### Symbolic Integers
 
-```k
+```kcompile
     syntax Int ::= "symbolicInt" [function]
  // ---------------------------------------
     rule symbolicInt => ?V:Int
@@ -49,8 +54,16 @@ IMP has `AExp` for arithmetic expressions (over integers).
     rule I1 + I2 => I1 +Int I2
     rule I1 - I2 => I1 -Int I2
     rule I1 * I2 => I1 *Int I2
+```
+
+```kcompile
     rule  I / 0  => div-zero-error                      [tag(divzero)]
     rule I1 / I2 => I1 /Int I2     requires I2 =/=Int 0 [tag(divnonzero)]
+```
+
+```krun
+    rule  I / 0  => div-zero-error
+    rule I1 / I2 => I1 /Int I2     requires I2 =/=Int 0
 ```
 
 IMP has `BExp` for boolean expressions.
@@ -93,8 +106,16 @@ IMP has `int_;` for declaring variables and `_=_;` for assignment.
 
     syntax Stmt ::= Id "=" AExp ";" [strict(2)]
  // -------------------------------------------
+```
+
+```kcompile
     rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem> [tag(lookup)]
     rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem> [tag(assignment)]
+```
+
+```krun
+    rule <k> X:Id        => I ... </k> <mem> ... X |-> I        ... </mem>
+    rule <k> X = I:Int ; => . ... </k> <mem> ... X |-> (_ => I) ... </mem>
 ```
 
 IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequencing.
@@ -102,13 +123,32 @@ IMP has `if(_)_else_` for choice, `while(_)_` for looping, and `__` for sequenci
 ```k
     syntax Stmt ::= "if" "(" BExp ")" Block "else" Block [strict(1)]
  // ----------------------------------------------------------------
+```
+
+```kcompile
     rule <k> if (true)  B1 else _  => B1 ... </k> [tag(iftrue)]
     rule <k> if (false) _  else B2 => B2 ... </k> [tag(iffalse)]
+```
 
+```krun
+    rule <k> if (true)  B1 else _  => B1 ... </k>
+    rule <k> if (false) _  else B2 => B2 ... </k>
+```
+
+```k
     syntax Stmt ::= "while" "(" BExp ")" Block
  // ------------------------------------------
-    rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [tag(whileIMP)]
+```
 
+```kcompile
+    rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k> [tag(whileIMP)]
+```
+
+```krun
+    rule <k> while (B) STMT => if (B) {STMT while (B) STMT} else {} ... </k>
+```
+
+```k
     syntax Stmt ::= Stmt Stmt [left]
  // --------------------------------
     rule S1:Stmt S2:Stmt => S1 ~> S2
