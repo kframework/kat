@@ -1,11 +1,13 @@
 # Settings
 # --------
 
-build_dir:=$(CURDIR)/.build
+build_dir:=.build
 defn_dir:=$(build_dir)/defn
 
 k_submodule:=$(build_dir)/k
 k_bin:=$(k_submodule)/k-distribution/target/release/k/bin
+kompile:=$(k_bin)/kompile
+krun:=$(k_bin)/krun
 
 pandoc_tangle_submodule:=$(build_dir)/pandoc-tangle
 tangler:=$(pandoc_tangle_submodule)/tangle.lua
