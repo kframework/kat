@@ -730,7 +730,6 @@ achieve the benefits of tail recursion in K.
     syntax KItem ::= setEnv( Map )  // TODO: get rid of env
     rule <k> _:Val ~> (setEnv(RHO) => .) ... </k>
          <env> _ => RHO </env>
-      [structural]
 ```
 
 ### `bindTo`, `bind` and `assignTo`
@@ -746,24 +745,21 @@ discussed the `let` and `letrec` language constructs above.
     rule <k> (. => getMatchingAux(XS, VS)) ~> bindTo(XS:Names, VS:Vals)  ... </k>
     rule <k> matchResult(M:Map) ~> bindTo(_:Names, _:Vals) => bindMap(M) ... </k>
 
-    rule <k> bindMap(.Map) => . ... </k> [structural]
+    rule <k> bindMap(.Map) => . ... </k>
     rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ... </k>
          <env> RHO => RHO[X <- !L:Int] </env>
          <store> ... .Map => !L |-> V ... </store>
-      [structural]
 
-    rule <k> bind(.Names) => . [structural]
-    rule <k> bind(X:Name,XS => XS) ...</k>
+    rule <k> bind(.Names) => . ... </k>
+    rule <k> bind(X:Name, XS) => bind(XS) ... </k>
          <env> RHO => RHO[X <- !L:Int] </env>
-      [structural]
 
     syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
 
-    rule <k> assignTo(.Names, .Vals) => . ... </k> [structural]
+    rule <k> assignTo(.Names, .Vals) => . ... </k>
     rule <k> assignTo((X:Name, XS), (V:Val, VS)) => assignTo(XS, VS) ... </k>
          <env> ... X |-> L ... </env>
          <store> ... .Map => L |-> V ... </store>
-      [structural]
 ```
 
 ### Getters
