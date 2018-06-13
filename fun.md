@@ -529,8 +529,8 @@ Conditional
 -----------
 
 ```k
-    rule <k> if  true then E else _ => E ... </k>
-    rule <k> if false then _ else E => E ... </k>
+    rule <k> if  true then E else _ => E ... </k> [tag(iftrue)]
+    rule <k> if false then _ else E => E ... </k> [tag(iffalse)]
 ```
 
 Lists
@@ -645,6 +645,7 @@ itself).
     rule <k> letrec BS in E
           => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
+         [tag(letrec)]
 ```
 
 Recall that our syntax allows `let` and `letrec` to take any
