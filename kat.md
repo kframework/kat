@@ -165,7 +165,7 @@ If you declare something a `StatePred`, this code will automatically load the cu
 
 Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
 
--   `bool?` checks if the `k` cell has just the constant `true`/`false` in it and must be defined for each programming language.
+-   `bool?` checks if the `k` cell has the constant `true`/`false` on the top of the K cell and it must be defined for each programming language.
 
 ```k
     syntax StatePred ::= "bool?"
@@ -219,7 +219,7 @@ The strategy language is a simple imperative language with sequencing and choice
 ```
 
 -   `StrategyRep` allows repeating a given strategy between a given number of times.
-    This repetition is greedy, if only one bound is supplied it's an upper bound and the lower bound is zero.
+    This repetition is greedy, if only one bound is supplied it's both an upper bound and a lower bound.
     If both bounds are supplied the strategy fails if the lower bound is not met.
 -   The repetition `?` will try a strategy at most once.
 -   The repetition `*` is the "greedy Kleene star" which will attempt a strategy as many times as possible.
@@ -339,7 +339,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
     rule <s> setAnalysis A => . ... </s> <analysis> _ => A </analysis>
 ```
 
--   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
+-   `step-with_` is used to specify that a given strategy should be executed admist regular rules (including heating and cooling).
     **TODO**: Current backend actually tags heating and cooling rules as `regular` instead, so `step-with` has been appropriately simplified.
               Perhaps we should investigate whether the backend's behaviour should be changed.
 -   `#branch` defines what is a proper transition and must be provided by the programming language.
@@ -377,7 +377,7 @@ Things added to the sort `StateOp` will automatically load the current state for
 ```
 
 -   `exec` executes the given state to completion.
-    Note that `krun === exec`.
+    Note that `krun === exec` if we assume that `#normal | #branch | #loop | ^ regular` is a total strategy.
 -   `eval` executes a given state to completion and checks `bool?`.
 
 ```k
@@ -521,7 +521,7 @@ module KAT-SBC
 
 The interface of this analysis requires you define when to abstract and how to abstract.
 
--   `_subsumes?` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
+-   `_subsumes?_` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
 -   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 
@@ -588,6 +588,7 @@ The interface of this analysis requires you define when to abstract and how to a
 Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
+    **Note**: Here we assume `#loop`, `#branch`, and `#normal | ^ regular` are disjoint strategies.
 
 ```k
     syntax Strategy ::= "compile-step"
