@@ -18,8 +18,8 @@ pandoc:=pandoc --from markdown --to "$(tangler)"
 test_dir:=tests
 
 .PHONY: deps ocaml-deps \
-		defn  defn-imp  defn-imp-kcompile  defn-imp-krun \
-		build build-imp build-imp-kcompile build-imp-krun \
+		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun \
+		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun \
 		test-bimc test-sbc test
 
 all: build
@@ -54,13 +54,15 @@ ocaml-deps:
 # Build definition
 # ----------------
 
-# Tangle *.k files
-
 imp_dir=$(defn_dir)/imp
 imp_kcompile_files:=$(patsubst %, $(imp_dir)/kcompile/%, kat-imp.k kat.k imp.k)
 imp_krun_files:=$(patsubst %, $(imp_dir)/krun/%, imp.k)
 
-defn: defn-imp
+fun_dir=$(defn_dir)/fun
+fun_kcompile_files:=$(patsubst %, $(fun_dir)/kcompile/%, kat-fun.k kat.k fun.k)
+fun_krun_files:=$(patsubst %, $(fun_dir)/krun/%, fun.k)
+
+defn: defn-imp defn-fun
 
 defn-imp: defn-imp-kcompile defn-imp-krun
 defn-imp-kcompile: $(imp_kcompile_files)
@@ -76,9 +78,17 @@ $(imp_dir)/krun/%.k: %.md
 	mkdir -p $(dir $@)
 	$(pandoc) --metadata=code:'.k,.krun' $< > $@
 
-# Java Backend
+defn-fun: defn-fun-krun
+defn-fun-krun: $(fun_krun_files)
 
-build: build-imp
+$(fun_dir)/krun/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	$(pandoc) --metadata=code:'.k,.krun' $< > $@
+
+# Backends (for running and compiling)
+
+build: build-imp build-fun
 
 build-imp: build-imp-kcompile build-imp-krun
 build-imp-kcompile: $(imp_dir)/kcompile/kat-imp-kompiled/timestamp
@@ -94,6 +104,15 @@ $(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
 	eval $$(opam config env) \
 		$(kompile) --main-module IMP --backend ocaml \
 					 --syntax-module IMP $< --directory $(imp_dir)/krun
+
+build-fun: build-fun-krun
+build-fun-krun: $(fun_dir)/krun/fun-kompiled/interpreter
+
+$(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module FUN-UNTYPED --backend ocaml \
+				   --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/krun
 
 # Testing
 # -------
