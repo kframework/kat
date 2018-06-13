@@ -26,8 +26,14 @@ pretty_diff() {
 # -----------------
 
 run_env() {
+    local run_file="$1" ; shift
     local release_dir="$build_dir/k/k-distribution/target/release/k"
     export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+    case "$run_file" in
+        *.imp)    DEFN_DIRECTORY="$build_dir/defn/kcompile/imp"    ;;
+        *.simple) DEFN_DIRECTORY="$build_dir/defn/kcompile/simple" ;;
+        *)        die "Unknown file extension for: $run_file"      ;;
+    esac
 }
 
 # Runners
@@ -36,9 +42,9 @@ run_env() {
 run_krun() {
     local run_file=$1   ; shift
     local strategy="$1" ; shift
-    run_env
+    run_env "$run_file"
     export K_OPTS=-Xss500m
-    krun --directory .build/defn/kcompile -cSTRATEGY="$strategy" \
+    krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" \
             "$run_file" "$@"
 }
 
@@ -51,9 +57,9 @@ run_kdebug() {
 run_ksearch() {
     local run_file=$1   ; shift
     local strategy="$1" ; shift
-    run_env
+    run_env "$run_file"
     export K_OPTS=-Xss500m
-    krun --directory .build/defn/kcompile -cSTRATEGY="$strategy" \
+    krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" \
             --search "$run_file" "$@"
 }
 

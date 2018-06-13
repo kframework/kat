@@ -3,6 +3,8 @@
 
 build_dir:=.build
 defn_dir:=$(build_dir)/defn
+imp_dir:=$(defn_dir)/imp
+simple_dir:=$(defn_dir)/simple
 
 k_submodule:=$(build_dir)/k
 k_bin:=$(k_submodule)/k-distribution/target/release/k/bin
@@ -16,8 +18,9 @@ export LUA_PATH
 
 test_dir:=tests
 
-.PHONY: build build-krun build-kompile deps ocaml-deps \
-		defn defn-krun defn-kompile example-files \
+.PHONY: build build-krun build-kompile build-krun-imp build-kompile-imp build-krun-simple \
+		defn defn-krun defn-kompile defn-krun-imp defn-kompile-imp defn-krun-simple example-files \
+		deps ocaml-deps \
 		test-bimc test-sbc test
 
 all: build
@@ -52,44 +55,61 @@ ocaml-deps:
 # Build definition
 # ----------------
 
+imp_kcompile_dir:=$(defn_dir)/imp/kcompile
+imp_krun_dir:=$(defn_dir)/imp/krun
+simple_krun_dir:=$(defn_dir)/simple/krun
+imp_kcompile_files:=$(patsubst %, $(imp_kcompile_dir)/%, kat-imp.k kat.k imp.k)
+imp_krun_files:=$(patsubst %, $(imp_krun_dir)/%, imp.k)
+simple_krun_files:=$(patsubst %, $(simple_krun_dir)/%, simple.k)
+
 # Tangle *.k files
 
-k_files:=kat-imp.k imp.k kat.k
-kcompile_files:=$(patsubst %, $(defn_dir)/kcompile/%, $(k_files))
-krun_files:=$(defn_dir)/krun/imp.k
+defn: defn-kcompile-imp defn-krun-imp defn-krun-simple
 
-defn: defn-kcompile defn-krun
+defn-kcompile-imp: $(imp_kcompile_files)
+defn-krun-imp: $(imp_krun_files)
+defn-krun-simple: $(simple_krun_files)
 
-defn-kcompile: $(kcompile_files)
-defn-krun: $(krun_files)
-
-$(defn_dir)/kcompile/%.k: %.md
+$(imp_kcompile_dir)/%.k: %.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.kcompile' $< > $@
 
-$(defn_dir)/krun/%.k: %.md
+$(imp_krun_dir)/%.k: %.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
 	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.krun' $< > $@
 
-# Java Backend
+$(simple_krun_dir)/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.krun' $< > $@
 
-build: build-kcompile build-krun
+# Backends (for running and compiling)
 
-build-kcompile: $(defn_dir)/kcompile/kat-imp-kompiled/timestamp
-build-krun: $(defn_dir)/krun/imp-kompiled/interpreter
+build: build-kcompile-imp build-krun-imp build-krun-simple
 
-$(defn_dir)/kcompile/kat-imp-kompiled/timestamp: $(kcompile_files)
+build-kcompile-imp: $(imp_kcompile_dir)/kat-imp-kompiled/timestamp
+build-krun-imp: $(imp_krun_dir)/imp-kompiled/interpreter
+
+$(imp_dir)/kcompile/kat-imp-kompiled/timestamp: $(imp_kcompile_files)
 	@echo "== kompile: $@"
 	$(kompile) --main-module IMP-ANALYSIS --backend java \
-				 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)/kcompile
+			   --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)/kcompile
 
-$(defn_dir)/krun/imp-kompiled/interpreter: $(krun_files)
+$(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
 		$(kompile) --main-module IMP --backend ocaml \
-					 --syntax-module IMP $< --directory $(defn_dir)/krun
+				   --syntax-module IMP $< --directory $(defn_dir)/krun
+
+build-krun-simple: $(simple_krun_dir)/simple-kompiled/interpreter
+
+$(simple_dir)/krun/simple-kompiled/interpreter: $(simple_krun_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module SIMPLE --backend ocaml \
+				   --syntax-module SIMPLE $< --directory $(defn_dir)/krun
 
 # Testing
 # -------
