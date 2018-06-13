@@ -549,7 +549,7 @@ would be a function/closure value that expects the second, list
 argument):
 
 ```k
-    rule <k> isVal(cons) => true ... </k>
+    rule <k> isVal(cons)       => true ... </k>
     rule <k> isVal(cons V:Val) => true ... </k>
     rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
 ```
