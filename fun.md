@@ -202,7 +202,7 @@ appear in any other place then in a function case pattern.
 
 ```k
     syntax Exp ::= "[" Exps "]"                             [strict]
-                 | "cons" |  "head" | "tail" | "null?"
+                 | "cons" | "head" | "tail" | "null?"
                  | "[" Exps "|" Exp "]"
     syntax Val ::= "[" Vals "]"
 ```
@@ -394,43 +394,46 @@ trace the semantics.
 
 ```k
     syntax Name ::= "$h" | "$t"
-    rule head => fun [$h|$t] -> $h                             [macro]
-    rule tail => fun [$h|$t] -> $t                             [macro]
-    rule null? => fun [.Exps] -> true | [$h|$t] -> false       [macro]
+    rule <k> head => fun [$h|$t] -> $h ... </k>                       [macro]
+    rule <k> tail => fun [$h|$t] -> $t ... </k>                       [macro]
+    rule <k> null? => fun [.Exps] -> true | [$h|$t] -> false ... </k> [macro]
 ```
 
 Multiple-head list patterns desugar into successive one-head
 patterns:
 
 ```k
-    rule [E1,E2,Es:Exps|T] => [E1|[E2,Es|T]]                   [macro]
+    rule <k> [E1,E2,ES:Exps|T] => [E1|[E2,ES|T]] ... </k> [macro]
 ```
 
 Uncurrying of multiple arguments in functions and binders:
 
 ```k
-    rule P1 P2 -> E => P1 -> fun P2 -> E                       [macro]
-    rule F P = E => F = fun P -> E                             [macro]
+    rule <k> P1 P2 -> E => P1 -> fun P2 -> E ... </k> [macro]
+    rule <k> F P = E => F = fun P -> E ... </k>       [macro]
 ```
 
 We desugar the `try-catch` construct into callcc:
 
 ```k
     syntax Name ::= "$k" | "$v"
-    rule try E catch(X) E'
-      => callcc (fun $k -> (fun throw -> E)(fun X -> $k E'))   [macro]
+    rule <k> try E catch(X) E'
+          => callcc (fun $k -> (fun throw -> E)(fun X -> $k E'))
+         ...
+         </k>
+      [macro]
 ```
 
 For uniformity, we reduce all types to their general form:
 
 ```k
-    rule Type-TypeName(T:Type, Tn:TypeName) => (T) Tn          [macro]
+    rule <k> Type-TypeName(T:Type, Tn:TypeName) => (T) ... </k> [macro]
 ```
 
 The dynamic semantics ignores all the type declarations:
 
 ```k
-    rule datatype T = TCs E => E                               [macro]
+    rule <k> datatype T = TCS E => E ... </k> [macro]
 endmodule
 ```
 
@@ -491,41 +494,43 @@ Lookup
 ------
 
 ```k
-    rule <k> X:Name => V ...</k>
-         <env>... X |-> L ...</env>
-         <store>... L |-> V ...</store>
+    rule <k> X:Name => V ... </k>
+         <env> ... X |-> L ... </env>
+         <store> ... L |-> V ... </store>
 ```
 
 Arithmetic expressions
 ----------------------
 
 ```k
-    rule I1 * I2 => I1 *Int I2
-    rule I1 / I2 => I1 /Int I2 when I2 =/=K 0
-    rule I1 % I2 => I1 %Int I2 when I2 =/=K 0
-    rule I1 + I2 => I1 +Int I2
-    rule S1 ^ S2 => S1 +String S2
-    rule I1 - I2 => I1 -Int I2
-    rule - I => 0 -Int I
-    rule I1 < I2 => I1 <Int I2
-    rule I1 <= I2 => I1 <=Int I2
-    rule I1 > I2 => I1 >Int I2
-    rule I1 >= I2 => I1 >=Int I2
-    rule V1:Val == V2:Val => V1 ==K V2
-    rule V1:Val != V2:Val => V1 =/=K V2
-    rule ! T => notBool(T)
-    rule true  && E => E
-    rule false && _ => false
-    rule true  || _ => true
-    rule false || E => E
+    rule <k> I1 * I2 => I1 *Int I2          ... </k>
+    rule <k> I1 / I2 => I1 /Int I2          ... </k>
+      requires I2 =/=K 0
+    rule <k> I1 % I2 => I1 %Int I2          ... </k>
+      requires I2 =/=K 0
+    rule <k> I1 + I2 => I1 +Int I2          ... </k>
+    rule <k> S1 ^ S2 => S1 +String S2       ... </k>
+    rule <k> I1 - I2 => I1 -Int I2          ... </k>
+    rule <k> - I => 0 -Int I                ... </k>
+    rule <k> I1 < I2 => I1 <Int I2          ... </k>
+    rule <k> I1 <= I2 => I1 <=Int I2        ... </k>
+    rule <k> I1 > I2 => I1 >Int I2          ... </k>
+    rule <k> I1 >= I2 => I1 >=Int I2        ... </k>
+    rule <k> V1:Val == V2:Val => V1 ==K V2  ... </k>
+    rule <k> V1:Val != V2:Val => V1 =/=K V2 ... </k>
+    rule <k> ! T => notBool(T)              ... </k>
+    rule <k> true  && E => E                ... </k>
+    rule <k> false && _ => false            ... </k>
+    rule <k> true  || _ => true             ... </k>
+    rule <k> false || E => E                ... </k>
 ```
 
 Conditional
 -----------
 
 ```k
-    rule if  true then E else _ => E
-    rule if false then _ else E => E
+    rule <k> if  true then E else _ => E ... </k>
+    rule <k> if false then _ else E => E ... </k>
 ```
 
 Lists
@@ -544,9 +549,9 @@ would be a function/closure value that expects the second, list
 argument):
 
 ```k
-    rule isVal(cons) => true
-    rule isVal(cons V:Val) => true
-    rule cons V:Val [Vs:Vals] => [V,Vs]
+    rule <k> isVal(cons) => true ... </k>
+    rule <k> isVal(cons V:Val) => true ... </k>
+    rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
 ```
 
 Data Constructors
@@ -568,8 +573,9 @@ be used at execution time to lookup all the variables that appear free
 in the function body (we want static scoping in FUN).
 
 ```k
-    syntax Val ::= closure(Map,Cases)
-    rule <k> fun Cases => closure(Rho,Cases) ...</k>  <env> Rho </env>
+    syntax Val ::= closure ( Map , Cases )
+    rule <k> fun CASES => closure(RHO, CASES) ... </k>
+         <env> RHO </env>
 ```
 
 #### Note:
@@ -586,11 +592,11 @@ the environment is properly recovered afterwards. If the first pattern
 does not match, then we drop it and thus move on to the next one.
 
 ```k
-    rule (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val
-    rule <k> matchResult(M:Map) ~> closure(Rho, _->E | _) _
-             => bindMap(M) ~> E ~> setEnv(Rho') ...</k>
-         <env> Rho' => Rho </env>
-    rule (matchFailure => .) ~> closure(_, (_->_ | Cs:Cases => Cs)) _
+    rule <k> (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val ... </k>
+    rule <k> matchResult(M:Map) ~> closure(RHO, _->E | _) _
+          => bindMap(M) ~> E ~> setEnv(RHO') ... </k>
+         <env> RHO' => RHO </env>
+    rule (matchFailure => .) ~> closure(_, (_->_ | CS:Cases => CS)) _
 ```
 
 Let and Letrec
@@ -632,13 +638,13 @@ $\textit{F} \mapsto \textit{L}$; this way, the closure can invoke
 itself).
 
 ```k
-    rule <k> let Bs in E
-          => bindTo(names(Bs),exps(Bs)) ~> E ~> setEnv(Rho) ...</k>
-         <env> Rho </env>
+    rule <k> let BS in E
+          => bindTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+         <env> RHO </env>
 
-    rule <k> letrec Bs in E
-          => bind(names(Bs))~>assignTo(names(Bs),exps(Bs))~>E~>setEnv(Rho)...</k>
-         <env> Rho </env>
+    rule <k> letrec BS in E
+          => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+         <env> RHO </env>
 ```
 
 Recall that our syntax allows `let` and `letrec` to take any
@@ -661,11 +667,13 @@ simply discarded:
 
 ```k
     syntax Name ::= "$x"
-    rule ref => fun $x -> & $x                                 [macro]
-    rule <k> & X => L ...</k>  <env>... X |-> L ...</env>
-    rule <k> @ L:Int => V:Val ...</k>  <store>... L |-> V ...</store>
-    rule <k> L:Int := V:Val => V ...</k>  <store>... L |-> (_=>V) ...</store>
-    rule V:Val; E => E
+    rule <k> ref => fun $x -> & $x ... </k> [macro]
+
+    rule <k> & X              => L     ... </k> <env>   ... X |-> L        ... </env>
+    rule <k> @ L:Int          => V:Val ... </k> <store> ... L |-> V        ... </store>
+    rule <k>   L:Int := V:Val => V     ... </k> <store> ... L |-> (_ => V) ... </store>
+
+    rule <k> V:Val; E => E ... </k>
 ```
 
 The desugaring rule of `ref` (first rule above) works because `&`
@@ -698,10 +706,14 @@ the special value replaces the current execution context with its own
 and continues the execution normally.
 
 ```k
-    syntax Val ::= cc(Map,K)
-    rule isVal(callcc) => true
-    rule <k> (callcc V:Val => V cc(Rho,K)) ~> K </k>  <env> Rho </env>
-    rule <k> cc(Rho,K) V:Val ~> _ => V ~> K </k>  <env> _ => Rho </env>
+    syntax Val ::= cc ( Map , K )
+    rule <k> isVal(callcc) => true ... </k>
+
+    rule <k> (callcc V:Val => V cc(RHO, K)) ~> K </k>
+         <env> RHO </env>
+
+    rule <k> cc(RHO, K) V:Val ~> _ => V ~> K </k>
+         <env> _ => RHO </env>
 ```
 
 Auxiliary operations
@@ -715,8 +727,9 @@ K distribution. The first "anywhere" rule below shows an elegant way to
 achieve the benefits of tail recursion in K.
 
 ```k
-    syntax KItem ::= setEnv(Map)  // TODO: get rid of env
-    rule <k> _:Val ~> (setEnv(Rho) => .) ...</k> <env> _ => Rho </env>
+    syntax KItem ::= setEnv( Map )  // TODO: get rid of env
+    rule <k> _:Val ~> (setEnv(RHO) => .) ... </k>
+         <env> _ => RHO </env>
       [structural]
 ```
 
@@ -726,30 +739,31 @@ The meaning of these operations has already been explained when we
 discussed the `let` and `letrec` language constructs above.
 
 ```k
-    syntax KItem ::= bindTo(Names,Exps)         [strict(2)]
-                   | bindMap(Map)
-                   | bind(Names)
+    syntax KItem ::= bindTo ( Names , Exps ) [strict(2)]
+                   | bindMap( Map )
+                   | bind( Names )
 
-    rule (. => getMatchingAux(Xs,Vs)) ~> bindTo(Xs:Names,Vs:Vals)
-    rule matchResult(M:Map) ~> bindTo(_:Names, _:Vals) => bindMap(M)
+    rule <k> (. => getMatchingAux(XS, VS)) ~> bindTo(XS:Names, VS:Vals)  ... </k>
+    rule <k> matchResult(M:Map) ~> bindTo(_:Names, _:Vals) => bindMap(M) ... </k>
 
-    rule bindMap(.Map) => .  [structural]
-    rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ...</k>
-         <env> Rho => Rho[X <- !L:Int] </env>
-         <store>... .Map => !L |-> V ...</store>
+    rule <k> bindMap(.Map) => . ... </k> [structural]
+    rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ... </k>
+         <env> RHO => RHO[X <- !L:Int] </env>
+         <store> ... .Map => !L |-> V ... </store>
       [structural]
 
-    rule bind(.Names) => .                  [structural]
-    rule <k> bind(X:Name,Xs => Xs) ...</k>
-         <env> Rho => Rho[X <- !L:Int] </env>
+    rule <k> bind(.Names) => . [structural]
+    rule <k> bind(X:Name,XS => XS) ...</k>
+         <env> RHO => RHO[X <- !L:Int] </env>
       [structural]
 
-    syntax KItem ::= assignTo(Names,Exps)  [strict(2)]
+    syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
 
-    rule <k> assignTo(.Names,.Vals) => . ...</k>            [structural]
-    rule <k> assignTo((X:Name,Xs => Xs),(V:Val,Vs:Vals => Vs)) ...</k>
-         <env>... X |-> L ...</env>
-         <store>... .Map => L |-> V ...</store>             [structural]
+    rule <k> assignTo(.Names, .Vals) => . ... </k> [structural]
+    rule <k> assignTo((X:Name, XS), (V:Val, VS)) => assignTo(XS, VS) ... </k>
+         <env> ... X |-> L ... </env>
+         <store> ... .Map => L |-> V ... </store>
+      [structural]
 ```
 
 ### Getters
@@ -758,44 +772,45 @@ The following auxiliary operations extract the list of identifiers and
 of expressions in a binding, respectively.
 
 ```k
-    syntax Names ::= names(Bindings)  [function]
-    rule names(.Bindings) => .Names
-    rule names(X:Name=_ and Bs) => (X,names(Bs))::Names
+    syntax Names ::= names ( Bindings ) [function]
+    rule <k> names(.Bindings) => .Names ... </k>
+    rule <k> names(X:Name=_ and BS) => (X,names(BS))::Names ... </k>
 
-    syntax Exps ::= exps(Bindings)  [function]
-    rule exps(.Bindings) => .Exps
-    rule exps(_:Name=E and Bs) => E,exps(Bs)
+    syntax Exps ::= exps ( Bindings ) [function]
+    rule <k> exps(.Bindings)       => .Exps      ... </k>
+    rule <k> exps(_:Name=E and BS) => E,exps(BS) ... </k>
 
     /* Extra kore stuff */
     syntax KResult ::= Vals
     syntax Exps ::= Names
 
     /* Matching */
-    syntax MatchResult ::= getMatching(Exp, Val)                      [function]
-                         | getMatchingAux(Exps, Vals)                 [function]
-                         | mergeMatching(MatchResult, MatchResult)    [function]
-                         | matchResult(Map)
+    syntax MatchResult ::= getMatching ( Exp , Val )                  [function]
+                         | getMatchingAux( Exps , Vals )              [function]
+                         | mergeMatching( MatchResult , MatchResult ) [function]
+                         | matchResult( Map )
                          | "matchFailure"
 
-    rule getMatching(C:ConstructorName(Es:Exps), C(Vs:Vals)) => getMatchingAux(Es, Vs)
-    rule getMatching([Es:Exps], [Vs:Vals])                   => getMatchingAux(Es, Vs)
-    rule getMatching(C:ConstructorName, C) => matchResult(.Map)
-    rule getMatching(B:Bool, B)            => matchResult(.Map)
-    rule getMatching(I:Int, I)             => matchResult(.Map)
-    rule getMatching(S:String, S)          => matchResult(.Map)
-    rule getMatching(N:Name, V:Val) => matchResult(N |-> V)
-    rule getMatching(_, _) => matchFailure        [owise]
+    rule <k> getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS) ... </k>
+    rule <k> getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS) ... </k>
+    rule <k> getMatching(C:ConstructorName, C) => matchResult(.Map)    ... </k>
+    rule <k> getMatching(B:Bool, B)            => matchResult(.Map)    ... </k>
+    rule <k> getMatching(I:Int, I)             => matchResult(.Map)    ... </k>
+    rule <k> getMatching(S:String, S)          => matchResult(.Map)    ... </k>
+    rule <k> getMatching(N:Name, V:Val)        => matchResult(N |-> V) ... </k>
+    rule <k> getMatching(_, _)                 => matchFailure         ... </k>
+      [owise]
 
-    rule getMatchingAux((E:Exp, Es:Exps), (V:Val, Vs:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(Es, Vs))
-    rule getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)
-    rule getMatchingAux(_, _) => matchFailure     [owise]
+    rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(ES, VS)) ... </k>
+    rule <k> getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)                                        ... </k>
+    rule <k> getMatchingAux(_, _)                               => matchFailure                                             ... </k>
+      [owise]
 
-    rule mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2)
+    rule <k> mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2) ... </k>
       requires intersectSet(keys(M1), keys(M2)) ==K .Set
-    //rule mergeMatching(_, _) => matchFailure      [owsie]
-    rule mergeMatching(matchResult(_:Map), matchFailure) => matchFailure
-    rule mergeMatching(matchFailure, matchResult(_:Map)) => matchFailure
-    rule mergeMatching(matchFailure, matchFailure)       => matchFailure
+    rule <k> mergeMatching(matchResult(_:Map), matchFailure) => matchFailure ... </k>
+    rule <k> mergeMatching(matchFailure, matchResult(_:Map)) => matchFailure ... </k>
+    rule <k> mergeMatching(matchFailure, matchFailure)       => matchFailure ... </k>
 ```
 
 Besides the generic decomposition rules for patterns and values, we
@@ -803,7 +818,6 @@ also want to allow `[head|tail]` matching for lists, so we add the
 following custom pattern decomposition rule:
 
 ```k
-    rule getMatching([H:Exp | T:Exp], [V:Val, Vs:Vals])
-      => getMatchingAux((H, T), (V, [Vs]))
+    rule <k> getMatching([H:Exp | T:Exp], [V:Val, VS:Vals]) => getMatchingAux((H, T), (V, [VS])) <k>
 endmodule
 ```
