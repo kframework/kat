@@ -38,44 +38,58 @@ some of K's strengths, FUN includes the following features:
     space-separated arguments, but these are desugared to ones that only
     take one argument, by currying. For example, the expressions
 
-        fun x y -> x y
-        let x y = y in x
+    ```
+    fun x y -> x y
+    let x y = y in x
+    ```
 
     are desugared, respectively, into the following expressions:
 
-        fun x -> fun y -> x y
-        let x = fun y -> y in x
+    ```
+    fun x -> fun y -> x y
+    let x = fun y -> y in x
+    ```
 
 -   Functions can be defined using pattern matching over the available
     data-types. For example, the program
 
-        letrec max = fun [h] -> h
-                     |   [h|t] -> let x = max t
-                                  in  if h > x then h else x
-        in max [1, 3, 5, 2, 4, 0, -1, -5]
+    ```
+    letrec max = fun [h] -> h
+                 |   [h|t] -> let x = max t
+                              in  if h > x then h else x
+    in max [1, 3, 5, 2, 4, 0, -1, -5]
+    ```
 
     defines a function `max` that calculates the maximum element of a
     non-empty list, and the function
 
-        letrec ack = fun Pair(0,n) -> n + 1
-                     |   Pair(m,0) -> ack Pair(m - 1, 1)
-                     |   Pair(m,n) -> ack Pair(m - 1, ack Pair(m, n - 1))
-        in ack Pair(2,3)
+    ```
+    letrec ack = fun Pair(0,n) -> n + 1
+                 |   Pair(m,0) -> ack Pair(m - 1, 1)
+                 |   Pair(m,n) -> ack Pair(m - 1, ack Pair(m, n - 1))
+    in ack Pair(2,3)
+    ```
 
     calculates the Ackermann function applied to a particular pair of
     numbers. Patterns can be nested. Patterns can currently only be used
     in function definitions, and not directly in `let`/`letrec` binders.
     For example, this is not allowed:
 
-        letrec Pai(x,y) = Pair(1,2) in x+y
+    ```
+    letrec Pai(x,y) = Pair(1,2) in x+y
+    ```
 
     But this is allowed:
 
-        let f Pair(x,y) = x+y in f Pair(1,2)
+    ```
+    let f Pair(x,y) = x+y in f Pair(1,2)
+    ```
 
     because it is first reduced to
 
-        let f = fun Pair(x,y) -> x+y in f Pair(1,2)
+    ```
+    let f = fun Pair(x,y) -> x+y in f Pair(1,2)
+    ```
 
     by uncurrying of the `let` binder, and pattern matching is allowed
     in function arguments.
