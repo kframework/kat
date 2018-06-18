@@ -31,6 +31,7 @@ run_env() {
     run_file="$1" ; shift
     release_dir="$build_dir/k/k-distribution/target/release/k"
     export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+    eval $(opam config env)
     case "$run_file" in
         *.imp)  DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
         *)      die "Do not know definition to run with: '$run_file'" ;;
@@ -47,6 +48,13 @@ run_krun() {
     run_env kcompile "$run_file"
     export K_OPTS=-Xss500m
     krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" "$run_file" "$@"
+}
+
+run_krun_orig() {
+    local run_file="$1" ; shift
+    run_env krun "$run_file"
+    export K_OPTS=-Xss500m
+    krun --directory "$DEFN_DIRECTORY" "$run_file" "$@"
 }
 
 run_kdebug() {
@@ -115,21 +123,23 @@ run_command="$1" ; shift
 case "$run_command" in
 
     # Running
-    run)    run_krun    "$@" ;;
-    debug)  run_kdebug  "$@" ;;
-    search) run_ksearch "$@" ;;
+    run)      run_krun      "$@" ;;
+    run-orig) run_krun_orig "$@" ;;
+    debug)    run_kdebug    "$@" ;;
+    search)   run_ksearch   "$@" ;;
 
     # Testing
     test) run_test "$@" ;;
 
     *) echo "
-    usage: $0 [run|debug|search] <file> <strategy> <K args>*
+    usage: $0 [run|run-orig|debug|search] <file> <strategy> <K args>*
 
        # Running
        # -------
-       $0 run    <pgm> <strategy>   Run a single program using given strategy
-       $0 debug  <pgm> <strategy>   Run a single program using given strategy in the debugger
-       $0 search <pgm> <strategy>   Search a single program's executions using given strategy
+       $0 run      <pgm> <strategy>   Run a single program using given strategy
+       $0 run-orig <pgm>              Run a single program using the original definition
+       $0 debug    <pgm> <strategy>   Run a single program using given strategy in the debugger
+       $0 search   <pgm> <strategy>   Search a single program's executions using given strategy
 
        Note: <pgm> is a path to a file containing a program (languages supported: IMP).
              <strategy> is a term in sort STRATEGY.
