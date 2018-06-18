@@ -408,46 +408,42 @@ trace the semantics.
 
 ```k
     syntax Name ::= "$h" | "$t"
-    rule <k> head => fun [$h|$t] -> $h ... </k>                       [macro]
-    rule <k> tail => fun [$h|$t] -> $t ... </k>                       [macro]
-    rule <k> null? => fun [.Exps] -> true | [$h|$t] -> false ... </k> [macro]
+    rule head => fun [$h|$t] -> $h                       [macro]
+    rule tail => fun [$h|$t] -> $t                       [macro]
+    rule null? => fun [.Exps] -> true | [$h|$t] -> false [macro]
 ```
 
 Multiple-head list patterns desugar into successive one-head
 patterns:
 
 ```k
-    rule <k> [E1,E2,ES:Exps|T] => [E1|[E2,ES|T]] ... </k> [macro]
+    rule [E1,E2,ES:Exps|T] => [E1|[E2,ES|T]] [macro]
 ```
 
 Uncurrying of multiple arguments in functions and binders:
 
 ```k
-    rule <k> P1 P2 -> E => P1 -> fun P2 -> E ... </k> [macro]
-    rule <k> F P = E => F = fun P -> E ... </k>       [macro]
+    rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
+    rule F P = E => F = fun P -> E       [macro]
 ```
 
 We desugar the `try-catch` construct into callcc:
 
 ```k
     syntax Name ::= "$k" | "$v"
-    rule <k> try E catch(X) E'
-          => callcc (fun $k -> (fun throw -> E)(fun X -> $k E'))
-         ...
-         </k>
-      [macro]
+    rule try E catch(X) E' => callcc (fun $k -> (fun throw -> E)(fun X -> $k E')) [macro]
 ```
 
 For uniformity, we reduce all types to their general form:
 
 ```k
-    rule <k> Type-TypeName(T:Type, Tn:TypeName) => (T) ... </k> [macro]
+    rule Type-TypeName(T:Type, Tn:TypeName) => (T) [macro]
 ```
 
 The dynamic semantics ignores all the type declarations:
 
 ```k
-    rule <k> datatype T = TCS E => E ... </k> [macro]
+    rule datatype T = TCS E => E [macro]
 endmodule
 ```
 
@@ -485,11 +481,12 @@ The [k]{.sans-serif}, [env]{.sans-serif}, and [store]{.sans-serif} cells
 are standard (see, for example, the definition of LAMBDA++ or IMP++ in
 the first part of the K tutorial).
 
-    configuration <T color="yellow">
-                    <k color="green"> $PGM:Exp </k>
-                    <env color="violet"> .Map </env>
-                    <store color="white"> .Map </store>
-                  </T>
+```k
+    configuration
+      <k>     $PGM:Exp </k>
+      <env>   .Map     </env>
+      <store> .Map     </store>
+```
 
 Values and results
 ------------------
@@ -563,8 +560,8 @@ would be a function/closure value that expects the second, list
 argument):
 
 ```k
-    rule <k> isVal(cons)       => true ... </k>
-    rule <k> isVal(cons V:Val) => true ... </k>
+    rule isVal(cons)       => true
+    rule isVal(cons V:Val) => true
     rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
 ```
 
@@ -682,7 +679,7 @@ simply discarded:
 
 ```k
     syntax Name ::= "$x"
-    rule <k> ref => fun $x -> & $x ... </k> [macro]
+    rule ref => fun $x -> & $x [macro]
 
     rule <k> & X              => L     ... </k> <env>   ... X |-> L        ... </env>
     rule <k> @ L:Int          => V:Val ... </k> <store> ... L |-> V        ... </store>
@@ -722,7 +719,7 @@ and continues the execution normally.
 
 ```k
     syntax Val ::= cc ( Map , K )
-    rule <k> isVal(callcc) => true ... </k>
+    rule isVal(callcc) => true
 
     rule <k> (callcc V:Val => V cc(RHO, K)) ~> K </k>
          <env> RHO </env>
@@ -784,12 +781,12 @@ of expressions in a binding, respectively.
 
 ```k
     syntax Names ::= names ( Bindings ) [function]
-    rule <k> names(.Bindings) => .Names ... </k>
-    rule <k> names(X:Name=_ and BS) => (X,names(BS))::Names ... </k>
+    rule names(.Bindings) => .Names
+    rule names(X:Name=_ and BS) => (X,names(BS))::Names
 
     syntax Exps ::= exps ( Bindings ) [function]
-    rule <k> exps(.Bindings)       => .Exps      ... </k>
-    rule <k> exps(_:Name=E and BS) => E,exps(BS) ... </k>
+    rule exps(.Bindings)       => .Exps
+    rule exps(_:Name=E and BS) => E,exps(BS)
 
     /* Extra kore stuff */
     syntax KResult ::= Vals
@@ -802,26 +799,26 @@ of expressions in a binding, respectively.
                          | matchResult( Map )
                          | "matchFailure"
 
-    rule <k> getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS) ... </k>
-    rule <k> getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS) ... </k>
-    rule <k> getMatching(C:ConstructorName, C) => matchResult(.Map)    ... </k>
-    rule <k> getMatching(B:Bool, B)            => matchResult(.Map)    ... </k>
-    rule <k> getMatching(I:Int, I)             => matchResult(.Map)    ... </k>
-    rule <k> getMatching(S:String, S)          => matchResult(.Map)    ... </k>
-    rule <k> getMatching(N:Name, V:Val)        => matchResult(N |-> V) ... </k>
-    rule <k> getMatching(_, _)                 => matchFailure         ... </k>
+    rule getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS)
+    rule getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS)
+    rule getMatching(C:ConstructorName, C) => matchResult(.Map)
+    rule getMatching(B:Bool, B)            => matchResult(.Map)
+    rule getMatching(I:Int, I)             => matchResult(.Map)
+    rule getMatching(S:String, S)          => matchResult(.Map)
+    rule getMatching(N:Name, V:Val)        => matchResult(N |-> V)
+    rule getMatching(_, _)                 => matchFailure
       [owise]
 
-    rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(ES, VS)) ... </k>
-    rule <k> getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)                                        ... </k>
-    rule <k> getMatchingAux(_, _)                               => matchFailure                                             ... </k>
+    rule getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(ES, VS))
+    rule getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)
+    rule getMatchingAux(_, _)                               => matchFailure
       [owise]
 
-    rule <k> mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2) ... </k>
+    rule mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2)
       requires intersectSet(keys(M1), keys(M2)) ==K .Set
-    rule <k> mergeMatching(matchResult(_:Map), matchFailure) => matchFailure ... </k>
-    rule <k> mergeMatching(matchFailure, matchResult(_:Map)) => matchFailure ... </k>
-    rule <k> mergeMatching(matchFailure, matchFailure)       => matchFailure ... </k>
+    rule mergeMatching(matchResult(_:Map), matchFailure) => matchFailure
+    rule mergeMatching(matchFailure, matchResult(_:Map)) => matchFailure
+    rule mergeMatching(matchFailure, matchFailure)       => matchFailure
 ```
 
 Besides the generic decomposition rules for patterns and values, we
@@ -829,6 +826,6 @@ also want to allow `[head|tail]` matching for lists, so we add the
 following custom pattern decomposition rule:
 
 ```k
-    rule <k> getMatching([H:Exp | T:Exp], [V:Val, VS:Vals]) => getMatchingAux((H, T), (V, [VS])) <k>
+    rule getMatching([H:Exp | T:Exp], [V:Val, VS:Vals]) => getMatchingAux((H, T), (V, [VS]))
 endmodule
 ```
