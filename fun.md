@@ -483,9 +483,11 @@ the first part of the K tutorial).
 
 ```k
     configuration
-      <k>     $PGM:Exp </k>
-      <env>   .Map     </env>
-      <store> .Map     </store>
+      <FUN>
+        <k>     $PGM:Exp </k>
+        <env>   .Map     </env>
+        <store> .Map     </store>
+      </FUN>
 ```
 
 Values and results
