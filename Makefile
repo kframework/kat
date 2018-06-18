@@ -13,6 +13,7 @@ pandoc_tangle_submodule:=$(build_dir)/pandoc-tangle
 tangler:=$(pandoc_tangle_submodule)/tangle.lua
 LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
 export LUA_PATH
+pandoc:=pandoc --from markdown --to "$(tangler)"
 
 test_dir:=tests
 
@@ -68,12 +69,12 @@ defn-imp-krun:     $(imp_krun_files)
 $(imp_dir)/kcompile/%.k: %.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.kcompile' $< > $@
+	$(pandoc) --metadata=code:'.k,.kcompile' $< > $@
 
 $(imp_dir)/krun/%.k: %.md
 	@echo >&2 "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:'.k,.krun' $< > $@
+	$(pandoc) --metadata=code:'.k,.krun' $< > $@
 
 # Java Backend
 
