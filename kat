@@ -26,42 +26,51 @@ pretty_diff() {
 # -----------------
 
 run_env() {
-    local release_dir="$build_dir/k/k-distribution/target/release/k"
+    local run_type release_dir
+    run_type="$1" ; shift
+    run_file="$1" ; shift
+    release_dir="$build_dir/k/k-distribution/target/release/k"
     export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+    case "$run_file" in
+        *.imp)  DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
+        *)      die "Do not know definition to run with: '$run_file'" ;;
+    esac
 }
 
 # Runners
 # -------
 
 run_krun() {
-    local run_file=$1   ; shift
-    local strategy="$1" ; shift
-    run_env
+    local run_file strategy
+    run_file="$1" ; shift
+    strategy="$1" ; shift
+    run_env kcompile "$run_file"
     export K_OPTS=-Xss500m
-    krun --directory .build/defn/kcompile -cSTRATEGY="$strategy" \
-            "$run_file" "$@"
+    krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" "$run_file" "$@"
 }
 
 run_kdebug() {
-    local run_file=$1   ; shift
-    local strategy="$1" ; shift
+    local run_file strategy
+    run_file="$1" ; shift
+    strategy="$1" ; shift
     run_krun "$run_file" "$strategy" --debugger "$@"
 }
 
 run_ksearch() {
-    local run_file=$1   ; shift
-    local strategy="$1" ; shift
+    local run_file strategy
+    run_file="$1" ; shift
+    strategy="$1" ; shift
     run_krun "$run_file" "$strategy" --search "$@"
 }
 
 run_test() {
-    local imp_file strategy_file test_number counter exit_status current_status
+    local test_file strategy_file test_number counter exit_status current_status
     local test_id test_output_file test_expected_file
-    imp_file="$1"      ; shift
+    test_file="$1"     ; shift
     strategy_file="$1" ; shift
     { test_number="$1" && shift ; } || test_number="*"
 
-    [[ -f "$imp_file"      ]] || die "File '$imp_file' does not exist ..."
+    [[ -f "$test_file"     ]] || die "File '$test_file' does not exist ..."
     [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
 
     exit_status=0
@@ -71,14 +80,14 @@ run_test() {
         counter=$((counter + 1))
         [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
 
-        test_id="$(echo "$(basename $imp_file) $strategy" | md5sum | tr -d '[:space:]-')"
+        test_id="$(echo "$(basename $test_file) $strategy" | md5sum | tr -d '[:space:]-')"
         test_output_file="$test_output_dir/$test_id.out"
-        progress "testing: '$imp_file' with strategy '$strategy', output $test_output_file"
+        progress "testing: '$test_file' with strategy '$strategy', output $test_output_file"
 
-        echo "Program:  $imp_file"           > "$test_output_file"
+        echo "Program:  $test_file"           > "$test_output_file"
         echo "Strategy: $strategy"          >> "$test_output_file"
         { printf '=%.0s' {1..80} ; echo ; } >> "$test_output_file"
-        run_krun "$imp_file" "$strategy"    >> "$test_output_file"
+        run_krun "$test_file" "$strategy"    >> "$test_output_file"
 
         test_expected_file="$test_expected_dir/$test_id.out"
         if [[ ! -f "$test_expected_file" ]]; then
@@ -88,7 +97,7 @@ run_test() {
             current_status='0'
             pretty_diff "$test_expected_file" "$test_output_file" || current_status="$?"
             if [[ "$current_status" != '0' ]]; then
-                echo "$imp_file with strategy '$strategy'" >> "$failing_log"
+                echo "$test_file with strategy '$strategy'" >> "$failing_log"
                 exit_status="$current_status"
             fi
         fi
@@ -118,11 +127,11 @@ case "$run_command" in
 
        # Running
        # -------
-       $0 run    <pgm> <strategy>   Run a single IMP program using given strategy
-       $0 debug  <pgm> <strategy>   Run a single IMP program using given strategy in the debugger
-       $0 search <pgm> <strategy>   Search a single IMP program's executions using given strategy
+       $0 run    <pgm> <strategy>   Run a single program using given strategy
+       $0 debug  <pgm> <strategy>   Run a single program using given strategy in the debugger
+       $0 search <pgm> <strategy>   Search a single program's executions using given strategy
 
-       Note: <pgm> is a path to a file containing an IMP program.
+       Note: <pgm> is a path to a file containing a program (languages supported: IMP).
              <strategy> is a term in sort STRATEGY.
 
        # Testing
