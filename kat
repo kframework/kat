@@ -71,7 +71,7 @@ run_test() {
         counter=$((counter + 1))
         [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
 
-        test_id="$(echo "$(basename $imp_file) $strategy" | md5sum | cut --delimiter=' ' --field=1)"
+        test_id="$(echo "$(basename $imp_file) $strategy" | md5sum | tr -d '[:space:]-')"
         test_output_file="$test_output_dir/$test_id.out"
         progress "testing: '$imp_file' with strategy '$strategy', output $test_output_file"
 
