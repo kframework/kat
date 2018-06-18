@@ -659,7 +659,7 @@ itself).
     rule <k> letrec BS in E
           => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
-         [tag(letrec)]
+      [tag(letRecursive)]
 ```
 
 Recall that our syntax allows `let` and `letrec` to take any
