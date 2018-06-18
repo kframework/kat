@@ -139,6 +139,9 @@ test: $(test_files:=.test)
 $(test_dir)/%.imp.test:
 	$(TEST) $(test_dir)/$*.imp $(test_dir)/$*.strat
 
+$(test_dir)/%.fun.test:
+	$(TEST) $(test_dir)/$*.fun $(test_dir)/$*.strat
+
 $(test_dir)/%.expected:
 	mkdir -p $@
 
