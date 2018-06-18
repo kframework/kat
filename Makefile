@@ -130,11 +130,14 @@ $(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
 # Testing
 # -------
 
-test_files:=$(wildcard $(test_dir)/*.imp)
+test_imp_files:=$(wildcard $(test_dir)/*.imp)
+test_fun_files:=$(wildcard $(test_dir)/*.fun)
 
 TEST=./kat test
 
-test: $(test_files:=.test)
+test: test-imp test-fun
+test-imp: $(test_imp_files:=.test)
+test-fun: $(test_fun_files:=.test)
 
 $(test_dir)/%.imp.test:
 	$(TEST) $(test_dir)/$*.imp $(test_dir)/$*.strat
