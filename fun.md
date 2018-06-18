@@ -437,7 +437,7 @@ We desugar the `try-catch` construct into callcc:
 For uniformity, we reduce all types to their general form:
 
 ```k
-    rule Type-TypeName(T:Type, Tn:TypeName) => (T) [macro]
+    rule Type-TypeName(T:Type, Tn:TypeName) => (T) Tn [macro]
 ```
 
 The dynamic semantics ignores all the type declarations:
