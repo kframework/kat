@@ -508,6 +508,7 @@ Lookup
     rule <k> X:Name => V ... </k>
          <env> ... X |-> L ... </env>
          <store> ... L |-> V ... </store>
+      [tag(lookup)]
 ```
 
 Arithmetic expressions
@@ -761,6 +762,7 @@ discussed the `let` and `letrec` language constructs above.
     rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ... </k>
          <env> RHO => RHO[X <- !L:Int] </env>
          <store> ... .Map => !L |-> V ... </store>
+      [tag(assignment)]
 
     rule <k> bind(.Names) => . ... </k>
     rule <k> bind(X:Name, XS) => bind(XS) ... </k>
