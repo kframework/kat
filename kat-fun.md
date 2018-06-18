@@ -62,8 +62,7 @@ module FUN-SBC
 ### Define `abstract`
 
 ```k
-    syntax Strategy ::= "#abstract" Set State
- // -----------------------------------------
+    rule <s> abstract [ STATE ] => pop STATE ... </s>
 ```
 
 ### Define `_subsumes?_`
