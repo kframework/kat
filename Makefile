@@ -18,8 +18,8 @@ pandoc:=pandoc --from markdown --to markdown --lua-filter "$(tangler)"
 test_dir:=tests
 
 .PHONY: deps ocaml-deps \
-		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun \
-		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun \
+		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun  defn-fun-kcompile \
+		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun build-fun-kcompile \
 		test-bimc test-sbc test
 
 all: build
@@ -78,8 +78,14 @@ $(imp_dir)/krun/%.k: %.md
 	mkdir -p $(dir $@)
 	$(pandoc) --metadata=code:'.k,.krun' $< > $@
 
-defn-fun: defn-fun-krun
-defn-fun-krun: $(fun_krun_files)
+defn-fun: defn-fun-kcompile defn-fun-krun
+defn-fun-kcompile: $(fun_kcompile_files)
+defn-fun-krun:     $(fun_krun_files)
+
+$(fun_dir)/kcompile/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	$(pandoc) --metadata=code:'.k,.kcompile' $< > $@
 
 $(fun_dir)/krun/%.k: %.md
 	@echo >&2 "==  tangle: $@"
@@ -105,8 +111,15 @@ $(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
 		$(kompile) --main-module IMP --backend ocaml \
 					 --syntax-module IMP $< --directory $(imp_dir)/krun
 
-build-fun: build-fun-krun
-build-fun-krun: $(fun_dir)/krun/fun-kompiled/interpreter
+build-fun: build-fun-kcompile build-fun-krun
+build-fun-kcompile: $(fun_dir)/kcompile/kat-fun-kompiled/timestamp
+build-fun-krun:     $(fun_dir)/krun/fun-kompiled/interpreter
+
+$(fun_dir)/kcompile/kat-fun-kompiled/timestamp: $(fun_kcompile_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module FUN-ANALYSIS --backend java \
+				   --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/kcompile
 
 $(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
 	@echo "== kompile: $@"
