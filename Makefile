@@ -13,7 +13,7 @@ pandoc_tangle_submodule:=$(build_dir)/pandoc-tangle
 tangler:=$(pandoc_tangle_submodule)/tangle.lua
 LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
 export LUA_PATH
-pandoc:=pandoc --from markdown --to "$(tangler)"
+pandoc:=pandoc --from markdown --to markdown --lua-filter "$(tangler)"
 
 test_dir:=tests
 
