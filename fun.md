@@ -123,6 +123,10 @@ module FUN-UNTYPED-COMMON
     imports DOMAINS-SYNTAX
 ```
 
+```kcompile
+    imports STRATEGY
+```
+
 FUN is an expression language. The constructs below fall into
 several categories: names, arithmetic constructs, conventional
 functional constructs, patterns and pattern matching, data constructs,
