@@ -1,0 +1,31 @@
+Program:  tests/polymorphism-1.fun
+Strategy: step 8
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        2
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( .Map , x -> x | .Cases )
+        2 |-> true
+        3 |-> 2
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

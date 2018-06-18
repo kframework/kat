@@ -1,0 +1,29 @@
+Program:  tests/polymorphism-1.fun
+Strategy: step
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        f ~> #freezer___FUN-UNTYPED-COMMON1_ ( true ) ~> #freezerif_then_else__FUN-UNTYPED-COMMON1_ ( f 2 , f 3 ) ~> setEnv ( .Map )
+      </k>
+      <env>
+        f |-> 1
+      </env>
+      <store>
+        1 |-> closure ( .Map , x -> x | .Cases )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>
