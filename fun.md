@@ -76,7 +76,7 @@ some of K's strengths, FUN includes the following features:
     For example, this is not allowed:
 
     ```
-    letrec Pai(x,y) = Pair(1,2) in x+y
+    letrec Pair(x,y) = Pair(1,2) in x+y
     ```
 
     But this is allowed:
@@ -159,11 +159,14 @@ are declared strict, so all expressions in the list get evaluated
 whenever the list is on a position which can be evaluated:
 
 ```k
-    syntax Exp ::= Int | Bool | String | Name
-                 | "(" Exp ")"                       [bracket]
-    syntax Exps  ::= List{Exp,","}                   [seqstrict]
     syntax Val
+    syntax Exp  ::= "(" Exp ")"      [bracket]
+                  | Int | Bool | String | Name
+ // ------------------------------------------
+
     syntax Vals ::= List{Val,","}
+    syntax Exps ::= List{Exp,","} [seqstrict]
+ // -----------------------------------------
 ```
 
 We next define the syntax of arithmetic constructs, together with
@@ -171,36 +174,37 @@ their relative priorities and left-/non-associativities. We also tag all
 these rules with a new tag, "arith", so we can more easily define global
 syntax priirities later (at the end of the syntax module).
 
+**TODO**: Left attribute on `_^_` and `_+_` should not be necessary; currently a parsing bug.
+          The "prefer" attribute above is to not parse x-1 as x(-1),
+          Due to some parsing problems, we currently cannot add a unary minus (`3 + - 3`).
+
 ```k
     syntax Exp ::= left:
-                   Exp "*" Exp                       [seqstrict, arith]
-                 | Exp "/" Exp                       [seqstrict, arith]
-                 | Exp "%" Exp                       [seqstrict, arith]
+                   Exp "*" Exp    [seqstrict, arith]
+                 | Exp "/" Exp    [seqstrict, arith]
+                 | Exp "%" Exp    [seqstrict, arith]
                  > left:
-                   Exp "+" Exp                       [seqstrict, left, arith]
-                 | Exp "^" Exp                       [seqstrict, left, arith]
-  // left attribute should not be necessary; currently a parsing bug
-                 | Exp "-" Exp                       [seqstrict, prefer, arith]
-  // the "prefer" attribute above is to not parse x-1 as x(-1)
-  // Due to some parsing problems, we currently cannot add unary minus:
-                 | "-" Exp                           [seqstrict, arith]
+                   Exp "+" Exp    [seqstrict, left, arith]
+                 | Exp "^" Exp    [seqstrict, left, arith]
+                 | Exp "-" Exp    [seqstrict, prefer, arith]
+                 | "-" Exp        [seqstrict, arith]
                  > non-assoc:
-                   Exp "<" Exp                       [seqstrict, arith]
-                 | Exp "<=" Exp                      [seqstrict, arith]
-                 | Exp ">" Exp                       [seqstrict, arith]
-                 | Exp ">=" Exp                      [seqstrict, arith]
-                 | Exp "==" Exp                      [seqstrict, arith]
-                 | Exp "!=" Exp                      [seqstrict, arith]
-                 > "!" Exp                           [seqstrict, arith]
-                 > Exp "&&" Exp                      [strict(1), left, arith]
-                 > Exp "||" Exp                      [strict(1), left, arith]
+                   Exp "<"  Exp   [seqstrict, arith]
+                 | Exp "<=" Exp   [seqstrict, arith]
+                 | Exp ">"  Exp   [seqstrict, arith]
+                 | Exp ">=" Exp   [seqstrict, arith]
+                 | Exp "==" Exp   [seqstrict, arith]
+                 | Exp "!=" Exp   [seqstrict, arith]
+                 > "!" Exp        [seqstrict, arith]
+                 > Exp "&&" Exp   [strict(1), left, arith]
+                 > Exp "||" Exp   [strict(1), left, arith]
 ```
 
 The conditional construct has the expected evaluation strategy,
 stating that only the first argument is evaluate:
 
 ```k
-    syntax Exp ::= "if" Exp "then" Exp "else" Exp    [strict(1)]
+    syntax Exp ::= "if" Exp "then" Exp "else" Exp  [strict(1)]
 ```
 
 FUN's builtin lists are formed by enclosing comma-separated
@@ -219,10 +223,13 @@ although we will make sure that we do not give them semantics if they
 appear in any other place then in a function case pattern.
 
 ```k
-    syntax Exp ::= "[" Exps "]"                             [seqstrict]
-                 | "cons" | "head" | "tail" | "null?"
+    syntax Exp ::= "[" Exps "]"           [seqstrict]
                  | "[" Exps "|" Exp "]"
+                 | "cons" | "head" | "tail" | "null?"
+ // -------------------------------------------------
+
     syntax Val ::= "[" Vals "]"
+ // ---------------------------
 ```
 
 Data constructors start with capital letters and they may or may
@@ -236,8 +243,11 @@ evaluate its arguments but not the constuctor name itsef.
 ```k
     syntax ConstructorName
     syntax Exp ::= ConstructorName
-                 | ConstructorName "(" Exps ")"    [prefer, strict(2)]
+                 | ConstructorName "(" Exps ")"   [prefer, strict(2)]
+ // -----------------------------------------------------------------
+
     syntax Val ::= ConstructorName "(" Vals ")"
+ // -------------------------------------------
 ```
 
 A function is essentially a "`|`"-separated ordered sequence of
@@ -257,12 +267,16 @@ inferencer will reject those programs anyway. Function application is
 just concatenation of expressions, without worrying about type
 correctness. Again, the type system will reject type-incorrect programs.
 
+**NOTE**: We would like eventually to also have `Exp "(" Exps ")"`
+
 ```k
     syntax Exp ::= "fun" Cases
-                 | Exp Exp                              [seqstrict, left]
-  // NOTE: We would like eventually to also have Exp "(" Exps ")
+                 | Exp Exp      [seqstrict, left]
+ // ---------------------------------------------
+
     syntax Case  ::= Exp "->" Exp
     syntax Cases ::= List{Case, "|"}
+ // --------------------------------
 ```
 
 The `let` and `letrec` binders have the usual syntax and functional
@@ -271,13 +285,17 @@ cases above, we allow a more generous syntax for the left-hand sides of
 bindings, noting that the semantics will get stuck on incorrect bindings
 and that the type system will reject those programs.
 
+**TODO**: The "prefer" attribute for letrec currently needed due to tool bug,
+          to make sure that "letrec" is not parsed as "let rec".
+
 ```k
-    syntax Exp ::= "let" Bindings "in" Exp
-                 | "letrec" Bindings "in" Exp                 [prefer]
-  // The "prefer" attribute for letrec currently needed due to tool bug,
-  // to make sure that "letrec" is not parsed as "let rec".
+    syntax Exp ::= "let"    Bindings "in" Exp
+                 | "letrec" Bindings "in" Exp   [prefer]
+ // ----------------------------------------------------
+
     syntax Binding  ::= Exp "=" Exp
     syntax Bindings ::= List{Binding,"and"}
+ // ---------------------------------------
 ```
 
 References are first class values in FUN. The construct `ref` takes
@@ -301,9 +319,9 @@ evaluated only for its side effects.
 ```k
     syntax Exp ::= "ref"
                  | "&" Name
-                 | "@" Exp                                     [seqstrict]
-                 | Exp ":=" Exp                                [seqstrict]
-                 | Exp ";" Exp                       [strict(1), right]
+                 | "@" Exp        [seqstrict]
+                 | Exp ":=" Exp   [seqstrict]
+                 | Exp ";"  Exp   [strict(1), right]
 ```
 
 Call-with-current-continuation, named `callcc` in FUN, is a
@@ -328,19 +346,23 @@ constant:
 ```k
     syntax Exp ::= "callcc"
                  | "try" Exp "catch" "(" Name ")" Exp
+ // -------------------------------------------------
+
     syntax Name ::= "throw" [token]
+ // -------------------------------
 ```
 
 Finally, FUN also allows polymorphic datatype declarations. These
 will be useful when we define the type system later on.
 
+**NOTE**: In a future version of K, we want the datatype declaration
+          to be a construct by itself, but that is not possible currently
+          because K's parser wronly identifies the BLAH operation allowing
+          a declaration to appear in front of an expression with the function
+          application construct, giving ambiguous parsing errors.
+
 ```k
     syntax Exp ::= "datatype" Type "=" TypeCases Exp
-  // NOTE: In a future version of K, we want the datatype declaration
-  // to be a construct by itself, but that is not possible currently
-  // because K's parser wronly identifies the BLAH operation allowing
-  // a declaration to appear in front of an expression with the function
-  // application construct, giving ambiguous parsing errors.
 ```
 
 We next need to define the syntax of types and type cases that
@@ -364,22 +386,28 @@ a constructor for function types:
 ```k
     syntax TypeName
     syntax Type ::= "int" | "bool" | "string"
-                  | Type "-->" Type                            [right]
-                  | "(" Type ")"                             [bracket]
+                  | Type "-->" Type           [right]
+                  | "(" Type ")"              [bracket]
                   | TypeVar
-                  | TypeName             [klabel(TypeName), avoid]
-                  | Type TypeName   [klabel(Type-TypeName)]
-                  | "(" Types ")" TypeName                    [prefer]
+                  | TypeName                  [klabel(TypeName), avoid]
+                  | Type TypeName             [klabel(Type-TypeName)]
+                  | "(" Types ")" TypeName    [prefer]
+ // --------------------------------------------------
+
     syntax Types ::= List{Type,","}
     syntax Types ::= TypeVars
+ // -------------------------
 
-    syntax TypeCase ::= ConstructorName
-                      | ConstructorName "(" Types ")"
-    syntax TypeCases ::= List{TypeCase,"|"}     [klabel(_|TypeCase_)]
+    syntax TypeCase  ::= ConstructorName
+                       | ConstructorName "(" Types ")"
+    syntax TypeCases ::= List{TypeCase,"|"}            [klabel(_|TypeCase_)]
+ // ------------------------------------------------------------------------
 ```
 
 Additional Priorities
 ---------------------
+
+These inform the parser of precedence information when ambiguous parses show up.
 
 ```k
     syntax priorities @__FUN-UNTYPED-COMMON
@@ -395,13 +423,13 @@ Additional Priorities
 endmodule
 ```
 
+Desugaring macros
+-----------------
+
 ```k
 module FUN-UNTYPED-MACROS
     imports FUN-UNTYPED-COMMON
 ```
-
-Desugaring macros
------------------
 
 We desugar the list non-constructor operations to functions
 matching over list patterns. In order to do that we need some new
@@ -412,8 +440,9 @@ trace the semantics.
 
 ```k
     syntax Name ::= "$h" | "$t"
-    rule head => fun [$h|$t] -> $h                       [macro]
-    rule tail => fun [$h|$t] -> $t                       [macro]
+ // ---------------------------
+    rule head  => fun [$h|$t] -> $h                      [macro]
+    rule tail  => fun [$h|$t] -> $t                      [macro]
     rule null? => fun [.Exps] -> true | [$h|$t] -> false [macro]
 ```
 
@@ -428,13 +457,14 @@ Uncurrying of multiple arguments in functions and binders:
 
 ```k
     rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
-    rule F P = E => F = fun P -> E       [macro]
+    rule F P = E    => F = fun P -> E    [macro]
 ```
 
 We desugar the `try-catch` construct into callcc:
 
 ```k
     syntax Name ::= "$k" | "$v"
+ // ---------------------------
     rule try E catch(X) E' => callcc (fun $k -> (fun throw -> E)(fun X -> $k E')) [macro]
 ```
 
@@ -451,16 +481,21 @@ The dynamic semantics ignores all the type declarations:
 endmodule
 ```
 
+FUN Identifier Instantiation
+----------------------------
+
+The following module instantiates the empty identifier sorts declared above with their corresponding regular expressions.
+
 ```k
 module FUN-UNTYPED-SYNTAX
     imports FUN-UNTYPED-COMMON
     imports BUILTIN-ID-TOKENS
 
-    syntax Name ::= r"[a-z][_a-zA-Z0-9]*"           [autoReject, token, prec(2)]
-                  | #LowerId                        [autoReject, token]
-    syntax ConstructorName ::= #UpperId             [autoReject, token]
-    syntax TypeVar  ::= r"['][a-z][_a-zA-Z0-9]*"    [autoReject, token]
-    syntax TypeName ::= Name                        [autoReject, token]
+    syntax Name            ::= r"[a-z][_a-zA-Z0-9]*"      [autoReject, token, prec(2)]
+                             | #LowerId                   [autoReject, token]
+    syntax ConstructorName ::= #UpperId                   [autoReject, token]
+    syntax TypeVar         ::= r"['][a-z][_a-zA-Z0-9]*"   [autoReject, token]
+    syntax TypeName        ::= Name                       [autoReject, token]
 endmodule
 ```
 
@@ -501,9 +536,9 @@ We only define integers, Booleans and strings as values here, but will
 add more values later.
 
 ```k
-    syntax Val ::= Int | Bool | String
-    syntax Exp ::= Val
-    syntax Exps ::= Vals
+    syntax Val     ::= Int | Bool | String
+    syntax Exp     ::= Val
+    syntax Exps    ::= Vals
     syntax KResult ::= Val
 ```
 
@@ -517,30 +552,32 @@ Lookup
       [tag(lookup)]
 ```
 
-Arithmetic expressions
-----------------------
+Expressions
+-----------
 
 ```k
-    rule <k> I1 * I2 => I1 *Int I2          ... </k>
-    rule <k> I1 / I2 => I1 /Int I2          ... </k>
-      requires I2 =/=K 0
-    rule <k> I1 % I2 => I1 %Int I2          ... </k>
-      requires I2 =/=K 0
-    rule <k> I1 + I2 => I1 +Int I2          ... </k>
-    rule <k> S1 ^ S2 => S1 +String S2       ... </k>
-    rule <k> I1 - I2 => I1 -Int I2          ... </k>
-    rule <k> - I => 0 -Int I                ... </k>
-    rule <k> I1 < I2 => I1 <Int I2          ... </k>
-    rule <k> I1 <= I2 => I1 <=Int I2        ... </k>
-    rule <k> I1 > I2 => I1 >Int I2          ... </k>
-    rule <k> I1 >= I2 => I1 >=Int I2        ... </k>
-    rule <k> V1:Val == V2:Val => V1 ==K V2  ... </k>
+    rule <k> I1 * I2 => I1 *Int I2 ... </k>
+    rule <k> I1 / I2 => I1 /Int I2 ... </k> requires I2 =/=K 0
+    rule <k> I1 % I2 => I1 %Int I2 ... </k> requires I2 =/=K 0
+    rule <k> I1 + I2 => I1 +Int I2 ... </k>
+    rule <k> I1 - I2 => I1 -Int I2 ... </k>
+    rule <k>    - I  => 0  -Int I  ... </k>
+
+    rule <k> S1 ^ S2 => S1 +String S2 ... </k>
+
+    rule <k> I1 <  I2 => I1  <Int I2 ... </k>
+    rule <k> I1 <= I2 => I1 <=Int I2 ... </k>
+    rule <k> I1 >  I2 => I1  >Int I2 ... </k>
+    rule <k> I1 >= I2 => I1 >=Int I2 ... </k>
+
+    rule <k> V1:Val == V2:Val => V1  ==K V2 ... </k>
     rule <k> V1:Val != V2:Val => V1 =/=K V2 ... </k>
-    rule <k> ! T => notBool(T)              ... </k>
-    rule <k> true  && E => E                ... </k>
-    rule <k> false && _ => false            ... </k>
-    rule <k> true  || _ => true             ... </k>
-    rule <k> false || E => E                ... </k>
+
+    rule <k>        ! T => notBool(T) ... </k>
+    rule <k> true  && E => E          ... </k>
+    rule <k> false && _ => false      ... </k>
+    rule <k> true  || _ => true       ... </k>
+    rule <k> false || E => E          ... </k>
 ```
 
 Conditional
@@ -566,9 +603,12 @@ and also that `cons` applied to a value is a value (specifically, it
 would be a function/closure value that expects the second, list
 argument):
 
+**NOTE**: Operator `isVal` is the automatically added `isSORT` predicate for sort `Val`.
+
 ```k
     rule isVal(cons)       => true
     rule isVal(cons V:Val) => true
+
     rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
 ```
 
@@ -592,6 +632,7 @@ in the function body (we want static scoping in FUN).
 
 ```k
     syntax Val ::= closure ( Map , Cases )
+ // --------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
 ```
@@ -611,10 +652,9 @@ does not match, then we drop it and thus move on to the next one.
 
 ```k
     rule <k> (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val ... </k>
-    rule <k> matchResult(M:Map) ~> closure(RHO, _->E | _) _
-          => bindMap(M) ~> E ~> setEnv(RHO') ... </k>
+    rule <k> matchResult(M:Map) ~> closure(RHO, _->E | _) _ => bindMap(M) ~> E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
-    rule (matchFailure => .) ~> closure(_, (_->_ | CS:Cases => CS)) _
+    rule <k> (matchFailure => .) ~> closure(_, (_->_ | CS:Cases => CS)) _ ... </k>
 ```
 
 Let and Letrec
@@ -656,12 +696,10 @@ $\textit{F} \mapsto \textit{L}$; this way, the closure can invoke
 itself).
 
 ```k
-    rule <k> let BS in E
-          => bindTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+    rule <k> let BS in E => bindTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
 
-    rule <k> letrec BS in E
-          => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+    rule <k> letrec BS in E => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
       [tag(letRecursive)]
 ```
@@ -686,6 +724,7 @@ simply discarded:
 
 ```k
     syntax Name ::= "$x"
+ // --------------------
     rule ref => fun $x -> & $x [macro]
 
     rule <k> & X              => L     ... </k> <env>   ... X |-> L        ... </env>
@@ -726,6 +765,7 @@ and continues the execution normally.
 
 ```k
     syntax Val ::= cc ( Map , K )
+ // -----------------------------
     rule isVal(callcc) => true
 
     rule <k> (callcc V:Val => V cc(RHO, K)) ~> K </k>
@@ -746,7 +786,8 @@ K distribution. The first "anywhere" rule below shows an elegant way to
 achieve the benefits of tail recursion in K.
 
 ```k
-    syntax KItem ::= setEnv( Map )  // TODO: get rid of env
+    syntax KItem ::= setEnv ( Map )
+ // -------------------------------
     rule <k> _:Val ~> (setEnv(RHO) => .) ... </k>
          <env> _ => RHO </env>
 ```
@@ -760,7 +801,7 @@ discussed the `let` and `letrec` language constructs above.
     syntax KItem ::= bindTo ( Names , Exps ) [strict(2)]
                    | bindMap( Map )
                    | bind( Names )
-
+ // ------------------------------
     rule <k> (. => getMatchingAux(XS, VS)) ~> bindTo(XS:Names, VS:Vals)  ... </k>
     rule <k> matchResult(M:Map) ~> bindTo(_:Names, _:Vals) => bindMap(M) ... </k>
 
@@ -775,7 +816,7 @@ discussed the `let` and `letrec` language constructs above.
          <env> RHO => RHO[X <- !L:Int] </env>
 
     syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
-
+ // ------------------------------------------------------
     rule <k> assignTo(.Names, .Vals) => . ... </k>
     rule <k> assignTo((X:Name, XS), (V:Val, VS)) => assignTo(XS, VS) ... </k>
          <env> ... X |-> L ... </env>
@@ -789,16 +830,18 @@ of expressions in a binding, respectively.
 
 ```k
     syntax Names ::= names ( Bindings ) [function]
+ // ----------------------------------------------
     rule names(.Bindings) => .Names
     rule names(X:Name=_ and BS) => (X,names(BS))::Names
 
     syntax Exps ::= exps ( Bindings ) [function]
+ // --------------------------------------------
     rule exps(.Bindings)       => .Exps
     rule exps(_:Name=E and BS) => E,exps(BS)
 
     /* Extra kore stuff */
     syntax KResult ::= Vals
-    syntax Exps ::= Names
+    syntax Exps    ::= Names
 
     /* Matching */
     syntax MatchResult ::= getMatching ( Exp , Val )                  [function]
@@ -806,27 +849,24 @@ of expressions in a binding, respectively.
                          | mergeMatching( MatchResult , MatchResult ) [function]
                          | matchResult( Map )
                          | "matchFailure"
-
+ // -------------------------------------
     rule getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS)
     rule getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS)
-    rule getMatching(C:ConstructorName, C) => matchResult(.Map)
-    rule getMatching(B:Bool, B)            => matchResult(.Map)
-    rule getMatching(I:Int, I)             => matchResult(.Map)
-    rule getMatching(S:String, S)          => matchResult(.Map)
-    rule getMatching(N:Name, V:Val)        => matchResult(N |-> V)
-    rule getMatching(_, _)                 => matchFailure
-      [owise]
+    rule getMatching(C:ConstructorName, C)                   => matchResult(.Map)
+    rule getMatching(B:Bool, B)                              => matchResult(.Map)
+    rule getMatching(I:Int, I)                               => matchResult(.Map)
+    rule getMatching(S:String, S)                            => matchResult(.Map)
+    rule getMatching(N:Name, V:Val)                          => matchResult(N |-> V)
+    rule getMatching(_, _)                                   => matchFailure            [owise]
 
     rule getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(ES, VS))
     rule getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)
-    rule getMatchingAux(_, _)                               => matchFailure
-      [owise]
+    rule getMatchingAux(_, _)                               => matchFailure             [owise]
 
-    rule mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2)
-      requires intersectSet(keys(M1), keys(M2)) ==K .Set
-    rule mergeMatching(matchResult(_:Map), matchFailure) => matchFailure
-    rule mergeMatching(matchFailure, matchResult(_:Map)) => matchFailure
-    rule mergeMatching(matchFailure, matchFailure)       => matchFailure
+    rule mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2) requires intersectSet(keys(M1), keys(M2)) ==K .Set
+    rule mergeMatching(matchResult(_:Map), matchFailure)         => matchFailure
+    rule mergeMatching(matchFailure, matchResult(_:Map))         => matchFailure
+    rule mergeMatching(matchFailure, matchFailure)               => matchFailure
 ```
 
 Besides the generic decomposition rules for patterns and values, we
