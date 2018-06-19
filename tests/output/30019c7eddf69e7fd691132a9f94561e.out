@@ -47,21 +47,21 @@ Strategy: exec
         map |-> 4
         nat |-> 2
         nth |-> 1 , [ .Names ] -> ( fun ( x -> [ .Names ] ) | .Cases ) | [ h , .Names | t ] -> ( fun ( x -> cons ( h x ) ( app t x ) ) | .Cases ) | .Cases )
-        6 |-> 1
-        7 |-> 5
-        8 |-> 2
-        9 |-> 5
-        10 |-> 3
-        11 |-> 5
-        12 |-> 4
-        13 |-> 5
-        14 |-> 5
-        15 |-> 5
-        16 |-> closure ( app |-> 5
+        6 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
         nat |-> 2
         nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
+        7 |-> 1
+        8 |-> 5
+        9 |-> 2
+        10 |-> 5
+        11 |-> 3
+        12 |-> 5
+        13 |-> 4
+        14 |-> 5
+        15 |-> 5
+        16 |-> 5
         17 |-> 1
         18 |-> [ 2 , 3 , 4 , 5 , .Names ]
         19 |-> closure ( app |-> 5
@@ -71,36 +71,36 @@ Strategy: exec
         nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
         20 |-> 2
         21 |-> [ 3 , 4 , 5 , .Names ]
-        22 |-> closure ( app |-> 5
+        22 |-> 2
+        23 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
         nat |-> 2
         nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
-        23 |-> 3
-        24 |-> [ 4 , 5 , .Names ]
-        25 |-> closure ( app |-> 5
+        24 |-> 3
+        25 |-> [ 4 , 5 , .Names ]
+        26 |-> 3
+        27 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
         nat |-> 2
         nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
-        26 |-> 4
-        27 |-> [ 5 , .Names ]
-        28 |-> closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        nat |-> 2
-        nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
-        29 |-> 5
-        30 |-> [ .Names ]
+        28 |-> 4
+        29 |-> [ 5 , .Names ]
+        30 |-> 4
         31 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
         nat |-> 2
         nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
         32 |-> 5
-        33 |-> 4
-        34 |-> 3
-        35 |-> 2
+        33 |-> [ .Names ]
+        34 |-> 5
+        35 |-> closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        nat |-> 2
+        nth |-> 1 , 1 -> ( fun ( [ h , .Names | t ] -> h ) | .Cases ) | n -> ( fun ( [ h , .Names | t ] -> nth ( n - 1 ) t ) | .Cases ) | .Cases )
         36 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
@@ -109,124 +109,124 @@ Strategy: exec
         37 |-> [ closure ( app |-> 5
         length |-> 3
         map |-> 4
-        n |-> 35
+        n |-> 22
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 26
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 30
         nat |-> 2
         nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
         length |-> 3
         map |-> 4
         n |-> 34
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 33
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 32
         nat |-> 2
         nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , .Names ]
         38 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        39 |-> closure ( app |-> 5
+        39 |-> 10
+        40 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        41 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
-        n |-> 35
+        n |-> 22
         nat |-> 2
         nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases )
-        40 |-> [ closure ( app |-> 5
+        42 |-> [ closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 26
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 30
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
         length |-> 3
         map |-> 4
         n |-> 34
         nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 33
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 32
-        nat |-> 2
         nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , .Names ]
-        41 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        42 |-> closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 34
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases )
-        43 |-> [ closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 33
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 32
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , .Names ]
-        44 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        45 |-> closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 33
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases )
-        46 |-> [ closure ( app |-> 5
-        length |-> 3
-        map |-> 4
-        n |-> 32
-        nat |-> 2
-        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , .Names ]
-        47 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        43 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        44 |-> 10
+        45 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        46 |-> 11
+        47 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
         48 |-> closure ( app |-> 5
         length |-> 3
         map |-> 4
-        n |-> 32
+        n |-> 26
         nat |-> 2
         nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases )
-        49 |-> [ .Names ]
+        49 |-> [ closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 30
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 34
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , .Names ]
         50 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        51 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        52 |-> 10
-        53 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        54 |-> 4
-        55 |-> 11
-        56 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        57 |-> 3
-        58 |-> 12
-        59 |-> [ 13 , 14 , 15 , 16 , 17 , .Names ]
-        60 |-> 2
-        61 |-> 13
-        62 |-> [ 14 , 15 , 16 , 17 , .Names ]
-        63 |-> 14
-        64 |-> [ 15 , 16 , 17 , .Names ]
-        65 |-> 10
-        66 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        67 |-> 3
-        68 |-> 11
-        69 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        70 |-> 2
-        71 |-> 12
-        72 |-> [ 13 , 14 , 15 , 16 , 17 , .Names ]
-        73 |-> 13
-        74 |-> [ 14 , 15 , 16 , 17 , .Names ]
-        75 |-> 10
-        76 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        77 |-> 2
-        78 |-> 11
-        79 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        51 |-> 10
+        52 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        53 |-> 2
+        54 |-> 11
+        55 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        56 |-> 12
+        57 |-> [ 13 , 14 , 15 , 16 , 17 , .Names ]
+        58 |-> closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 30
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases )
+        59 |-> [ closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 34
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases ) , .Names ]
+        60 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        61 |-> 10
+        62 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        63 |-> 3
+        64 |-> 11
+        65 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        66 |-> 2
+        67 |-> 12
+        68 |-> [ 13 , 14 , 15 , 16 , 17 , .Names ]
+        69 |-> 13
+        70 |-> [ 14 , 15 , 16 , 17 , .Names ]
+        71 |-> closure ( app |-> 5
+        length |-> 3
+        map |-> 4
+        n |-> 34
+        nat |-> 2
+        nth |-> 1 , [ h , .Names | t ] -> nth ( n - 1 ) t | .Cases )
+        72 |-> [ .Names ]
+        73 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        74 |-> 10
+        75 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        76 |-> 4
+        77 |-> 11
+        78 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        79 |-> 3
         80 |-> 12
         81 |-> [ 13 , 14 , 15 , 16 , 17 , .Names ]
-        82 |-> 10
-        83 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        84 |-> 11
-        85 |-> [ 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
-        86 |-> 10
-        87 |-> [ 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
+        82 |-> 2
+        83 |-> 13
+        84 |-> [ 14 , 15 , 16 , 17 , .Names ]
+        85 |-> 14
+        86 |-> [ 15 , 16 , 17 , .Names ]
+        87 |-> [ 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , .Names ]
       </store>
     </FUN>
   </harness>

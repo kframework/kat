@@ -25,17 +25,17 @@ Strategy: exec
         1 |-> closure ( mirror |-> 1 , Leaf ( n , .Names ) -> Leaf ( n , .Names ) | Tree ( left , right , .Names ) -> Tree ( mirror right , mirror left , .Names ) | .Cases )
         2 |-> Tree ( Leaf ( 3 , .Names ) , Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names ) , .Names )
         3 |-> Tree ( Leaf ( 1 , .Names ) , Leaf ( 2 , .Names ) , .Names )
-        4 |-> Leaf ( 2 , .Names )
-        5 |-> Leaf ( 1 , .Names )
-        6 |-> 1
-        7 |-> 2
-        8 |-> Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names )
-        9 |-> Leaf ( 3 , .Names )
+        4 |-> Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names )
+        5 |-> Leaf ( 3 , .Names )
+        6 |-> Leaf ( 5 , .Names )
+        7 |-> Leaf ( 4 , .Names )
+        8 |-> 5
+        9 |-> 4
         10 |-> 3
-        11 |-> Leaf ( 5 , .Names )
-        12 |-> Leaf ( 4 , .Names )
-        13 |-> 4
-        14 |-> 5
+        11 |-> Leaf ( 2 , .Names )
+        12 |-> Leaf ( 1 , .Names )
+        13 |-> 2
+        14 |-> 1
       </store>
     </FUN>
   </harness>

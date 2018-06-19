@@ -36,29 +36,29 @@ Strategy: exec
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
         5 |-> Triple ( [ Pair ( 8 , 7 , .Names ) , .Names ] , [ .Names ] , [ Pair ( 9 , 2 , .Names ) , Pair ( 3 , 3 , .Names ) , Pair ( 2 , 2 , .Names ) , .Names ] , .Names )
         6 |-> [ Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , Pair ( 0 , 1 , .Names ) , Pair ( -1 , -1 , .Names ) , .Names ] , .Names ) , Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names ) , .Names ]
-        7 |-> closure ( complex |-> 2
+        7 |-> [ .Names ]
+        8 |-> Pair ( 2 , 2 , .Names )
+        9 |-> 7
+        10 |-> [ .Names ]
+        11 |-> 8
+        12 |-> 3
+        13 |-> 9
+        14 |-> closure ( complex |-> 2
         length |-> 1
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
-        8 |-> Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , Pair ( 0 , 1 , .Names ) , Pair ( -1 , -1 , .Names ) , .Names ] , .Names )
-        9 |-> [ Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names ) , .Names ]
-        10 |-> closure ( complex |-> 2
+        15 |-> Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , Pair ( 0 , 1 , .Names ) , Pair ( -1 , -1 , .Names ) , .Names ] , .Names )
+        16 |-> [ Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names ) , .Names ]
+        17 |-> Pair ( 0 , 1 , .Names )
+        18 |-> Pair ( -1 , -1 , .Names )
+        19 |-> closure ( complex |-> 2
         length |-> 1
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
-        11 |-> Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names )
-        12 |-> [ .Names ]
-        13 |-> closure ( complex |-> 2
+        20 |-> Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names )
+        21 |-> [ .Names ]
+        22 |-> Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names )
+        23 |-> closure ( complex |-> 2
         length |-> 1
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
-        14 |-> Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names )
-        15 |-> Pair ( 0 , 1 , .Names )
-        16 |-> Pair ( -1 , -1 , .Names )
-        17 |-> [ .Names ]
-        18 |-> Pair ( 2 , 2 , .Names )
-        19 |-> 7
-        20 |-> [ .Names ]
-        21 |-> 8
-        22 |-> 3
-        23 |-> 9
       </store>
     </FUN>
   </harness>
