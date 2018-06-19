@@ -12,9 +12,14 @@ In IMP, base values are of sorts `Int` and `Bool`.
 
 ```k
 module IMP
-    imports STRATEGY
     imports DOMAINS
+```
 
+```kcompile
+    imports STRATEGY
+```
+
+```k
     configuration <imp>
                     <k> $PGM:Stmt </k>
                     <mem> .Map </mem>
@@ -25,7 +30,7 @@ module IMP
 
 ### Symbolic Integers
 
-```k
+```kcompile
     syntax Int ::= "symbolicInt" [function]
  // ---------------------------------------
     rule symbolicInt => ?V:Int

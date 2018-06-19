@@ -1,20 +1,25 @@
 # Settings
 # --------
 
-build_dir:=$(CURDIR)/.build
+build_dir:=.build
 defn_dir:=$(build_dir)/defn
 
 k_submodule:=$(build_dir)/k
 k_bin:=$(k_submodule)/k-distribution/target/release/k/bin
+kompile:=$(k_bin)/kompile
+krun:=$(k_bin)/krun
 
 pandoc_tangle_submodule:=$(build_dir)/pandoc-tangle
 tangler:=$(pandoc_tangle_submodule)/tangle.lua
 LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
 export LUA_PATH
+pandoc:=pandoc --from markdown --to "$(tangler)"
 
 test_dir:=tests
 
-.PHONY: build deps defn example-files \
+.PHONY: deps ocaml-deps \
+		defn  defn-imp  defn-imp-kcompile  defn-imp-krun \
+		build build-imp build-imp-kcompile build-imp-krun \
 		test-bimc test-sbc test
 
 all: build
@@ -22,24 +27,10 @@ all: build
 clean:
 	rm -rf $(build_dir)
 
-# Build definition
-# ----------------
-
-# Tangle *.k files
-
-k_files:=kat-imp.k imp.k kat.k
-defn_files:=$(patsubst %, $(defn_dir)/%, $(k_files))
-
-defn: $(defn_files)
-
-$(defn_dir)/%.k: %.md
-	@echo >&2 "==  tangle: $@"
-	mkdir -p $(dir $@)
-	pandoc --from markdown --to "$(tangler)" --metadata=code:.k $< > $@
-
 # Dependencies
+# ------------
 
-deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp
+deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp ocaml-deps
 
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
@@ -51,14 +42,58 @@ $(pandoc_tangle_submodule)/make.timestamp:
 	git submodule update --init -- $(pandoc_tangle_submodule)
 	touch $(pandoc_tangle_submodule)/make.timestamp
 
+ocaml-deps:
+	opam init --quiet --no-setup
+	opam repository add k "$(k_submodule)/k-distribution/target/release/k/lib/opam" \
+	    || opam repository set-url k "$(k_submodule)/k-distribution/target/release/k/lib/opam"
+	opam update
+	opam switch 4.03.0+k
+	eval $$(opam config env) \
+	    opam install --yes mlgmp zarith uuidm ocaml-protoc rlp yojson hex ocp-ocamlres
+
+# Build definition
+# ----------------
+
+# Tangle *.k files
+
+imp_dir=$(defn_dir)/imp
+imp_kcompile_files:=$(patsubst %, $(imp_dir)/kcompile/%, kat-imp.k kat.k imp.k)
+imp_krun_files:=$(patsubst %, $(imp_dir)/krun/%, imp.k)
+
+defn: defn-imp
+
+defn-imp: defn-imp-kcompile defn-imp-krun
+defn-imp-kcompile: $(imp_kcompile_files)
+defn-imp-krun:     $(imp_krun_files)
+
+$(imp_dir)/kcompile/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	$(pandoc) --metadata=code:'.k,.kcompile' $< > $@
+
+$(imp_dir)/krun/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	$(pandoc) --metadata=code:'.k,.krun' $< > $@
+
 # Java Backend
 
-build: $(defn_dir)/imp-analysis-kompiled/timestamp
+build: build-imp
 
-$(defn_dir)/imp-analysis-kompiled/timestamp: $(defn_files)
+build-imp: build-imp-kcompile build-imp-krun
+build-imp-kcompile: $(imp_dir)/kcompile/kat-imp-kompiled/timestamp
+build-imp-krun:     $(imp_dir)/krun/imp-kompiled/interpreter
+
+$(imp_dir)/kcompile/kat-imp-kompiled/timestamp: $(imp_kcompile_files)
 	@echo "== kompile: $@"
-	$(k_bin)/kompile --debug --main-module IMP-ANALYSIS --backend java \
-					 --syntax-module IMP-ANALYSIS $< --directory $(defn_dir)
+	$(kompile) --main-module IMP-ANALYSIS --backend java \
+				 --syntax-module IMP-ANALYSIS $< --directory $(imp_dir)/kcompile
+
+$(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module IMP --backend ocaml \
+					 --syntax-module IMP $< --directory $(imp_dir)/krun
 
 # Testing
 # -------
@@ -74,3 +109,23 @@ $(test_dir)/%.imp.test:
 
 $(test_dir)/%.expected:
 	mkdir -p $@
+
+# SBC Benchmarking
+# ----------------
+
+sbced_files:=$(wildcard $(test_dir)/sbced/*.k)
+
+$(test_dir)/sbced/%/diff.runtime: $(test_dir)/sbced/%/original.runtime $(test_dir)/sbced/%/compiled.runtime
+	git diff --no-index --ignore-space-change $^ || true
+
+$(test_dir)/sbced/%/original.runtime: $(defn_dir)/krun/imp-kompiled/interpreter $(test_dir)/%.imp
+	eval $$(opam config env) ; \
+		time ( $(krun) --directory $(defn_dir)/krun $(test_dir)/$*.imp &>$@ ) &>> $@
+
+$(test_dir)/sbced/%/compiled-kompiled/interpreter: $(test_dir)/sbced/%/compiled.k
+	eval $$(opam config env) ; \
+		$(kompile) --backend ocaml --main-module COMPILED --syntax-module COMPILED $< --directory $(test_dir)/sbced/$*
+
+$(test_dir)/sbced/%/compiled.runtime: $(test_dir)/sbced/%/compiled-kompiled/interpreter $(test_dir)/%.imp
+	eval $$(opam config env) ; \
+		time ( $(krun) --directory tests/sbced/$* -cN=10000 &>$@ ) &>> $@

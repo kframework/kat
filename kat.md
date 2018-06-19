@@ -25,10 +25,11 @@ module KAT
     imports DOMAINS
     imports UNIFICATION
 
-    configuration <kat>
-                    <analysis> .Analysis </analysis>
-                    <states> .States </states>
-                  </kat>
+    configuration
+      <kat>
+        <analysis> .Analysis </analysis>
+        <states> .States </states>
+      </kat>
 
     syntax Analysis ::= ".Analysis"
 ```
@@ -41,12 +42,19 @@ Usually this will be some `*Cell` sort.
 States have associated constraints as well, which are stored/restored using meta-level functionality.
 
 ```k
-    syntax  State
     syntax CState ::= State "|" K
     syntax AState ::= State | CState
     syntax States ::= ".States"
                     | AState ":" States
  // -----------------------------------
+
+    syntax PreState
+    syntax State ::= PreState
+    syntax State ::= State "<" Strategy ">"
+    syntax State ::= #stripStrat ( State ) [function]
+ // -------------------------------------------------
+    rule #stripStrat(STATE < S >) => #stripStrat(STATE)
+    rule #stripStrat(STATE)       => STATE              requires isPreState(STATE)
 ```
 
 -   `push_` copies the current execution state onto the stack of states and must be provided by the programming language.
@@ -60,6 +68,13 @@ States have associated constraints as well, which are stored/restored using meta
     syntax Strategy ::= "pop" | "pop" State
  // ---------------------------------------
     rule <s> pop => pop STATE ... </s> <states> STATE : STATES => STATES </states>
+    rule <s> pop STATE < S > => pop STATE ~> S ... </s>
+
+    syntax Strategy ::= "pop-fresh" | "pop-fresh" State | "#pop-fresh" K
+ // --------------------------------------------------------------------
+    rule <s> pop-fresh => pop-fresh STATE </s> <states> STATE : STATES => STATES </states>
+    rule <s> pop-fresh STATE:State => #pop-fresh #renameVariables(STATE) ... </s>
+    rule <s> #pop-fresh STATE:State => pop STATE ... </s>
 ```
 
 The current K backend will place the token `#STUCK` at the front of the `s` cell when execution cannot continue.
@@ -67,6 +82,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
 
 -   `try?_` executes a given strategy, placing `#true` on strategy cell if it succeeds and `#false` otherwise.
 -   `can?_` tries a given strategy, but restores the previous state on success (still reporting `#true` or `#false`).
+-   `try-state?_` will check if a given state description is feasibly by executing its associated strategy.
 
 **TODO:** constraints are not restored correctly on `can?` and `try?`.
 
@@ -89,6 +105,10 @@ Here, a wrapper around this functionality is provided which will try to execute 
     syntax Pred ::= "can?" Strategy
  // -------------------------------
     rule <s> can? S => push ~> rename-vars ~> (try? S) ~> #pred pop ... </s>
+
+    syntax Pred ::= "try-state?" State
+ // ----------------------------------
+    rule <s> try-state? STATE => push ~> pop-fresh STATE ~> #try ... </s>
 ```
 
 -   `#exception_` can be used as a place-holder to turn an exception into a strategy.
@@ -145,7 +165,7 @@ If you declare something a `StatePred`, this code will automatically load the cu
 
 Often you'll want a way to translate from the sort `Bool` in the programming language to the sort `Pred` in the strategy language.
 
--   `bool?` checks if the `k` cell has just the constant `true`/`false` in it and must be defined for each programming language.
+-   `bool?` checks if the `k` cell has the constant `true`/`false` on the top of the K cell and it must be defined for each programming language.
 
 ```k
     syntax StatePred ::= "bool?"
@@ -199,7 +219,7 @@ The strategy language is a simple imperative language with sequencing and choice
 ```
 
 -   `StrategyRep` allows repeating a given strategy between a given number of times.
-    This repetition is greedy, if only one bound is supplied it's an upper bound and the lower bound is zero.
+    This repetition is greedy, if only one bound is supplied it's both an upper bound and a lower bound.
     If both bounds are supplied the strategy fails if the lower bound is not met.
 -   The repetition `?` will try a strategy at most once.
 -   The repetition `*` is the "greedy Kleene star" which will attempt a strategy as many times as possible.
@@ -257,11 +277,9 @@ The following strategies get information about the current state or manipulate t
 -   `rename-vars` will replace the contents of the execution harness with a state with completely renamed variables.
 
 ```k
-    syntax StateOp  ::= "rename-vars"
-    syntax Strategy ::= "#rename-vars" K
- // ------------------------------------
-    rule <s> rename-vars [ STATE ]    => #rename-vars #renameVariables(STATE) ... </s>
-    rule <s> #rename-vars STATE:State => pop STATE                            ... </s>
+    syntax StateOp ::= "rename-vars"
+ // --------------------------------
+    rule <s> rename-vars [ STATE ] => pop-fresh STATE ... </s>
 ```
 
 -   `stuck?` checks if the current state can take a step.
@@ -321,7 +339,7 @@ Strategies can manipulate the `state` cell (where program execution happens) and
     rule <s> setAnalysis A => . ... </s> <analysis> _ => A </analysis>
 ```
 
--   `step-with_` is used to specify that a given strategy should be executed admist heating and cooling.
+-   `step-with_` is used to specify that a given strategy should be executed admist regular rules (including heating and cooling).
     **TODO**: Current backend actually tags heating and cooling rules as `regular` instead, so `step-with` has been appropriately simplified.
               Perhaps we should investigate whether the backend's behaviour should be changed.
 -   `#branch` defines what is a proper transition and must be provided by the programming language.
@@ -359,7 +377,7 @@ Things added to the sort `StateOp` will automatically load the current state for
 ```
 
 -   `exec` executes the given state to completion.
-    Note that `krun === exec`.
+    Note that `krun === exec` if we assume that `#normal | #branch | #loop | ^ regular` is a total strategy.
 -   `eval` executes a given state to completion and checks `bool?`.
 
 ```k
@@ -489,9 +507,11 @@ We've subsorted `Rules` into `Analysis`, and defined `Rules` as a cons-list of `
 ```k
 module KAT-SBC
     imports KAT
+    imports K-REFLECTION
 
     syntax Rule ::= "<" State ">"
                   | "<" State "-->" State ">"
+                  | "<" State "-->" State "requires" K ">"
 
     syntax Rules ::= ".Rules"
                    | Rules "," Rule
@@ -501,7 +521,7 @@ module KAT-SBC
 
 The interface of this analysis requires you define when to abstract and how to abstract.
 
--   `_subsumes?` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
+-   `_subsumes?_` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
 -   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 
@@ -515,11 +535,13 @@ The interface of this analysis requires you define when to abstract and how to a
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
 
+**TODO**: Need to check implication of condition as well!
+
 ```k
     syntax StatePred ::= "subsumed?"
     syntax Pred      ::= "#subsumed?" State Rules
  // ---------------------------------------------
-    rule <analysis> RS  </analysis>
+    rule <analysis> RS </analysis>
          <s> subsumed? [ STATE ] => (#subsumed? STATE RS) ... </s>
 
     rule <s> #subsumed? STATE .Rules         => #false              ... </s>
@@ -529,72 +551,62 @@ The interface of this analysis requires you define when to abstract and how to a
           => (LHS subsumes? STATE) or (#subsumed? STATE RS)
          ...
          </s>
+
+    rule <s> #subsumed? STATE (RS , < LHS --> _ requires _>)
+          => (LHS subsumes? STATE) or (#subsumed? STATE RS)
+         ...
+         </s>
 ```
 
--   `begin-rule` will use the current state as the left-hand-side of a new rule in the record of rules.
--   `end-rule` uses the current state as the right-hand-side of a new rule in the record of rules.
+-   `mk-rule` will build a rule given a `State`, by assuming the base of the state a the LHS of the rule and the state after executing the strategy as the RHS.
+-   `init-rules` will build new rules (using `split-rules`) starting in the top-stack state with the given strategy, if the current state is not subsumed.
+-   `split-rules` will take a given state + strategy and split it into all the feasible initial states to be analyzed.
 
 ```k
-    syntax StateOp ::= "begin-rule"
- // -------------------------------
-    rule <s> begin-rule [ STATE ] => . ... </s>
-         <analysis> RS => RS , < STATE > </analysis>
+    syntax Strategy ::= "mk-rule" State | "#mk-rule" K | "#mk-rule"
+ // ---------------------------------------------------------------
+    rule <s> mk-rule STATE => #mk-rule #renameVariables(STATE) ... </s>
+    rule <s> #mk-rule STATE:State => push STATE ~> pop STATE ~> push ~> #mk-rule ... </s>
+    rule <analysis> RS => RS , < #stripStrat(LHS) --> RHS requires #getConstraint(< LHS --> RHS >) > </analysis>
+         <states> RHS : LHS : STATES => STATES </states>
+         <s> #mk-rule => . ... </s>
 
-    syntax StateOp  ::= "end-rule"
- // ------------------------------
-    rule <s> end-rule [ STATE ] => . ... </s>
-         <analysis> RS , (< LHS > => < LHS --> STATE >) </analysis>
+    syntax Strategy ::= "init-rules" Strategy | "#init-rules" Strategy
+ // ------------------------------------------------------------------
+    rule <s> init-rules S => push ~> #init-rules S ... </s>
+    rule <states> STATE : STATES => STATES </states>
+         <analysis> RS </analysis>
+         <s> #init-rules S => pop-fresh STATE ~> if subsumed? then skip else split-rules STATE S ... </s>
 
-    syntax Strategy ::= "end-rules" | "transition-finish" Strategy Rule
- // -------------------------------------------------------------------
-    rule <s>                 end-rules => end-rule                            ... </s>
-    rule <s> #which-can S ~> end-rules => push ~> transition-finish S < LHS > ... </s>
-         <analysis> RS , < LHS > => RS </analysis>
-
-    rule <s> transition-finish S (< LHS > => < LHS --> RHS >) ... </s>
-         <states> RHS : STATES => STATES </states>
-
-    rule <s> transition-finish (S1 | S2) < LHS --> RHS >
-          => transition-finish S1        < LHS --> RHS >
-          ~> transition-finish S2        < LHS --> RHS >
-         ...
-         </s>
-
-    rule <s> transition-finish S < LHS --> RHS >
-          => #transition-rename #renameVariables(< LHS --> RHS >)
-          ~> S
-          ~> push
-          ~> end-rule
-         ...
-         </s>
+    syntax Strategy ::= "split-rules" State Strategy
+ // ------------------------------------------------
+    rule <s> split-rules STATE (S1 | S2) => split-rules STATE S1 ~> split-rules STATE S2 ... </s>
+    rule <s> split-rules STATE S => if try-state? STATE < S > then push STATE < S > else skip ... </s>
       requires notBool #orStrategy(S)
-
-    syntax Strategy ::= "#transition-rename" K
- // ------------------------------------------
-    rule <s> #transition-rename < LHS --> RHS > => pop RHS ... </s>
-         <analysis> RS => RS , < LHS > </analysis>
 ```
 
 Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
+    **Note**: Here we assume `#loop`, `#branch`, and `#normal | ^ regular` are disjoint strategies.
 
 ```k
     syntax Strategy ::= "compile-step"
  // ----------------------------------
-    rule <s> ( compile-step
-            => dup
-            ~> pop
-            ~> if subsumed?
-               then drop
-               else ( pop
-                    ; abstract
-                    ; rename-vars
-                    ; begin-rule
-                    ; exec-to-branch
-                    ; end-rules
-                    )
-             )
+    rule <states> STATE : STATES => STATES </states>
+         <s> compile-step
+          => if try-state? STATE < #loop >
+              then ( mk-rule STATE
+                   ; pop-fresh STATE
+                   ; abstract
+                   ; init-rules #loop
+                   )
+             else if try-state? STATE < #branch >
+              then ( split-rules STATE #branch
+                   )
+             else if try-state? STATE < #normal | ^ regular >
+              then ( push STATE < (#normal | ^ regular) * > )
+             else  ( mk-rule STATE )
              ...
          </s>
 ```

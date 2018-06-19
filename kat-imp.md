@@ -28,8 +28,8 @@ module IMP-KAT
 Here the definition of a `State` for IMP is given, as well as the definitions of how to `push` and `pop` states.
 
 ```k
-    syntax State ::= ImpCell
- // ------------------------
+    syntax PreState ::= ImpCell
+ // ---------------------------
     rule <s> push         => push IMPCELL ... </s> <harness> IMPCELL </harness>
     rule <s> pop  IMPCELL => .            ... </s> <harness> _ => IMPCELL </harness>
 ```

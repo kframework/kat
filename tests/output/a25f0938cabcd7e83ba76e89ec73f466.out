@@ -16,76 +16,45 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
-          { }
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
         </k>
         <mem>
           n |-> V0
           s |-> 0
         </mem>
-      </imp> > , < <imp>
+      </imp> requires #True > , < <imp>
         <k>
-          int n , s , .Ids ; s = 0 ; n = V1 ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
-        </k>
-        <mem>
-          .Map
-        </mem>
-      </imp> --> <imp>
-        <k>
-          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
         </k>
         <mem>
           n |-> V1
-          s |-> 0
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
-        </k>
-        <mem>
-          n |-> V2
-          s |-> V3
-        </mem>
-      </imp> --> <imp>
-        <k>
-          { }
-        </k>
-        <mem>
-          n |-> V2 +Int -1
-          s |-> V3 +Int V2
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
-        </k>
-        <mem>
-          n |-> V4
-          s |-> V5
-        </mem>
-      </imp> --> <imp>
-        <k>
-          { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } }
-        </k>
-        <mem>
-          n |-> V4 +Int -1
-          s |-> V5 +Int V4
-        </mem>
-      </imp> > , < <imp>
-        <k>
-          { }
-        </k>
-        <mem>
-          n |-> V6
-          s |-> V7
+          s |-> V2
         </mem>
       </imp> --> <imp>
         <k>
           .
         </k>
         <mem>
-          n |-> V6
-          s |-> V7
+          n |-> V1
+          s |-> V2
         </mem>
-      </imp> >
+      </imp> requires 0 <=Int V1 ==K false > , < <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          n |-> V3
+          s |-> V4
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          n |-> V3 +Int -1
+          s |-> V4 +Int V3
+        </mem>
+      </imp> requires 0 <=Int V3 ==K true >
     </analysis>
     <states>
       .States
@@ -94,11 +63,11 @@ Strategy: compile
   <harness>
     <imp>
       <k>
-        { }
+        while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
       </k>
       <mem>
-        n |-> V0
-        s |-> 0
+        n |-> V5
+        s |-> V6
       </mem>
     </imp>
   </harness>

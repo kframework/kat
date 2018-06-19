@@ -16,13 +16,45 @@ Strategy: compile
         </mem>
       </imp> --> <imp>
         <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> 10
+          y |-> 0
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> V0
+          y |-> V1
+        </mem>
+      </imp> --> <imp>
+        <k>
           .
         </k>
         <mem>
-          x |-> -1
-          y |-> 22
+          x |-> V0
+          y |-> V1 *Int 2
         </mem>
-      </imp> >
+      </imp> requires 0 <=Int V0 ==K false > , < <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> V2
+          y |-> V3
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> V2 -Int 1
+          y |-> V3 +Int 1
+        </mem>
+      </imp> requires 0 <=Int V2 ==K true >
     </analysis>
     <states>
       .States
@@ -31,11 +63,11 @@ Strategy: compile
   <harness>
     <imp>
       <k>
-        .
+        while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
       </k>
       <mem>
-        x |-> -1
-        y |-> 22
+        x |-> V4
+        y |-> V5
       </mem>
     </imp>
   </harness>
