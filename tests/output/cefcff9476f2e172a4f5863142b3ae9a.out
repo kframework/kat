@@ -1,0 +1,35 @@
+Program:  tests/list-1.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        3
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( second |-> 1 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+        2 |-> [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Names ]
+        3 |-> true
+        4 |-> 1
+        5 |-> [ 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Names ]
+        6 |-> 3
+        7 |-> [ 5 , 2 , 4 , 0 , -1 , -5 , .Names ]
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

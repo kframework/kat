@@ -1,0 +1,31 @@
+Program:  tests/tuple-1.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        Pair ( Pair ( 1 , Wrapper ( 2 , .Names ) , .Names ) , Pair ( 3 , 4 , .Names ) , .Names )
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> 1
+        2 |-> Pair ( 3 , 4 , .Names )
+        3 |-> Wrapper ( 2 , .Names )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

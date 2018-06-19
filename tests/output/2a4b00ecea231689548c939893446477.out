@@ -1,0 +1,37 @@
+Program:  tests/tuple-3.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        381
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( .Map , Pair ( a , b , .Names ) -> ( fun ( Pair ( x , y , .Names ) -> a Pair ( x , y , .Names ) + b Pair ( x , y , .Names ) ) | .Cases ) | .Cases )
+        2 |-> closure ( f |-> 1 , Pair ( x , y , .Names ) -> x + y * 7 - 2 - 4 + x | .Cases )
+        3 |-> closure ( f |-> 1 , Pair ( x , y , .Names ) -> x * y - 3 + x + y | .Cases )
+        4 |-> 10
+        5 |-> 20
+        6 |-> 10
+        7 |-> 20
+        8 |-> 10
+        9 |-> 20
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

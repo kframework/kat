@@ -1,0 +1,1231 @@
+Program:  tests/constructor-bst-sorting.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        [ 0 , 0 , 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , 10 , 10 , .Names ]
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , l -> flatten ( mk_bst l ) | .Cases )
+        2 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , Empty -> [ .Names ] | Node ( l , n , r , .Names ) -> append ( flatten l ) ( cons n ( flatten r ) ) | .Cases )
+        3 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , [ .Names ] -> ( fun ( r -> r ) | .Cases ) | [ h , .Names | t ] -> ( fun ( r -> cons h ( append t r ) ) | .Cases ) | .Cases )
+        4 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , [ .Names ] -> Empty | [ h , .Names | t ] -> insert ( mk_bst t ) h | .Cases )
+        5 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , Empty -> ( fun ( n -> Node ( Empty , n , Empty , .Names ) ) | .Cases ) | Node ( l , m , r , .Names ) -> ( fun ( n -> if n < m then Node ( insert l n , m , r , .Names ) else Node ( l , m , insert r n , .Names ) ) | .Cases ) | .Cases )
+        6 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , 0 -> [ 0 , .Names ] | n -> cons n ( downto ( n - 1 ) ) | .Cases )
+        7 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , 0 -> [ 0 , .Names ] | n -> append ( upto ( n - 1 ) ) [ n , .Names ] | .Cases )
+        8 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , [ .Names ] -> ( fun ( [ .Names ] -> [ .Names ] ) | .Cases ) | [ h1 , .Names | t1 ] -> ( fun ( [ h2 , .Names | t2 ] -> cons h1 ( cons h2 ( merge t1 t2 ) ) ) | .Cases ) | .Cases )
+        9 |-> closure ( append |-> 3
+        bst_sort |-> 1
+        downto |-> 6
+        flatten |-> 2
+        insert |-> 5
+        merge |-> 8
+        mk_bst |-> 4
+        shuffle |-> 9
+        upto |-> 7 , n -> merge ( downto n ) ( upto n ) | .Cases )
+        10 |-> 10
+        11 |-> 10
+        12 |-> 9
+        13 |-> 8
+        14 |-> 7
+        15 |-> 6
+        16 |-> 5
+        17 |-> 4
+        18 |-> 3
+        19 |-> 2
+        20 |-> 1
+        21 |-> 0
+        22 |-> [ .Names ]
+        23 |-> [ 1 , .Names ]
+        24 |-> [ 1 , .Names ]
+        25 |-> 0
+        26 |-> [ 1 , .Names ]
+        27 |-> [ 2 , .Names ]
+        28 |-> 1
+        29 |-> [ .Names ]
+        30 |-> [ 2 , .Names ]
+        31 |-> [ 2 , .Names ]
+        32 |-> 0
+        33 |-> [ 1 , 2 , .Names ]
+        34 |-> [ 3 , .Names ]
+        35 |-> 1
+        36 |-> [ 2 , .Names ]
+        37 |-> [ 3 , .Names ]
+        38 |-> 2
+        39 |-> [ .Names ]
+        40 |-> [ 3 , .Names ]
+        41 |-> [ 3 , .Names ]
+        42 |-> 0
+        43 |-> [ 1 , 2 , 3 , .Names ]
+        44 |-> [ 4 , .Names ]
+        45 |-> 1
+        46 |-> [ 2 , 3 , .Names ]
+        47 |-> [ 4 , .Names ]
+        48 |-> 2
+        49 |-> [ 3 , .Names ]
+        50 |-> [ 4 , .Names ]
+        51 |-> 3
+        52 |-> [ .Names ]
+        53 |-> [ 4 , .Names ]
+        54 |-> [ 4 , .Names ]
+        55 |-> 0
+        56 |-> [ 1 , 2 , 3 , 4 , .Names ]
+        57 |-> [ 5 , .Names ]
+        58 |-> 1
+        59 |-> [ 2 , 3 , 4 , .Names ]
+        60 |-> [ 5 , .Names ]
+        61 |-> 2
+        62 |-> [ 3 , 4 , .Names ]
+        63 |-> [ 5 , .Names ]
+        64 |-> 3
+        65 |-> [ 4 , .Names ]
+        66 |-> [ 5 , .Names ]
+        67 |-> 4
+        68 |-> [ .Names ]
+        69 |-> [ 5 , .Names ]
+        70 |-> [ 5 , .Names ]
+        71 |-> 0
+        72 |-> [ 1 , 2 , 3 , 4 , 5 , .Names ]
+        73 |-> [ 6 , .Names ]
+        74 |-> 1
+        75 |-> [ 2 , 3 , 4 , 5 , .Names ]
+        76 |-> [ 6 , .Names ]
+        77 |-> 2
+        78 |-> [ 3 , 4 , 5 , .Names ]
+        79 |-> [ 6 , .Names ]
+        80 |-> 3
+        81 |-> [ 4 , 5 , .Names ]
+        82 |-> [ 6 , .Names ]
+        83 |-> 4
+        84 |-> [ 5 , .Names ]
+        85 |-> [ 6 , .Names ]
+        86 |-> 5
+        87 |-> [ .Names ]
+        88 |-> [ 6 , .Names ]
+        89 |-> [ 6 , .Names ]
+        90 |-> 0
+        91 |-> [ 1 , 2 , 3 , 4 , 5 , 6 , .Names ]
+        92 |-> [ 7 , .Names ]
+        93 |-> 1
+        94 |-> [ 2 , 3 , 4 , 5 , 6 , .Names ]
+        95 |-> [ 7 , .Names ]
+        96 |-> 2
+        97 |-> [ 3 , 4 , 5 , 6 , .Names ]
+        98 |-> [ 7 , .Names ]
+        99 |-> 3
+        100 |-> [ 4 , 5 , 6 , .Names ]
+        101 |-> [ 7 , .Names ]
+        102 |-> 4
+        103 |-> [ 5 , 6 , .Names ]
+        104 |-> [ 7 , .Names ]
+        105 |-> 5
+        106 |-> [ 6 , .Names ]
+        107 |-> [ 7 , .Names ]
+        108 |-> 6
+        109 |-> [ .Names ]
+        110 |-> [ 7 , .Names ]
+        111 |-> [ 7 , .Names ]
+        112 |-> 0
+        113 |-> [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , .Names ]
+        114 |-> [ 8 , .Names ]
+        115 |-> 1
+        116 |-> [ 2 , 3 , 4 , 5 , 6 , 7 , .Names ]
+        117 |-> [ 8 , .Names ]
+        118 |-> 2
+        119 |-> [ 3 , 4 , 5 , 6 , 7 , .Names ]
+        120 |-> [ 8 , .Names ]
+        121 |-> 3
+        122 |-> [ 4 , 5 , 6 , 7 , .Names ]
+        123 |-> [ 8 , .Names ]
+        124 |-> 4
+        125 |-> [ 5 , 6 , 7 , .Names ]
+        126 |-> [ 8 , .Names ]
+        127 |-> 5
+        128 |-> [ 6 , 7 , .Names ]
+        129 |-> [ 8 , .Names ]
+        130 |-> 6
+        131 |-> [ 7 , .Names ]
+        132 |-> [ 8 , .Names ]
+        133 |-> 7
+        134 |-> [ .Names ]
+        135 |-> [ 8 , .Names ]
+        136 |-> [ 8 , .Names ]
+        137 |-> 0
+        138 |-> [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , .Names ]
+        139 |-> [ 9 , .Names ]
+        140 |-> 1
+        141 |-> [ 2 , 3 , 4 , 5 , 6 , 7 , 8 , .Names ]
+        142 |-> [ 9 , .Names ]
+        143 |-> 2
+        144 |-> [ 3 , 4 , 5 , 6 , 7 , 8 , .Names ]
+        145 |-> [ 9 , .Names ]
+        146 |-> 3
+        147 |-> [ 4 , 5 , 6 , 7 , 8 , .Names ]
+        148 |-> [ 9 , .Names ]
+        149 |-> 4
+        150 |-> [ 5 , 6 , 7 , 8 , .Names ]
+        151 |-> [ 9 , .Names ]
+        152 |-> 5
+        153 |-> [ 6 , 7 , 8 , .Names ]
+        154 |-> [ 9 , .Names ]
+        155 |-> 6
+        156 |-> [ 7 , 8 , .Names ]
+        157 |-> [ 9 , .Names ]
+        158 |-> 7
+        159 |-> [ 8 , .Names ]
+        160 |-> [ 9 , .Names ]
+        161 |-> 8
+        162 |-> [ .Names ]
+        163 |-> [ 9 , .Names ]
+        164 |-> [ 9 , .Names ]
+        165 |-> 0
+        166 |-> [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , .Names ]
+        167 |-> [ 10 , .Names ]
+        168 |-> 1
+        169 |-> [ 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , .Names ]
+        170 |-> [ 10 , .Names ]
+        171 |-> 2
+        172 |-> [ 3 , 4 , 5 , 6 , 7 , 8 , 9 , .Names ]
+        173 |-> [ 10 , .Names ]
+        174 |-> 3
+        175 |-> [ 4 , 5 , 6 , 7 , 8 , 9 , .Names ]
+        176 |-> [ 10 , .Names ]
+        177 |-> 4
+        178 |-> [ 5 , 6 , 7 , 8 , 9 , .Names ]
+        179 |-> [ 10 , .Names ]
+        180 |-> 5
+        181 |-> [ 6 , 7 , 8 , 9 , .Names ]
+        182 |-> [ 10 , .Names ]
+        183 |-> 6
+        184 |-> [ 7 , 8 , 9 , .Names ]
+        185 |-> [ 10 , .Names ]
+        186 |-> 7
+        187 |-> [ 8 , 9 , .Names ]
+        188 |-> [ 10 , .Names ]
+        189 |-> 8
+        190 |-> [ 9 , .Names ]
+        191 |-> [ 10 , .Names ]
+        192 |-> 9
+        193 |-> [ .Names ]
+        194 |-> [ 10 , .Names ]
+        195 |-> [ 10 , .Names ]
+        196 |-> 10
+        197 |-> 9
+        198 |-> 8
+        199 |-> 7
+        200 |-> 6
+        201 |-> 5
+        202 |-> 4
+        203 |-> 3
+        204 |-> 2
+        205 |-> 1
+        206 |-> 10
+        207 |-> [ 9 , 8 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 , .Names ]
+        208 |-> 0
+        209 |-> [ 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , .Names ]
+        210 |-> 9
+        211 |-> [ 8 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 , .Names ]
+        212 |-> 1
+        213 |-> [ 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , .Names ]
+        214 |-> 8
+        215 |-> [ 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 , .Names ]
+        216 |-> 2
+        217 |-> [ 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , .Names ]
+        218 |-> 7
+        219 |-> [ 6 , 5 , 4 , 3 , 2 , 1 , 0 , .Names ]
+        220 |-> 3
+        221 |-> [ 4 , 5 , 6 , 7 , 8 , 9 , 10 , .Names ]
+        222 |-> 6
+        223 |-> [ 5 , 4 , 3 , 2 , 1 , 0 , .Names ]
+        224 |-> 4
+        225 |-> [ 5 , 6 , 7 , 8 , 9 , 10 , .Names ]
+        226 |-> 5
+        227 |-> [ 4 , 3 , 2 , 1 , 0 , .Names ]
+        228 |-> 5
+        229 |-> [ 6 , 7 , 8 , 9 , 10 , .Names ]
+        230 |-> 4
+        231 |-> [ 3 , 2 , 1 , 0 , .Names ]
+        232 |-> 6
+        233 |-> [ 7 , 8 , 9 , 10 , .Names ]
+        234 |-> 3
+        235 |-> [ 2 , 1 , 0 , .Names ]
+        236 |-> 7
+        237 |-> [ 8 , 9 , 10 , .Names ]
+        238 |-> 2
+        239 |-> [ 1 , 0 , .Names ]
+        240 |-> 8
+        241 |-> [ 9 , 10 , .Names ]
+        242 |-> 1
+        243 |-> [ 0 , .Names ]
+        244 |-> 9
+        245 |-> [ 10 , .Names ]
+        246 |-> 0
+        247 |-> [ .Names ]
+        248 |-> 10
+        249 |-> [ .Names ]
+        250 |-> [ 10 , 0 , 9 , 1 , 8 , 2 , 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        251 |-> 10
+        252 |-> [ 0 , 9 , 1 , 8 , 2 , 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        253 |-> 0
+        254 |-> [ 9 , 1 , 8 , 2 , 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        255 |-> 9
+        256 |-> [ 1 , 8 , 2 , 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        257 |-> 1
+        258 |-> [ 8 , 2 , 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        259 |-> 8
+        260 |-> [ 2 , 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        261 |-> 2
+        262 |-> [ 7 , 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        263 |-> 7
+        264 |-> [ 3 , 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        265 |-> 3
+        266 |-> [ 6 , 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        267 |-> 6
+        268 |-> [ 4 , 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        269 |-> 4
+        270 |-> [ 5 , 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        271 |-> 5
+        272 |-> [ 5 , 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        273 |-> 5
+        274 |-> [ 4 , 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        275 |-> 4
+        276 |-> [ 6 , 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        277 |-> 6
+        278 |-> [ 3 , 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        279 |-> 3
+        280 |-> [ 7 , 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        281 |-> 7
+        282 |-> [ 2 , 8 , 1 , 9 , 0 , 10 , .Names ]
+        283 |-> 2
+        284 |-> [ 8 , 1 , 9 , 0 , 10 , .Names ]
+        285 |-> 8
+        286 |-> [ 1 , 9 , 0 , 10 , .Names ]
+        287 |-> 1
+        288 |-> [ 9 , 0 , 10 , .Names ]
+        289 |-> 9
+        290 |-> [ 0 , 10 , .Names ]
+        291 |-> 0
+        292 |-> [ 10 , .Names ]
+        293 |-> 10
+        294 |-> [ .Names ]
+        295 |-> 10
+        296 |-> Empty
+        297 |-> Empty
+        298 |-> 10
+        299 |-> 0
+        300 |-> 0
+        301 |-> Node ( Empty , 0 , Empty , .Names )
+        302 |-> Empty
+        303 |-> 10
+        304 |-> 9
+        305 |-> Empty
+        306 |-> Empty
+        307 |-> 0
+        308 |-> 9
+        309 |-> 9
+        310 |-> Node ( Empty , 0 , Node ( Empty , 9 , Empty , .Names ) , .Names )
+        311 |-> Empty
+        312 |-> 10
+        313 |-> 1
+        314 |-> Empty
+        315 |-> Node ( Empty , 9 , Empty , .Names )
+        316 |-> 0
+        317 |-> 1
+        318 |-> Empty
+        319 |-> Empty
+        320 |-> 9
+        321 |-> 1
+        322 |-> 1
+        323 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Empty , .Names ) , 9 , Empty , .Names ) , .Names )
+        324 |-> Empty
+        325 |-> 10
+        326 |-> 8
+        327 |-> Empty
+        328 |-> Node ( Node ( Empty , 1 , Empty , .Names ) , 9 , Empty , .Names )
+        329 |-> 0
+        330 |-> 8
+        331 |-> Node ( Empty , 1 , Empty , .Names )
+        332 |-> Empty
+        333 |-> 9
+        334 |-> 8
+        335 |-> Empty
+        336 |-> Empty
+        337 |-> 1
+        338 |-> 8
+        339 |-> 8
+        340 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        341 |-> Empty
+        342 |-> 10
+        343 |-> 2
+        344 |-> Empty
+        345 |-> Node ( Node ( Empty , 1 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        346 |-> 0
+        347 |-> 2
+        348 |-> Node ( Empty , 1 , Node ( Empty , 8 , Empty , .Names ) , .Names )
+        349 |-> Empty
+        350 |-> 9
+        351 |-> 2
+        352 |-> Empty
+        353 |-> Node ( Empty , 8 , Empty , .Names )
+        354 |-> 1
+        355 |-> 2
+        356 |-> Empty
+        357 |-> Empty
+        358 |-> 8
+        359 |-> 2
+        360 |-> 2
+        361 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Empty , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        362 |-> Empty
+        363 |-> 10
+        364 |-> 7
+        365 |-> Empty
+        366 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Empty , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        367 |-> 0
+        368 |-> 7
+        369 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Empty , .Names ) , 8 , Empty , .Names ) , .Names )
+        370 |-> Empty
+        371 |-> 9
+        372 |-> 7
+        373 |-> Empty
+        374 |-> Node ( Node ( Empty , 2 , Empty , .Names ) , 8 , Empty , .Names )
+        375 |-> 1
+        376 |-> 7
+        377 |-> Node ( Empty , 2 , Empty , .Names )
+        378 |-> Empty
+        379 |-> 8
+        380 |-> 7
+        381 |-> Empty
+        382 |-> Empty
+        383 |-> 2
+        384 |-> 7
+        385 |-> 7
+        386 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        387 |-> Empty
+        388 |-> 10
+        389 |-> 3
+        390 |-> Empty
+        391 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        392 |-> 0
+        393 |-> 3
+        394 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        395 |-> Empty
+        396 |-> 9
+        397 |-> 3
+        398 |-> Empty
+        399 |-> Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        400 |-> 1
+        401 |-> 3
+        402 |-> Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Names ) , .Names )
+        403 |-> Empty
+        404 |-> 8
+        405 |-> 3
+        406 |-> Empty
+        407 |-> Node ( Empty , 7 , Empty , .Names )
+        408 |-> 2
+        409 |-> 3
+        410 |-> Empty
+        411 |-> Empty
+        412 |-> 7
+        413 |-> 3
+        414 |-> 3
+        415 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Empty , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        416 |-> Empty
+        417 |-> 10
+        418 |-> 6
+        419 |-> Empty
+        420 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Empty , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        421 |-> 0
+        422 |-> 6
+        423 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Empty , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        424 |-> Empty
+        425 |-> 9
+        426 |-> 6
+        427 |-> Empty
+        428 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Empty , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        429 |-> 1
+        430 |-> 6
+        431 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Empty , .Names ) , 7 , Empty , .Names ) , .Names )
+        432 |-> Empty
+        433 |-> 8
+        434 |-> 6
+        435 |-> Empty
+        436 |-> Node ( Node ( Empty , 3 , Empty , .Names ) , 7 , Empty , .Names )
+        437 |-> 2
+        438 |-> 6
+        439 |-> Node ( Empty , 3 , Empty , .Names )
+        440 |-> Empty
+        441 |-> 7
+        442 |-> 6
+        443 |-> Empty
+        444 |-> Empty
+        445 |-> 3
+        446 |-> 6
+        447 |-> 6
+        448 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        449 |-> Empty
+        450 |-> 10
+        451 |-> 4
+        452 |-> Empty
+        453 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        454 |-> 0
+        455 |-> 4
+        456 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        457 |-> Empty
+        458 |-> 9
+        459 |-> 4
+        460 |-> Empty
+        461 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        462 |-> 1
+        463 |-> 4
+        464 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        465 |-> Empty
+        466 |-> 8
+        467 |-> 4
+        468 |-> Empty
+        469 |-> Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names )
+        470 |-> 2
+        471 |-> 4
+        472 |-> Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Names ) , .Names )
+        473 |-> Empty
+        474 |-> 7
+        475 |-> 4
+        476 |-> Empty
+        477 |-> Node ( Empty , 6 , Empty , .Names )
+        478 |-> 3
+        479 |-> 4
+        480 |-> Empty
+        481 |-> Empty
+        482 |-> 6
+        483 |-> 4
+        484 |-> 4
+        485 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        486 |-> Empty
+        487 |-> 10
+        488 |-> 5
+        489 |-> Empty
+        490 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        491 |-> 0
+        492 |-> 5
+        493 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        494 |-> Empty
+        495 |-> 9
+        496 |-> 5
+        497 |-> Empty
+        498 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        499 |-> 1
+        500 |-> 5
+        501 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        502 |-> Empty
+        503 |-> 8
+        504 |-> 5
+        505 |-> Empty
+        506 |-> Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names )
+        507 |-> 2
+        508 |-> 5
+        509 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names ) , .Names )
+        510 |-> Empty
+        511 |-> 7
+        512 |-> 5
+        513 |-> Empty
+        514 |-> Node ( Node ( Empty , 4 , Empty , .Names ) , 6 , Empty , .Names )
+        515 |-> 3
+        516 |-> 5
+        517 |-> Node ( Empty , 4 , Empty , .Names )
+        518 |-> Empty
+        519 |-> 6
+        520 |-> 5
+        521 |-> Empty
+        522 |-> Empty
+        523 |-> 4
+        524 |-> 5
+        525 |-> 5
+        526 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        527 |-> Empty
+        528 |-> 10
+        529 |-> 5
+        530 |-> Empty
+        531 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        532 |-> 0
+        533 |-> 5
+        534 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        535 |-> Empty
+        536 |-> 9
+        537 |-> 5
+        538 |-> Empty
+        539 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        540 |-> 1
+        541 |-> 5
+        542 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        543 |-> Empty
+        544 |-> 8
+        545 |-> 5
+        546 |-> Empty
+        547 |-> Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names )
+        548 |-> 2
+        549 |-> 5
+        550 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names )
+        551 |-> Empty
+        552 |-> 7
+        553 |-> 5
+        554 |-> Empty
+        555 |-> Node ( Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , 6 , Empty , .Names )
+        556 |-> 3
+        557 |-> 5
+        558 |-> Node ( Empty , 4 , Node ( Empty , 5 , Empty , .Names ) , .Names )
+        559 |-> Empty
+        560 |-> 6
+        561 |-> 5
+        562 |-> Empty
+        563 |-> Node ( Empty , 5 , Empty , .Names )
+        564 |-> 4
+        565 |-> 5
+        566 |-> Empty
+        567 |-> Empty
+        568 |-> 5
+        569 |-> 5
+        570 |-> 5
+        571 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        572 |-> Empty
+        573 |-> 10
+        574 |-> 4
+        575 |-> Empty
+        576 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        577 |-> 0
+        578 |-> 4
+        579 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        580 |-> Empty
+        581 |-> 9
+        582 |-> 4
+        583 |-> Empty
+        584 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        585 |-> 1
+        586 |-> 4
+        587 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        588 |-> Empty
+        589 |-> 8
+        590 |-> 4
+        591 |-> Empty
+        592 |-> Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names )
+        593 |-> 2
+        594 |-> 4
+        595 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names )
+        596 |-> Empty
+        597 |-> 7
+        598 |-> 4
+        599 |-> Empty
+        600 |-> Node ( Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names )
+        601 |-> 3
+        602 |-> 4
+        603 |-> Node ( Empty , 4 , Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names )
+        604 |-> Empty
+        605 |-> 6
+        606 |-> 4
+        607 |-> Empty
+        608 |-> Node ( Empty , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names )
+        609 |-> 4
+        610 |-> 4
+        611 |-> Empty
+        612 |-> Node ( Empty , 5 , Empty , .Names )
+        613 |-> 5
+        614 |-> 4
+        615 |-> 4
+        616 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        617 |-> Empty
+        618 |-> 10
+        619 |-> 6
+        620 |-> Empty
+        621 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        622 |-> 0
+        623 |-> 6
+        624 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        625 |-> Empty
+        626 |-> 9
+        627 |-> 6
+        628 |-> Empty
+        629 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        630 |-> 1
+        631 |-> 6
+        632 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        633 |-> Empty
+        634 |-> 8
+        635 |-> 6
+        636 |-> Empty
+        637 |-> Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names ) , 7 , Empty , .Names )
+        638 |-> 2
+        639 |-> 6
+        640 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names ) , .Names )
+        641 |-> Empty
+        642 |-> 7
+        643 |-> 6
+        644 |-> Empty
+        645 |-> Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Empty , .Names )
+        646 |-> 3
+        647 |-> 6
+        648 |-> Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names )
+        649 |-> Empty
+        650 |-> 6
+        651 |-> 6
+        652 |-> 6
+        653 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        654 |-> Empty
+        655 |-> 10
+        656 |-> 3
+        657 |-> Empty
+        658 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        659 |-> 0
+        660 |-> 3
+        661 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        662 |-> Empty
+        663 |-> 9
+        664 |-> 3
+        665 |-> Empty
+        666 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        667 |-> 1
+        668 |-> 3
+        669 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        670 |-> Empty
+        671 |-> 8
+        672 |-> 3
+        673 |-> Empty
+        674 |-> Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names )
+        675 |-> 2
+        676 |-> 3
+        677 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names )
+        678 |-> Empty
+        679 |-> 7
+        680 |-> 3
+        681 |-> Empty
+        682 |-> Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names )
+        683 |-> 3
+        684 |-> 3
+        685 |-> Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names )
+        686 |-> Node ( Empty , 6 , Empty , .Names )
+        687 |-> 6
+        688 |-> 3
+        689 |-> Empty
+        690 |-> Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names )
+        691 |-> 4
+        692 |-> 3
+        693 |-> 3
+        694 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        695 |-> Empty
+        696 |-> 10
+        697 |-> 7
+        698 |-> Empty
+        699 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        700 |-> 0
+        701 |-> 7
+        702 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        703 |-> Empty
+        704 |-> 9
+        705 |-> 7
+        706 |-> Empty
+        707 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names ) , 8 , Empty , .Names )
+        708 |-> 1
+        709 |-> 7
+        710 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names ) , .Names )
+        711 |-> Empty
+        712 |-> 8
+        713 |-> 7
+        714 |-> Empty
+        715 |-> Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Empty , .Names )
+        716 |-> 2
+        717 |-> 7
+        718 |-> Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names )
+        719 |-> Empty
+        720 |-> 7
+        721 |-> 7
+        722 |-> 7
+        723 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        724 |-> Empty
+        725 |-> 10
+        726 |-> 2
+        727 |-> Empty
+        728 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        729 |-> 0
+        730 |-> 2
+        731 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        732 |-> Empty
+        733 |-> 9
+        734 |-> 2
+        735 |-> Empty
+        736 |-> Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names )
+        737 |-> 1
+        738 |-> 2
+        739 |-> Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names )
+        740 |-> Empty
+        741 |-> 8
+        742 |-> 2
+        743 |-> Empty
+        744 |-> Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names )
+        745 |-> 2
+        746 |-> 2
+        747 |-> Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names )
+        748 |-> Node ( Empty , 7 , Empty , .Names )
+        749 |-> 7
+        750 |-> 2
+        751 |-> Empty
+        752 |-> Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names )
+        753 |-> 3
+        754 |-> 2
+        755 |-> 2
+        756 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        757 |-> Empty
+        758 |-> 10
+        759 |-> 8
+        760 |-> Empty
+        761 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names ) , 9 , Empty , .Names )
+        762 |-> 0
+        763 |-> 8
+        764 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names ) , .Names )
+        765 |-> Empty
+        766 |-> 9
+        767 |-> 8
+        768 |-> Empty
+        769 |-> Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Empty , .Names )
+        770 |-> 1
+        771 |-> 8
+        772 |-> Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names )
+        773 |-> Empty
+        774 |-> 8
+        775 |-> 8
+        776 |-> 8
+        777 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        778 |-> Empty
+        779 |-> 10
+        780 |-> 1
+        781 |-> Empty
+        782 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Empty , .Names )
+        783 |-> 0
+        784 |-> 1
+        785 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names )
+        786 |-> Empty
+        787 |-> 9
+        788 |-> 1
+        789 |-> Empty
+        790 |-> Node ( Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names )
+        791 |-> 1
+        792 |-> 1
+        793 |-> Node ( Empty , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names )
+        794 |-> Node ( Empty , 8 , Empty , .Names )
+        795 |-> 8
+        796 |-> 1
+        797 |-> Empty
+        798 |-> Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names )
+        799 |-> 2
+        800 |-> 1
+        801 |-> 1
+        802 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Empty , .Names ) , .Names )
+        803 |-> Empty
+        804 |-> 10
+        805 |-> 9
+        806 |-> Empty
+        807 |-> Node ( Node ( Empty , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Empty , .Names )
+        808 |-> 0
+        809 |-> 9
+        810 |-> Node ( Empty , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names )
+        811 |-> Empty
+        812 |-> 9
+        813 |-> 9
+        814 |-> 9
+        815 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Node ( Empty , 9 , Empty , .Names ) , .Names ) , .Names )
+        816 |-> Empty
+        817 |-> 10
+        818 |-> 0
+        819 |-> Empty
+        820 |-> Node ( Node ( Empty , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Node ( Empty , 9 , Empty , .Names ) , .Names )
+        821 |-> 0
+        822 |-> 0
+        823 |-> Node ( Empty , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names )
+        824 |-> Node ( Empty , 9 , Empty , .Names )
+        825 |-> 9
+        826 |-> 0
+        827 |-> Empty
+        828 |-> Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names )
+        829 |-> 1
+        830 |-> 0
+        831 |-> 0
+        832 |-> Node ( Empty , 0 , Node ( Node ( Node ( Empty , 0 , Empty , .Names ) , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Node ( Empty , 9 , Empty , .Names ) , .Names ) , .Names )
+        833 |-> Empty
+        834 |-> 10
+        835 |-> 10
+        836 |-> 10
+        837 |-> Node ( Empty , 0 , Node ( Node ( Node ( Empty , 0 , Empty , .Names ) , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Node ( Empty , 9 , Empty , .Names ) , .Names ) , .Names )
+        838 |-> 10
+        839 |-> Node ( Empty , 10 , Empty , .Names )
+        840 |-> Empty
+        841 |-> 10
+        842 |-> Empty
+        843 |-> [ 10 , .Names ]
+        844 |-> Empty
+        845 |-> 0
+        846 |-> Node ( Node ( Node ( Empty , 0 , Empty , .Names ) , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names ) , 9 , Node ( Empty , 9 , Empty , .Names ) , .Names )
+        847 |-> Node ( Node ( Empty , 0 , Empty , .Names ) , 1 , Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names ) , .Names )
+        848 |-> 9
+        849 |-> Node ( Empty , 9 , Empty , .Names )
+        850 |-> Empty
+        851 |-> 9
+        852 |-> Empty
+        853 |-> [ 9 , .Names ]
+        854 |-> Node ( Empty , 0 , Empty , .Names )
+        855 |-> 1
+        856 |-> Node ( Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names ) , 8 , Node ( Empty , 8 , Empty , .Names ) , .Names )
+        857 |-> Node ( Node ( Empty , 1 , Empty , .Names ) , 2 , Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names ) , .Names )
+        858 |-> 8
+        859 |-> Node ( Empty , 8 , Empty , .Names )
+        860 |-> Empty
+        861 |-> 8
+        862 |-> Empty
+        863 |-> [ 8 , .Names ]
+        864 |-> Node ( Empty , 1 , Empty , .Names )
+        865 |-> 2
+        866 |-> Node ( Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names ) , 7 , Node ( Empty , 7 , Empty , .Names ) , .Names )
+        867 |-> Node ( Node ( Empty , 2 , Empty , .Names ) , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names ) , .Names )
+        868 |-> 7
+        869 |-> Node ( Empty , 7 , Empty , .Names )
+        870 |-> Empty
+        871 |-> 7
+        872 |-> Empty
+        873 |-> [ 7 , .Names ]
+        874 |-> Node ( Empty , 2 , Empty , .Names )
+        875 |-> 3
+        876 |-> Node ( Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names ) , 6 , Node ( Empty , 6 , Empty , .Names ) , .Names )
+        877 |-> Node ( Node ( Empty , 3 , Empty , .Names ) , 4 , Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names ) , .Names )
+        878 |-> 6
+        879 |-> Node ( Empty , 6 , Empty , .Names )
+        880 |-> Empty
+        881 |-> 6
+        882 |-> Empty
+        883 |-> [ 6 , .Names ]
+        884 |-> Node ( Empty , 3 , Empty , .Names )
+        885 |-> 4
+        886 |-> Node ( Node ( Empty , 4 , Empty , .Names ) , 5 , Node ( Empty , 5 , Empty , .Names ) , .Names )
+        887 |-> Node ( Empty , 4 , Empty , .Names )
+        888 |-> 5
+        889 |-> Node ( Empty , 5 , Empty , .Names )
+        890 |-> Empty
+        891 |-> 5
+        892 |-> Empty
+        893 |-> [ 5 , .Names ]
+        894 |-> Empty
+        895 |-> 4
+        896 |-> Empty
+        897 |-> [ 4 , .Names ]
+        898 |-> 4
+        899 |-> [ .Names ]
+        900 |-> [ 5 , 5 , .Names ]
+        901 |-> [ 5 , 5 , .Names ]
+        902 |-> Empty
+        903 |-> 3
+        904 |-> Empty
+        905 |-> [ 3 , .Names ]
+        906 |-> 3
+        907 |-> [ .Names ]
+        908 |-> [ 4 , 4 , 5 , 5 , .Names ]
+        909 |-> [ 4 , 4 , 5 , 5 , .Names ]
+        910 |-> 3
+        911 |-> [ 4 , 4 , 5 , 5 , .Names ]
+        912 |-> [ 6 , 6 , .Names ]
+        913 |-> 4
+        914 |-> [ 4 , 5 , 5 , .Names ]
+        915 |-> [ 6 , 6 , .Names ]
+        916 |-> 4
+        917 |-> [ 5 , 5 , .Names ]
+        918 |-> [ 6 , 6 , .Names ]
+        919 |-> 5
+        920 |-> [ 5 , .Names ]
+        921 |-> [ 6 , 6 , .Names ]
+        922 |-> 5
+        923 |-> [ .Names ]
+        924 |-> [ 6 , 6 , .Names ]
+        925 |-> [ 6 , 6 , .Names ]
+        926 |-> Empty
+        927 |-> 2
+        928 |-> Empty
+        929 |-> [ 2 , .Names ]
+        930 |-> 2
+        931 |-> [ .Names ]
+        932 |-> [ 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , .Names ]
+        933 |-> [ 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , .Names ]
+        934 |-> 2
+        935 |-> [ 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , .Names ]
+        936 |-> [ 7 , 7 , .Names ]
+        937 |-> 3
+        938 |-> [ 3 , 4 , 4 , 5 , 5 , 6 , 6 , .Names ]
+        939 |-> [ 7 , 7 , .Names ]
+        940 |-> 3
+        941 |-> [ 4 , 4 , 5 , 5 , 6 , 6 , .Names ]
+        942 |-> [ 7 , 7 , .Names ]
+        943 |-> 4
+        944 |-> [ 4 , 5 , 5 , 6 , 6 , .Names ]
+        945 |-> [ 7 , 7 , .Names ]
+        946 |-> 4
+        947 |-> [ 5 , 5 , 6 , 6 , .Names ]
+        948 |-> [ 7 , 7 , .Names ]
+        949 |-> 5
+        950 |-> [ 5 , 6 , 6 , .Names ]
+        951 |-> [ 7 , 7 , .Names ]
+        952 |-> 5
+        953 |-> [ 6 , 6 , .Names ]
+        954 |-> [ 7 , 7 , .Names ]
+        955 |-> 6
+        956 |-> [ 6 , .Names ]
+        957 |-> [ 7 , 7 , .Names ]
+        958 |-> 6
+        959 |-> [ .Names ]
+        960 |-> [ 7 , 7 , .Names ]
+        961 |-> [ 7 , 7 , .Names ]
+        962 |-> Empty
+        963 |-> 1
+        964 |-> Empty
+        965 |-> [ 1 , .Names ]
+        966 |-> 1
+        967 |-> [ .Names ]
+        968 |-> [ 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        969 |-> [ 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        970 |-> 1
+        971 |-> [ 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        972 |-> [ 8 , 8 , .Names ]
+        973 |-> 2
+        974 |-> [ 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        975 |-> [ 8 , 8 , .Names ]
+        976 |-> 2
+        977 |-> [ 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        978 |-> [ 8 , 8 , .Names ]
+        979 |-> 3
+        980 |-> [ 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        981 |-> [ 8 , 8 , .Names ]
+        982 |-> 3
+        983 |-> [ 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        984 |-> [ 8 , 8 , .Names ]
+        985 |-> 4
+        986 |-> [ 4 , 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        987 |-> [ 8 , 8 , .Names ]
+        988 |-> 4
+        989 |-> [ 5 , 5 , 6 , 6 , 7 , 7 , .Names ]
+        990 |-> [ 8 , 8 , .Names ]
+        991 |-> 5
+        992 |-> [ 5 , 6 , 6 , 7 , 7 , .Names ]
+        993 |-> [ 8 , 8 , .Names ]
+        994 |-> 5
+        995 |-> [ 6 , 6 , 7 , 7 , .Names ]
+        996 |-> [ 8 , 8 , .Names ]
+        997 |-> 6
+        998 |-> [ 6 , 7 , 7 , .Names ]
+        999 |-> [ 8 , 8 , .Names ]
+        1000 |-> 6
+        1001 |-> [ 7 , 7 , .Names ]
+        1002 |-> [ 8 , 8 , .Names ]
+        1003 |-> 7
+        1004 |-> [ 7 , .Names ]
+        1005 |-> [ 8 , 8 , .Names ]
+        1006 |-> 7
+        1007 |-> [ .Names ]
+        1008 |-> [ 8 , 8 , .Names ]
+        1009 |-> [ 8 , 8 , .Names ]
+        1010 |-> Empty
+        1011 |-> 0
+        1012 |-> Empty
+        1013 |-> [ 0 , .Names ]
+        1014 |-> 0
+        1015 |-> [ .Names ]
+        1016 |-> [ 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1017 |-> [ 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1018 |-> 0
+        1019 |-> [ 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1020 |-> [ 9 , 9 , .Names ]
+        1021 |-> 1
+        1022 |-> [ 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1023 |-> [ 9 , 9 , .Names ]
+        1024 |-> 1
+        1025 |-> [ 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1026 |-> [ 9 , 9 , .Names ]
+        1027 |-> 2
+        1028 |-> [ 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1029 |-> [ 9 , 9 , .Names ]
+        1030 |-> 2
+        1031 |-> [ 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1032 |-> [ 9 , 9 , .Names ]
+        1033 |-> 3
+        1034 |-> [ 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1035 |-> [ 9 , 9 , .Names ]
+        1036 |-> 3
+        1037 |-> [ 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1038 |-> [ 9 , 9 , .Names ]
+        1039 |-> 4
+        1040 |-> [ 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1041 |-> [ 9 , 9 , .Names ]
+        1042 |-> 4
+        1043 |-> [ 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1044 |-> [ 9 , 9 , .Names ]
+        1045 |-> 5
+        1046 |-> [ 5 , 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1047 |-> [ 9 , 9 , .Names ]
+        1048 |-> 5
+        1049 |-> [ 6 , 6 , 7 , 7 , 8 , 8 , .Names ]
+        1050 |-> [ 9 , 9 , .Names ]
+        1051 |-> 6
+        1052 |-> [ 6 , 7 , 7 , 8 , 8 , .Names ]
+        1053 |-> [ 9 , 9 , .Names ]
+        1054 |-> 6
+        1055 |-> [ 7 , 7 , 8 , 8 , .Names ]
+        1056 |-> [ 9 , 9 , .Names ]
+        1057 |-> 7
+        1058 |-> [ 7 , 8 , 8 , .Names ]
+        1059 |-> [ 9 , 9 , .Names ]
+        1060 |-> 7
+        1061 |-> [ 8 , 8 , .Names ]
+        1062 |-> [ 9 , 9 , .Names ]
+        1063 |-> 8
+        1064 |-> [ 8 , .Names ]
+        1065 |-> [ 9 , 9 , .Names ]
+        1066 |-> 8
+        1067 |-> [ .Names ]
+        1068 |-> [ 9 , 9 , .Names ]
+        1069 |-> [ 9 , 9 , .Names ]
+        1070 |-> [ 0 , 0 , 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1071 |-> 0
+        1072 |-> [ 0 , 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1073 |-> [ 10 , 10 , .Names ]
+        1074 |-> 0
+        1075 |-> [ 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1076 |-> [ 10 , 10 , .Names ]
+        1077 |-> 1
+        1078 |-> [ 1 , 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1079 |-> [ 10 , 10 , .Names ]
+        1080 |-> 1
+        1081 |-> [ 2 , 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1082 |-> [ 10 , 10 , .Names ]
+        1083 |-> 2
+        1084 |-> [ 2 , 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1085 |-> [ 10 , 10 , .Names ]
+        1086 |-> 2
+        1087 |-> [ 3 , 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1088 |-> [ 10 , 10 , .Names ]
+        1089 |-> 3
+        1090 |-> [ 3 , 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1091 |-> [ 10 , 10 , .Names ]
+        1092 |-> 3
+        1093 |-> [ 4 , 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1094 |-> [ 10 , 10 , .Names ]
+        1095 |-> 4
+        1096 |-> [ 4 , 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1097 |-> [ 10 , 10 , .Names ]
+        1098 |-> 4
+        1099 |-> [ 5 , 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1100 |-> [ 10 , 10 , .Names ]
+        1101 |-> 5
+        1102 |-> [ 5 , 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1103 |-> [ 10 , 10 , .Names ]
+        1104 |-> 5
+        1105 |-> [ 6 , 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1106 |-> [ 10 , 10 , .Names ]
+        1107 |-> 6
+        1108 |-> [ 6 , 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1109 |-> [ 10 , 10 , .Names ]
+        1110 |-> 6
+        1111 |-> [ 7 , 7 , 8 , 8 , 9 , 9 , .Names ]
+        1112 |-> [ 10 , 10 , .Names ]
+        1113 |-> 7
+        1114 |-> [ 7 , 8 , 8 , 9 , 9 , .Names ]
+        1115 |-> [ 10 , 10 , .Names ]
+        1116 |-> 7
+        1117 |-> [ 8 , 8 , 9 , 9 , .Names ]
+        1118 |-> [ 10 , 10 , .Names ]
+        1119 |-> 8
+        1120 |-> [ 8 , 9 , 9 , .Names ]
+        1121 |-> [ 10 , 10 , .Names ]
+        1122 |-> 8
+        1123 |-> [ 9 , 9 , .Names ]
+        1124 |-> [ 10 , 10 , .Names ]
+        1125 |-> 9
+        1126 |-> [ 9 , .Names ]
+        1127 |-> [ 10 , 10 , .Names ]
+        1128 |-> 9
+        1129 |-> [ .Names ]
+        1130 |-> [ 10 , 10 , .Names ]
+        1131 |-> [ 10 , 10 , .Names ]
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>
