@@ -161,7 +161,7 @@ whenever the list is on a position which can be evaluated:
 ```k
     syntax Exp ::= Int | Bool | String | Name
                  | "(" Exp ")"                       [bracket]
-    syntax Exps  ::= List{Exp,","}                   [strict]
+    syntax Exps  ::= List{Exp,","}                   [seqstrict]
     syntax Val
     syntax Vals ::= List{Val,","}
 ```
@@ -173,25 +173,25 @@ syntax priirities later (at the end of the syntax module).
 
 ```k
     syntax Exp ::= left:
-                   Exp "*" Exp                       [strict, arith]
-                 | Exp "/" Exp                       [strict, arith]
-                 | Exp "%" Exp                       [strict, arith]
+                   Exp "*" Exp                       [seqstrict, arith]
+                 | Exp "/" Exp                       [seqstrict, arith]
+                 | Exp "%" Exp                       [seqstrict, arith]
                  > left:
-                   Exp "+" Exp                       [strict, left, arith]
-                 | Exp "^" Exp                       [strict, left, arith]
+                   Exp "+" Exp                       [seqstrict, left, arith]
+                 | Exp "^" Exp                       [seqstrict, left, arith]
   // left attribute should not be necessary; currently a parsing bug
-                 | Exp "-" Exp                       [strict, prefer, arith]
+                 | Exp "-" Exp                       [seqstrict, prefer, arith]
   // the "prefer" attribute above is to not parse x-1 as x(-1)
   // Due to some parsing problems, we currently cannot add unary minus:
-                 | "-" Exp                           [strict, arith]
+                 | "-" Exp                           [seqstrict, arith]
                  > non-assoc:
-                   Exp "<" Exp                       [strict, arith]
-                 | Exp "<=" Exp                      [strict, arith]
-                 | Exp ">" Exp                       [strict, arith]
-                 | Exp ">=" Exp                      [strict, arith]
-                 | Exp "==" Exp                      [strict, arith]
-                 | Exp "!=" Exp                      [strict, arith]
-                 > "!" Exp                           [strict, arith]
+                   Exp "<" Exp                       [seqstrict, arith]
+                 | Exp "<=" Exp                      [seqstrict, arith]
+                 | Exp ">" Exp                       [seqstrict, arith]
+                 | Exp ">=" Exp                      [seqstrict, arith]
+                 | Exp "==" Exp                      [seqstrict, arith]
+                 | Exp "!=" Exp                      [seqstrict, arith]
+                 > "!" Exp                           [seqstrict, arith]
                  > Exp "&&" Exp                      [strict(1), left, arith]
                  > Exp "||" Exp                      [strict(1), left, arith]
 ```
@@ -219,7 +219,7 @@ although we will make sure that we do not give them semantics if they
 appear in any other place then in a function case pattern.
 
 ```k
-    syntax Exp ::= "[" Exps "]"                             [strict]
+    syntax Exp ::= "[" Exps "]"                             [seqstrict]
                  | "cons" | "head" | "tail" | "null?"
                  | "[" Exps "|" Exp "]"
     syntax Val ::= "[" Vals "]"
@@ -259,7 +259,7 @@ correctness. Again, the type system will reject type-incorrect programs.
 
 ```k
     syntax Exp ::= "fun" Cases
-                 | Exp Exp                              [strict, left]
+                 | Exp Exp                              [seqstrict, left]
   // NOTE: We would like eventually to also have Exp "(" Exps ")
     syntax Case  ::= Exp "->" Exp
     syntax Cases ::= List{Case, "|"}
@@ -301,8 +301,8 @@ evaluated only for its side effects.
 ```k
     syntax Exp ::= "ref"
                  | "&" Name
-                 | "@" Exp                                     [strict]
-                 | Exp ":=" Exp                                [strict]
+                 | "@" Exp                                     [seqstrict]
+                 | Exp ":=" Exp                                [seqstrict]
                  | Exp ";" Exp                       [strict(1), right]
 ```
 
