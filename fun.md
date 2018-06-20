@@ -701,7 +701,10 @@ itself).
 
     rule <k> letrec BS in E => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
-      [tag(letRecursive)]
+
+    syntax Exp ::= muclosure ( Map , Cases )
+    rule <k> muclosure(M, CASES) => closure(M, CASES) ... </k>
+      [tag(recCall)]
 ```
 
 Recall that our syntax allows `let` and `letrec` to take any
@@ -818,9 +821,13 @@ discussed the `let` and `letrec` language constructs above.
     syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
  // ------------------------------------------------------
     rule <k> assignTo(.Names, .Vals) => . ... </k>
+    rule <k> assignTo((X:Name, XS), (closure(MAP, CASES), VS)) => assignTo(XS, VS) ... </k>
+         <env> ... X |-> L ... </env>
+         <store> ... .Map => L |-> muclosure(MAP, CASES) ... </store>
     rule <k> assignTo((X:Name, XS), (V:Val, VS)) => assignTo(XS, VS) ... </k>
          <env> ... X |-> L ... </env>
          <store> ... .Map => L |-> V ... </store>
+      [owise]
 ```
 
 ### Getters

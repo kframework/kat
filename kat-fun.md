@@ -38,7 +38,7 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 ```k
     rule #normal => ^ lookup | ^ assignment
     rule #branch => ^ iftrue | ^ iffalse
-    rule #loop   => ^ letRecursive
+    rule #loop   => ^ recCall
 ```
 
 ### Define `bool?`
