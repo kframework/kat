@@ -62,7 +62,14 @@ module FUN-SBC
 ### Define `abstract`
 
 ```k
-    rule <s> abstract [ STATE ] => pop STATE ... </s>
+    syntax Strategy ::= "#abstract" Map State
+ // -----------------------------------------
+    rule <s> abstract [ <FUN> <k> KCELL </k> <env> ENV </env> <store> STORE </store> </FUN> ] => #abstract STORE <FUN> <k> KCELL </k> <env> ENV </env> <store> STORE </store> </FUN> ... </s>
+    rule <s> #abstract .Map STATE                                                             => pop STATE                                                                           ... </s>
+
+    rule <s> #abstract ((X |-> I:Int           => .Map) XS) <FUN> <store> STORE => STORE[X <- ?V:Int] </store> ... </FUN> ... </s>
+    rule <s> #abstract ((X |-> closure(_, _)   => .Map) XS) _                                                             ... </s>
+    rule <s> #abstract ((X |-> muclosure(_, _) => .Map) XS) _                                                             ... </s>
 ```
 
 ### Define `_subsumes?_`
