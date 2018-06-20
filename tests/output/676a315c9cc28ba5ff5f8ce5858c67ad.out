@@ -3,7 +3,7 @@ Strategy: step-with skip ; step 6 ; bimc 5000 (not can? (^ divzero))
 ================================================================================
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #false in 2826 steps ~> ^ regular *
+    #STUCK ( ) ~> #bimc-result #false in 2826 steps
   </s>
   <kat>
     <analysis>
