@@ -130,8 +130,8 @@ $(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
 # Testing
 # -------
 
-test_imp_files:=$(wildcard $(test_dir)/*.imp)
-test_fun_files:=$(wildcard $(test_dir)/*.fun)
+test_imp_files:=$(wildcard $(test_dir)/imp/*.imp)
+test_fun_files:=$(wildcard $(test_dir)/fun/*.fun)
 
 TEST=./kat test
 
@@ -139,14 +139,11 @@ test: test-imp test-fun
 test-imp: $(test_imp_files:=.test)
 test-fun: $(test_fun_files:=.test)
 
-$(test_dir)/%.imp.test:
-	$(TEST) $(test_dir)/$*.imp $(test_dir)/$*.strat
+%.imp.test:
+	$(TEST) $*.imp $*.strat
 
-$(test_dir)/%.fun.test:
-	$(TEST) $(test_dir)/$*.fun $(test_dir)/$*.strat
-
-$(test_dir)/%.expected:
-	mkdir -p $@
+%.fun.test:
+	$(TEST) $*.fun $*.strat
 
 # SBC Benchmarking
 # ----------------
