@@ -874,14 +874,16 @@ of expressions in a binding, respectively.
     rule getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS)
     rule getMatching(C:ConstructorName, C)                   => matchResult(.Map)
     rule getMatching(B:Bool, B)                              => matchResult(.Map)
-    rule getMatching(I:Int, I)                               => matchResult(.Map)
+    rule getMatching(I:Int, I')                              => matchResult(.Map) requires I ==Int I'
+    rule getMatching(I:Int, I')                              => matchFailure      requires I =/=Int I'
     rule getMatching(S:String, S)                            => matchResult(.Map)
     rule getMatching(N:Name, V:Val)                          => matchResult(N |-> V)
-    rule getMatching(_, _)                                   => matchFailure            [owise]
+
+    // rule getMatching(_, _)                                   => matchFailure            [owise]
 
     rule getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(ES, VS))
     rule getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)
-    rule getMatchingAux(_, _)                               => matchFailure             [owise]
+    // rule getMatchingAux(_, _)                               => matchFailure             [owise]
 
     rule mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2) requires intersectSet(keys(M1), keys(M2)) ==K .Set
     rule mergeMatching(matchResult(_:Map), matchFailure)         => matchFailure
