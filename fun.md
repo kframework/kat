@@ -639,8 +639,9 @@ be used at execution time to lookup all the variables that appear free
 in the function body (we want static scoping in FUN).
 
 ```k
-    syntax Val ::= closure ( Map , Cases )
- // --------------------------------------
+    syntax Val ::= ClosureVal
+    syntax ClosureVal ::= closure ( Map , Cases )
+ // ---------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
 ```
@@ -832,10 +833,11 @@ discussed the `let` and `letrec` language constructs above.
     rule <k> assignTo((X:Name, XS), (closure(MAP, CASES), VS)) => assignTo(XS, VS) ... </k>
          <env> ... X |-> L ... </env>
          <store> ... .Map => L |-> muclosure(MAP, CASES) ... </store>
+
     rule <k> assignTo((X:Name, XS), (V:Val, VS)) => assignTo(XS, VS) ... </k>
          <env> ... X |-> L ... </env>
          <store> ... .Map => L |-> V ... </store>
-      [owise]
+      requires notBool isClosureVal(V)
 ```
 
 ### Getters
