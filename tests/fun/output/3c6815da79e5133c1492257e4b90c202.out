@@ -1,0 +1,29 @@
+Program:  simple-case.fun
+Strategy: (#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; ^ caseSuccess
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        bindMap ( n |-> V0 ) ~> n - 1 ~> setEnv ( f |-> 1 ) ~> setEnv ( .Map )
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

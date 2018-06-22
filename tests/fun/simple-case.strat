@@ -1,0 +1,5 @@
+(#normal | ^ regular) * ; ^ caseSuccess
+(#normal | ^ regular) * ; ^ caseFailure
+(#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; ^ caseSuccess
+(#normal | ^ regular) * ; which-can? (^ caseSuccess | ^ caseFailure)
+(#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; which-can? (^ caseSuccess | ^ caseFailure)
