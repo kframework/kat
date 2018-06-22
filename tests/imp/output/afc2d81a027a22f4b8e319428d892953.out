@@ -1,4 +1,4 @@
-Program:  tests/dead-if.imp
+Program:  dead-if.imp
 Strategy: exec-to-branch
 ================================================================================
 <kat-imp>

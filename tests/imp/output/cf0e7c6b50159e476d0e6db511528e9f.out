@@ -1,4 +1,4 @@
-Program:  tests/simple-while.imp
+Program:  simple-while.imp
 Strategy: (#normal | ^ regular) until ^ whileIMP
 ================================================================================
 <kat-imp>

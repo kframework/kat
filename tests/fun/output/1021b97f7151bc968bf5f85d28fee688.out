@@ -1,4 +1,4 @@
-Program:  tests/constructor-tree-mirror.fun
+Program:  constructor-tree-mirror.fun
 Strategy: exec
 ================================================================================
 <kat-FUN>
@@ -23,17 +23,17 @@ Strategy: exec
       </env>
       <store>
         1 |-> closure ( mirror |-> 1 , Leaf ( n , .Names ) -> Leaf ( n , .Names ) | Tree ( left , right , .Names ) -> Tree ( mirror right , mirror left , .Names ) | .Cases )
-        2 |-> Tree ( Leaf ( 3 , .Names ) , Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names ) , .Names )
-        3 |-> Tree ( Leaf ( 1 , .Names ) , Leaf ( 2 , .Names ) , .Names )
-        4 |-> Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names )
-        5 |-> Leaf ( 3 , .Names )
-        6 |-> Leaf ( 5 , .Names )
-        7 |-> Leaf ( 4 , .Names )
+        2 |-> Tree ( Leaf ( 1 , .Names ) , Leaf ( 2 , .Names ) , .Names )
+        3 |-> Tree ( Leaf ( 3 , .Names ) , Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names ) , .Names )
+        4 |-> Leaf ( 3 , .Names )
+        5 |-> Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names )
+        6 |-> Leaf ( 4 , .Names )
+        7 |-> Leaf ( 5 , .Names )
         8 |-> 5
         9 |-> 4
         10 |-> 3
-        11 |-> Leaf ( 2 , .Names )
-        12 |-> Leaf ( 1 , .Names )
+        11 |-> Leaf ( 1 , .Names )
+        12 |-> Leaf ( 2 , .Names )
         13 |-> 2
         14 |-> 1
       </store>

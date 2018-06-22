@@ -1,4 +1,4 @@
-Program:  tests/references-2.fun
+Program:  references-2.fun
 Strategy: exec
 ================================================================================
 <kat-FUN>
@@ -23,8 +23,8 @@ Strategy: exec
       </env>
       <store>
         1 |-> 5
-        2 |-> 1
-        3 |-> closure ( .Map , x -> ( fun ( y -> x := @ x + 2 ; y := @ y + 3 ) | .Cases ) | .Cases )
+        2 |-> closure ( .Map , x -> ( fun ( y -> x := @ x + 2 ; y := @ y + 3 ) | .Cases ) | .Cases )
+        3 |-> 1
         4 |-> 1
         5 |-> 1
       </store>

@@ -1,4 +1,4 @@
-Program:  tests/long-loop.imp
+Program:  long-loop.imp
 Strategy: compile
 ================================================================================
 <kat-imp>

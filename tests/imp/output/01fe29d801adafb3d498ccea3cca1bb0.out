@@ -1,4 +1,4 @@
-Program:  tests/straight-line-2.imp
+Program:  straight-line-2.imp
 Strategy: step-with skip ; step ; bimc 2   (bexp? x <= 7)
 ================================================================================
 <kat-imp>

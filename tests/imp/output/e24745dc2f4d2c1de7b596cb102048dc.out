@@ -1,4 +1,4 @@
-Program:  tests/div-zero.imp
+Program:  div-zero.imp
 Strategy: exec-to-branch
 ================================================================================
 <kat-imp>

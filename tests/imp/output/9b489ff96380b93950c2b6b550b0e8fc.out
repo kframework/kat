@@ -1,4 +1,4 @@
-Program:  tests/live-if.imp
+Program:  live-if.imp
 Strategy: step 2 ; which-can? (^ iftrue | ^ iffalse)
 ================================================================================
 <kat-imp>

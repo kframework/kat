@@ -1,4 +1,4 @@
-Program:  tests/krazy-loop-incorrect.imp
+Program:  krazy-loop-incorrect.imp
 Strategy: step-with skip ; step 6 ; bimc 2825 (not can? (^ divzero))
 ================================================================================
 <kat-imp>

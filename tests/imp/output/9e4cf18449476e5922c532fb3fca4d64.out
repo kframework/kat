@@ -1,4 +1,4 @@
-Program:  tests/sum.imp
+Program:  sum.imp
 Strategy: exec-to-branch
 ================================================================================
 <kat-imp>

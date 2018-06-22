@@ -1,4 +1,4 @@
-Program:  tests/sum-symbolic.imp
+Program:  sum-symbolic.imp
 Strategy: exec-to-branch
 ================================================================================
 <kat-imp>

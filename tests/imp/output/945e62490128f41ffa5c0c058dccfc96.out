@@ -1,4 +1,4 @@
-Program:  tests/if-div-zero.imp
+Program:  if-div-zero.imp
 Strategy: (#normal | ^ regular) until (^ divzero | ^ divnonzero)
 ================================================================================
 <kat-imp>

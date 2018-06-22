@@ -1,4 +1,4 @@
-Program:  tests/collatz-all-upto.imp
+Program:  collatz-all-upto.imp
 Strategy: compile
 ================================================================================
 <kat-imp>

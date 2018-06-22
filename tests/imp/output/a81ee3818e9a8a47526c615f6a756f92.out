@@ -1,4 +1,4 @@
-Program:  tests/sum.imp
+Program:  sum.imp
 Strategy: step-with skip ; step ; bimc 31  (bexp? s <= 32)
 ================================================================================
 <kat-imp>

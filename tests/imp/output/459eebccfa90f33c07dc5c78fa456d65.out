@@ -1,4 +1,4 @@
-Program:  tests/div-zero.imp
+Program:  div-zero.imp
 Strategy: compile
 ================================================================================
 <kat-imp>

@@ -1,4 +1,4 @@
-Program:  tests/sum-plus.imp
+Program:  sum-plus.imp
 Strategy: compile
 ================================================================================
 <kat-imp>

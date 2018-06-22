@@ -1,4 +1,4 @@
-Program:  tests/nested-dead-if.imp
+Program:  nested-dead-if.imp
 Strategy: ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iffalse
 ================================================================================
 <kat-imp>

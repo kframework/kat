@@ -1,4 +1,4 @@
-Program:  tests/inf-div-unknown.imp
+Program:  inf-div-unknown.imp
 Strategy: compile
 ================================================================================
 <kat-imp>

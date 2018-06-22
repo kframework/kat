@@ -1,4 +1,4 @@
-Program:  tests/if-div-zero.imp
+Program:  if-div-zero.imp
 Strategy: step 4 ; which-can? (^ divzero | ^ divnonzero)
 ================================================================================
 <kat-imp>

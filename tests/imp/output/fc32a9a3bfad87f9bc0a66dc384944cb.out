@@ -1,4 +1,4 @@
-Program:  tests/nested-dead-if.imp
+Program:  nested-dead-if.imp
 Strategy: compile
 ================================================================================
 <kat-imp>
