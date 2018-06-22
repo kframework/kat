@@ -37,7 +37,7 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 
 ```k
     rule #normal => ^ lookup | ^ assignment
-    rule #branch => ^ iftrue | ^ iffalse
+    rule #branch => ^ iftrue | ^ iffalse | ^ caseSuccess | ^ caseFailure
     rule #loop   => ^ recCall
 ```
 

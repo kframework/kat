@@ -661,9 +661,12 @@ does not match, then we drop it and thus move on to the next one.
 
 ```k
     rule <k> (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val ... </k>
+
     rule <k> matchResult(M:Map) ~> closure(RHO, _->E | _) _ => bindMap(M) ~> E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
+      [tag(caseSuccess)]
     rule <k> (matchFailure => .) ~> closure(_, (_->_ | CS:Cases => CS)) _ ... </k>
+      [tag(caseFailure)]
 ```
 
 Let and Letrec
