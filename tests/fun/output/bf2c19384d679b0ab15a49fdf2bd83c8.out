@@ -1,0 +1,33 @@
+Program:  references-2.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        5
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> 5
+        2 |-> closure ( .Map , x -> ( fun ( y -> x := @ x + 2 ; y := @ y + 3 ) | .Cases ) | .Cases )
+        3 |-> 1
+        4 |-> 1
+        5 |-> 1
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

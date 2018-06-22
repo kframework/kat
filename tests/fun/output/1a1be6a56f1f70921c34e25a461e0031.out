@@ -1,0 +1,30 @@
+Program:  polymorphism-2.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        closure ( .Map , x -> let ( y = x ) and .Bindings in y | .Cases )
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( .Map , x -> let ( y = x ) and .Bindings in y | .Cases )
+        2 |-> 7
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

@@ -1,0 +1,27 @@
+Program:  nested-dead-if.imp
+Strategy: ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iffalse
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( V0 <=Int V1 ) { x = 10 ; } else { x = 11 ; }
+      </k>
+      <mem>
+        x |-> V0
+        y |-> V1
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

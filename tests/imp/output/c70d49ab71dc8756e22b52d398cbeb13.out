@@ -1,0 +1,74 @@
+Program:  inf-div-good.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , .Ids ; y = V0 ; x = 10 ; while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> 10
+          y |-> V0
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V1
+          y |-> V2
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> V1
+          y |-> V2
+        </mem>
+      </imp> requires 0 <Int V1 ==K false > , < <imp>
+        <k>
+          while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V3
+          y |-> V4
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+        </k>
+        <mem>
+          x |-> V3 -Int 1
+          y |-> V4 /Int V3
+        </mem>
+      </imp> requires 0 <Int V3 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( 0 < x ) { y = y / x ; x = x - 1 ; }
+      </k>
+      <mem>
+        x |-> V5
+        y |-> V6
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

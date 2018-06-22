@@ -1,0 +1,75 @@
+Program:  polymorphism-3.fun
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( f00 = fun ( x -> fun ( y -> x ) | .Cases ) | .Cases ) and .Bindings in let ( f01 = fun ( x -> f00 ( f00 x ) ) | .Cases ) and .Bindings in let ( f02 = fun ( x -> f01 ( f01 x ) ) | .Cases ) and .Bindings in let ( f03 = fun ( x -> f02 ( f02 x ) ) | .Cases ) and .Bindings in let ( f04 = fun ( x -> f03 ( f03 x ) ) | .Cases ) and .Bindings in f04
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          .Map
+        </store>
+      </FUN> --> <FUN>
+        <k>
+          closure ( f00 |-> 16
+          f01 |-> 17
+          f02 |-> 18
+          f03 |-> 19 , x -> f03 ( f03 x ) | .Cases )
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          16 |-> closure ( .Map , x -> ( fun ( y -> x ) | .Cases ) | .Cases )
+          17 |-> closure ( f00 |-> 16 , x -> f00 ( f00 x ) | .Cases )
+          18 |-> closure ( f00 |-> 16
+          f01 |-> 17 , x -> f01 ( f01 x ) | .Cases )
+          19 |-> closure ( f00 |-> 16
+          f01 |-> 17
+          f02 |-> 18 , x -> f02 ( f02 x ) | .Cases )
+          20 |-> closure ( f00 |-> 16
+          f01 |-> 17
+          f02 |-> 18
+          f03 |-> 19 , x -> f03 ( f03 x ) | .Cases )
+        </store>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        closure ( f00 |-> 16
+        f01 |-> 17
+        f02 |-> 18
+        f03 |-> 19 , x -> f03 ( f03 x ) | .Cases )
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        16 |-> closure ( .Map , x -> ( fun ( y -> x ) | .Cases ) | .Cases )
+        17 |-> closure ( f00 |-> 16 , x -> f00 ( f00 x ) | .Cases )
+        18 |-> closure ( f00 |-> 16
+        f01 |-> 17 , x -> f01 ( f01 x ) | .Cases )
+        19 |-> closure ( f00 |-> 16
+        f01 |-> 17
+        f02 |-> 18 , x -> f02 ( f02 x ) | .Cases )
+        20 |-> closure ( f00 |-> 16
+        f01 |-> 17
+        f02 |-> 18
+        f03 |-> 19 , x -> f03 ( f03 x ) | .Cases )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

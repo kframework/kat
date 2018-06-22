@@ -13,13 +13,13 @@ pandoc_tangle_submodule:=$(build_dir)/pandoc-tangle
 tangler:=$(pandoc_tangle_submodule)/tangle.lua
 LUA_PATH:=$(pandoc_tangle_submodule)/?.lua;;
 export LUA_PATH
-pandoc:=pandoc --from markdown --to "$(tangler)"
+pandoc:=pandoc --from markdown --to markdown --lua-filter "$(tangler)"
 
 test_dir:=tests
 
 .PHONY: deps ocaml-deps \
-		defn  defn-imp  defn-imp-kcompile  defn-imp-krun \
-		build build-imp build-imp-kcompile build-imp-krun \
+		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun  defn-fun-kcompile \
+		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun build-fun-kcompile \
 		test-bimc test-sbc test
 
 all: build
@@ -54,13 +54,15 @@ ocaml-deps:
 # Build definition
 # ----------------
 
-# Tangle *.k files
-
 imp_dir=$(defn_dir)/imp
 imp_kcompile_files:=$(patsubst %, $(imp_dir)/kcompile/%, kat-imp.k kat.k imp.k)
 imp_krun_files:=$(patsubst %, $(imp_dir)/krun/%, imp.k)
 
-defn: defn-imp
+fun_dir=$(defn_dir)/fun
+fun_kcompile_files:=$(patsubst %, $(fun_dir)/kcompile/%, kat-fun.k kat.k fun.k)
+fun_krun_files:=$(patsubst %, $(fun_dir)/krun/%, fun.k)
+
+defn: defn-imp defn-fun
 
 defn-imp: defn-imp-kcompile defn-imp-krun
 defn-imp-kcompile: $(imp_kcompile_files)
@@ -76,9 +78,23 @@ $(imp_dir)/krun/%.k: %.md
 	mkdir -p $(dir $@)
 	$(pandoc) --metadata=code:'.k,.krun' $< > $@
 
-# Java Backend
+defn-fun: defn-fun-kcompile defn-fun-krun
+defn-fun-kcompile: $(fun_kcompile_files)
+defn-fun-krun:     $(fun_krun_files)
 
-build: build-imp
+$(fun_dir)/kcompile/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	$(pandoc) --metadata=code:'.k,.kcompile' $< > $@
+
+$(fun_dir)/krun/%.k: %.md
+	@echo >&2 "==  tangle: $@"
+	mkdir -p $(dir $@)
+	$(pandoc) --metadata=code:'.k,.krun' $< > $@
+
+# Backends (for running and compiling)
+
+build: build-imp build-fun
 
 build-imp: build-imp-kcompile build-imp-krun
 build-imp-kcompile: $(imp_dir)/kcompile/kat-imp-kompiled/timestamp
@@ -95,20 +111,39 @@ $(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
 		$(kompile) --main-module IMP --backend ocaml \
 					 --syntax-module IMP $< --directory $(imp_dir)/krun
 
+build-fun: build-fun-kcompile build-fun-krun
+build-fun-kcompile: $(fun_dir)/kcompile/kat-fun-kompiled/timestamp
+build-fun-krun:     $(fun_dir)/krun/fun-kompiled/interpreter
+
+$(fun_dir)/kcompile/kat-fun-kompiled/timestamp: $(fun_kcompile_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module FUN-ANALYSIS --backend java \
+				   --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/kcompile
+
+$(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
+	@echo "== kompile: $@"
+	eval $$(opam config env) \
+		$(kompile) --main-module FUN-UNTYPED --backend ocaml \
+				   --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/krun
+
 # Testing
 # -------
 
-test_files:=$(wildcard $(test_dir)/*.imp)
+test_imp_files:=$(wildcard $(test_dir)/imp/*.imp)
+test_fun_files:=$(wildcard $(test_dir)/fun/*.fun)
 
 TEST=./kat test
 
-test: $(test_files:=.test)
+test: test-imp test-fun
+test-imp: $(test_imp_files:=.test)
+test-fun: $(test_fun_files:=.test)
 
-$(test_dir)/%.imp.test:
-	$(TEST) $(test_dir)/$*.imp $(test_dir)/$*.strat
+%.imp.test:
+	$(TEST) $*.imp $*.strat
 
-$(test_dir)/%.expected:
-	mkdir -p $@
+%.fun.test:
+	$(TEST) $*.fun $*.strat
 
 # SBC Benchmarking
 # ----------------

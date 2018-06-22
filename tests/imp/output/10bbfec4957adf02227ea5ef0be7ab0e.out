@@ -1,0 +1,27 @@
+Program:  sum-symbolic.imp
+Strategy: exec-to-branch
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iffalse | ^ iftrue
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( 0 <=Int V0 ) { { s = s + n ; n = n + -1 ; } while ( 0 <= n ) { s = s + n ; n = n + -1 ; } } else { }
+      </k>
+      <mem>
+        n |-> V0
+        s |-> 0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

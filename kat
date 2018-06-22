@@ -7,10 +7,6 @@ test_logs="$build_dir/logs"
 failing_log="$test_logs/failing.lastrun"
 mkdir -p "$test_logs"
 
-test_expected_dir="tests/output"
-test_output_dir="$test_logs/output"
-mkdir -p "$test_expected_dir" "$test_output_dir"
-
 # Utilities
 # ---------
 
@@ -34,6 +30,7 @@ run_env() {
     eval $(opam config env)
     case "$run_file" in
         *.imp)  DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
+        *.fun)  DEFN_DIRECTORY="$build_dir/defn/fun/$run_type"        ;;
         *)      die "Do not know definition to run with: '$run_file'" ;;
     esac
 }
@@ -73,13 +70,16 @@ run_ksearch() {
 
 run_test() {
     local test_file strategy_file test_number counter exit_status current_status
-    local test_id test_output_file test_expected_file
+    local test_id test_pgm_name test_output_dir test_output_file test_expected_dir test_expected_file
     test_file="$1"     ; shift
     strategy_file="$1" ; shift
     { test_number="$1" && shift ; } || test_number="*"
 
     [[ -f "$test_file"     ]] || die "File '$test_file' does not exist ..."
     [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
+    test_expected_dir="$(dirname "$test_file")/output"
+    test_output_dir="$test_logs/$test_expected_dir"
+    mkdir -p "$test_output_dir"
 
     exit_status=0
     counter=0
@@ -88,16 +88,17 @@ run_test() {
         counter=$((counter + 1))
         [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
 
-        test_id="$(echo "$(basename $test_file) $strategy" | md5sum | tr -d '[:space:]-')"
+        test_pgm_name="$(basename $test_file)"
+        test_id="$(echo "$test_pgm_name $strategy" | md5sum | tr -d '[:space:]-')"
         test_output_file="$test_output_dir/$test_id.out"
+        test_expected_file="$test_expected_dir/$test_id.out"
         progress "testing: '$test_file' with strategy '$strategy', output $test_output_file"
 
-        echo "Program:  $test_file"           > "$test_output_file"
+        echo "Program:  $test_pgm_name"      > "$test_output_file"
         echo "Strategy: $strategy"          >> "$test_output_file"
         { printf '=%.0s' {1..80} ; echo ; } >> "$test_output_file"
-        run_krun "$test_file" "$strategy"    >> "$test_output_file"
+        run_krun "$test_file" "$strategy"   >> "$test_output_file"
 
-        test_expected_file="$test_expected_dir/$test_id.out"
         if [[ ! -f "$test_expected_file" ]]; then
             warn "Expected output file does not exist: $test_expected_file"
             exit_status='1'
@@ -141,7 +142,7 @@ case "$run_command" in
        $0 debug    <pgm> <strategy>   Run a single program using given strategy in the debugger
        $0 search   <pgm> <strategy>   Search a single program's executions using given strategy
 
-       Note: <pgm> is a path to a file containing a program (languages supported: IMP).
+       Note: <pgm> is a path to a file containing a program (languages supported: IMP, FUN).
              <strategy> is a term in sort STRATEGY.
 
        # Testing

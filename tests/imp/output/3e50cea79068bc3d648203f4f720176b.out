@@ -1,0 +1,74 @@
+Program:  sum.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int n , s , .Ids ; s = 0 ; n = 10 ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          n |-> 10
+          s |-> 0
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          n |-> V0
+          s |-> V1
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          n |-> V0
+          s |-> V1
+        </mem>
+      </imp> requires 0 <=Int V0 ==K false > , < <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          n |-> V2
+          s |-> V3
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+        </k>
+        <mem>
+          n |-> V2 +Int -1
+          s |-> V3 +Int V2
+        </mem>
+      </imp> requires 0 <=Int V2 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( 0 <= n ) { s = s + n ; n = n + -1 ; }
+      </k>
+      <mem>
+        n |-> V4
+        s |-> V5
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

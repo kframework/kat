@@ -1,0 +1,92 @@
+Program:  long-loop.imp
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , z , c , b , .Ids ; x = 0 ; y = 0 ; z = 0 ; c = 0 ; b = 50 ; while ( c <= b ) { y = y * x + ( 100 - z ) ; x = x + 1 ; z = z * z * x ; y = 30 + y ; z = 15 * y ; c = c + 1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( c <= b ) { y = y * x + ( 100 - z ) ; x = x + 1 ; z = z * z * x ; y = 30 + y ; z = 15 * y ; c = c + 1 ; }
+        </k>
+        <mem>
+          b |-> 50
+          c |-> 0
+          x |-> 0
+          y |-> 0
+          z |-> 0
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( c <= b ) { y = y * x + ( 100 - z ) ; x = x + 1 ; z = z * z * x ; y = 30 + y ; z = 15 * y ; c = c + 1 ; }
+        </k>
+        <mem>
+          b |-> V0
+          c |-> V1
+          x |-> V2
+          y |-> V3
+          z |-> V4
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          b |-> V0
+          c |-> V1
+          x |-> V2
+          y |-> V3
+          z |-> V4
+        </mem>
+      </imp> requires V1 <=Int V0 ==K false > , < <imp>
+        <k>
+          while ( c <= b ) { y = y * x + ( 100 - z ) ; x = x + 1 ; z = z * z * x ; y = 30 + y ; z = 15 * y ; c = c + 1 ; }
+        </k>
+        <mem>
+          b |-> V5
+          c |-> V6
+          x |-> V7
+          y |-> V8
+          z |-> V9
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( c <= b ) { y = y * x + ( 100 - z ) ; x = x + 1 ; z = z * z * x ; y = 30 + y ; z = 15 * y ; c = c + 1 ; }
+        </k>
+        <mem>
+          b |-> V5
+          c |-> V6 +Int 1
+          x |-> V7 +Int 1
+          y |-> 30 +Int ( V8 *Int V7 +Int ( 100 -Int V9 ) )
+          z |-> 15 *Int ( 30 +Int ( V8 *Int V7 +Int ( 100 -Int V9 ) ) )
+        </mem>
+      </imp> requires V6 <=Int V5 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( c <= b ) { y = y * x + ( 100 - z ) ; x = x + 1 ; z = z * z * x ; y = 30 + y ; z = 15 * y ; c = c + 1 ; }
+      </k>
+      <mem>
+        b |-> V10
+        c |-> V11
+        x |-> V12
+        y |-> V13
+        z |-> V14
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

@@ -1,0 +1,65 @@
+Program:  pattern.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        [ Pair ( 10 , 9 , .Names ) , Pair ( 0 , 1 , .Names ) , Pair ( 0 , 0 , .Names ) , .Names ]
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , [ .Names ] -> 0 | [ h , .Names | t ] -> 1 + length t | .Cases )
+        2 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
+        3 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , f -> ( fun ( [ .Names ] -> [ .Names ] ) | [ h , .Names | t ] -> cons ( f h ) ( map f t ) | .Cases ) | .Cases )
+        4 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
+        5 |-> Triple ( [ Pair ( 8 , 7 , .Names ) , .Names ] , [ .Names ] , [ Pair ( 9 , 2 , .Names ) , Pair ( 3 , 3 , .Names ) , Pair ( 2 , 2 , .Names ) , .Names ] , .Names )
+        6 |-> [ Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , Pair ( 0 , 1 , .Names ) , Pair ( -1 , -1 , .Names ) , .Names ] , .Names ) , Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names ) , .Names ]
+        7 |-> 7
+        8 |-> 9
+        9 |-> 3
+        10 |-> 8
+        11 |-> Pair ( 2 , 2 , .Names )
+        12 |-> [ .Names ]
+        13 |-> [ .Names ]
+        14 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
+        15 |-> Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , Pair ( 0 , 1 , .Names ) , Pair ( -1 , -1 , .Names ) , .Names ] , .Names )
+        16 |-> [ Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names ) , .Names ]
+        17 |-> Pair ( -1 , -1 , .Names )
+        18 |-> Pair ( 0 , 1 , .Names )
+        19 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
+        20 |-> Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names )
+        21 |-> [ .Names ]
+        22 |-> Triple ( [ .Names ] , [ .Names ] , [ .Names ] , .Names )
+        23 |-> closure ( complex |-> 2
+        length |-> 1
+        map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Names ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Names ) | .Cases )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

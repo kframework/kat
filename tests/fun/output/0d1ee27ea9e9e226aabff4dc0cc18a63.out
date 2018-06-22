@@ -1,0 +1,36 @@
+Program:  exceptions.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        21
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> cc ( .Map , . )
+        2 |-> closure ( $k |-> 1 , x -> $k ( x + 1 ) | .Cases )
+        3 |-> cc ( $k |-> 1
+        throw |-> 2 , setEnv ( $k |-> 1 ) ~> setEnv ( .Map ) )
+        4 |-> closure ( $k |-> 3
+        throw |-> 2 , x -> $k ( throw ( 2 * x ) + 7 ) | .Cases )
+        5 |-> 10
+        6 |-> 20
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

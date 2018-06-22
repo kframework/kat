@@ -1,0 +1,30 @@
+Program:  empty-argument.fun
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        7
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        1 |-> 7
+        2 |-> closure ( x |-> 1 , Nothing -> x | .Cases )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

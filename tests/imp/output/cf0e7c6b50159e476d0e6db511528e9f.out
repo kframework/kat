@@ -1,0 +1,27 @@
+Program:  simple-while.imp
+Strategy: (#normal | ^ regular) until ^ whileIMP
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+      </k>
+      <mem>
+        x |-> 10
+        y |-> 0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

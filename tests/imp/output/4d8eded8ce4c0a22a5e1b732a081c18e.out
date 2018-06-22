@@ -1,0 +1,26 @@
+Program:  live-if.imp
+Strategy: step 2 ; ^ iftrue
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        { x = 1 ; }
+      </k>
+      <mem>
+        x |-> V0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
