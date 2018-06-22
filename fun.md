@@ -152,6 +152,14 @@ need them:
     syntax Names ::= List{Name,","}
 ```
 
+### Symbolic Integers
+
+```kcompile
+    syntax Int ::= "symbolicInt" [function]
+ // ---------------------------------------
+    rule symbolicInt => ?V:Int
+```
+
 Expression constructs will be defined throughtout the syntax
 module. Below are the very basic ones, namely the builtins, the names,
 and the parentheses used as brackets for grouping. Lists of expressions
