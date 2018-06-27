@@ -1,0 +1,29 @@
+Program:  simple-case-letrec.fun
+Strategy: (#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; which-can? (^ caseSuccess | ^ caseFailure)
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( ) ~> #which-can ^ caseSuccess
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        matchResult ( n |-> V0 ) ~> closure ( f |-> 1 , n -> n - 1 | .Cases ) V0 ~> setEnv ( .Map )
+      </k>
+      <env>
+        f |-> 1
+      </env>
+      <store>
+        1 |-> muclosure ( f |-> 1 , 0 -> 0 | n -> n - 1 | .Cases )
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>

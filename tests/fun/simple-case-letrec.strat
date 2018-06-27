@@ -1,0 +1,7 @@
+(#normal | ^ regular) * ; ^ recCall
+(#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseSuccess
+(#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure
+(#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; ^ caseSuccess
+(#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; which-can? (^ caseSuccess | ^ caseFailure)
+(#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; which-can? (^ caseSuccess | ^ caseFailure)
+exec
