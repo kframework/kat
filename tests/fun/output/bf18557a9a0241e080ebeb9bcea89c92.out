@@ -16,7 +16,7 @@ Strategy: (#normal | ^ regular) * ; which-can? (^ caseSuccess | ^ caseFailure)
   <harness>
     <FUN>
       <k>
-        getMatching ( 0 , V0 ) ~> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases ) V0 ~> setEnv ( .Map )
+        getMatchingInt ( 0 , V0 ) ~> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases ) V0 ~> setEnv ( .Map )
       </k>
       <env>
         f |-> 1

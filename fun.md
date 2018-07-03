@@ -864,20 +864,23 @@ of expressions in a binding, respectively.
     syntax Exps    ::= Names
 
     /* Matching */
-    syntax MatchResult ::= getMatching ( Exp , Val )                  [function]
-                         | getMatchingAux( Exps , Vals )              [function]
-                         | mergeMatching( MatchResult , MatchResult ) [function]
+    syntax MatchResult ::= getMatching ( Exp , Val )                            [function]
+                         | getMatchingInt ( Int , Int ) [function, smtlib(getMatchingInt)]
+                         | getMatchingAux( Exps , Vals )                        [function]
+                         | mergeMatching( MatchResult , MatchResult )           [function]
                          | matchResult( Map )
-                         | "matchFailure"
+                         | "matchFailure"                           [smtlib(matchFailure)]
  // -------------------------------------
     rule getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS)
     rule getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS)
     rule getMatching(C:ConstructorName, C)                   => matchResult(.Map)
     rule getMatching(B:Bool, B)                              => matchResult(.Map)
-    rule getMatching(I:Int, I')                              => matchResult(.Map) requires I ==Int I'
-    rule getMatching(I:Int, I')                              => matchFailure      requires I =/=Int I'
+    rule getMatching(I:Int, I':Int)                          => getMatchingInt(I, I')
     rule getMatching(S:String, S)                            => matchResult(.Map)
     rule getMatching(N:Name, V:Val)                          => matchResult(N |-> V)
+
+    rule getMatchingInt(I, I')                               => matchResult(.Map) requires I ==Int I'
+    rule getMatchingInt(I, I')                               => matchFailure      requires I =/=Int I'
 
     // rule getMatching(_, _)                                   => matchFailure            [owise]
 
