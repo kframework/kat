@@ -1,0 +1,63 @@
+Program:  exceptions.fun
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          callcc ( fun ( $k -> ( fun ( throw -> callcc ( fun ( $k -> ( fun ( throw -> 3 + throw 10 * 2 ) | .Cases ) ( fun ( x -> $k ( throw ( 2 * x ) + 7 ) ) | .Cases ) ) | .Cases ) ) | .Cases ) ( fun ( x -> $k ( x + 1 ) ) | .Cases ) ) | .Cases )
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          .Map
+        </store>
+      </FUN> --> <FUN>
+        <k>
+          21
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          160 |-> cc ( .Map , . )
+          161 |-> closure ( $k |-> 160 , x -> $k ( x + 1 ) | .Cases )
+          162 |-> cc ( $k |-> 160
+          throw |-> 161 , setEnv ( $k |-> 160 ) ~> setEnv ( .Map ) )
+          163 |-> closure ( $k |-> 162
+          throw |-> 161 , x -> $k ( throw ( 2 * x ) + 7 ) | .Cases )
+          164 |-> 10
+          165 |-> 20
+        </store>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        21
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        160 |-> cc ( .Map , . )
+        161 |-> closure ( $k |-> 160 , x -> $k ( x + 1 ) | .Cases )
+        162 |-> cc ( $k |-> 160
+        throw |-> 161 , setEnv ( $k |-> 160 ) ~> setEnv ( .Map ) )
+        163 |-> closure ( $k |-> 162
+        throw |-> 161 , x -> $k ( throw ( 2 * x ) + 7 ) | .Cases )
+        164 |-> 10
+        165 |-> 20
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>
