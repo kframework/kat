@@ -16,16 +16,16 @@ Strategy: exec
   <harness>
     <FUN>
       <k>
-        [ 7 , 8 , 9 , .Names ]
+        [ 7 , 8 , 9 , .Vals ]
       </k>
       <env>
         .Map
       </env>
       <store>
-        1 |-> closure ( .Map , x -> x := @ x + 1 | .Cases )
-        2 |-> 9
-        3 |-> 2
-        4 |-> 2
+        1 |-> 9
+        2 |-> closure ( .Map , x -> x := @ x + 1 | .Cases )
+        3 |-> 1
+        4 |-> 1
       </store>
     </FUN>
   </harness>

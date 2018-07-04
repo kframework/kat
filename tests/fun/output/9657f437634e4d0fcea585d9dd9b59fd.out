@@ -24,7 +24,7 @@ Strategy: exec
       <store>
         1 |-> closure ( .Map , [ x , .Names | [ y , .Names | t ] ] -> y | .Cases )
         2 |-> 1
-        3 |-> [ 5 , 0 , -2 , .Names ]
+        3 |-> [ 5 , 0 , -2 , .Vals ]
         4 |-> 3
       </store>
     </FUN>

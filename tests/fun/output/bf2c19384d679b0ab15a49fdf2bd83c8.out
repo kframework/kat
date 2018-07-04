@@ -23,8 +23,8 @@ Strategy: exec
       </env>
       <store>
         1 |-> 5
-        2 |-> closure ( .Map , x -> ( fun ( y -> x := @ x + 2 ; y := @ y + 3 ) | .Cases ) | .Cases )
-        3 |-> 1
+        2 |-> 1
+        3 |-> closure ( .Map , x -> ( fun ( y -> x := @ x + 2 ; y := @ y + 3 ) | .Cases ) | .Cases )
         4 |-> 1
         5 |-> 1
       </store>

@@ -3,7 +3,7 @@ Strategy: step-with skip ; step 2 ; bimc 5000 (bexp? n <= 1000)
 ================================================================================
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #false in 21 steps ~> ^ regular *
+    #STUCK ( ) ~> #bimc-result #false in 21 steps
   </s>
   <kat>
     <analysis>

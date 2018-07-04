@@ -16,14 +16,14 @@ Strategy: exec
   <harness>
     <FUN>
       <k>
-        Pair ( Pair ( 1 , Wrapper ( 2 , .Names ) , .Names ) , Pair ( 3 , 4 , .Names ) , .Names )
+        Pair ( Pair ( 1 , Wrapper ( 2 , .Vals ) , .Vals ) , Pair ( 3 , 4 , .Vals ) , .Vals )
       </k>
       <env>
         .Map
       </env>
       <store>
-        1 |-> Pair ( 3 , 4 , .Names )
-        2 |-> 1
+        1 |-> 1
+        2 |-> Pair ( 3 , 4 , .Vals )
         3 |-> Wrapper ( 2 , .Names )
       </store>
     </FUN>
