@@ -37,7 +37,7 @@ Strategy: exec
         5 |-> Triple ( [ Pair ( 8 , 7 , .Vals ) , .Vals ] , [ .Vals ] , [ Pair ( 9 , 2 , .Vals ) , Pair ( 3 , 3 , .Vals ) , Pair ( 2 , 2 , .Vals ) , .Vals ] , .Vals )
         6 |-> [ Triple ( [ .Vals ] , [ .Vals ] , [ Pair ( 7 , 2 , .Vals ) , Pair ( 0 , 1 , .Vals ) , Pair ( -1 , -1 , .Vals ) , .Vals ] , .Vals ) , Triple ( [ .Vals ] , [ .Vals ] , [ .Vals ] , .Vals ) , .Vals ]
         7 |-> [ .Names ]
-        8 |-> Pair ( 2 , 2 , .Vals )
+        8 |-> Pair ( 2 , 2 , .Names )
         9 |-> 7
         10 |-> [ .Names ]
         11 |-> 8
@@ -46,16 +46,16 @@ Strategy: exec
         14 |-> closure ( complex |-> 2
         length |-> 1
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Vals ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Vals ) | .Cases )
-        15 |-> Triple ( [ .Vals ] , [ .Vals ] , [ Pair ( 7 , 2 , .Vals ) , Pair ( 0 , 1 , .Vals ) , Pair ( -1 , -1 , .Vals ) , .Vals ] , .Vals )
-        16 |-> [ Triple ( [ .Vals ] , [ .Vals ] , [ .Vals ] , .Vals ) , .Vals ]
-        17 |-> Pair ( 0 , 1 , .Vals )
-        18 |-> Pair ( -1 , -1 , .Vals )
+        15 |-> Triple ( [ .Names ] , [ .Vals ] , [ Pair ( 7 , 2 , .Vals ) , Pair ( 0 , 1 , .Vals ) , Pair ( -1 , -1 , .Vals ) , .Vals ] , .Vals )
+        16 |-> [ Triple ( [ .Names ] , [ .Vals ] , [ .Vals ] , .Vals ) , .Names ]
+        17 |-> Pair ( 0 , 1 , .Names )
+        18 |-> Pair ( -1 , -1 , .Names )
         19 |-> closure ( complex |-> 2
         length |-> 1
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Vals ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Vals ) | .Cases )
-        20 |-> Triple ( [ .Vals ] , [ .Vals ] , [ .Vals ] , .Vals )
+        20 |-> Triple ( [ .Names ] , [ .Vals ] , [ .Vals ] , .Vals )
         21 |-> [ .Names ]
-        22 |-> Triple ( [ .Vals ] , [ .Vals ] , [ .Vals ] , .Vals )
+        22 |-> Triple ( [ .Names ] , [ .Vals ] , [ .Vals ] , .Vals )
         23 |-> closure ( complex |-> 2
         length |-> 1
         map |-> 3 , Triple ( [ Pair ( h1 , h2 , .Names ) , .Names | t ] , l , [ Pair ( a , 2 , .Names ) , Pair ( 3 , b , .Names ) , c , .Names ] , .Names ) -> Pair ( h2 + length t + b , a , .Names ) | Triple ( [ .Names ] , [ .Names ] , [ Pair ( 7 , 2 , .Vals ) , x , c , .Names ] , .Names ) -> x | default -> Pair ( 0 , 0 , .Vals ) | .Cases )

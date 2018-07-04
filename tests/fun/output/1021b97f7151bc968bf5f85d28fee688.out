@@ -24,16 +24,16 @@ Strategy: exec
       <store>
         1 |-> closure ( mirror |-> 1 , Leaf ( n , .Names ) -> Leaf ( n , .Names ) | Tree ( left , right , .Names ) -> Tree ( mirror right , mirror left , .Names ) | .Cases )
         2 |-> Tree ( Leaf ( 3 , .Vals ) , Tree ( Leaf ( 4 , .Vals ) , Leaf ( 5 , .Vals ) , .Vals ) , .Vals )
-        3 |-> Tree ( Leaf ( 1 , .Vals ) , Leaf ( 2 , .Vals ) , .Vals )
+        3 |-> Tree ( Leaf ( 1 , .Names ) , Leaf ( 2 , .Vals ) , .Vals )
         4 |-> Tree ( Leaf ( 4 , .Vals ) , Leaf ( 5 , .Vals ) , .Vals )
-        5 |-> Leaf ( 3 , .Vals )
+        5 |-> Leaf ( 3 , .Names )
         6 |-> Leaf ( 5 , .Vals )
         7 |-> Leaf ( 4 , .Vals )
         8 |-> 5
         9 |-> 4
         10 |-> 3
-        11 |-> Leaf ( 2 , .Vals )
-        12 |-> Leaf ( 1 , .Vals )
+        11 |-> Leaf ( 2 , .Names )
+        12 |-> Leaf ( 1 , .Names )
         13 |-> 2
         14 |-> 1
       </store>

@@ -403,7 +403,7 @@ Strategy: exec
         307 |-> 0
         308 |-> 9
         309 |-> 9
-        310 |-> Node ( Empty , 0 , Node ( Empty , 9 , Empty , .Vals ) , .Vals )
+        310 |-> Node ( Empty , 0 , Node ( Empty , 9 , Empty , .Vals ) , .Names )
         311 |-> Empty
         312 |-> 10
         313 |-> 1
@@ -479,15 +479,15 @@ Strategy: exec
         383 |-> 2
         384 |-> 7
         385 |-> 7
-        386 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Names ) , 9 , Empty , .Vals ) , .Vals )
+        386 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Names ) , 9 , Empty , .Vals ) , .Names )
         387 |-> Empty
         388 |-> 10
         389 |-> 3
         390 |-> Empty
-        391 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Vals ) , 9 , Empty , .Vals )
+        391 |-> Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Names ) , 9 , Empty , .Vals )
         392 |-> 0
         393 |-> 3
-        394 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Vals )
+        394 |-> Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Names )
         395 |-> Empty
         396 |-> 9
         397 |-> 3
@@ -562,10 +562,10 @@ Strategy: exec
         466 |-> 8
         467 |-> 4
         468 |-> Empty
-        469 |-> Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Vals ) , .Vals ) , 7 , Empty , .Vals )
+        469 |-> Node ( Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Vals ) , .Names ) , 7 , Empty , .Vals )
         470 |-> 2
         471 |-> 4
-        472 |-> Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Vals ) , .Vals )
+        472 |-> Node ( Empty , 3 , Node ( Empty , 6 , Empty , .Vals ) , .Names )
         473 |-> Empty
         474 |-> 7
         475 |-> 4
@@ -602,7 +602,7 @@ Strategy: exec
         506 |-> Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 6 , Empty , .Vals ) , .Vals ) , 7 , Empty , .Vals )
         507 |-> 2
         508 |-> 5
-        509 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 6 , Empty , .Vals ) , .Vals )
+        509 |-> Node ( Empty , 3 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 6 , Empty , .Vals ) , .Names )
         510 |-> Empty
         511 |-> 7
         512 |-> 5
@@ -746,7 +746,7 @@ Strategy: exec
         650 |-> 6
         651 |-> 6
         652 |-> 6
-        653 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 5 , Node ( Empty , 5 , Empty , .Vals ) , .Vals ) , .Vals ) , 6 , Node ( Empty , 6 , Empty , .Vals ) , .Vals ) , .Vals ) , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Vals ) , 9 , Empty , .Vals ) , .Vals )
+        653 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Empty , 4 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 5 , Node ( Empty , 5 , Empty , .Vals ) , .Vals ) , .Vals ) , 6 , Node ( Empty , 6 , Empty , .Vals ) , .Vals ) , .Vals ) , 7 , Empty , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Vals ) , 9 , Empty , .Vals ) , .Names )
         654 |-> Empty
         655 |-> 10
         656 |-> 3
@@ -816,7 +816,7 @@ Strategy: exec
         720 |-> 7
         721 |-> 7
         722 |-> 7
-        723 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Vals ) , 4 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 5 , Node ( Empty , 5 , Empty , .Vals ) , .Vals ) , .Vals ) , 6 , Node ( Empty , 6 , Empty , .Vals ) , .Vals ) , .Vals ) , 7 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Vals ) , 9 , Empty , .Vals ) , .Vals )
+        723 |-> Node ( Empty , 0 , Node ( Node ( Empty , 1 , Node ( Node ( Empty , 2 , Node ( Node ( Empty , 3 , Node ( Node ( Node ( Empty , 3 , Empty , .Vals ) , 4 , Node ( Node ( Empty , 4 , Empty , .Vals ) , 5 , Node ( Empty , 5 , Empty , .Vals ) , .Vals ) , .Vals ) , 6 , Node ( Empty , 6 , Empty , .Vals ) , .Vals ) , .Vals ) , 7 , Node ( Empty , 7 , Empty , .Vals ) , .Vals ) , .Vals ) , 8 , Empty , .Vals ) , .Vals ) , 9 , Empty , .Vals ) , .Names )
         724 |-> Empty
         725 |-> 10
         726 |-> 2
