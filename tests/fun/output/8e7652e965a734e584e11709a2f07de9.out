@@ -22,9 +22,9 @@ Strategy: exec
         .Map
       </env>
       <store>
-        1 |-> closure ( fact |-> 2
+        1 |-> muclosure ( fact |-> 2
         max |-> 1 , [ h , .Names ] -> ( fun ( x -> fun ( y -> h ) | .Cases ) | .Cases ) | [ h , .Names | t ] -> ( fun ( x -> fun ( y -> let ( x = max t x y ) and .Bindings in if h > x then h else x ) | .Cases ) | .Cases ) | .Cases )
-        2 |-> closure ( fact |-> 2
+        2 |-> muclosure ( fact |-> 2
         max |-> 1 , 0 -> 1 | x -> x * fact ( x - 1 ) | .Cases )
         3 |-> 4
         4 |-> 3

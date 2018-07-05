@@ -22,7 +22,7 @@ Strategy: exec
         .Map
       </env>
       <store>
-        1 |-> closure ( sum |-> 1 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+        1 |-> muclosure ( sum |-> 1 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
         2 |-> 100
         3 |-> 99
         4 |-> 98

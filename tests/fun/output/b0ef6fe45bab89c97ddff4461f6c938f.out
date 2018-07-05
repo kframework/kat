@@ -22,7 +22,7 @@ Strategy: exec
         .Map
       </env>
       <store>
-        1 |-> closure ( append |-> 3
+        1 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -31,7 +31,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , l -> flatten ( mk_bst l ) | .Cases )
-        2 |-> closure ( append |-> 3
+        2 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -40,7 +40,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , Empty -> [ .Names ] | Node ( l , n , r , .Names ) -> append ( flatten l ) ( cons n ( flatten r ) ) | .Cases )
-        3 |-> closure ( append |-> 3
+        3 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -49,7 +49,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , [ .Names ] -> ( fun ( r -> r ) | .Cases ) | [ h , .Names | t ] -> ( fun ( r -> cons h ( append t r ) ) | .Cases ) | .Cases )
-        4 |-> closure ( append |-> 3
+        4 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -58,7 +58,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , [ .Names ] -> Empty | [ h , .Names | t ] -> insert ( mk_bst t ) h | .Cases )
-        5 |-> closure ( append |-> 3
+        5 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -67,7 +67,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , Empty -> ( fun ( n -> Node ( Empty , n , Empty , .Vals ) ) | .Cases ) | Node ( l , m , r , .Names ) -> ( fun ( n -> if n < m then Node ( insert l n , m , r , .Names ) else Node ( l , m , insert r n , .Names ) ) | .Cases ) | .Cases )
-        6 |-> closure ( append |-> 3
+        6 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -76,7 +76,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , 0 -> [ 0 , .Names ] | n -> cons n ( downto ( n - 1 ) ) | .Cases )
-        7 |-> closure ( append |-> 3
+        7 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -85,7 +85,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , 0 -> [ 0 , .Names ] | n -> append ( upto ( n - 1 ) ) [ n , .Names ] | .Cases )
-        8 |-> closure ( append |-> 3
+        8 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
@@ -94,7 +94,7 @@ Strategy: exec
         mk_bst |-> 4
         shuffle |-> 9
         upto |-> 7 , [ .Names ] -> ( fun ( [ .Names ] -> [ .Names ] ) | .Cases ) | [ h1 , .Names | t1 ] -> ( fun ( [ h2 , .Names | t2 ] -> cons h1 ( cons h2 ( merge t1 t2 ) ) ) | .Cases ) | .Cases )
-        9 |-> closure ( append |-> 3
+        9 |-> muclosure ( append |-> 3
         bst_sort |-> 1
         downto |-> 6
         flatten |-> 2
