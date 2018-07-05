@@ -1,0 +1,81 @@
+Program:  list-1.fun
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          letrec ( second = fun ( l -> fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) and .Bindings in second [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] true
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          .Map
+        </store>
+      </FUN> --> <FUN>
+        <k>
+          muclosure ( second |-> 2 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( true ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          second |-> 2
+        </env>
+        <store>
+          2 |-> muclosure ( second |-> 2 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+        </store>
+      </FUN> requires #True > , < <FUN>
+        <k>
+          muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( true ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          second |-> 3
+        </env>
+        <store>
+          3 |-> muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+        </store>
+      </FUN> --> <FUN>
+        <k>
+          3
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          3 |-> muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          89 |-> [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+          90 |-> true
+          91 |-> 1
+          92 |-> [ 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+          93 |-> 3
+          94 |-> [ 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+        </store>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        3
+      </k>
+      <env>
+        .Map
+      </env>
+      <store>
+        3 |-> muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+        89 |-> [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+        90 |-> true
+        91 |-> 1
+        92 |-> [ 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+        93 |-> 3
+        94 |-> [ 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+      </store>
+    </FUN>
+  </harness>
+</kat-FUN>
