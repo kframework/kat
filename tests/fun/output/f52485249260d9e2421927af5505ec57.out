@@ -16,7 +16,7 @@ Strategy: step 8
   <harness>
     <FUN>
       <k>
-        2
+        bindMap ( x |-> 2 ) ~> x ~> setEnv ( f |-> 1 ) ~> setEnv ( .Map )
       </k>
       <env>
         .Map
@@ -24,7 +24,6 @@ Strategy: step 8
       <store>
         1 |-> closure ( .Map , x -> x | .Cases )
         2 |-> true
-        3 |-> 2
       </store>
     </FUN>
   </harness>

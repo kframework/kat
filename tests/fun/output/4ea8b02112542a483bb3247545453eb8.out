@@ -16,10 +16,10 @@ Strategy: step ; step
   <harness>
     <FUN>
       <k>
-        bindMap ( x |-> true ) ~> x ~> setEnv ( f |-> 1 ) ~> #freezerif_then_else__FUN-UNTYPED-COMMON1_ ( f 2 , f 3 ) ~> setEnv ( .Map )
+        matchResult ( x |-> true ) ~> closure ( .Map , x -> x | .Cases ) true ~> #freezerif_then_else__FUN-UNTYPED-COMMON1_ ( f 2 , f 3 ) ~> setEnv ( .Map )
       </k>
       <env>
-        .Map
+        f |-> 1
       </env>
       <store>
         1 |-> closure ( .Map , x -> x | .Cases )

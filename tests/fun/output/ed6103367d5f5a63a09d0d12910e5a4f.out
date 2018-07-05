@@ -25,9 +25,9 @@ Strategy: compile
           .Map
         </env>
         <store>
-          24 |-> closure ( .Map , x -> x | .Cases )
-          25 |-> true
-          26 |-> 2
+          57 |-> closure ( .Map , x -> x | .Cases )
+          58 |-> true
+          59 |-> 2
         </store>
       </FUN> requires #True >
     </analysis>
@@ -44,9 +44,9 @@ Strategy: compile
         .Map
       </env>
       <store>
-        24 |-> closure ( .Map , x -> x | .Cases )
-        25 |-> true
-        26 |-> 2
+        57 |-> closure ( .Map , x -> x | .Cases )
+        58 |-> true
+        59 |-> 2
       </store>
     </FUN>
   </harness>
