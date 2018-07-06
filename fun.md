@@ -672,9 +672,7 @@ does not match, then we drop it and thus move on to the next one.
 
     rule <k> matchResult(M:Map) ~> closure(RHO, _->E | _) _ => bindMap(M) ~> E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
-      [tag(caseSuccess)]
     rule <k> (matchFailure => .) ~> closure(_, (_->_ | CS:Cases => CS)) _ ... </k>
-      [tag(caseFailure)]
 ```
 
 Let and Letrec
@@ -875,34 +873,32 @@ of expressions in a binding, respectively.
     syntax Exps    ::= Names
 
     /* Matching */
-    syntax MatchResult ::= getMatching ( Exp , Val )                            [function]
-                         | getMatchingInt ( Int , Int ) [function, smtlib(getMatchingInt)]
-                         | getMatchingAux( Exps , Vals )                        [function]
-                         | mergeMatching( MatchResult , MatchResult )           [function]
+    syntax MatchResult ::= getMatching ( Exp , Val )
+                         | getMatchingInt ( Int , Int )   [smtlib(getMatchingInt)]
+                         | getMatchingAux( Exps , Vals )
                          | matchResult( Map )
-                         | "matchFailure"                           [smtlib(matchFailure)]
+                         | "matchFailure"                 [smtlib(matchFailure)]
  // -------------------------------------
-    rule getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS)
-    rule getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS)
-    rule getMatching(C:ConstructorName, C)                   => matchResult(.Map)
-    rule getMatching(B:Bool, B)                              => matchResult(.Map)
-    rule getMatching(I:Int, I':Int)                          => getMatchingInt(I, I')
-    rule getMatching(S:String, S)                            => matchResult(.Map)
-    rule getMatching(N:Name, V:Val)                          => matchResult(N |-> V)
+    rule <k> getMatching(B:Bool,   B':Bool)   => matchResult(.Map) ... </k> requires B  ==Bool   B' [tag(caseSuccess)]
+    rule <k> getMatching(B:Bool,   B':Bool)   => matchFailure      ... </k> requires B =/=Bool   B' [tag(caseFailure)]
+    rule <k> getMatching(I:Int,    I':Int)    => matchResult(.Map) ... </k> requires I  ==Int    I' [tag(caseSuccess)]
+    rule <k> getMatching(I:Int,    I':Int)    => matchFailure      ... </k> requires I =/=Int    I' [tag(caseFailure)]
+    rule <k> getMatching(S:String, S':String) => matchResult(.Map) ... </k> requires S  ==String S' [tag(caseSuccess)]
+    rule <k> getMatching(S:String, S':String) => matchFailure      ... </k> requires S =/=String S' [tag(caseFailure)]
 
-    rule getMatchingInt(I, I')                               => matchResult(.Map) requires I ==Int I'
-    rule getMatchingInt(I, I')                               => matchFailure      requires I =/=Int I'
+    rule <k> getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS) ... </k>
+    rule <k> getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS) ... </k>
+    rule <k> getMatching(C:ConstructorName, C)                   => matchResult(.Map)      ... </k>
 
-    // rule getMatching(_, _)                                   => matchFailure            [owise]
+    rule <k> getMatching(N:Name, V:Val) => matchResult(N |-> V) ... </k>
 
-    rule getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => mergeMatching(getMatching(E, V), getMatchingAux(ES, VS))
-    rule getMatchingAux(.Exps, .Vals)                       => matchResult(.Map)
-    // rule getMatchingAux(_, _)                               => matchFailure             [owise]
+    rule <k> matchFailure ~> getMatchingAux(_, _)       => matchFailure                                ... </k>
+    rule <k> matchResult(RHO) ~> getMatchingAux(ES, VS) => getMatchingAux(ES, VS) ~> matchResult(RHO)  ... </k>
+    rule <k> matchResult(RHO1) ~> matchResult(RHO2)     => matchResult(RHO1 RHO2)                      ... </k>
+      requires intersectSet(keys(RHO1), keys(RHO2)) ==K .Set
 
-    rule mergeMatching(matchResult(M1:Map), matchResult(M2:Map)) => matchResult(M1 M2) requires intersectSet(keys(M1), keys(M2)) ==K .Set
-    rule mergeMatching(matchResult(_:Map), matchFailure)         => matchFailure
-    rule mergeMatching(matchFailure, matchResult(_:Map))         => matchFailure
-    rule mergeMatching(matchFailure, matchFailure)               => matchFailure
+    rule <k> getMatchingAux(.Exps,            .Vals)            => matchResult(.Map)                           ... </k>
+    rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => getMatching(E, V) ~> getMatchingAux(ES, VS) ... </k>
 ```
 
 Besides the generic decomposition rules for patterns and values, we
@@ -910,6 +906,6 @@ also want to allow `[head|tail]` matching for lists, so we add the
 following custom pattern decomposition rule:
 
 ```k
-    rule getMatching([H:Exp | T:Exp], [V:Val, VS:Vals]) => getMatchingAux((H, T), (V, [VS]))
+    rule <k> getMatching([H:Exp | T:Exp], [V:Val, VS:Vals]) => getMatchingAux((H, T), (V, [VS])) ... </k>
 endmodule
 ```
