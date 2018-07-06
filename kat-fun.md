@@ -62,14 +62,28 @@ module FUN-SBC
 ### Define `abstract`
 
 ```k
-    syntax Strategy ::= "#abstract" Map State
- // -----------------------------------------
-    rule <s> abstract [ <FUN> <k> KCELL </k> <env> ENV </env> <store> STORE </store> </FUN> ] => #abstract STORE <FUN> <k> KCELL </k> <env> ENV </env> <store> STORE </store> </FUN> ... </s>
-    rule <s> #abstract .Map STATE                                                             => pop STATE                                                                           ... </s>
+    rule <s> abstract [ <FUN> <k> KCELL                </k> <store> STORE                 </store> REST </FUN> ]
+          => pop      ( <FUN> <k> #abstractArgs(KCELL) </k> <store> #abstractStore(STORE) </store> REST </FUN> )
+         ...
+         </s>
 
-    rule <s> #abstract ((X |-> I:Int           => .Map) XS) <FUN> <store> STORE => STORE[X <- ?V:Int] </store> ... </FUN> ... </s>
-    rule <s> #abstract ((X |-> closure(_, _)   => .Map) XS) _                                                             ... </s>
-    rule <s> #abstract ((X |-> muclosure(_, _) => .Map) XS) _                                                             ... </s>
+    syntax Map ::= #abstractStore ( Map ) [function]
+ // ------------------------------------------------
+    rule #abstractStore(.Map) => .Map
+
+    rule #abstractStore (X |-> _:Int             XS) => X |-> ?V:Int            #abstractStore(XS)
+    rule #abstractStore (X |-> _:Bool            XS) => X |-> ?V:Bool           #abstractStore(XS)
+    rule #abstractStore (X |->   closure(RHO, E) XS) => X |->   closure(RHO, E) #abstractStore(XS)
+    rule #abstractStore (X |-> muclosure(RHO, E) XS) => X |-> muclosure(RHO, E) #abstractStore(XS)
+
+    syntax K ::= #abstractArgs ( K ) [function]
+ // -------------------------------------------
+    rule #abstractArgs(.K) => .K
+
+    rule #abstractArgs(K                     ~> KS) => K               ~> #abstractArgs(KS) requires notBool isArg(K)
+    rule #abstractArgs(#arg(_:Int)           ~> KS) => ?V:Int          ~> #abstractArgs(KS)
+    rule #abstractArgs(#arg(_:Bool)          ~> KS) => ?V:Bool         ~> #abstractArgs(KS)
+    rule #abstractArgs(#arg(closure(RHO, E)) ~> KS) => closure(RHO, E) ~> #abstractArgs(KS)
 ```
 
 ### Define `_subsumes?_`
