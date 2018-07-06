@@ -17,42 +17,54 @@ Strategy: compile
         <store>
           .Map
         </store>
+        <nextLoc>
+          0
+        </nextLoc>
       </FUN> --> <FUN>
         <k>
-          muclosure ( second |-> 2 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( true ) ~> setEnv ( .Map )
+          muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #arg ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] ) ~> #arg ( true ) ~> setEnv ( .Map )
         </k>
         <env>
-          second |-> 2
+          second |-> 0
         </env>
         <store>
-          2 |-> muclosure ( second |-> 2 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
         </store>
+        <nextLoc>
+          1
+        </nextLoc>
       </FUN> requires #True > , < <FUN>
         <k>
-          muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] ) ~> #freezer___FUN-UNTYPED-COMMON1_ ( true ) ~> setEnv ( .Map )
+          muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #arg ( [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ] ) ~> #arg ( V8 ) ~> setEnv ( .Map )
         </k>
         <env>
-          second |-> 3
+          second |-> 0
         </env>
         <store>
-          3 |-> muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
         </store>
+        <nextLoc>
+          1
+        </nextLoc>
       </FUN> --> <FUN>
         <k>
-          3
+          V1
         </k>
         <env>
           .Map
         </env>
         <store>
-          3 |-> muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
-          89 |-> [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
-          90 |-> true
-          91 |-> 1
-          92 |-> [ 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
-          93 |-> 3
-          94 |-> [ 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          1 |-> [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+          2 |-> V8
+          3 |-> [ V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+          4 |-> V0
+          5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+          6 |-> V1
         </store>
+        <nextLoc>
+          7
+        </nextLoc>
       </FUN> requires #True >
     </analysis>
     <states>
@@ -62,20 +74,23 @@ Strategy: compile
   <harness>
     <FUN>
       <k>
-        3
+        V1
       </k>
       <env>
         .Map
       </env>
       <store>
-        3 |-> muclosure ( second |-> 3 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
-        89 |-> [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
-        90 |-> true
-        91 |-> 1
-        92 |-> [ 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
-        93 |-> 3
-        94 |-> [ 5 , 2 , 4 , 0 , -1 , -5 , .Exps ]
+        0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+        1 |-> [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+        2 |-> V8
+        3 |-> [ V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+        4 |-> V0
+        5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+        6 |-> V1
       </store>
+      <nextLoc>
+        7
+      </nextLoc>
     </FUN>
   </harness>
 </kat-FUN>

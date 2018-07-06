@@ -1,2 +1,6 @@
+(^ regular | #normal) *
+(^ regular | #normal) * ; abstract
+(^ regular | #normal) * ; abstract ; #loop
+(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) *
 exec
 compile
