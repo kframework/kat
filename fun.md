@@ -531,9 +531,10 @@ the first part of the K tutorial).
 ```k
     configuration
       <FUN>
-        <k>     $PGM:Exp </k>
-        <env>   .Map     </env>
-        <store> .Map     </store>
+        <k>       $PGM:Exp </k>
+        <env>     .Map     </env>
+        <store>   .Map     </store>
+        <nextLoc> 0        </nextLoc>
       </FUN>
 ```
 
@@ -829,13 +830,15 @@ discussed the `let` and `letrec` language constructs above.
 
     rule <k> bindMap(.Map) => . ... </k>
     rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ... </k>
-         <env> RHO => RHO[X <- !L:Int] </env>
-         <store> ... .Map => !L |-> V ... </store>
+         <env> RHO => RHO[X <- NLOC:Int] </env>
+         <store> ... .Map => NLOC |-> V ... </store>
+         <nextLoc> NLOC => NLOC +Int 1 </nextLoc>
       [tag(assignment)]
 
     rule <k> bind(.Names) => . ... </k>
     rule <k> bind(X:Name, XS) => bind(XS) ... </k>
-         <env> RHO => RHO[X <- !L:Int] </env>
+         <env> RHO => RHO[X <- NLOC] </env>
+         <nextLoc> NLOC => NLOC +Int 1 </nextLoc>
 
     syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
  // ------------------------------------------------------
