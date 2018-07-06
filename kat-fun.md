@@ -65,6 +65,8 @@ module FUN-SBC
 
 ### Define `abstract`
 
+**TODO**: Only abstracting the values in `RHO` will make references behave poor behaviour for references.
+
 ```k
     rule <s> abstract [ <FUN> <k> muclosure ( RHO , E ) ~> ARGS                </k> <store> STORE                              </store> REST </FUN> ]
           => pop      ( <FUN> <k> muclosure ( RHO , E ) ~> #abstractArgs(ARGS) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN> )
