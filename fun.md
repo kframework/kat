@@ -279,8 +279,8 @@ correctness. Again, the type system will reject type-incorrect programs.
 
 ```k
     syntax Exp ::= "fun" Cases
-                 | Exp Exp      [seqstrict, left]
- // ---------------------------------------------
+                 | Exp Exp     [left]
+ // ---------------------------------
 
     syntax Case  ::= Exp "->" Exp
     syntax Cases ::= List{Case, "|"}
@@ -644,6 +644,13 @@ in the function body (we want static scoping in FUN).
  // ---------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
+
+    syntax Arg   ::= #arg   ( Val )
+    syntax KItem ::= #apply ( Exp )
+ // -------------------------------
+    rule <k> E E'               => E' ~> #apply(E) ... </k>
+    rule <k> V:Val ~> #apply(E) => E ~> #arg(V)    ... </k>
+    rule <k> V:Val ~> #arg(V')  => V V'            ... </k>
 ```
 
 #### Note:
