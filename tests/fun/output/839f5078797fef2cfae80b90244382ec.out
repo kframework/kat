@@ -1,0 +1,116 @@
+Program:  sum.fun
+Strategy: setAnalysis .Rules ; setStates .States ; push ; compile-step 6
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          letrec ( sum = fun ( 0 -> 0 ) | n -> n + sum ( n - 1 ) | .Cases ) and .Bindings in sum 100
+        </k>
+        <env>
+          .Map
+        </env>
+        <store>
+          .Map
+        </store>
+        <nextLoc>
+          0
+        </nextLoc>
+      </FUN> --> <FUN>
+        <k>
+          muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( 100 ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          sum |-> 0
+        </env>
+        <store>
+          0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+        </store>
+        <nextLoc>
+          1
+        </nextLoc>
+      </FUN> requires #True > , < <FUN>
+        <k>
+          muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( V0 ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          sum |-> 0
+        </env>
+        <store>
+          0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+        </store>
+        <nextLoc>
+          1
+        </nextLoc>
+      </FUN> --> <FUN>
+        <k>
+          muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( V0 -Int 1 ) ~> #freezer_+__FUN-UNTYPED-COMMON0_ ( V0 ) ~> setEnv ( sum |-> 0 ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          n |-> 1
+          sum |-> 0
+        </env>
+        <store>
+          0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+          1 |-> V0
+        </store>
+        <nextLoc>
+          2
+        </nextLoc>
+      </FUN> requires 0 ==K V0 ==K false >
+    </analysis>
+    <states>
+      <FUN>
+        <k>
+          muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( V1 ) ~> #freezer_+__FUN-UNTYPED-COMMON0_ ( V2 ) ~> setEnv ( sum |-> 0 ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          n |-> 1
+          sum |-> 0
+        </env>
+        <store>
+          0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+          1 |-> V2
+        </store>
+        <nextLoc>
+          2
+        </nextLoc>
+      </FUN> < ^ recCall > : <FUN>
+        <k>
+          muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( V3 ) ~> setEnv ( .Map )
+        </k>
+        <env>
+          sum |-> 0
+        </env>
+        <store>
+          0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+        </store>
+        <nextLoc>
+          1
+        </nextLoc>
+      </FUN> < ^ recCall > < ( ^ regular | ^ lookup | ^ assignment | ^ resetEnv | ^ switchFocus | ^ heatExps | ^ heatCtorArgs | ^ unwrapApplication ) * > < ^ caseSuccess > : .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        closure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( V4 ) ~> #freezer_+__FUN-UNTYPED-COMMON0_ ( V5 ) ~> setEnv ( sum |-> 0 ) ~> setEnv ( .Map )
+      </k>
+      <env>
+        n |-> 1
+        sum |-> 0
+      </env>
+      <store>
+        0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+        1 |-> V5
+      </store>
+      <nextLoc>
+        2
+      </nextLoc>
+    </FUN>
+  </harness>
+</kat-FUN>

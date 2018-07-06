@@ -1,0 +1,34 @@
+Program:  sum.fun
+Strategy: (^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) ~> #arg ( V0 -Int 1 ) ~> #freezer_+__FUN-UNTYPED-COMMON0_ ( V0 ) ~> setEnv ( sum |-> 0 ) ~> setEnv ( .Map )
+      </k>
+      <env>
+        n |-> 1
+        sum |-> 0
+      </env>
+      <store>
+        0 |-> muclosure ( sum |-> 0 , 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases )
+        1 |-> V0
+      </store>
+      <nextLoc>
+        2
+      </nextLoc>
+    </FUN>
+  </harness>
+</kat-FUN>

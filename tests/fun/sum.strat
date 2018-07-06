@@ -1,1 +1,10 @@
+(^ regular | #normal) *
+(^ regular | #normal) * ; abstract
+(^ regular | #normal) * ; abstract ; #loop
+(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) *
+(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
+(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) *
+(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
+setAnalysis .Rules ; setStates .States ; push ; compile-step 5
+setAnalysis .Rules ; setStates .States ; push ; compile-step 6
 exec
