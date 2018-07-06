@@ -901,9 +901,10 @@ of expressions in a binding, respectively.
 
     rule <k> getMatching(N:Name, V:Val) => matchResult(N |-> V) ... </k>
 
-    rule <k> matchFailure ~> getMatchingAux(_, _)       => matchFailure                                ... </k>
-    rule <k> matchResult(RHO) ~> getMatchingAux(ES, VS) => getMatchingAux(ES, VS) ~> matchResult(RHO)  ... </k>
-    rule <k> matchResult(RHO1) ~> matchResult(RHO2)     => matchResult(RHO1 RHO2)                      ... </k>
+    rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
+
+    rule <k> matchResult(RHO) ~> getMatchingAux(ES, VS) => getMatchingAux(ES, VS) ~> matchResult(RHO) ... </k>
+    rule <k> matchResult(RHO1) ~> matchResult(RHO2)     => matchResult(RHO1 RHO2)                     ... </k>
       requires intersectSet(keys(RHO1), keys(RHO2)) ==K .Set
 
     rule <k> getMatchingAux(.Exps,            .Vals)            => matchResult(.Map)                           ... </k>
