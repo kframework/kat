@@ -64,28 +64,42 @@ module FUN-SBC
 ### Define `abstract`
 
 ```k
-    rule <s> abstract [ <FUN> <k> KCELL                </k> <store> STORE                 </store> REST </FUN> ]
-          => pop      ( <FUN> <k> #abstractArgs(KCELL) </k> <store> #abstractStore(STORE) </store> REST </FUN> )
+    rule <s> abstract [ <FUN> <k> muclosure ( RHO , E ) ~> ARGS                </k> <store> STORE                              </store> REST </FUN> ]
+          => pop      ( <FUN> <k> muclosure ( RHO , E ) ~> #abstractArgs(ARGS) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN> )
          ...
          </s>
 
-    syntax Map ::= #abstractStore ( Map ) [function]
- // ------------------------------------------------
-    rule #abstractStore(.Map) => .Map
+    syntax Map ::= #abstractStore ( List , Map ) [function]
+ // -------------------------------------------------------
+    rule #abstractStore(.List, RHO) => RHO
 
-    rule #abstractStore (X |-> _:Int             XS) => X |-> ?V:Int            #abstractStore(XS)
-    rule #abstractStore (X |-> _:Bool            XS) => X |-> ?V:Bool           #abstractStore(XS)
-    rule #abstractStore (X |->   closure(RHO, E) XS) => X |->   closure(RHO, E) #abstractStore(XS)
-    rule #abstractStore (X |-> muclosure(RHO, E) XS) => X |-> muclosure(RHO, E) #abstractStore(XS)
+    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (V:Val => #abstractVal(V))) XS))
+    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> muclosure(RHO, E)) XS))
 
-    syntax K ::= #abstractArgs ( K ) [function]
+    syntax K ::= #abstractArg  ( K ) [function]
+               | #abstractArgs ( K ) [function]
  // -------------------------------------------
-    rule #abstractArgs(.K) => .K
+    rule #abstractArgs(.K)      => .K
+    rule #abstractArgs(K ~> .K) => #abstractArg(K)
+    rule #abstractArgs(K ~> KS) => #abstractArg(K) ~> #abstractArgs(KS)
 
-    rule #abstractArgs(K                     ~> KS) => K               ~> #abstractArgs(KS) requires notBool isArg(K)
-    rule #abstractArgs(#arg(_:Int)           ~> KS) => ?V:Int          ~> #abstractArgs(KS)
-    rule #abstractArgs(#arg(_:Bool)          ~> KS) => ?V:Bool         ~> #abstractArgs(KS)
-    rule #abstractArgs(#arg(closure(RHO, E)) ~> KS) => closure(RHO, E) ~> #abstractArgs(KS)
+    rule #abstractArg(K)       => K                     requires notBool isArg(K)
+    rule #abstractArg(#arg(V)) => #arg(#abstractVal(V))
+
+    syntax Val  ::= #abstractVal  ( Val  ) [function]
+    syntax Vals ::= #abstractVals ( Vals ) [function]
+ // -------------------------------------------------
+    rule #abstractVals(.Vals)  => .Vals
+    rule #abstractVals(V , VS) => #abstractVal(V) , #abstractVals(VS)
+
+    rule #abstractVal(_:Int)    => ?I:Int
+    rule #abstractVal(_:Bool)   => ?B:Bool
+    rule #abstractVal(_:String) => ?S:String
+
+    rule #abstractVal(C:ConstructorName(VS)) => C(#abstractVals(VS))
+    rule #abstractVal([VS])                  => [#abstractVals(VS)]
+
+    rule #abstractVal(closure ( RHO , E )) => closure ( RHO , E )
 ```
 
 ### Define `_subsumes?_`
