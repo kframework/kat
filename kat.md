@@ -604,8 +604,8 @@ Finally, semantics based compilation is provided as a macro.
              else if try-state? STATE < #branch >
               then ( split-rules STATE #branch
                    )
-             else if try-state? STATE < #normal | ^ regular >
-              then ( push STATE < (#normal | ^ regular) * > )
+             else if try-state? STATE < ^ regular | #normal >
+              then ( push STATE < (^ regular | #normal) * > )
              else  ( mk-rule STATE )
              ...
          </s>
