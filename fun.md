@@ -231,7 +231,7 @@ although we will make sure that we do not give them semantics if they
 appear in any other place then in a function case pattern.
 
 ```k
-    syntax Exp ::= "[" Exps "]"           [seqstrict]
+    syntax Exp ::= "[" Exps "]"
                  | "[" Exps "|" Exp "]"
                  | "cons" | "head" | "tail" | "null?"
  // -------------------------------------------------
@@ -251,8 +251,8 @@ evaluate its arguments but not the constuctor name itsef.
 ```k
     syntax ConstructorName
     syntax Exp ::= ConstructorName
-                 | ConstructorName "(" Exps ")"   [prefer, strict(2)]
- // -----------------------------------------------------------------
+                 | ConstructorName "(" Exps ")" [prefer]
+ // ----------------------------------------------------
 
     syntax Val ::= ConstructorName "(" Vals ")"
  // -------------------------------------------
@@ -536,6 +536,15 @@ the first part of the K tutorial).
         <store>   .Map     </store>
         <nextLoc> 0        </nextLoc>
       </FUN>
+
+    syntax KItem ::= "#holderExps"
+                   | "#holderCTor" ConstructorName
+ // ----------------------------------------------
+    rule <k> [ ES:Exps ]            => ES ~> #holderExps ... </k> requires notBool isVals(ES) [tag(heatExps)]
+    rule <k> VS:Vals ~> #holderExps => [ VS ]            ... </k>
+
+    rule <k> C ( ES:Exps )            => ES ~> #holderCTor C ... </k> requires notBool isVals(ES) [tag(heatCtorArgs)]
+    rule <k> VS:Vals ~> #holderCTor C => C ( VS )            ... </k>
 ```
 
 Values and results
@@ -650,7 +659,7 @@ in the function body (we want static scoping in FUN).
     syntax KItem ::= #apply ( Exp )
  // -------------------------------
     rule <k> E E'               => E' ~> #apply(E) ... </k> [tag(unwrapApplication)]
-    rule <k> V:Val ~> #apply(E) => E ~> #arg(V)    ... </k>
+    rule <k> V:Val ~> #apply(E) => E ~> #arg(V)    ... </k> [tag(switchFocus)]
     rule <k> V:Val ~> #arg(V')  => V V'            ... </k>
 ```
 

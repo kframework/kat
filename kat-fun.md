@@ -35,10 +35,12 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 
 ### Define `#branch` and `#normal`
 
-**TODO**: HACK!!! Add tag `unwrapApplication` and `resetEnv` so that we can always make sure `resetEnv` is tried before `unwrapApplication`.
+**TODO**: HACK!!!
+          Rules `resetEnv` and `switchFocus` need to execute before `heatExps`, `heatCTorArgs`, and `unwrapApplication`.
+          If the latter rules are allowed to execute first, K does not prune applications of them as infeasible properly.
 
 ```k
-    rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ unwrapApplication
+    rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ switchFocus | ^ heatExps | ^ heatCtorArgs | ^ unwrapApplication
     rule #branch => ^ iftrue | ^ iffalse | ^ caseSuccess | ^ caseFailure
     rule #loop   => ^ recCall
 ```
