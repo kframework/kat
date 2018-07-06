@@ -35,8 +35,10 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 
 ### Define `#branch` and `#normal`
 
+**TODO**: HACK!!! Add tag `unwrapApplication` and `resetEnv` so that we can always make sure `resetEnv` is tried before `unwrapApplication`.
+
 ```k
-    rule #normal => ^ lookup | ^ assignment
+    rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ unwrapApplication
     rule #branch => ^ iftrue | ^ iffalse | ^ caseSuccess | ^ caseFailure
     rule #loop   => ^ recCall
 ```

@@ -649,7 +649,7 @@ in the function body (we want static scoping in FUN).
     syntax Arg   ::= #arg   ( Val )
     syntax KItem ::= #apply ( Exp )
  // -------------------------------
-    rule <k> E E'               => E' ~> #apply(E) ... </k>
+    rule <k> E E'               => E' ~> #apply(E) ... </k> [tag(unwrapApplication)]
     rule <k> V:Val ~> #apply(E) => E ~> #arg(V)    ... </k>
     rule <k> V:Val ~> #arg(V')  => V V'            ... </k>
 ```
@@ -813,6 +813,7 @@ achieve the benefits of tail recursion in K.
  // -------------------------------
     rule <k> _:Val ~> (setEnv(RHO) => .) ... </k>
          <env> _ => RHO </env>
+      [tag(resetEnv)]
 ```
 
 ### `bindTo`, `bind` and `assignTo`
