@@ -658,7 +658,9 @@ in the function body (we want static scoping in FUN).
     syntax Arg   ::= #arg   ( Val )
     syntax KItem ::= #apply ( Exp )
  // -------------------------------
-    rule <k> E E'               => E' ~> #apply(E) ... </k> [tag(unwrapApplication)]
+    rule <k> E E'               => E' ~> #apply(E) ... </k>
+      requires notBool isVal(E)
+      [tag(unwrapApplication)]
     rule <k> V:Val ~> #apply(E) => E ~> #arg(V)    ... </k> [tag(switchFocus)]
     rule <k> V:Val ~> #arg(V')  => V V'            ... </k>
 ```
