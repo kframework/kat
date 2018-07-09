@@ -531,10 +531,11 @@ the first part of the K tutorial).
 ```k
     configuration
       <FUN>
-        <k>       $PGM:Exp </k>
-        <env>     .Map     </env>
-        <store>   .Map     </store>
-        <nextLoc> 0        </nextLoc>
+        <k>         $PGM:Exp </k>
+        <callStack> .K       </callStack>
+        <env>       .Map     </env>
+        <store>     .Map     </store>
+        <nextLoc>   0        </nextLoc>
       </FUN>
 
     syntax KItem ::= "#holderExps"
@@ -658,11 +659,12 @@ in the function body (we want static scoping in FUN).
     syntax Arg   ::= #arg   ( Val )
     syntax KItem ::= #apply ( Exp )
  // -------------------------------
-    rule <k> E E'               => E' ~> #apply(E) ... </k>
+    rule <k> E E' ~> REST => E' ~> #apply(E) </k>
+         <callStack> (. => REST) ... </callStack>
       requires notBool isVal(E)
       [tag(unwrapApplication)]
-    rule <k> V:Val ~> #apply(E) => E ~> #arg(V)    ... </k> [tag(switchFocus)]
-    rule <k> V:Val ~> #arg(V')  => V V'            ... </k>
+    rule <k> V:Val ~> #apply(E) => E ~> #arg(V) ... </k> [tag(switchFocus)]
+    rule <k> V:Val ~> #arg(V')  => V V'         ... </k>
 ```
 
 #### Note:
@@ -679,7 +681,8 @@ the environment is properly recovered afterwards. If the first pattern
 does not match, then we drop it and thus move on to the next one.
 
 ```k
-    rule <k> (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val ... </k>
+    rule <k> (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val ~> REST ~> (. => CALLSTACK) </k>
+         <callStack> CALLSTACK => . </callStack>
 
     rule <k> matchResult(M:Map) ~> closure(RHO, _->E | _) _ => bindMap(M) ~> E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
