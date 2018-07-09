@@ -1,0 +1,35 @@
+Program:  simple-rec.fun
+Strategy: exec-to-branch
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( ) ~> #which-can ^ caseFailure | ^ caseSuccess
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        getMatching ( 0 , V0 ) ~> closure ( simple |-> 0 , 0 -> 0 | n -> simple ( n - 1 ) | .Cases ) V0 ~> setEnv ( .Map )
+      </k>
+      <extraComp>
+        .
+      </extraComp>
+      <env>
+        simple |-> 0
+      </env>
+      <store>
+        0 |-> muclosure ( simple |-> 0 , 0 -> 0 | n -> simple ( n - 1 ) | .Cases )
+      </store>
+      <nextLoc>
+        1
+      </nextLoc>
+    </FUN>
+  </harness>
+</kat-FUN>
