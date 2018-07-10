@@ -16,28 +16,89 @@ Strategy: exec
   <harness>
     <FUN>
       <k>
-        h ~> setEnv ( fact |-> 2
-        max |-> 1 ) ~> #freezer___FUN-UNTYPED-COMMON0_ ( closure ( fact |-> 2
-        max |-> 1 , 0 -> 1 | x -> x * fact ( x - 1 ) | .Cases ) ) ~> setEnv ( .Map )
+        620448401733239439360000
       </k>
+      <extraComp>
+        .
+      </extraComp>
       <env>
-        fact |-> 2
-        max |-> 1
-        x |-> 7
-        y |-> 8
+        .Map
       </env>
       <store>
-        1 |-> muclosure ( fact |-> 2
-        max |-> 1 , [ h , .Names ] -> ( fun ( x -> fun ( y -> h ) | .Cases ) | .Cases ) | [ h , .Names | t ] -> ( fun ( x -> fun ( y -> let ( x = max t x y ) and .Bindings in if h > x then h else x ) | .Cases ) | .Cases ) | .Cases )
-        2 |-> muclosure ( fact |-> 2
-        max |-> 1 , 0 -> 1 | x -> x * fact ( x - 1 ) | .Cases )
-        3 |-> 4
-        4 |-> 3
-        5 |-> 2
-        6 |-> 1
-        7 |-> true
-        8 |-> 5
+        0 |-> muclosure ( fact |-> 1
+        max |-> 0 , [ h , .Names ] -> ( fun ( x -> fun ( y -> h ) | .Cases ) | .Cases ) | [ h , .Names | t ] -> ( fun ( x -> fun ( y -> let ( x = max t x y ) and .Bindings in if h > x then h else x ) | .Cases ) | .Cases ) | .Cases )
+        1 |-> muclosure ( fact |-> 1
+        max |-> 0 , 0 -> 1 | x -> x * fact ( x - 1 ) | .Cases )
+        2 |-> 4
+        3 |-> 3
+        4 |-> 2
+        5 |-> 1
+        6 |-> [ 3 , 24 , 2 , 5 , 0 , -1 , -5 , .Names ]
+        7 |-> 1
+        8 |-> true
+        9 |-> 5
+        10 |-> [ 24 , 2 , 5 , 0 , -1 , -5 , .Names ]
+        11 |-> 3
+        12 |-> true
+        13 |-> 5
+        14 |-> [ 2 , 5 , 0 , -1 , -5 , .Names ]
+        15 |-> 24
+        16 |-> true
+        17 |-> 5
+        18 |-> [ 5 , 0 , -1 , -5 , .Names ]
+        19 |-> 2
+        20 |-> true
+        21 |-> 5
+        22 |-> [ 0 , -1 , -5 , .Names ]
+        23 |-> 5
+        24 |-> true
+        25 |-> 5
+        26 |-> [ -1 , -5 , .Names ]
+        27 |-> 0
+        28 |-> true
+        29 |-> 5
+        30 |-> [ -5 , .Names ]
+        31 |-> -1
+        32 |-> true
+        33 |-> 5
+        34 |-> -5
+        35 |-> true
+        36 |-> 5
+        37 |-> -5
+        38 |-> -1
+        39 |-> 0
+        40 |-> 5
+        41 |-> 5
+        42 |-> 24
+        43 |-> 24
+        44 |-> 24
+        45 |-> 23
+        46 |-> 22
+        47 |-> 21
+        48 |-> 20
+        49 |-> 19
+        50 |-> 18
+        51 |-> 17
+        52 |-> 16
+        53 |-> 15
+        54 |-> 14
+        55 |-> 13
+        56 |-> 12
+        57 |-> 11
+        58 |-> 10
+        59 |-> 9
+        60 |-> 8
+        61 |-> 7
+        62 |-> 6
+        63 |-> 5
+        64 |-> 4
+        65 |-> 3
+        66 |-> 2
+        67 |-> 1
       </store>
+      <nextLoc>
+        68
+      </nextLoc>
     </FUN>
   </harness>
 </kat-FUN>
