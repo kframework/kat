@@ -9,4 +9,4 @@ letrec longLoop = fun 0 x y z -> 0
                                 let z3 = 15 * y2 in
                                   let c2 = c - 1 in
                                     longLoop c2 x2 y3 z3
-in longLoop 50 0 0 0
+in longLoop symbolicInt 0 0 0
