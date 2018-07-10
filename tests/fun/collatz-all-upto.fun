@@ -1,4 +1,4 @@
-// Compute collatz up to 26
+// Compute collatz up to symbolic bound
 
 letrec allCollatz = fun 0 -> 0
                     |   n -> collatz(n) + allCollatz(n - 1)
@@ -7,4 +7,4 @@ and collatz = fun 1 -> 1
                          1 + collatz(n / 2)
                        else
                          1 + collatz(3 * n + 1)
-in allCollatz(26)
+in allCollatz(symbolicInt)
