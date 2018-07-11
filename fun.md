@@ -259,12 +259,12 @@ Also, note that the constructor is strict in its second argument, because we wan
 
 ```k
     syntax ConstructorName
-    syntax Exp ::= ConstructorName
-                 | ConstructorName "(" Exps ")" [prefer]
+    syntax Exp ::= ConstructorName "(" Exps ")" [prefer]
  // ----------------------------------------------------
 
-    syntax Val ::= ConstructorName "(" Vals ")"
- // -------------------------------------------
+    syntax Val ::= ConstructorName
+                 | ConstructorName "(" Vals ")" [prefer]
+ // ----------------------------------------------------
 ```
 
 A function is essentially a "`|`"-separated ordered sequence of
@@ -623,15 +623,6 @@ argument):
     rule isVal(cons V:Val) => true
 
     rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
-```
-
-Data Constructors
------------------
-
-Constructors take values as arguments and produce other values:
-
-```k
-    syntax Val ::= ConstructorName
 ```
 
 Functions and Closures
