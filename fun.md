@@ -138,14 +138,10 @@ more depth when we define their semantics in the next module.
 The Syntactic Constructs
 ------------------------
 
-We start with the syntactic definition of FUN names. We have
-several categories of names: ones to be used for functions and
-variables, others to be used for data constructors, others for types and
-others for type variables. We will introduce them as needed, starting
-with the former category. We prefer the names of variables and functions
-to start with lower case letters. We take the freedom to tacitly
-introduce syntactic lists/sequences for each nonterminal for which we
-need them:
+We start with the syntactic definition of FUN names.
+We have several categories of names: ones to be used for functions and variables, others to be used for data constructors, others for types and others for type variables.
+We will introduce them as needed, starting with the former category.
+We prefer the names of variables and functions to start with lower case letters. We take the freedom to tacitly introduce syntactic lists/sequences for each nonterminal for which we need them:
 
 ```k
     syntax Name
@@ -160,30 +156,26 @@ need them:
     rule symbolicInt => ?V:Int
 ```
 
-Expression constructs will be defined throughtout the syntax
-module. Below are the very basic ones, namely the builtins, the names,
-and the parentheses used as brackets for grouping. Lists of expressions
-are declared strict, so all expressions in the list get evaluated
-whenever the list is on a position which can be evaluated:
+Expression constructs will be defined throughtout the syntax module.
+Below are the very basic ones, namely the builtins, the names, and the parentheses used as brackets for grouping.
+Lists of expressions are declared strict, so all expressions in the list get evaluated whenever the list is on a position which can be evaluated:
 
 ```k
     syntax Val
-    syntax Exp  ::= "(" Exp ")"      [bracket]
-                  | Int | Bool | String | Name
- // ------------------------------------------
+    syntax Exp ::= "(" Exp ")"      [bracket]
+                 | Int | Bool | String | Name
+ // -----------------------------------------
 
     syntax Vals ::= List{Val,","}
     syntax Exps ::= List{Exp,","} [seqstrict]
  // -----------------------------------------
 ```
 
-We next define the syntax of arithmetic constructs, together with
-their relative priorities and left-/non-associativities. We also tag all
-these rules with a new tag, "arith", so we can more easily define global
-syntax priirities later (at the end of the syntax module).
+We next define the syntax of arithmetic constructs, together with their relative priorities and left-/non-associativities.
+We also tag all these rules with a new tag, "arith", so we can more easily define global syntax priirities later (at the end of the syntax module).
 
 **TODO**: Left attribute on `_^_` and `_+_` should not be necessary; currently a parsing bug.
-          The "prefer" attribute above is to not parse x-1 as x(-1),
+          The "prefer" attribute above is to not parse x-1 as x(-1).
           Due to some parsing problems, we currently cannot add a unary minus (`3 + - 3`).
 
 ```k
@@ -208,8 +200,7 @@ syntax priirities later (at the end of the syntax module).
                  > Exp "||" Exp   [strict(1), left, arith]
 ```
 
-The conditional construct has the expected evaluation strategy,
-stating that only the first argument is evaluate:
+The conditional construct has the expected evaluation strategy, stating that only the first argument is evaluate:
 
 ```k
     syntax Exp ::= "if" Exp "then" Exp "else" Exp  [strict(1)]
