@@ -215,41 +215,47 @@ stating that only the first argument is evaluate:
     syntax Exp ::= "if" Exp "then" Exp "else" Exp  [strict(1)]
 ```
 
-FUN's builtin lists are formed by enclosing comma-separated
-sequences of expressions (i.e., terms of sort *Exps*) in square
-brackets. The list constructor cons adds a new element to the top of the
-list, `head` and `tail` get the first element and the tail sublist of a
-list if they exist, respectively, and get stuck otherwise, and `null??`
-tests whether a list is empty or not; syntactically, these are just
-expression constants. In function patterns, we are also going to allow
-patterns following the usual head/tail notation; for example, the
-pattern $\tt [x_1,...,x_n|t]$ binds
-$\tt x_1$, \..., $\tt x_n$ to the first elements of
-the matched list, and $\tt t$ to the list formed with the remaining
-elements. We define list patterns as ordinary expression constructs,
-although we will make sure that we do not give them semantics if they
-appear in any other place then in a function case pattern.
+### Builtin Lists
+
+FUN's builtin lists are formed by enclosing comma-separated sequences of expressions (i.e., terms of sort *Exps*) in square brackets.
+The operator `[_|_]` is the list "cons" data-constructor, which allows for adding an element to the front of a given list.
 
 ```k
     syntax Exp ::= "[" Exps "]"
                  | "[" Exps "|" Exp "]"
-                 | "cons"  [function]
-                 | "head"  [function]
-                 | "tail"  [function]
-                 | "null?" [function]
- // ---------------------------------
+ // -----------------------------------
 
     syntax Val ::= "[" Vals "]"
  // ---------------------------
 ```
 
-Data constructors start with capital letters and they may or may
-not have arguments. We need to use the attribute "prefer" to make sure
-that, e.g., Cons(a) parses as constructor Cons with argument a, and not
-as the expression Cons (because constructor names are also expressions)
-regarded as a function applied to the expression a. Also, note that the
-constructor is strict in its second argument, because we want to
-evaluate its arguments but not the constuctor name itsef.
+The following "builtin" functions are provided for convenience of building/accessing elements of lists.
+
+-   `cons`: adds an element to the front of a list.
+-   `head`: retrieves the first element of a list (halts on empty).
+-   `tail`: retrieves all but the first element of a list (halts on empty).
+-   `null?`: returns `true` for an empty list, `false` otherwise.
+
+We desugar the list non-constructor operations to functions matching over list patterns, using custom variable names which cannot be used in regular programs (prepended with `$`).
+
+```k
+    syntax Exp ::= "cons" [function] | "head"  [function]
+                 | "tail" [function] | "null?" [function]
+ // -----------------------------------------------------
+    rule cons  => fun $h $t       -> [ $h | $t ]               [macro]
+    rule head  => fun [ $h | $t ] -> $h                        [macro]
+    rule tail  => fun [ $h | $t ] -> $t                        [macro]
+    rule null? => fun [ $h | $t ] -> false | [ .Exps ] -> true [macro]
+
+    syntax Name ::= "$h" | "$t"
+ // ---------------------------
+```
+
+### Algebraic Data Types
+
+Data constructors start with capital letters and they may or may not have arguments.
+We need to use the attribute "prefer" to make sure that, e.g., `Cons(a)` parses as constructor `Cons` with argument `a`, and not as the expression `Cons` applied (as a function) to argument `a`.
+Also, note that the constructor is strict in its second argument, because we want to evaluate its arguments but not the constuctor name itsef.
 
 ```k
     syntax ConstructorName
@@ -440,22 +446,6 @@ Desugaring macros
 ```k
 module FUN-UNTYPED-MACROS
     imports FUN-UNTYPED-COMMON
-```
-
-We desugar the list non-constructor operations to functions
-matching over list patterns. In order to do that we need some new
-variables; for those, we follow the same convention like in the K
-tutorial, where we added them as new identifier constructs starting with
-the character $\$$, so we can easily recognize them when we debug or
-trace the semantics.
-
-```k
-    syntax Name ::= "$h" | "$t"
- // ---------------------------
-    rule cons  => fun $h $t -> [$h | $t]                 [macro]
-    rule head  => fun [$h|$t] -> $h                      [macro]
-    rule tail  => fun [$h|$t] -> $t                      [macro]
-    rule null? => fun [.Exps] -> true | [$h|$t] -> false [macro]
 ```
 
 Multiple-head list patterns desugar into successive one-head
