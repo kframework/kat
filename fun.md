@@ -893,6 +893,14 @@ of expressions in a binding, respectively.
                          | matchResult( Map )
                          | "matchFailure"                 [smtlib(matchFailure)]
  // -------------------------------------
+    rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
+
+    rule <k> matchResult(RHO1) ~> matchResult(RHO2) => matchResult(RHO1 RHO2) ... </k>
+      requires intersectSet(keys(RHO1), keys(RHO2)) ==K .Set
+
+    rule <k> matchResult(RHO) ~> getMatchingAux(ES, VS) => getMatchingAux(ES, VS) ~> matchResult(RHO) ... </k>
+    rule <k> matchResult(RHO) ~> getMatching   (E , V ) => getMatching   (E , V ) ~> matchResult(RHO) ... </k>
+
     rule <k> getMatching(B:Bool,   B':Bool)   => matchResult(.Map) ... </k> requires B  ==Bool   B' [tag(caseSuccess)]
     rule <k> getMatching(B:Bool,   B':Bool)   => matchFailure      ... </k> requires B =/=Bool   B' [tag(caseFailure)]
     rule <k> getMatching(I:Int,    I':Int)    => matchResult(.Map) ... </k> requires I  ==Int    I' [tag(caseSuccess)]
@@ -900,22 +908,22 @@ of expressions in a binding, respectively.
     rule <k> getMatching(S:String, S':String) => matchResult(.Map) ... </k> requires S  ==String S' [tag(caseSuccess)]
     rule <k> getMatching(S:String, S':String) => matchFailure      ... </k> requires S =/=String S' [tag(caseFailure)]
 
-    rule <k> getMatching(C:ConstructorName(ES:Exps), C(VS:Vals)) => getMatchingAux(ES, VS) ... </k>
-    rule <k> getMatching([ES:Exps], [VS:Vals])                   => getMatchingAux(ES, VS) ... </k>
-    rule <k> getMatching(C:ConstructorName, C)                   => matchResult(.Map)      ... </k>
+    rule <k> getMatching(N:Name, V:Val) => matchResult(N |-> V) ... </k> [tag(caseSuccess)]
 
-    rule <k> getMatching(N:Name, V:Val) => matchResult(N |-> V) ... </k>
+    rule <k> getMatching(C:ConstructorName, C':ConstructorName) => matchResult(.Map) ... </k> requires C  ==K C' [tag(caseSuccess)]
+    rule <k> getMatching(C:ConstructorName, C':ConstructorName) => matchFailure      ... </k> requires C =/=K C' [tag(caseFailure)]
 
-    rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
+    rule <k> getMatching(C:ConstructorName(ES), C':ConstructorName(ES')) => getMatching(C, C') ~> getMatching([ES], [ES']) ... </k> [tag(caseSuccess)]
 
-    rule <k> matchResult(RHO) ~> getMatchingAux(ES, VS) => getMatchingAux(ES, VS) ~> matchResult(RHO) ... </k>
-    rule <k> matchResult(RHO1) ~> matchResult(RHO2)     => matchResult(RHO1 RHO2)                     ... </k>
-      requires intersectSet(keys(RHO1), keys(RHO2)) ==K .Set
+    rule <k> getMatching(C:ConstructorName(ES), C':ConstructorName)      => matchFailure ... </k> [tag(caseFailure)]
+    rule <k> getMatching(C:ConstructorName,     C':ConstructorName(ES')) => matchFailure ... </k> [tag(caseFailure)]
 
-    rule <k> getMatchingAux(.Exps,            .Vals)            => matchResult(.Map)                           ... </k>
-    rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => getMatching(E, V) ~> getMatchingAux(ES, VS) ... </k>
-    rule <k> getMatchingAux(ES, VS)                             => matchFailure                                ... </k>
-      requires #length(ES) =/=Int #length(VS)
+    rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchingAux(ES, VS) ... </k> requires #length(ES)  ==Int #length(VS) [tag(caseSuccess)]
+    rule <k> getMatching([ES:Exps], [VS:Vals]) => matchFailure           ... </k> requires #length(ES) =/=Int #length(VS) [tag(caseFailure)]
+
+    rule <k> getMatchingAux(.Exps,            .Vals)            => matchResult(.Map)                           ... </k> [tag(caseSuccess)]
+    rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => getMatching(E, V) ~> getMatchingAux(ES, VS) ... </k> [tag(caseSuccess)]
+    rule <k> getMatchingAux(ES, VS)                             => matchFailure                                ... </k> [tag(caseFailure)]
 
     syntax Int ::= #length ( Exps ) [function]
  // ------------------------------------------
