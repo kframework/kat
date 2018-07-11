@@ -233,8 +233,11 @@ appear in any other place then in a function case pattern.
 ```k
     syntax Exp ::= "[" Exps "]"
                  | "[" Exps "|" Exp "]"
-                 | "cons" | "head" | "tail" | "null?"
- // -------------------------------------------------
+                 | "cons"  [function]
+                 | "head"  [function]
+                 | "tail"  [function]
+                 | "null?" [function]
+ // ---------------------------------
 
     syntax Val ::= "[" Vals "]"
  // ---------------------------
@@ -449,6 +452,7 @@ trace the semantics.
 ```k
     syntax Name ::= "$h" | "$t"
  // ---------------------------
+    rule cons  => fun $h $t -> [$h | $t]                 [macro]
     rule head  => fun [$h|$t] -> $h                      [macro]
     rule tail  => fun [$h|$t] -> $t                      [macro]
     rule null? => fun [.Exps] -> true | [$h|$t] -> false [macro]
