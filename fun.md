@@ -253,6 +253,16 @@ We desugar the list non-constructor operations to functions matching over list p
 
 ### Algebraic Data Types
 
+FUN also allows polymorphic datatype declarations.
+These will be useful when we define the type system later on.
+
+**NOTE**: In a future version of K, we want the datatype declaration to be a construct by itself, but that is not possible currently because K's parser wronly identifies the BLAH operation allowing a declaration to appear in front of an expression with the function application construct, giving ambiguous parsing errors.
+
+```k
+    syntax Exp ::= "datatype" Type "=" TypeCases Exp
+ // ------------------------------------------------
+```
+
 Data constructors start with capital letters and they may or may not have arguments.
 We need to use the attribute "prefer" to make sure that, e.g., `Cons(a)` parses as constructor `Cons` with argument `a`, and not as the expression `Cons` applied (as a function) to argument `a`.
 Also, note that the constructor is strict in its second argument, because we want to evaluate its arguments but not the constuctor name itsef.
@@ -267,24 +277,17 @@ Also, note that the constructor is strict in its second argument, because we wan
  // ----------------------------------------------------
 ```
 
-A function is essentially a "`|`"-separated ordered sequence of
-cases, each case of the form "`pattern -> expression`", preceded by the
-language construct `fun`. Patterns will be defined shortly, both for the
-builtin lists and for user-defined constructors. Recall that the syntax
-we define in K is not meant to serve as a ultimate parser for the defined
-language, but rather as a convenient notation for K abstract syntax trees,
-which we prefer when we write the semantic rules. It is therefore often
-the case that we define a more "generous" syntax than we want to allow
-programs to use. We do it here, too. Specifically, the syntax of *Cases*
-below allows any expressions to appear as pattern. This syntactic
-relaxation permits many wrong programs to be parsed, but that is not a
-problem because we are not going to give semantics to wrong
-combinations, so those programs will get stuck; moreover, our type
-inferencer will reject those programs anyway. Function application is
-just concatenation of expressions, without worrying about type
-correctness. Again, the type system will reject type-incorrect programs.
+### (Lambda) Functions
 
-**NOTE**: We would like eventually to also have `Exp "(" Exps ")"`
+A function is essentially a "`|`"-separated ordered sequence of cases, each case of the form "`pattern -> expression`", preceded by the language construct `fun`.
+Patterns will be defined shortly, both for the builtin lists and for user-defined constructors.
+Recall that the syntax we define in K is not meant to serve as a ultimate parser for the defined language, but rather as a convenient notation for K abstract syntax trees, which we prefer when we write the semantic rules.
+It is therefore often the case that we define a more "generous" syntax than we want to allow programs to use.
+
+Specifically, the syntax of `Cases` below allows any expressions to appear as pattern.
+This syntactic relaxation permits many wrong programs to be parsed, but that is not a problem because we are not going to give semantics to wrong combinations, so those programs will get stuck; moreover, our type inferencer will reject those programs anyway.
+Function application is just concatenation of expressions, without worrying about type correctness.
+Again, the type system will reject type-incorrect programs.
 
 ```k
     syntax Exp ::= "fun" Cases
@@ -296,69 +299,50 @@ correctness. Again, the type system will reject type-incorrect programs.
  // --------------------------------
 ```
 
-The `let` and `letrec` binders have the usual syntax and functional
-meaning. We allow multiple and-separated bindings. Like for the function
-cases above, we allow a more generous syntax for the left-hand sides of
-bindings, noting that the semantics will get stuck on incorrect bindings
-and that the type system will reject those programs.
+### Binding Environments
 
-**TODO**: The "prefer" attribute for letrec currently needed due to tool bug,
-          to make sure that "letrec" is not parsed as "let rec".
+The `let` and `letrec` binders have the usual syntax and functional meaning. We allow multiple and-separated bindings.
+Like for the function cases above, we allow a more generous syntax for the left-hand sides of bindings, noting that the semantics will get stuck on incorrect bindings and that the type system will reject those programs.
+
+**TODO**: The "prefer" attribute for letrec currently needed due to tool bug, to make sure that "letrec" is not parsed as "let rec".
 
 ```k
     syntax Exp ::= "let"    Bindings "in" Exp
-                 | "letrec" Bindings "in" Exp   [prefer]
- // ----------------------------------------------------
+                 | "letrec" Bindings "in" Exp [prefer]
+ // --------------------------------------------------
 
     syntax Binding  ::= Exp "=" Exp
     syntax Bindings ::= List{Binding,"and"}
  // ---------------------------------------
 ```
 
-References are first class values in FUN. The construct `ref` takes
-an expression, evaluates it, and then it stores the resulting value at a
-fresh location in the store and returns that reference. Syntactically,
-`ref` is just an expression constant. The construct `&` takes a name as
-argument and evaluates to a reference, namely the store reference where
-the variable passed as argument stores its value; this construct is a
-bit controversial and is further discussed in the environment-based
-semantics of the FUN language, where we desugar `ref` to it. The
-construct `@` takes a reference and evaluates to the value stored there.
-The construct `:=` takes two expressions, the first expected to evaluate
-to a reference; the value of its second argument will be stored at the
-location to which the first points (the old value is thus lost).
-Finally, since expression evaluation now has side effects, it makes
-sense to also add a sequential composition construct, which is
-sequentially strict. This evaluates to the value of its second argument;
-the value of the first argument is lost (which has therefore been
-evaluated only for its side effects.
+References are first class values in FUN.
+The construct `ref` takes an expression, evaluates it, and then it stores the resulting value at a fresh location in the store and returns that reference.
+Syntactically, `ref` is just an expression constant.
+The construct `&` takes a name as argument and evaluates to a reference, namely the store reference where the variable passed as argument stores its value.
+The construct `@` takes a reference and evaluates to the value stored there.
+The construct `:=` takes two expressions, the first expected to evaluate to a reference; the value of its second argument will be stored at the location to which the first points (the old value is thus lost).
+Finally, since expression evaluation now has side effects, it makes sense to also add a sequential composition construct, which is sequentially strict.
+This evaluates to the value of its second argument; the value of the first argument is lost (which has therefore been evaluated only for its side effects.
 
 ```k
     syntax Exp ::= "ref"
                  | "&" Name
-                 | "@" Exp        [seqstrict]
-                 | Exp ":=" Exp   [seqstrict]
-                 | Exp ";"  Exp   [strict(1), right]
+                 | "@" Exp      [seqstrict]
+                 | Exp ":=" Exp [seqstrict]
+                 | Exp ";"  Exp [strict(1), right]
+ // ----------------------------------------------
 ```
 
-Call-with-current-continuation, named `callcc` in FUN, is a
-powerful control operator that originated in the Scheme programming
-language, but it now exists in many other functional languages. It works
-by evaluating its argument, expected to evaluate to a function, and by
-passing the current continuation, or evaluation context (or computation,
-in K terminology), as a special value to it. When/If this special value is
-invoked, the current context is discarded and replaced with the one held
-by the special value and the computation continues from there. It is
-like taking a snapshot of the execution context at some moment in time
-and then, when desired, being able to get back in time to that point. If
-you like games, it is like saving the game now (so you can work on your
-homework!) and then continuing the game tomorrow or whenever you wish.
-To issustrate the strength of `callcc`, we also allow exceptions in FUN
-by means of a conventional `try-catch` construct, which will desugar to
-`callcc`. We also need to introduce the special expression contant
-`throw`, but we need to use it as a function argument name in the
-desugaring macro, so we define it as a name instead of as an expression
-constant:
+### Jumps in Control Flow
+
+Call-with-current-continuation, named `callcc` in FUN, is a powerful control operator that originated in the Scheme programming language, but it now exists in many other functional languages.
+It works by evaluating its argument, expected to evaluate to a function, and by passing the current continuation, or evaluation context (or computation, in K terminology), as a special value to it.
+When/If this special value is invoked, the current context is discarded and replaced with the one held by the special value and the computation continues from there.
+It is like taking a snapshot of the execution context at some moment in time and then, when desired, being able to get back in time to that point.
+If you like games, it is like saving the game now (so you can work on your homework!) and then continuing the game tomorrow or whenever you wish.
+To issustrate the strength of `callcc`, we also allow exceptions in FUN by means of a conventional `try-catch` construct, which will desugar to `callcc`.
+We also need to introduce the special expression contant `throw`, but we need to use it as a function argument name in the desugaring macro, so we define it as a name instead of as an expression constant:
 
 ```k
     syntax Exp ::= "callcc"
@@ -369,33 +353,19 @@ constant:
  // -------------------------------
 ```
 
-Finally, FUN also allows polymorphic datatype declarations. These
-will be useful when we define the type system later on.
+### Types
 
-**NOTE**: In a future version of K, we want the datatype declaration
-          to be a construct by itself, but that is not possible currently
-          because K's parser wronly identifies the BLAH operation allowing
-          a declaration to appear in front of an expression with the function
-          application construct, giving ambiguous parsing errors.
-
-```k
-    syntax Exp ::= "datatype" Type "=" TypeCases Exp
-```
-
-We next need to define the syntax of types and type cases that
-appear in datatype declarations.
-
-Like in many functional languages, type parameters/variables in
-user-defined types are quoted identifiers.
+We next need to define the syntax of types and type cases that appear in datatype declarations.
+Like in many functional languages, type parameters/variables in user-defined types are quoted identifiers.
 
 ```k
     syntax TypeVar
     syntax TypeVars ::= List{TypeVar,","}
+ // -------------------------------------
 ```
 
-Types can be basic types, function types, or user-defined
-parametric types. In the dynamic semantics we are going to simply ignore
-all the type declations, so here the syntax of types below is only
+Types can be basic types, function types, or user-defined parametric types.
+In the dynamic semantics we are going to simply ignore all the type declations, so here the syntax of types below is only
 useful for generating the desired parser. To avoid syntactic ambiguities
 with the arrow construct for function cases, we use the symbol `-->` as
 a constructor for function types:
