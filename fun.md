@@ -141,11 +141,13 @@ The Syntactic Constructs
 We start with the syntactic definition of FUN names.
 We have several categories of names: ones to be used for functions and variables, others to be used for data constructors, others for types and others for type variables.
 We will introduce them as needed, starting with the former category.
-We prefer the names of variables and functions to start with lower case letters. We take the freedom to tacitly introduce syntactic lists/sequences for each nonterminal for which we need them:
+We prefer the names of variables and functions to start with lower case letters.
+Three special names `$h`, `$t`, and `$k` are used in the semantics for desugaring builtin functions to actual functions (they will not parse in real programs).
 
 ```k
-    syntax Name
+    syntax Name  ::= "$h" | "$t" | "$k"
     syntax Names ::= List{Name,","}
+ // -------------------------------
 ```
 
 ### Symbolic Integers
@@ -227,7 +229,7 @@ The following "builtin" functions are provided for convenience of building/acces
 -   `tail`: retrieves all but the first element of a list (halts on empty).
 -   `null?`: returns `true` for an empty list, `false` otherwise.
 
-We desugar the list non-constructor operations to functions matching over list patterns, using custom variable names which cannot be used in regular programs (prepended with `$`).
+We desugar the list non-constructor operations to functions matching over list patterns.
 
 ```k
     syntax Exp ::= "cons" [function] | "head"  [function]
@@ -237,9 +239,6 @@ We desugar the list non-constructor operations to functions matching over list p
     rule head  => fun [ $h | $t ] -> $h                        [macro]
     rule tail  => fun [ $h | $t ] -> $t                        [macro]
     rule null? => fun [ $h | $t ] -> false | [ .Exps ] -> true [macro]
-
-    syntax Name ::= "$h" | "$t"
- // ---------------------------
 ```
 
 ### Algebraic Data Types
@@ -339,9 +338,7 @@ We also need to introduce the special expression contant `throw`, but we need to
     syntax Exp ::= "callcc"
                  | "try" Exp "catch" "(" Name ")" Exp
  // -------------------------------------------------
-
-    syntax Name ::= "throw" [token]
- // -------------------------------
+    rule try E catch(X) E' => callcc (fun $k -> (fun $t -> E) (fun X -> $k E')) [macro]
 ```
 
 ### Types
@@ -421,14 +418,6 @@ Uncurrying of multiple arguments in functions and binders:
 ```k
     rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
     rule F P = E    => F = fun P -> E    [macro]
-```
-
-We desugar the `try-catch` construct into callcc:
-
-```k
-    syntax Name ::= "$k" | "$v"
- // ---------------------------
-    rule try E catch(X) E' => callcc (fun $k -> (fun throw -> E)(fun X -> $k E')) [macro]
 ```
 
 For uniformity, we reduce all types to their general form:
