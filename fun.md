@@ -797,7 +797,6 @@ of expressions in a binding, respectively.
 
     rule <k> getMatchingAux(.Exps,            .Vals)            => matchResult(.Map)                           ... </k> [tag(caseSuccess)]
     rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => getMatching(E, V) ~> getMatchingAux(ES, VS) ... </k> [tag(caseSuccess)]
-    rule <k> getMatchingAux(ES, VS)                             => matchFailure                                ... </k> [tag(caseFailure)]
 
     syntax Int ::= #length ( Exps ) [function]
  // ------------------------------------------
