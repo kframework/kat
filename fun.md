@@ -255,7 +255,7 @@ Again, the type system will reject type-incorrect programs.
 
 ```k
     syntax Exp ::= "fun" Cases
-                 | Exp Exp     [left]
+    syntax Exp ::= Exp Exp     [left]
  // ---------------------------------
     rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
 
@@ -535,9 +535,10 @@ in the function body (we want static scoping in FUN).
  // -------------------------------
     rule <k> E E' ~> REST => E' ~> #apply(E) </k>
          <callStack> (. => REST) ... </callStack>
-      requires notBool isVal(E)
+      requires notBool isClosureVal(E)
       [tag(unwrapApplication)]
-    rule <k> V:Val ~> #apply(E) => E ~> #arg(V) ... </k> [tag(switchFocus)]
+    rule <k> V:Val ~> #apply(E) => E ~> #arg(V) ... </k>
+      [tag(switchFocus)]
     rule <k> V:Val ~> #arg(V')  => V V'         ... </k>
 ```
 
