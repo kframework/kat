@@ -1,42 +1,26 @@
 Abstract
 ========
 
-This is the K semantic definition of the untyped FUN language. FUN is a
-pedagogical and research language that captures the essence of the
-functional programming paradigm, extended with several features often
-encountered in functional programming languages. Like many functional
-languages, FUN is an expression language, that is, everything, including
-the main program, is an expression. Functions can be declared anywhere
-and are first class values in the language. FUN is call-by-value here,
-but it has been extended (as student homework assignments) with other
-parameter-passing styles. To make it more interesting and to highlight
-some of K's strengths, FUN includes the following features:
+This is the K semantic definition of the untyped FUN language.
+FUN is a pedagogical and research language that captures the essence of the functional programming paradigm, extended with several features often encountered in functional programming languages.
+Like many functional languages, FUN is an expression language, that is, everything, including the main program, is an expression.
+Functions can be declared anywhere and are first class values in the language.
+FUN is call-by-value here, but it has been extended (as student homework assignments) with other parameter-passing styles.
+To make it more interesting and to highlight some of K's strengths, FUN includes the following features:
 
 -   The basic builtin data-types of integers, booleans and strings.
 
 -   Builtin lists, which can hold any elements, including other lists.
-    Lists are enclosed in square brackets and their elements are
-    comma-separated; e.g., `[1,2,3]`.
+    Lists are enclosed in square brackets and their elements are comma-separated; e.g., `[1,2,3]`.
 
--   User-defined data-types, by means of constructor terms. Constructor
-    names start with a capital letter (while any other identifier in the
-    language starts with a lowercase letter), and they can be followed
-    by an arbitrary number of comma-separated arguments enclosed in
-    parentheses; parentheses are not needed when the constructor takes
-    no arguments. For example, `Pair(5,7)` is a constructor term holding
-    two numbers, `Cons(1,Cons(2,Cons(3,Nil)))` is a list-like
-    constructor term holding 3 elements, and
-    `Tree(Tree(Leaf(1), Leaf(2)), Leaf(3))` is a tree-like constructor
-    term holding 3 elements. In the untyped version of the FUN language,
-    no type checking or inference is performed to ensure that the data
-    constructors are used correctly. The execution will simply get stuck
-    when they are misused. Moreover, since no type checking is
-    performed, the data-types are not even declared in the untyped
-    version of FUN.
+-   User-defined data-types, by means of constructor terms.
+    Constructor names start with a capital letter (while any other identifier in the language starts with a lowercase letter), and they can be followed by an arbitrary number of comma-separated arguments enclosed in parentheses; parentheses are not needed when the constructor takes no arguments.
+    For example, `Pair(5,7)` is a constructor term holding two numbers, `Cons(1,Cons(2,Cons(3,Nil)))` is a list-like constructor term holding 3 elements, and `Tree(Tree(Leaf(1), Leaf(2)), Leaf(3))` is a tree-like constructor term holding 3 elements.
+    In the untyped version of the FUN language, no type checking or inference is performed to ensure that the data constructors are used correctly.
+    The execution will simply get stuck when they are misused. Moreover, since no type checking is performed, the data-types are not even declared in the untyped version of FUN.
 
--   Functions and `let`/`letrec` binders can take multiple
-    space-separated arguments, but these are desugared to ones that only
-    take one argument, by currying. For example, the expressions
+-   Functions and `let`/`letrec` binders can take multiple space-separated arguments, but these are desugared to ones that only take one argument, by currying.
+    For example, the expressions
 
     ```
     fun x y -> x y
@@ -50,8 +34,8 @@ some of K's strengths, FUN includes the following features:
     let x = fun y -> y in x
     ```
 
--   Functions can be defined using pattern matching over the available
-    data-types. For example, the program
+-   Functions can be defined using pattern matching over the available data-types.
+    For example, the program
 
     ```
     letrec max = fun [h] -> h
@@ -60,8 +44,7 @@ some of K's strengths, FUN includes the following features:
     in max [1, 3, 5, 2, 4, 0, -1, -5]
     ```
 
-    defines a function `max` that calculates the maximum element of a
-    non-empty list, and the function
+    defines a function `max` that calculates the maximum element of a non-empty list, and the function
 
     ```
     letrec ack = fun Pair(0,n) -> n + 1
@@ -70,9 +53,9 @@ some of K's strengths, FUN includes the following features:
     in ack Pair(2,3)
     ```
 
-    calculates the Ackermann function applied to a particular pair of
-    numbers. Patterns can be nested. Patterns can currently only be used
-    in function definitions, and not directly in `let`/`letrec` binders.
+    calculates the Ackermann function applied to a particular pair of numbers.
+    Patterns can be nested.
+    Patterns can currently only be used in function definitions, and not directly in `let`/`letrec` binders.
     For example, this is not allowed:
 
     ```
@@ -91,29 +74,21 @@ some of K's strengths, FUN includes the following features:
     let f = fun Pair(x,y) -> x+y in f Pair(1,2)
     ```
 
-    by uncurrying of the `let` binder, and pattern matching is allowed
-    in function arguments.
+    by uncurrying of the `let` binder, and pattern matching is allowed in function arguments.
 
--   We include a `callcc` construct, for two reasons: first, several
-    functional languages support this construct; second, some semantic
-    frameworks have difficulties defining it. Not K.
+-   We include a `callcc` construct, for two reasons: first, several functional languages support this construct; second, some semantic frameworks have difficulties defining it.
+    Not K.
 
--   Finally, we include mutables by means of referencing an expression,
-    getting the reference of a variable, dereferencing and assignment.
-    We include these for the same reasons as above: there are languages
-    which have them, and they are not easy to define in some semantic
-    frameworks.
+-   Finally, we include mutables by means of referencing an expression, getting the reference of a variable, dereferencing and assignment.
+    We include these for the same reasons as above: there are languages which have them, and they are not easy to define in some semantic frameworks.
 
-Like in many other languages, some of FUN's constructs can be desugared
-into a smaller set of basic constructs. We do that as usual, using
-macros, and then we only give semantics to the core constructs.
+Like in many other languages, some of FUN's constructs can be desugared into a smaller set of basic constructs.
+We do that as usual, using macros, and then we only give semantics to the core constructs.
 
 #### Note:
 
-We recommend the reader to first consult the dynamic semantics of the
-LAMBDA++ language in the first part of the K Tutorial. To keep the
-comments below small and focused, we will not re-explain functional or
-K features that have already been explained in there.
+We recommend the reader to first consult the dynamic semantics of the LAMBDA++ language in the first part of the K Tutorial.
+To keep the comments below small and focused, we will not re-explain functional or K features that have already been explained in there.
 
 Syntax
 ======
@@ -127,13 +102,10 @@ module FUN-UNTYPED-COMMON
     imports STRATEGY
 ```
 
-FUN is an expression language. The constructs below fall into
-several categories: names, arithmetic constructs, conventional
-functional constructs, patterns and pattern matching, data constructs,
-lists, references, and call-with-current-continuation (callcc). The
-arithmetic constructs are standard; they are present in almost all our
-K language definitions. The meaning of FUN's constructs are discussed in
-more depth when we define their semantics in the next module.
+FUN is an expression language.
+The constructs below fall into several categories: names, arithmetic constructs, conventional functional constructs, patterns and pattern matching, data constructs, lists, references, and call-with-current-continuation (callcc).
+The arithmetic constructs are standard; they are present in almost all our K language definitions.
+The meaning of FUN's constructs are discussed in more depth when we define their semantics in the next module.
 
 The Syntactic Constructs
 ------------------------
@@ -357,10 +329,8 @@ Like in many functional languages, type parameters/variables in user-defined typ
 ```
 
 Types can be basic types, function types, or user-defined parametric types.
-In the dynamic semantics we are going to simply ignore all the type declations, so here the syntax of types below is only
-useful for generating the desired parser. To avoid syntactic ambiguities
-with the arrow construct for function cases, we use the symbol `-->` as
-a constructor for function types:
+In the dynamic semantics we are going to simply ignore all the type declations, so here the syntax of types below is only useful for generating the desired parser.
+To avoid syntactic ambiguities with the arrow construct for function cases, we use the symbol `-->` as a constructor for function types:
 
 ```k
     syntax TypeName
