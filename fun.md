@@ -214,9 +214,10 @@ FUN's builtin lists are formed by enclosing comma-separated sequences of express
 The operator `[_|_]` is the list "cons" data-constructor, which allows for adding an element to the front of a given list.
 
 ```k
-    syntax Exp ::= "[" Exps "]"
+    syntax Exp ::= "[" Exps "]"         [function]
                  | "[" Exps "|" Exp "]"
  // -----------------------------------
+    rule [E1,E2,ES:Exps|T] => [E1|[E2,ES|T]] [macro]
 
     syntax Val ::= "[" Vals "]"
  // ---------------------------
@@ -283,6 +284,7 @@ Again, the type system will reject type-incorrect programs.
     syntax Exp ::= "fun" Cases
                  | Exp Exp     [left]
  // ---------------------------------
+    rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
 
     syntax Case  ::= Exp "->" Exp
     syntax Cases ::= List{Case, "|"}
@@ -304,6 +306,7 @@ Like for the function cases above, we allow a more generous syntax for the left-
     syntax Binding  ::= Exp "=" Exp
     syntax Bindings ::= List{Binding,"and"}
  // ---------------------------------------
+    rule F P = E => F = fun P -> E [macro]
 ```
 
 References are first class values in FUN.
@@ -404,20 +407,6 @@ Desugaring macros
 ```k
 module FUN-UNTYPED-MACROS
     imports FUN-UNTYPED-COMMON
-```
-
-Multiple-head list patterns desugar into successive one-head
-patterns:
-
-```k
-    rule [E1,E2,ES:Exps|T] => [E1|[E2,ES|T]] [macro]
-```
-
-Uncurrying of multiple arguments in functions and binders:
-
-```k
-    rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
-    rule F P = E    => F = fun P -> E    [macro]
 ```
 
 For uniformity, we reduce all types to their general form:
