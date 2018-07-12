@@ -252,6 +252,7 @@ These will be useful when we define the type system later on.
 ```k
     syntax Exp ::= "datatype" Type "=" TypeCases Exp
  // ------------------------------------------------
+    rule datatype T = TCS E => E [macro]
 ```
 
 Data constructors start with capital letters and they may or may not have arguments.
@@ -371,6 +372,7 @@ a constructor for function types:
                   | Type TypeName             [klabel(Type-TypeName)]
                   | "(" Types ")" TypeName    [prefer]
  // --------------------------------------------------
+    rule Type-TypeName(T:Type, Tn:TypeName) => (T) Tn [macro]
 
     syntax Types ::= List{Type,","}
     syntax Types ::= TypeVars
@@ -398,27 +400,6 @@ These inform the parser of precedence information when ambiguous parses show up.
                     > _;__FUN-UNTYPED-COMMON
                     > fun__FUN-UNTYPED-COMMON
                     > datatype_=___FUN-UNTYPED-COMMON
-endmodule
-```
-
-Desugaring macros
------------------
-
-```k
-module FUN-UNTYPED-MACROS
-    imports FUN-UNTYPED-COMMON
-```
-
-For uniformity, we reduce all types to their general form:
-
-```k
-    rule Type-TypeName(T:Type, Tn:TypeName) => (T) Tn [macro]
-```
-
-The dynamic semantics ignores all the type declarations:
-
-```k
-    rule datatype T = TCS E => E [macro]
 endmodule
 ```
 
@@ -450,7 +431,6 @@ explained above.
 ```k
 module FUN-UNTYPED
     imports FUN-UNTYPED-COMMON
-    imports FUN-UNTYPED-MACROS
     imports DOMAINS
 ```
 
