@@ -9,8 +9,11 @@ Strategy: compile
     <analysis>
       .Rules , < <FUN>
         <k>
-          letrec ( second = fun ( l -> fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) and .Bindings in second [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] true
+          letrec ( second = fun ( l -> fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) and .Bindings in second [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Names ] true
         </k>
+        <callStack>
+          .
+        </callStack>
         <env>
           .Map
         </env>
@@ -22,26 +25,32 @@ Strategy: compile
         </nextLoc>
       </FUN> --> <FUN>
         <k>
-          muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #arg ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Exps ] ) ~> #arg ( true ) ~> setEnv ( .Map )
+          muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #arg ( [ 1 , 3 , 5 , 2 , 4 , 0 , -1 , -5 , .Names ] )
         </k>
+        <callStack>
+          #arg ( true ) ~> setEnv ( .Map )
+        </callStack>
         <env>
           second |-> 0
         </env>
         <store>
-          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
         </store>
         <nextLoc>
           1
         </nextLoc>
       </FUN> requires #True > , < <FUN>
         <k>
-          muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #arg ( [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ] ) ~> #arg ( V8 ) ~> setEnv ( .Map )
+          muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) ~> #arg ( [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ] )
         </k>
+        <callStack>
+          #arg ( true ) ~> setEnv ( .Map )
+        </callStack>
         <env>
           second |-> 0
         </env>
         <store>
-          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
         </store>
         <nextLoc>
           1
@@ -50,16 +59,19 @@ Strategy: compile
         <k>
           V1
         </k>
+        <callStack>
+          .
+        </callStack>
         <env>
           .Map
         </env>
         <store>
-          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
-          1 |-> [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
-          2 |-> V8
-          3 |-> [ V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+          0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+          1 |-> [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
+          2 |-> true
+          3 |-> [ V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
           4 |-> V0
-          5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+          5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
           6 |-> V1
         </store>
         <nextLoc>
@@ -76,16 +88,19 @@ Strategy: compile
       <k>
         V1
       </k>
+      <callStack>
+        .
+      </callStack>
       <env>
         .Map
       </env>
       <store>
-        0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Exps | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Exps | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
-        1 |-> [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
-        2 |-> V8
-        3 |-> [ V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+        0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
+        1 |-> [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
+        2 |-> true
+        3 |-> [ V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
         4 |-> V0
-        5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Exps ]
+        5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
         6 |-> V1
       </store>
       <nextLoc>

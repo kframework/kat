@@ -16,22 +16,19 @@ Strategy: (^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) *
   <harness>
     <FUN>
       <k>
-        V0
+        getMatching ( l , [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ] ) ~> closure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases ) [ V0 , V1 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ] ~> #arg ( true ) ~> setEnv ( .Map )
       </k>
+      <callStack>
+        .
+      </callStack>
       <env>
-        .Map
+        second |-> 0
       </env>
       <store>
         0 |-> muclosure ( second |-> 0 , l -> ( fun ( x -> ( fun ( [ $h , .Names | $t ] -> $h ) | .Cases ) ( ( fun ( [ $h , .Names | $t ] -> $t ) | .Cases ) l ) ) | .Cases ) | .Cases )
-        1 |-> [ V1 , V0 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
-        2 |-> V8
-        3 |-> [ V0 , V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
-        4 |-> V1
-        5 |-> [ V2 , V3 , V4 , V5 , V6 , V7 , .Names ]
-        6 |-> V0
       </store>
       <nextLoc>
-        7
+        1
       </nextLoc>
     </FUN>
   </harness>
