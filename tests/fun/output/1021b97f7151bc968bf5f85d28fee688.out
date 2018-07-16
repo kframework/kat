@@ -16,27 +16,33 @@ Strategy: exec
   <harness>
     <FUN>
       <k>
-        Tree ( Tree ( Tree ( Leaf ( 5 , .Vals ) , Leaf ( 4 , .Vals ) , .Vals ) , Leaf ( 3 , .Vals ) , .Vals ) , Tree ( Leaf ( 2 , .Vals ) , Leaf ( 1 , .Vals ) , .Vals ) , .Vals )
+        Tree ( Tree ( Tree ( Leaf ( 5 , .Names ) , Leaf ( 4 , .Names ) , .Names ) , Leaf ( 3 , .Names ) , .Names ) , Tree ( Leaf ( 2 , .Names ) , Leaf ( 1 , .Names ) , .Names ) , .Names )
       </k>
+      <callStack>
+        .
+      </callStack>
       <env>
         .Map
       </env>
       <store>
-        1 |-> closure ( mirror |-> 1 , Leaf ( n , .Names ) -> Leaf ( n , .Names ) | Tree ( left , right , .Names ) -> Tree ( mirror right , mirror left , .Names ) | .Cases )
-        2 |-> Tree ( Leaf ( 3 , .Vals ) , Tree ( Leaf ( 4 , .Vals ) , Leaf ( 5 , .Vals ) , .Vals ) , .Vals )
-        3 |-> Tree ( Leaf ( 1 , .Names ) , Leaf ( 2 , .Vals ) , .Vals )
-        4 |-> Tree ( Leaf ( 4 , .Vals ) , Leaf ( 5 , .Vals ) , .Vals )
-        5 |-> Leaf ( 3 , .Names )
-        6 |-> Leaf ( 5 , .Vals )
-        7 |-> Leaf ( 4 , .Vals )
-        8 |-> 5
-        9 |-> 4
-        10 |-> 3
+        0 |-> muclosure ( mirror |-> 0 , Leaf ( n , .Names ) -> Leaf ( n , .Names ) | Tree ( left , right , .Names ) -> Tree ( mirror right , mirror left , .Names ) | .Cases )
+        1 |-> Tree ( Leaf ( 1 , .Names ) , Leaf ( 2 , .Names ) , .Names )
+        2 |-> Tree ( Leaf ( 3 , .Names ) , Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names ) , .Names )
+        3 |-> Leaf ( 3 , .Names )
+        4 |-> Tree ( Leaf ( 4 , .Names ) , Leaf ( 5 , .Names ) , .Names )
+        5 |-> Leaf ( 4 , .Names )
+        6 |-> Leaf ( 5 , .Names )
+        7 |-> 5
+        8 |-> 4
+        9 |-> 3
+        10 |-> Leaf ( 1 , .Names )
         11 |-> Leaf ( 2 , .Names )
-        12 |-> Leaf ( 1 , .Names )
-        13 |-> 2
-        14 |-> 1
+        12 |-> 2
+        13 |-> 1
       </store>
+      <nextLoc>
+        14
+      </nextLoc>
     </FUN>
   </harness>
 </kat-FUN>
