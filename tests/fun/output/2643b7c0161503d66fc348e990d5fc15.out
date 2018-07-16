@@ -18,13 +18,19 @@ Strategy: exec
       <k>
         7
       </k>
+      <callStack>
+        .
+      </callStack>
       <env>
         .Map
       </env>
       <store>
-        1 |-> 7
-        2 |-> closure ( x |-> 1 , Nothing -> x | .Cases )
+        0 |-> 7
+        1 |-> closure ( x |-> 0 , Nothing -> x | .Cases )
       </store>
+      <nextLoc>
+        2
+      </nextLoc>
     </FUN>
   </harness>
 </kat-FUN>
