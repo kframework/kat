@@ -1,0 +1,51 @@
+Program:  prelude.fun
+Strategy: bounded-compile 0
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules
+    </analysis>
+    <states>
+      <FUN>
+        <k>
+          let ( id = fun ( x -> x ) | .Cases ) and fst = fun ( l -> fun ( r -> l ) | .Cases ) | .Cases and snd = fun ( l -> fun ( r -> r ) | .Cases ) | .Cases and cons = fun ( h -> fun ( t -> [ h : t ] ) | .Cases ) | .Cases and head = fun ( [ h : t ] -> h ) | .Cases and tail = fun ( [ h : t ] -> t ) | .Cases and apply = fun ( f -> fun ( d -> f d ) | .Cases ) | .Cases and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+        </k>
+        <callStack>
+          .
+        </callStack>
+        <env>
+          .Map
+        </env>
+        <store>
+          .Map
+        </store>
+        <nextLoc>
+          0
+        </nextLoc>
+      </FUN> : .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        let ( id = fun ( x -> x ) | .Cases ) and fst = fun ( l -> fun ( r -> l ) | .Cases ) | .Cases and snd = fun ( l -> fun ( r -> r ) | .Cases ) | .Cases and cons = fun ( h -> fun ( t -> [ h : t ] ) | .Cases ) | .Cases and head = fun ( [ h : t ] -> h ) | .Cases and tail = fun ( [ h : t ] -> t ) | .Cases and apply = fun ( f -> fun ( d -> f d ) | .Cases ) | .Cases and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+      </k>
+      <callStack>
+        .
+      </callStack>
+      <env>
+        .Map
+      </env>
+      <store>
+        .Map
+      </store>
+      <nextLoc>
+        0
+      </nextLoc>
+    </FUN>
+  </harness>
+</kat-FUN>
