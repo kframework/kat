@@ -40,8 +40,13 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
           If the latter rules are allowed to execute first, K does not prune applications of them as infeasible properly.
 
 ```k
-    rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ switchFocus | ^ heatExps | ^ heatCtorArgs | ^ unwrapApplication
-    rule #branch => ^ iftrue | ^ iffalse | ^ caseSuccess | ^ caseFailure
+    syntax Strategy ::= "#case" [function]
+ // --------------------------------------
+    rule #case => ^ caseBoolSuccess | ^ caseBoolFailure | ^ caseIntSuccess | ^ caseIntFailure | ^ caseStringSuccess | ^ caseStringFailure
+                | ^ caseNameSuccess | ^ caseConstructorSuccess | ^ caseConstructorFailure | ^ caseConstructorArgsFailure | ^ caseConstructorArgsFailure | ^ caseConstructorArgsSuccess
+                | ^ caseListSuccess | ^ caseListEmptySuccess | ^ caseListSingletonSuccess | ^ caseListNonemptySuccess
+    rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ switchFocus | ^ unwrapApplication
+    rule #branch => ^ iftrue | ^ iffalse | #case
     rule #loop   => ^ recCall
 ```
 
@@ -94,7 +99,7 @@ module FUN-SBC
     syntax Vals ::= #abstractVals ( Vals ) [function]
  // -------------------------------------------------
     rule #abstractVals(.Vals)  => .Vals
-    rule #abstractVals(V , VS) => #abstractVal(V) , #abstractVals(VS)
+    rule #abstractVals(V : VS) => #abstractVal(V) : #abstractVals(VS)
 
     rule #abstractVal(_:Int)    => ?I:Int
     rule #abstractVal(_:Bool)   => ?B:Bool

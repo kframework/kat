@@ -141,6 +141,24 @@ Lists of expressions are declared strict, so all expressions in the list get eva
  // ------------------------------------
 ```
 
+### Builtin Lists
+
+FUN's builtin lists are `_:_` separated cons-lists like many functional languages support.
+A list is turned back into a regular element by wrapping it in the `[_]` operator.
+
+```k
+    syntax Exps ::= Vals | Name
+    syntax Vals ::= Val ":" Vals             | ".Vals" [klabel(.Vals)]
+    syntax Exps ::= Exp ":" Exps [seqstrict] | ".Exps" [klabel(.Vals)]
+ // ------------------------------------------------------------------
+
+    syntax Val ::= "[" Vals "]"
+    syntax Exp ::= "[" Exps "]" [strict]
+ // ------------------------------------
+```
+
+### Expressions
+
 We next define the syntax of arithmetic constructs, together with their relative priorities and left-/non-associativities.
 We also tag all these rules with a new tag, "arith", so we can more easily define global syntax priirities later (at the end of the syntax module).
 
@@ -168,28 +186,14 @@ We also tag all these rules with a new tag, "arith", so we can more easily defin
                  > "!" Exp        [seqstrict, arith]
                  > Exp "&&" Exp   [strict(1), left, arith]
                  > Exp "||" Exp   [strict(1), left, arith]
+ // ------------------------------------------------------
 ```
 
-The conditional construct has the expected evaluation strategy, stating that only the first argument is evaluate:
+The conditional construct has the expected evaluation strategy, stating that only the first argument always evaluated:
 
 ```k
     syntax Exp ::= "if" Exp "then" Exp "else" Exp  [strict(1)]
-```
-
-### Builtin Lists
-
-FUN's builtin lists are formed by enclosing comma-separated sequences of expressions (i.e., terms of sort *Exps*) in square brackets.
-The operator `[_|_]` is the list "cons" data-constructor, which allows for adding an element to the front of a given list.
-
-```k
-    syntax Exps ::= Vals
-    syntax Vals ::= Val ":" Vals             | ".Vals" [klabel(.Vals)]
-    syntax Exps ::= Exp ":" Exps [seqstrict] | ".Exps" [klabel(.Vals)]
- // ------------------------------------------------------------------
-
-    syntax Val ::= "[" Vals "]"
-    syntax Exp ::= "[" Exps "]" [strict]
- // ------------------------------------
+ // ----------------------------------------------------------
 ```
 
 The following "builtin" functions are provided for convenience of building/accessing elements of lists.
@@ -708,17 +712,20 @@ discussed the `let` and `letrec` language constructs above.
 
 ```k
     syntax KItem ::= bindTo ( Names , Exps ) [strict(2)]
-                   | bindMap( Map ) | "#bindMap"
+                   | bindMap( Map ) | #bindMap ( Set , Map ) | #bind ( Name , Map ) | "#bindMap"
                    | bind( Names )
  // ------------------------------
     rule <k> bindTo(XS:Names, VS:Vals) => getMatchings(#asExps(XS), VS) ~> #bindMap ... </k>
     rule <k> matchResult(M:Map) ~> #bindMap => bindMap(M) ... </k>
 
-    rule <k> bindMap(.Map) => . ... </k>
-    rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ... </k>
-         <env> RHO => RHO[X <- NLOC:Int] </env>
-         <store> ... .Map => NLOC |-> V ... </store>
-         <nextLoc> NLOC => NLOC +Int 1 </nextLoc>
+    rule <k> bindMap(RHO:Map) => #bindMap(keys(RHO), RHO) ... </k>
+
+    rule <k> #bindMap(.Set, RHO) => . ... </k>
+    rule <k> #bindMap((SetItem(K) KS), RHO) => #bind(K, RHO) ~> #bindMap(KS, RHO) ... </k>
+    rule <k> #bind(K, RHO':Map) => . ... </k>
+         <env>     RHO   => RHO[K <- NLOC]         </env>
+         <store>   STORE => STORE[NLOC <- RHO'[K]] </store>
+         <nextLoc> NLOC  => NLOC +Int 1            </nextLoc>
       [tag(assignment)]
 
     rule <k> bind(.Names) => . ... </k>
@@ -768,32 +775,27 @@ of expressions in a binding, respectively.
     rule <k> matchResult(RHO) ~> getMatchings(ES, VS) => getMatchings(ES, VS) ~> matchResult(RHO) ... </k>
     rule <k> matchResult(RHO) ~> getMatching (E , V ) => getMatching (E , V ) ~> matchResult(RHO) ... </k>
 
-    rule <k> getMatchings(.Exps,             .Vals            ) => matchResult(.Map)                         ... </k>
-    rule <k> getMatchings((E:Exp : ES:Exps), (V:Val : VS:Vals)) => getMatching(E, V) ~> getMatchings(ES, VS) ... </k>
+    rule <k> getMatching(B:Bool,   B':Bool)   => matchResult(.Map) ... </k> requires B  ==Bool   B' [tag(caseBoolSuccess)]
+    rule <k> getMatching(B:Bool,   B':Bool)   => matchFailure      ... </k> requires B =/=Bool   B' [tag(caseBoolFailure)]
+    rule <k> getMatching(I:Int,    I':Int)    => matchResult(.Map) ... </k> requires I  ==Int    I' [tag(caseIntSuccess)]
+    rule <k> getMatching(I:Int,    I':Int)    => matchFailure      ... </k> requires I =/=Int    I' [tag(caseIntFailure)]
+    rule <k> getMatching(S:String, S':String) => matchResult(.Map) ... </k> requires S  ==String S' [tag(caseStringSuccess)]
+    rule <k> getMatching(S:String, S':String) => matchFailure      ... </k> requires S =/=String S' [tag(caseStringFailure)]
 
-    rule <k> getMatching(B:Bool,   B':Bool)   => matchResult(.Map) ... </k> requires B  ==Bool   B' [tag(caseSuccess)]
-    rule <k> getMatching(B:Bool,   B':Bool)   => matchFailure      ... </k> requires B =/=Bool   B' [tag(caseFailure)]
-    rule <k> getMatching(I:Int,    I':Int)    => matchResult(.Map) ... </k> requires I  ==Int    I' [tag(caseSuccess)]
-    rule <k> getMatching(I:Int,    I':Int)    => matchFailure      ... </k> requires I =/=Int    I' [tag(caseFailure)]
-    rule <k> getMatching(S:String, S':String) => matchResult(.Map) ... </k> requires S  ==String S' [tag(caseSuccess)]
-    rule <k> getMatching(S:String, S':String) => matchFailure      ... </k> requires S =/=String S' [tag(caseFailure)]
+    rule <k> getMatching(N:Name, V:Val) => matchResult(N |-> V) ... </k> [tag(caseNameSuccess)]
 
-    rule <k> getMatching(N:Name, V:Val) => matchResult(N |-> V) ... </k> [tag(caseSuccess)]
+    rule <k> getMatching(C:ConstructorName, C':ConstructorName) => matchResult(.Map) ... </k> requires C  ==K C' [tag(caseConstructorSuccess)]
+    rule <k> getMatching(C:ConstructorName, C':ConstructorName) => matchFailure      ... </k> requires C =/=K C' [tag(caseConstructorFailure)]
 
-    rule <k> getMatching(C:ConstructorName, C':ConstructorName) => matchResult(.Map) ... </k> requires C  ==K C' [tag(caseSuccess)]
-    rule <k> getMatching(C:ConstructorName, C':ConstructorName) => matchFailure      ... </k> requires C =/=K C' [tag(caseFailure)]
+    rule <k> getMatching(C:ConstructorName(ES:Exps), C':ConstructorName)      => matchFailure ... </k> [tag(caseConstructorArgsFailure)]
+    rule <k> getMatching(C:ConstructorName,          C':ConstructorName(ES')) => matchFailure ... </k> [tag(caseConstructorArgsFailure)]
 
-    rule <k> getMatching(C:ConstructorName(ES), C':ConstructorName(ES')) => getMatching(C, C') ~> getMatching([ES], [ES']) ... </k> [tag(caseSuccess)]
+    rule <k> getMatching(C:ConstructorName(ES), C':ConstructorName(ES')) => getMatching(C, C') ~> getMatching([ES], [ES']) ... </k> [tag(caseConstructorArgsSuccess)]
 
-    rule <k> getMatching(C:ConstructorName(ES:Exps), C':ConstructorName)      => matchFailure ... </k> [tag(caseFailure)]
-    rule <k> getMatching(C:ConstructorName,          C':ConstructorName(ES')) => matchFailure ... </k> [tag(caseFailure)]
+    rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
 
-    rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchings(ES, VS) ... </k> requires #length(ES)  ==Int #length(VS) [tag(caseSuccess)]
-    rule <k> getMatching([ES:Exps], [VS:Vals]) => matchFailure         ... </k> requires #length(ES) =/=Int #length(VS) [tag(caseFailure)]
-
-    syntax Int ::= #length ( Exps ) [function]
- // ------------------------------------------
-    rule #length( .Exps  ) => 0
-    rule #length( E : ES ) => 1 +Int #length(ES)
+    rule <k> getMatchings(.Exps,             .Vals            ) => matchResult(.Map)                         ... </k> [tag(caseListEmptySuccess)]
+    rule <k> getMatchings(X:Name,            VS:Vals          ) => matchResult(X |-> [ VS ])                 ... </k> [tag(caseListSingletonSuccess)]
+    rule <k> getMatchings((E:Exp : ES:Exps), (V:Val : VS:Vals)) => getMatching(E, V) ~> getMatchings(ES, VS) ... </k> [tag(caseListNonemptySuccess)]
 endmodule
 ```
