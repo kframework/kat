@@ -309,6 +309,19 @@ The following strategies get information about the current state or manipulate t
     rule #orStrategy(_)       => false [owise]
 ```
 
+-   `how-many?_` will let you know how many times a given strategy can be taken.
+
+```k
+    syntax Strategy  ::= "how-many?" Strategy
+    syntax Exception ::= "#how-many" Int
+                       | "#how-many" Strategy Int
+ // ---------------------------------------------
+    rule <s> how-many? S => S ~> #how-many S 0 ... </s>
+
+    rule <s>             #how-many S N => S ~> #how-many S (N +Int 1) ... </s>
+    rule <s> #STUCK() ~> #how-many S N => #how-many N                 ... </s>
+```
+
 Strategy Primitives
 -------------------
 
