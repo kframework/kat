@@ -476,15 +476,6 @@ and also that `cons` applied to a value is a value (specifically, it
 would be a function/closure value that expects the second, list
 argument):
 
-**NOTE**: Operator `isVal` is the automatically added `isSORT` predicate for sort `Val`.
-
-```k
-    // rule isVal(cons)       => true
-    // rule isVal(cons V:Val) => true
-
-    // rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
-```
-
 Functions and Closures
 ----------------------
 
