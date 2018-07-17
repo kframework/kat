@@ -183,9 +183,9 @@ The operator `[_|_]` is the list "cons" data-constructor, which allows for addin
 
 ```k
     syntax Exps ::= Vals
-    syntax Vals ::= ".Vals" | Val ":" Vals
-    syntax Exps ::= ".Exps" | Exp ":" Exps [seqstrict]
- // --------------------------------------------------
+    syntax Vals ::= Val ":" Vals             | ".Vals" [klabel(.Vals)]
+    syntax Exps ::= Exp ":" Exps [seqstrict] | ".Exps" [klabel(.Vals)]
+ // ------------------------------------------------------------------
 
     syntax Val ::= "[" Vals "]"
     syntax Exp ::= "[" Exps "]" [strict]
@@ -711,7 +711,7 @@ discussed the `let` and `letrec` language constructs above.
                    | bindMap( Map ) | "#bindMap"
                    | bind( Names )
  // ------------------------------
-    rule <k> bindTo(XS:Names, VS:Vals) => #bindMap ... </k>
+    rule <k> bindTo(XS:Names, VS:Vals) => getMatchings(#asExps(XS), VS) ~> #bindMap ... </k>
     rule <k> matchResult(M:Map) ~> #bindMap => bindMap(M) ... </k>
 
     rule <k> bindMap(.Map) => . ... </k>
@@ -725,6 +725,11 @@ discussed the `let` and `letrec` language constructs above.
     rule <k> bind(X:Name, XS) => bind(XS) ... </k>
          <env> RHO => RHO[X <- NLOC] </env>
          <nextLoc> NLOC => NLOC +Int 1 </nextLoc>
+
+    syntax Exps ::= #asExps ( Names ) [function]
+ // --------------------------------------------
+    rule #asExps(.Names           ) => .Exps
+    rule #asExps(N:Name , NS:Names) => N : #asExps(NS)
 
     syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
  // ------------------------------------------------------
