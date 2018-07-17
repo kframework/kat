@@ -625,21 +625,29 @@ Finally, semantics based compilation is provided as a macro.
 ```
 
 -   `compile` will initialize the stack to empty and the analysis to `.Rules`, then compile the current program to completion.
+-   `bounded-compile_` will run the compiler for the specified number of steps.
 
 ```k
     syntax Strategy ::= "compile" | "#compile"
  // ------------------------------------------
-    rule <s> ( compile
-            => setAnalysis .Rules
-            ~> setStates   .States
-            ~> push
-            ~> #compile
-             )
-             ...
-         </s>
+    rule <s> compile => init-compile ~> #compile ... </s>
 
     rule <s> #compile => .                   ... </s> <states> .States        </states>
     rule <s> (. => compile-step) ~> #compile ... </s> <states> STATE : STATES </states>
+
+    syntax Strategy ::= "bounded-compile" Int | "#bounded-compile" Int
+ // ------------------------------------------------------------------
+    rule <s> bounded-compile N => init-compile ~> #bounded-compile N ... </s>
+
+    rule <s> #bounded-compile 0 => . ... </s>
+    rule <s> #bounded-compile N => . ... </s> <states> STATE : STATES </states>
+    rule <s> (. => compile-step) ~> #bounded-compile (N => N -Int 1) ... </s>
+         <states> STATE : STATES </states>
+      requires N =/=Int 0
+
+    syntax Strategy ::= "init-compile"
+ // ----------------------------------
+    rule <s> init-compile => setAnalysis .Rules ~> setStates .States ~> push ... </s>
 endmodule
 ```
 
