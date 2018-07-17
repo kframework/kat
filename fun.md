@@ -196,25 +196,6 @@ The conditional construct has the expected evaluation strategy, stating that onl
  // ----------------------------------------------------------
 ```
 
-The following "builtin" functions are provided for convenience of building/accessing elements of lists.
-
--   `cons`: adds an element to the front of a list.
--   `head`: retrieves the first element of a list (halts on empty).
--   `tail`: retrieves all but the first element of a list (halts on empty).
--   `null?`: returns `true` for an empty list, `false` otherwise.
-
-We desugar the list non-constructor operations to functions matching over list patterns.
-
-```k
-    syntax Exp ::= "cons" [function] | "head"  [function]
-                 | "tail" [function] | "null?" [function]
- // -----------------------------------------------------
-//    rule cons  => fun $h $t       -> [ $h : $t ]               [macro]
-//    rule head  => fun [ $h : $t ] -> $h                        [macro]
-//    rule tail  => fun [ $h : $t ] -> $t                        [macro]
-//    rule null? => fun [ $h : $t ] -> false | [ .Exps ] -> true [macro]
-```
-
 ### Algebraic Data Types
 
 FUN also allows polymorphic datatype declarations.
