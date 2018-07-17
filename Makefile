@@ -151,7 +151,7 @@ test-exec-imp: $(test_imp_files:=.exec)
 test-exec-fun: $(test_fun_files:=.exec)
 
 $(test_dir)/%.exec: $(test_output)/exec/$(test_dir)/%.orig $(test_output)/exec/$(test_dir)/%.exec
-	git diff --no-index $<
+	git diff --no-index $^
 
 $(test_output)/exec/%.orig:
 	mkdir -p $(dir $@)
