@@ -130,12 +130,17 @@ Three special names `$h`, `$t`, and `$k` are used in the semantics for desugarin
     rule symbolicInt => ?V:Int
 ```
 
+### Values
+
 Expression constructs will be defined throughtout the syntax module.
 Below are the very basic ones, namely the builtins, the names, and the parentheses used as brackets for grouping.
 Lists of expressions are declared strict, so all expressions in the list get evaluated whenever the list is on a position which can be evaluated:
 
 ```k
+    syntax KResult ::= Val | Vals
     syntax Val ::= Int | Bool | String
+ // ----------------------------------
+
     syntax Exp ::= Val | Name
                  | "(" Exp ")" [bracket]
  // ------------------------------------
@@ -404,24 +409,13 @@ the first part of the K tutorial).
       </FUN>
 ```
 
-Values and results
-------------------
-
-We only define integers, Booleans and strings as values here, but will
-add more values later.
-
-```k
-    syntax Val     ::= Int | Bool | String
-    syntax KResult ::= Val
-```
-
 Lookup
 ------
 
 ```k
     rule <k> X:Name => V ... </k>
-         <env> ... X |-> L ... </env>
-         <store> ... L |-> V ... </store>
+         <env>   ... X |-> L       ... </env>
+         <store> ...       L |-> V ... </store>
       [tag(lookup)]
 ```
 
@@ -729,10 +723,6 @@ The following auxiliary operations extract the list of identifiers and
 of expressions in a binding, respectively.
 
 ```k
-    /* Extra kore stuff */
-    syntax KResult ::= Vals
-    syntax Exps    ::= Names
-
     /* Matching */
     syntax MatchResult ::= "matchFailure" [smtlib(matchFailure)]
                          | matchResult  ( Map )
