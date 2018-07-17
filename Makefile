@@ -18,7 +18,7 @@ pandoc:=pandoc --from markdown --to markdown --lua-filter "$(tangler)"
 test_dir:=tests
 test_output:=.build/logs
 
-.PHONY: deps ocaml-deps \
+.PHONY: deps deps-k deps-ocaml deps-tangle \
 		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun  defn-fun-kcompile \
 		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun build-fun-kcompile \
 		test-bimc test-sbc test
@@ -31,7 +31,9 @@ clean:
 # Dependencies
 # ------------
 
-deps: $(k_submodule)/make.timestamp $(pandoc_tangle_submodule)/make.timestamp ocaml-deps
+deps: deps-k deps-ocaml deps-tangle
+deps-k: $(k_submodule)/make.timestamp
+deps-tangle: $(pandoc_tangle_submodule)/make.timestamp
 
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
@@ -43,7 +45,7 @@ $(pandoc_tangle_submodule)/make.timestamp:
 	git submodule update --init -- $(pandoc_tangle_submodule)
 	touch $(pandoc_tangle_submodule)/make.timestamp
 
-ocaml-deps:
+deps-ocaml:
 	opam init --quiet --no-setup
 	opam repository add k "$(k_submodule)/k-distribution/target/release/k/lib/opam" \
 	    || opam repository set-url k "$(k_submodule)/k-distribution/target/release/k/lib/opam"
