@@ -135,14 +135,10 @@ Below are the very basic ones, namely the builtins, the names, and the parenthes
 Lists of expressions are declared strict, so all expressions in the list get evaluated whenever the list is on a position which can be evaluated:
 
 ```k
-    syntax Val
-    syntax Exp ::= "(" Exp ")"      [bracket]
-                 | Int | Bool | String | Name
- // -----------------------------------------
-
-    syntax Vals ::= List{Val,","}
-    syntax Exps ::= List{Exp,","} [seqstrict]
- // -----------------------------------------
+    syntax Val ::= Int | Bool | String
+    syntax Exp ::= Val | Name
+                 | "(" Exp ")" [bracket]
+ // ------------------------------------
 ```
 
 We next define the syntax of arithmetic constructs, together with their relative priorities and left-/non-associativities.
@@ -186,13 +182,14 @@ FUN's builtin lists are formed by enclosing comma-separated sequences of express
 The operator `[_|_]` is the list "cons" data-constructor, which allows for adding an element to the front of a given list.
 
 ```k
-    syntax Exp ::= "[" Exps "]"         [function]
-                 | "[" Exps "|" Exp "]"
- // -----------------------------------
-    rule [E1,E2,ES:Exps|T] => [E1|[E2,ES|T]] [macro]
+    syntax Exps ::= Vals
+    syntax Vals ::= ".Vals" | Val ":" Vals
+    syntax Exps ::= ".Exps" | Exp ":" Exps [seqstrict]
+ // --------------------------------------------------
 
     syntax Val ::= "[" Vals "]"
- // ---------------------------
+    syntax Exp ::= "[" Exps "]" [strict]
+ // ------------------------------------
 ```
 
 The following "builtin" functions are provided for convenience of building/accessing elements of lists.
@@ -208,10 +205,10 @@ We desugar the list non-constructor operations to functions matching over list p
     syntax Exp ::= "cons" [function] | "head"  [function]
                  | "tail" [function] | "null?" [function]
  // -----------------------------------------------------
-    rule cons  => fun $h $t       -> [ $h | $t ]               [macro]
-    rule head  => fun [ $h | $t ] -> $h                        [macro]
-    rule tail  => fun [ $h | $t ] -> $t                        [macro]
-    rule null? => fun [ $h | $t ] -> false | [ .Exps ] -> true [macro]
+//    rule cons  => fun $h $t       -> [ $h : $t ]               [macro]
+//    rule head  => fun [ $h : $t ] -> $h                        [macro]
+//    rule tail  => fun [ $h : $t ] -> $t                        [macro]
+//    rule null? => fun [ $h : $t ] -> false | [ .Exps ] -> true [macro]
 ```
 
 ### Algebraic Data Types
@@ -233,8 +230,8 @@ Also, note that the constructor is strict in its second argument, because we wan
 
 ```k
     syntax ConstructorName
-    syntax Exp ::= ConstructorName "(" Exps ")" [prefer]
- // ----------------------------------------------------
+    syntax Exp ::= ConstructorName "(" Exps ")" [prefer, strict(2)]
+ // ---------------------------------------------------------------
 
     syntax Val ::= ConstructorName
                  | ConstructorName "(" Vals ")" [prefer]
@@ -420,15 +417,6 @@ the first part of the K tutorial).
         <store>     .Map     </store>
         <nextLoc>   0        </nextLoc>
       </FUN>
-
-    syntax KItem ::= "#holderExps"
-                   | "#holderCTor" ConstructorName
- // ----------------------------------------------
-    rule <k> [ ES:Exps ]            => ES ~> #holderExps ... </k> requires notBool isVals(ES) [tag(heatExps)]
-    rule <k> VS:Vals ~> #holderExps => [ VS ]            ... </k>
-
-    rule <k> C ( ES:Exps )            => ES ~> #holderCTor C ... </k> requires notBool isVals(ES) [tag(heatCtorArgs)]
-    rule <k> VS:Vals ~> #holderCTor C => C ( VS )            ... </k>
 ```
 
 Values and results
@@ -439,8 +427,6 @@ add more values later.
 
 ```k
     syntax Val     ::= Int | Bool | String
-    syntax Exp     ::= Val
-    syntax Exps    ::= Vals
     syntax KResult ::= Val
 ```
 
@@ -508,10 +494,10 @@ argument):
 **NOTE**: Operator `isVal` is the automatically added `isSORT` predicate for sort `Val`.
 
 ```k
-    rule isVal(cons)       => true
-    rule isVal(cons V:Val) => true
+    // rule isVal(cons)       => true
+    // rule isVal(cons V:Val) => true
 
-    rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
+    // rule <k> cons V:Val [VS:Vals] => [V,VS] ... </k>
 ```
 
 Functions and Closures
@@ -603,15 +589,27 @@ $\textit{F} \mapsto \textit{L}$; this way, the closure can invoke
 itself).
 
 ```k
-    rule <k> let BS in E => bindTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+    rule <k> let BS in E => bindTo(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
 
-    rule <k> letrec BS in E => bind(names(BS)) ~> assignTo(names(BS), exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+    rule <k> letrec BS in E => bind(#names(BS)) ~> assignTo(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
 
     syntax Exp ::= muclosure ( Map , Cases )
+ // ----------------------------------------
     rule <k> muclosure(M, CASES) => closure(M, CASES) ... </k>
       [tag(recCall)]
+
+    syntax Names ::= #names ( Bindings ) [function]
+ // ----------------------------------------------
+    rule #names(.Bindings) => .Names
+    rule #names(X:Name=_ and BS) => (X,#names(BS))::Names
+
+    syntax Exps ::= #exps ( Bindings ) [function]
+ // --------------------------------------------
+    rule #exps(.Bindings)       => .Exps
+    rule #exps(_:Name=E and BS) => E : #exps(BS)
+
 ```
 
 Recall that our syntax allows `let` and `letrec` to take any
@@ -710,11 +708,11 @@ discussed the `let` and `letrec` language constructs above.
 
 ```k
     syntax KItem ::= bindTo ( Names , Exps ) [strict(2)]
-                   | bindMap( Map )
+                   | bindMap( Map ) | "#bindMap"
                    | bind( Names )
  // ------------------------------
-    rule <k> (. => getMatchingAux(XS, VS)) ~> bindTo(XS:Names, VS:Vals)  ... </k>
-    rule <k> matchResult(M:Map) ~> bindTo(_:Names, _:Vals) => bindMap(M) ... </k>
+    rule <k> bindTo(XS:Names, VS:Vals) => #bindMap ... </k>
+    rule <k> matchResult(M:Map) ~> #bindMap => bindMap(M) ... </k>
 
     rule <k> bindMap(.Map) => . ... </k>
     rule <k> bindMap((X:Name |-> V:Val => .Map) _:Map) ... </k>
@@ -731,11 +729,11 @@ discussed the `let` and `letrec` language constructs above.
     syntax KItem ::= assignTo ( Names , Exps ) [strict(2)]
  // ------------------------------------------------------
     rule <k> assignTo(.Names, .Vals) => . ... </k>
-    rule <k> assignTo((X:Name, XS), (closure(MAP, CASES), VS)) => assignTo(XS, VS) ... </k>
+    rule <k> assignTo((X:Name, XS), (closure(MAP, CASES) : ES)) => assignTo(XS, ES) ... </k>
          <env> ... X |-> L ... </env>
          <store> ... .Map => L |-> muclosure(MAP, CASES) ... </store>
 
-    rule <k> assignTo((X:Name, XS), (V:Val, VS)) => assignTo(XS, VS) ... </k>
+    rule <k> assignTo((X:Name, XS), (V:Val : ES)) => assignTo(XS, ES) ... </k>
          <env> ... X |-> L ... </env>
          <store> ... .Map => L |-> V ... </store>
       requires notBool isClosureVal(V)
@@ -747,34 +745,26 @@ The following auxiliary operations extract the list of identifiers and
 of expressions in a binding, respectively.
 
 ```k
-    syntax Names ::= names ( Bindings ) [function]
- // ----------------------------------------------
-    rule names(.Bindings) => .Names
-    rule names(X:Name=_ and BS) => (X,names(BS))::Names
-
-    syntax Exps ::= exps ( Bindings ) [function]
- // --------------------------------------------
-    rule exps(.Bindings)       => .Exps
-    rule exps(_:Name=E and BS) => E,exps(BS)
-
     /* Extra kore stuff */
     syntax KResult ::= Vals
     syntax Exps    ::= Names
 
     /* Matching */
-    syntax MatchResult ::= getMatching ( Exp , Val )
-                         | getMatchingInt ( Int , Int )   [smtlib(getMatchingInt)]
-                         | getMatchingAux( Exps , Vals )
-                         | matchResult( Map )
-                         | "matchFailure"                 [smtlib(matchFailure)]
- // -------------------------------------
+    syntax MatchResult ::= "matchFailure" [smtlib(matchFailure)]
+                         | matchResult  ( Map )
+                         | getMatching  ( Exp  , Val  )
+                         | getMatchings ( Exps , Vals )
+ // ---------------------------------------------------
     rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
 
     rule <k> matchResult(RHO1) ~> matchResult(RHO2) => matchResult(RHO1 RHO2) ... </k>
       requires intersectSet(keys(RHO1), keys(RHO2)) ==K .Set
 
-    rule <k> matchResult(RHO) ~> getMatchingAux(ES, VS) => getMatchingAux(ES, VS) ~> matchResult(RHO) ... </k>
-    rule <k> matchResult(RHO) ~> getMatching   (E , V ) => getMatching   (E , V ) ~> matchResult(RHO) ... </k>
+    rule <k> matchResult(RHO) ~> getMatchings(ES, VS) => getMatchings(ES, VS) ~> matchResult(RHO) ... </k>
+    rule <k> matchResult(RHO) ~> getMatching (E , V ) => getMatching (E , V ) ~> matchResult(RHO) ... </k>
+
+    rule <k> getMatchings(.Exps,             .Vals            ) => matchResult(.Map)                         ... </k>
+    rule <k> getMatchings((E:Exp : ES:Exps), (V:Val : VS:Vals)) => getMatching(E, V) ~> getMatchings(ES, VS) ... </k>
 
     rule <k> getMatching(B:Bool,   B':Bool)   => matchResult(.Map) ... </k> requires B  ==Bool   B' [tag(caseSuccess)]
     rule <k> getMatching(B:Bool,   B':Bool)   => matchFailure      ... </k> requires B =/=Bool   B' [tag(caseFailure)]
@@ -790,26 +780,15 @@ of expressions in a binding, respectively.
 
     rule <k> getMatching(C:ConstructorName(ES), C':ConstructorName(ES')) => getMatching(C, C') ~> getMatching([ES], [ES']) ... </k> [tag(caseSuccess)]
 
-    rule <k> getMatching(C:ConstructorName(ES), C':ConstructorName)      => matchFailure ... </k> [tag(caseFailure)]
-    rule <k> getMatching(C:ConstructorName,     C':ConstructorName(ES')) => matchFailure ... </k> [tag(caseFailure)]
+    rule <k> getMatching(C:ConstructorName(ES:Exps), C':ConstructorName)      => matchFailure ... </k> [tag(caseFailure)]
+    rule <k> getMatching(C:ConstructorName,          C':ConstructorName(ES')) => matchFailure ... </k> [tag(caseFailure)]
 
-    rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchingAux(ES, VS) ... </k> requires #length(ES)  ==Int #length(VS) [tag(caseSuccess)]
-    rule <k> getMatching([ES:Exps], [VS:Vals]) => matchFailure           ... </k> requires #length(ES) =/=Int #length(VS) [tag(caseFailure)]
-
-    rule <k> getMatchingAux(.Exps,            .Vals)            => matchResult(.Map)                           ... </k> [tag(caseSuccess)]
-    rule <k> getMatchingAux((E:Exp, ES:Exps), (V:Val, VS:Vals)) => getMatching(E, V) ~> getMatchingAux(ES, VS) ... </k> [tag(caseSuccess)]
+    rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchings(ES, VS) ... </k> requires #length(ES)  ==Int #length(VS) [tag(caseSuccess)]
+    rule <k> getMatching([ES:Exps], [VS:Vals]) => matchFailure         ... </k> requires #length(ES) =/=Int #length(VS) [tag(caseFailure)]
 
     syntax Int ::= #length ( Exps ) [function]
  // ------------------------------------------
-    rule #length(.Exps) => 0
-    rule #length(E, ES) => 1 +Int #length(ES)
-```
-
-Besides the generic decomposition rules for patterns and values, we
-also want to allow `[head|tail]` matching for lists, so we add the
-following custom pattern decomposition rule:
-
-```k
-    rule <k> getMatching([H:Exp | T:Exp], [V:Val, VS:Vals]) => getMatchingAux((H, T), (V, [VS])) ... </k>
+    rule #length( .Exps  ) => 0
+    rule #length( E : ES ) => 1 +Int #length(ES)
 endmodule
 ```
