@@ -160,6 +160,10 @@ A list is turned back into a regular element by wrapping it in the `[_]` operato
     syntax Val ::= "[" Vals "]"
     syntax Exp ::= "[" Exps "]" [strict]
  // ------------------------------------
+
+    syntax Exp ::= "[" "]" [function]
+ // ---------------------------------
+    rule [ ] => [ .Vals ]
 ```
 
 ### Expressions
