@@ -61,14 +61,14 @@ IMP has `AExp` for arithmetic expressions (over integers).
 IMP has `BExp` for boolean expressions.
 
 ```k
-    syntax BExp  ::= Bool
-                   | AExp "<=" AExp [seqstrict]
-                   | AExp "<" AExp  [seqstrict]
-                   | AExp "==" AExp [seqstrict]
-                   | "!" BExp       [strict]
-                   > BExp "&&" BExp [left, strict(1)]
-                   | "(" BExp ")"   [bracket]
- // -----------------------------------------
+    syntax BExp ::= Bool
+                  | AExp "<=" AExp [seqstrict]
+                  | AExp "<" AExp  [seqstrict]
+                  | AExp "==" AExp [seqstrict]
+                  | "!" BExp       [strict]
+                  > BExp "&&" BExp [left, strict(1)]
+                  | "(" BExp ")"   [bracket]
+ // ----------------------------------------
     rule I1 <= I2   => I1 <=Int I2
     rule I1 <  I2   => I1 <Int  I2
     rule I1 == I2   => I1 ==Int I2
