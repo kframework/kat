@@ -42,8 +42,9 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 ```k
     syntax Strategy ::= "#case" [function]
  // --------------------------------------
-    rule #case => ^ caseBoolSuccess | ^ caseBoolFailure | ^ caseIntSuccess | ^ caseIntFailure | ^ caseStringSuccess | ^ caseStringFailure
-                | ^ caseNameSuccess | ^ caseConstructorSuccess | ^ caseConstructorFailure | ^ caseConstructorArgsFailure | ^ caseConstructorArgsFailure | ^ caseConstructorArgsSuccess
+    rule #case => ^ caseBoolSuccess | ^ caseBoolFailure | ^ caseIntSuccess | ^ caseIntFailure | ^ caseStringSuccess | ^ caseStringFailure | ^ caseNameSuccess
+                | ^ caseLinearMatchJoinSuccess | ^ caseLinearMatchJoinFailure
+                | ^ caseConstructorNameSuccess | ^ caseConstructorNameFailure | ^ caseConstructorArgsSuccess | ^ caseConstructorArgsFailure1 | ^ caseConstructorArgsFailure2
                 | ^ caseListSuccess | ^ caseListEmptySuccess | ^ caseListSingletonSuccess | ^ caseListNonemptySuccess
     rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ switchFocus | ^ unwrapApplication
     rule #branch => ^ iftrue | ^ iffalse | #case
@@ -105,8 +106,8 @@ module FUN-SBC
     rule #abstractVal(_:Bool)   => ?B:Bool
     rule #abstractVal(_:String) => ?S:String
 
-    rule #abstractVal(C:ConstructorName(VS)) => C(#abstractVals(VS))
-    rule #abstractVal([VS])                  => [#abstractVals(VS)]
+    rule #abstractVal(CV:ConstructorVal V':Val) => #abstractVal(CV) #abstractVal(V')
+    rule #abstractVal([VS])                     => [#abstractVals(VS)]
 
     rule #abstractVal(closure ( RHO , E )) => closure ( RHO , E )
 ```
