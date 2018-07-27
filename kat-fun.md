@@ -41,14 +41,21 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 
 ```k
     syntax Strategy ::= "#case" [function]
+                      | "#let"  [function]
  // --------------------------------------
-    rule #case => ^ caseBoolSuccess | ^ caseBoolFailure | ^ caseIntSuccess | ^ caseIntFailure | ^ caseStringSuccess | ^ caseStringFailure | ^ caseNameSuccess
-                | ^ caseLinearMatchJoinSuccess | ^ caseLinearMatchJoinFailure
-                | ^ caseConstructorNameSuccess | ^ caseConstructorNameFailure | ^ caseConstructorArgsSuccess | ^ caseConstructorArgsFailure1 | ^ caseConstructorArgsFailure2
-                | ^ caseListSuccess | ^ caseListEmptySuccess | ^ caseListSingletonSuccess | ^ caseListNonemptySuccess
-    rule #normal => ^ lookup | ^ assignment | ^ resetEnv | ^ switchFocus | ^ unwrapApplication
-    rule #branch => ^ iftrue | ^ iffalse | #case
-    rule #loop   => ^ recCall
+    rule #let  => ^ letBinds | ^ letRecBinds
+    rule #case => ^ caseLinearMatchJoinSuccess | ^ caseLinearMatchJoinFailure
+                | ^ caseBoolSuccess | ^ caseBoolFailure
+                | ^ caseIntSuccess | ^ caseIntFailure
+                | ^ caseStringSuccess | ^ caseStringFailure
+                | ^ caseNameSuccess | ^ caseConstructorNameSuccess | ^ caseConstructorNameFailure
+                | ^ caseConstructorArgsSuccess | ^ caseConstructorArgsFailure1 | ^ caseConstructorArgsFailure2
+                | ^ caseListSuccess
+                | ^ caseListEmptyFailure1 | ^ caseListEmptyFailure2 | ^ caseListEmptyFailure3
+                | ^ caseListEmptySuccess | ^ caseListSingletonSuccess | ^ caseListNonemptySuccess
+    rule #normal => ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ resetEnv | ^ listAssignment | ^ assignment | ^ allocate | #let
+    rule #branch => #case | ^ iftrue | ^ iffalse
+    rule #loop   => ^ recCaseMatch
 ```
 
 ### Define `bool?`
@@ -71,11 +78,11 @@ module FUN-SBC
 
 ### Define `abstract`
 
-**TODO**: Only abstracting the values in `RHO` will make references behave poor behaviour for references.
+**TODO**: Only abstracting the values in `RHO` will make references behave poorly.
 
 ```k
-    rule <s> abstract [ <FUN> <k> muclosure ( RHO , E ) ~> ARGS                </k> <store> STORE                              </store> REST </FUN> ]
-          => pop      ( <FUN> <k> muclosure ( RHO , E ) ~> #abstractArgs(ARGS) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN> )
+    rule <s> abstract [ <FUN> <k> matchResult(XS, VS               ) ~> closure ( RHO , (P -> mu(E) | CS) ) ~> #arg(V) </k> <store> STORE                              </store> REST </FUN> ]
+          => pop        <FUN> <k> matchResult(XS, #abstractVals(VS)) ~> closure ( RHO , (P ->    E  | CS) ) ~> #arg(V) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN>
          ...
          </s>
 
@@ -83,33 +90,21 @@ module FUN-SBC
  // -------------------------------------------------------
     rule #abstractStore(.List, RHO) => RHO
 
-    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (V:Val => #abstractVal(V))) XS))
-    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> muclosure(RHO, E)) XS))
-
-    syntax K ::= #abstractArg  ( K ) [function]
-               | #abstractArgs ( K ) [function]
- // -------------------------------------------
-    rule #abstractArgs(.K)      => .K
-    rule #abstractArgs(K ~> .K) => #abstractArg(K)
-    rule #abstractArgs(K ~> KS) => #abstractArg(K) ~> #abstractArgs(KS)
-
-    rule #abstractArg(K)       => K                     requires notBool isArg(K)
-    rule #abstractArg(#arg(V)) => #arg(#abstractVal(V))
+    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (V:Val   => #abstractVal (V ))) XS))
+    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (VS:Vals => #abstractVals(VS))) XS))
 
     syntax Val  ::= #abstractVal  ( Val  ) [function]
     syntax Vals ::= #abstractVals ( Vals ) [function]
  // -------------------------------------------------
-    rule #abstractVals(.Vals)  => .Vals
-    rule #abstractVals(V : VS) => #abstractVal(V) : #abstractVals(VS)
+    rule #abstractVals(_:Vals) => ?VS:Vals
 
     rule #abstractVal(_:Int)    => ?I:Int
     rule #abstractVal(_:Bool)   => ?B:Bool
     rule #abstractVal(_:String) => ?S:String
 
-    rule #abstractVal(CV:ConstructorVal V':Val) => #abstractVal(CV) #abstractVal(V')
-    rule #abstractVal([VS])                     => [#abstractVals(VS)]
-
-    rule #abstractVal(closure ( RHO , E )) => closure ( RHO , E )
+    rule #abstractVal(_:ConstructorVal) => ?CV:ConstructorVal
+    rule #abstractVal(CV:ClosureVal)    => CV:ClosureVal
+    rule #abstractVal([VS])             => [#abstractVals(VS)]
 ```
 
 ### Define `_subsumes?_`

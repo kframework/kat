@@ -141,13 +141,19 @@ Lists of expressions are declared strict, so all expressions in the list get eva
  // -----------------------------
 
     syntax ConstructorName
-    syntax ConstructorVal ::= Int | Bool | String
-                            | ConstructorName
+    syntax ClosureVal
+    syntax ConstructorVal ::= ConstructorName
                             | ConstructorVal Val [left]
  // ---------------------------------------------------
 
-    syntax Val ::= ConstructorVal
- // -----------------------------
+    syntax ApplicableVal ::= ConstructorVal
+                           | ClosureVal
+                           | ApplicableVal Val [left]
+ // -------------------------------------------------
+
+    syntax Val ::= Int | Bool | String
+                 | ApplicableVal
+ // ----------------------------
 
     syntax Exp ::= Val | Name
                  | "(" Exp ")" [bracket]
@@ -170,14 +176,14 @@ FUN's builtin lists are `_:_` separated cons-lists like many functional language
 A list is turned back into a regular element by wrapping it in the `[_]` operator.
 
 ```k
-    syntax Exps ::= Vals | Name
-    syntax Vals ::= Val ":" Vals             | ".Vals" [klabel(.Vals)]
-    syntax Exps ::= Exp ":" Exps [seqstrict] | ".Exps" [klabel(.Vals)]
- // ------------------------------------------------------------------
+    syntax Exps ::= Vals
+    syntax Vals ::= Val | ".Vals" [klabel(.Vals)] | Val ":" Vals
+    syntax Exps ::= Exp | ".Exps" [klabel(.Vals)] | Exp ":" Exps [seqstrict]
+ // ------------------------------------------------------------------------
 
-    syntax ConstructorVal ::= "[" Vals "]"
-    syntax Exp            ::= "[" Exps "]" [strict]
- // -----------------------------------------------
+    syntax Val ::= "[" Vals "]"
+    syntax Exp ::= "[" Exps "]" [strict]
+ // ------------------------------------
 
     syntax Exp ::= "[" "]" [function]
  // ---------------------------------
@@ -255,9 +261,12 @@ Again, the type system will reject type-incorrect programs.
 ```k
     syntax Exp ::= "fun" Cases
  // --------------------------
-    rule P1 P2 -> E => P1 -> fun P2 -> E [macro]
 
-    syntax Case  ::= Exp "->" Exp
+    syntax MuExp ::= Exp
+                   | mu ( Exp )
+ // ---------------------------
+
+    syntax Case  ::= Exp "->" MuExp
     syntax Cases ::= List{Case, "|"}
  // --------------------------------
 ```
@@ -277,7 +286,24 @@ Like for the function cases above, we allow a more generous syntax for the left-
     syntax Binding  ::= Exp "=" Exp
     syntax Bindings ::= List{Binding,"and"}
  // ---------------------------------------
-    rule F P = E => F = fun P -> E [macro]
+
+    syntax Name  ::= #name  ( Binding  ) [function]
+    syntax Names ::= #names ( Bindings ) [function]
+ // -----------------------------------------------
+    rule #names(.Bindings)        => .Names
+    rule #names(B:Binding and BS) => #name(B) , #names(BS)
+
+    rule #name(N:Name = _) => N
+    rule #name((E:Exp E':Exp => E) = _)
+
+    syntax Exp  ::= #exp  ( Binding  ) [function]
+    syntax Exps ::= #exps ( Bindings ) [function]
+ // ---------------------------------------------
+    rule #exps(.Bindings)        => .Exps
+    rule #exps(B:Binding and BS) => #exp(B) : #exps(BS)
+
+    rule #exp(_:Name = E) => E
+    rule #exp(E:Exp E':Exp = E'' => E = fun E' -> E'')
 ```
 
 References are first class values in FUN.
@@ -347,7 +373,7 @@ To avoid syntactic ambiguities with the arrow construct for function cases, we u
  // -------------------------
 
     syntax TypeCase  ::= ConstructorName
-                       | ConstructorName "(" Types ")"
+                       | TypeCase Type
     syntax TypeCases ::= List{TypeCase,"|"}            [klabel(_|TypeCase_)]
  // ------------------------------------------------------------------------
 ```
@@ -413,7 +439,7 @@ the first part of the K tutorial).
     configuration
       <FUN>
         <k>         $PGM:Exp </k>
-        <callStack> .K       </callStack>
+        <callStack> .List    </callStack>
         <env>       .Map     </env>
         <store>     .Map     </store>
         <nextLoc>   0        </nextLoc>
@@ -491,7 +517,6 @@ be used at execution time to lookup all the variables that appear free
 in the function body (we want static scoping in FUN).
 
 ```k
-    syntax Val ::= ClosureVal
     syntax ClosureVal ::= closure ( Map , Cases )
  // ---------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
@@ -500,15 +525,22 @@ in the function body (we want static scoping in FUN).
     syntax Arg   ::= #arg   ( Val )
     syntax KItem ::= #apply ( Exp )
  // -------------------------------
-    rule <k> E E' ~> REST => E' ~> #apply(E) </k>
-         <callStack> (. => REST) ... </callStack>
-      requires notBool (isClosureVal(E) andBool isVal(E'))
-      [tag(unwrapApplication)]
+    rule <k> E:Exp V => E ~> #arg(V) ... </k>
+      requires notBool isVal(E)
+      [tag(applicationFocusFunction)]
 
-    rule <k> V:Val ~> #apply(E) => E ~> #arg(V) ... </k> requires isConstructorVal(V) orBool isClosureVal(V)
-      [tag(switchFocus)]
+    rule <k> E E':Exp => E' ~> #apply(E) ... </k>
+      requires notBool isVal(E')
+      [tag(applicationFocusArgument)]
 
-    rule <k> V:Val ~> #arg(V') => V V' ... </k>
+    rule <k> V:Val ~> #apply(E) => E V  ... </k>
+
+    rule <k> CV:ConstructorVal ~> #arg(V) => CV V ... </k>
+
+    rule <k> closure(_,_) ~> (#arg(AV:ApplicableVal) ~> #arg(V') => #arg(AV V')) ... </k>
+    rule <k> closure(_,_) ~> #arg(V) ~> (K:KItem ~> REST => .) </k>
+         <callStack> (.List => ListItem(K ~> REST)) ... </callStack>
+      requires notBool isArg(K)
 ```
 
 #### Note:
@@ -525,12 +557,16 @@ the environment is properly recovered afterwards. If the first pattern
 does not match, then we drop it and thus move on to the next one.
 
 ```k
-    rule <k> (. => getMatching(P, V)) ~> closure(_, P->_ | _) V:Val ~> REST ~> (. => CALLSTACK) </k>
-         <callStack> CALLSTACK => . </callStack>
+    rule <k> (. => getMatching(P, V)) ~> closure(_, P -> _ | _) ~> #arg(V) </k>
 
-    rule <k> matchResult(XS, VS) ~> closure(RHO, _->E | _) _ => binds(XS, VS) ~> E ~> setEnv(RHO') ... </k>
+    rule <k> (matchFailure => .) ~> closure(_, (C:Case | CS:Cases => CS)) ~> #arg(_) </k>
+
+    rule <k> matchResult(XS, VS) ~> closure(RHO, _ -> E:Exp | _) ~> #arg(_) => binds(XS, VS) ~> E </k>
          <env> RHO' => RHO </env>
-    rule <k> (matchFailure => .) ~> closure(_, (_->_ | CS:Cases => CS)) _ ... </k>
+         <callStack> (.List => ListItem(setEnv(RHO'))) ... </callStack>
+
+    rule <k> matchResult(_, _) ~> closure(RHO, _ -> (mu(E) => E) | _) ~> #arg(_) </k>
+      [tag(recCaseMatch)]
 ```
 
 Let and Letrec
@@ -571,32 +607,18 @@ $\textit{F} \mapsto \textit{L}$; this way, the closure can invoke
 itself).
 
 ```k
-    rule <k> let BS in E => binds(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+    rule <k> let BS in E ~> REST => binds(#names(BS), #exps(BS)) ~> E </k>
          <env> RHO </env>
+         <callStack> (.List => ListItem(setEnv(RHO) ~> REST)) ... </callStack>
+      [tag(letBinds)]
 
-    rule <k> letrec BS in E => binds(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
+    rule <k> letrec BS in E ~> REST => bindsRec(#names(BS), #exps(BS)) ~> E </k>
          <env> RHO </env>
+         <callStack> (.List => ListItem(setEnv(RHO) ~> REST)) ... </callStack>
+      [tag(letRecBinds)]
 
-    syntax Exp ::= muclosure ( Map , Cases )
- // ----------------------------------------
-    rule <k> muclosure(M, CASES) => closure(M, CASES) ... </k>
-      [tag(recCall)]
-
-    syntax Names ::= #names ( Bindings ) [function]
- // -----------------------------------------------
-    rule #names(.Bindings)       => .Names
-    rule #names(X:Name=_ and BS) => X , #names(BS)
-
-    syntax Exps ::= #exps ( Bindings ) [function]
- // ---------------------------------------------
-    rule #exps(.Bindings)       => .Exps
-    rule #exps(_:Name=E and BS) => E : #exps(BS)
-
-    syntax Exps ::= #mkRec ( Exps ) [function]
- // ------------------------------------------
-    rule #mkRec(.Exps)                 => .Exps
-    rule #mkRec(E:Exp            : ES) => E                  : #mkRec(ES) requires notBool isClosureVal(E)
-    rule #mkRec(closure(RHO, CS) : ES) => muclosure(RHO, CS) : #mkRec(ES)
+    rule <k> V:Val ~> (. => CALLSTACK) </k>
+         <callStack> (ListItem(CALLSTACK) => .List) ... </callStack>
 ```
 
 Recall that our syntax allows `let` and `letrec` to take any
@@ -688,22 +710,52 @@ achieve the benefits of tail recursion in K.
       [tag(resetEnv)]
 ```
 
-### `bind` and `binds`
+### `bind`, `binds`, and `bindsRec`
 
 These operations add a single binding (or list of binding) into the current environment/store.
 
 ```k
-    syntax KItem ::= bind  ( Name  , Val  )
-    syntax KItem ::= binds ( Names , Exps ) [strict(2)]
- // ---------------------------------------------------
-    rule <k> binds(.Names,              .Vals)           => .                           ... </k>
-    rule <k> binds((X:Name , XS:Names), V:Val : VS:Vals) => bind(X, V) ~> binds(XS, VS) ... </k>
+    syntax KItem ::=  binds    ( Names , Exps ) [strict(2)]
+                   |  bindsRec ( Names , Exps )
+                   | #bindsRec ( Names , Exps ) [strict(2)]
+                   | #bind     ( Name  , Val  )
+                   | #bindRec  ( Name  , Val  )
+                   | #assign   ( Name  , Val  )
+                   | #allocate ( Names        )
+ // -------------------------------------------
+    rule <k> binds(.Names,              .Vals)           => .                            ... </k>
+    rule <k> binds((X:Name , XS:Names), V:Val : VS:Vals) => #bind(X, V) ~> binds(XS, VS) ... </k>
 
-    rule <k> bind(X, V) => . ... </k>
-         <env>     RHO   => RHO[X <- NLOC]   </env>
-         <store>   STORE => STORE[NLOC <- V] </store>
-         <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
+    rule <k> bindsRec(XS, VS) => #allocate(XS) ~> #bindsRec(XS, VS) ... </k>
+
+    rule <k> #bindsRec((X:Name , XS:Names), V:Val : VS:Vals) => #bindRec(X, V) ~> #bindsRec(XS, VS) ... </k>
+    rule <k> #bindsRec(.Names,              .Vals)           => .                                   ... </k>
+
+    rule <k> #bind(X, V)                   => #allocate(X, .Names) ~> #assign(X, V)  ... </k>
+    rule <k> #bindRec(X, V)                => #assign(X, V)                          ... </k> requires notBool isClosureVal(V)
+    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, closure(RHO, #applyMu(CS))) ... </k>
+
+    rule <k> #assign(X, #listTailMatch(V)) => . ... </k>
+         <env> ... X |-> L ... </env>
+         <store> STORE => STORE[L <- V] </store>
+      [tag(listAssignment)]
+
+    rule <k> #assign(X, V) => . ... </k>
+         <env> ... X |-> L ... </env>
+         <store> STORE => STORE[L <- V] </store>
+      requires notBool #isListTailMatch(V)
       [tag(assignment)]
+
+    rule <k> #allocate(.Names)              => .             ... </k>
+    rule <k> #allocate((X:Name , XS:Names)) => #allocate(XS) ... </k>
+         <env>     RHO   => RHO[X <- NLOC]   </env>
+         <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
+      [tag(allocate)]
+
+    syntax Cases ::= #applyMu ( Cases ) [function]
+ // ----------------------------------------------
+    rule #applyMu(.Cases)        => .Cases
+    rule #applyMu((P -> E) | CS) => (P -> mu(E)) | #applyMu(CS)
 ```
 
 ### Getters
@@ -743,15 +795,26 @@ of expressions in a binding, respectively.
     rule <k> getMatching(C:ConstructorName , C':ConstructorName) => matchResult(.Names, .Vals) ... </k> requires C  ==K C' [tag(caseConstructorNameSuccess)]
     rule <k> getMatching(C:ConstructorName , C':ConstructorName) => matchFailure               ... </k> requires C =/=K C' [tag(caseConstructorNameFailure)]
 
-    rule <k> getMatching(E:Exp E':Exp , CV:ConstructorVal V':Val) => getMatching(E, CV) ~> getMatching(E', V') ... </k> [tag(caseConstructorArgsSuccess)]
-    rule <k> getMatching(E:Exp E':Exp , CV:ConstructorVal       ) => matchFailure                              ... </k> requires notBool isApplication(CV) [tag(caseConstructorArgsFailure1)]
-    rule <k> getMatching(E:Exp        , CV:ConstructorVal V':Val) => matchFailure                              ... </k> requires notBool isApplication(E)  [tag(caseConstructorArgsFailure2)]
+    rule <k> getMatching(E:Exp E':Exp , AV:ApplicableVal V':Val) => getMatching(E, AV) ~> getMatching(E', V') ... </k> [tag(caseConstructorArgsSuccess)]
+    rule <k> getMatching(E:Exp E':Exp , AV:ApplicableVal       ) => matchFailure                              ... </k> requires notBool isApplication(AV) [tag(caseConstructorArgsFailure1)]
+    rule <k> getMatching(E:Exp        , AV:ApplicableVal V':Val) => matchFailure                              ... </k> requires notBool isApplication(E)  [tag(caseConstructorArgsFailure2)]
 
     rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
 
-    rule <k> getMatchings(.Exps,             .Vals            ) => matchResult(.Names, .Vals)                ... </k> [tag(caseListEmptySuccess)]
-    rule <k> getMatchings(X:Name,            VS:Vals          ) => matchResult((X , .Names), [ VS ] : .Vals) ... </k> [tag(caseListSingletonSuccess)]
-    rule <k> getMatchings((E:Exp : ES:Exps), (V:Val : VS:Vals)) => getMatching(E, V) ~> getMatchings(ES, VS) ... </k> [tag(caseListNonemptySuccess)]
+    rule <k> getMatchings(.Exps,             (_:Val : _:Vals) ) => matchFailure                                          ... </k>                            [tag(caseListEmptyFailure3)]
+    rule <k> getMatchings(.Exps,             .Vals            ) => matchResult(.Names, .Vals)                            ... </k>                            [tag(caseListEmptySuccess)]
+    rule <k> getMatchings(X:Name,            VS:Vals          ) => matchResult((X , .Names), #listTailMatch(VS) : .Vals) ... </k>                            [tag(caseListSingletonSuccess)]
+    rule <k> getMatchings(E:Exp,             .Vals            ) => matchFailure                                          ... </k> requires notBool isName(E) [tag(caseListEmptyFailure1)]
+    rule <k> getMatchings((_:Exp : _:Exps ), .Vals            ) => matchFailure                                          ... </k>                            [tag(caseListEmptyFailure2)]
+    rule <k> getMatchings((E:Exp : ES:Exps), (V:Val : VS:Vals)) => getMatching(E, V) ~> getMatchings(ES, VS)             ... </k>                            [tag(caseListNonemptySuccess)]
+
+    syntax Val ::= #listTailMatch ( Vals )
+ // --------------------------------------
+
+    syntax Bool ::= #isListTailMatch ( Val ) [function]
+ // ---------------------------------------------------
+    rule #isListTailMatch(#listTailMatch(_)) => true
+    rule #isListTailMatch(_)                 => false [owise]
 
     syntax Names ::= Names "++Names" Names [function]
  // -------------------------------------------------
