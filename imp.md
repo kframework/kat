@@ -44,13 +44,13 @@ IMP has `AExp` for arithmetic expressions (over integers).
 ```k
     syntax KItem ::= "div-zero-error"
 
-    syntax AExp  ::= Int | Id
-                   | AExp "/" AExp [left, seqstrict]
-                   | AExp "*" AExp [left, seqstrict]
-                   > AExp "-" AExp [left, seqstrict]
-                   | AExp "+" AExp [left, seqstrict]
-                   | "(" AExp ")"  [bracket]
- // ----------------------------------------
+    syntax AExp ::= Int | Id
+                  | AExp "/" AExp [left, seqstrict]
+                  | AExp "*" AExp [left, seqstrict]
+                  > AExp "-" AExp [left, seqstrict]
+                  | AExp "+" AExp [left, seqstrict]
+                  | "(" AExp ")"  [bracket]
+ // ---------------------------------------
     rule I1 + I2 => I1 +Int I2
     rule I1 - I2 => I1 -Int I2
     rule I1 * I2 => I1 *Int I2
