@@ -43,19 +43,41 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
     syntax Strategy ::= "#case" [function]
                       | "#let"  [function]
  // --------------------------------------
-    rule #let  => ^ letBinds | ^ letRecBinds
-    rule #case => ^ caseLinearMatchJoinSuccess | ^ caseLinearMatchJoinFailure
-                | ^ caseBoolSuccess | ^ caseBoolFailure
-                | ^ caseIntSuccess | ^ caseIntFailure
-                | ^ caseStringSuccess | ^ caseStringFailure
-                | ^ caseNameSuccess | ^ caseConstructorNameSuccess | ^ caseConstructorNameFailure
-                | ^ caseConstructorArgsSuccess | ^ caseConstructorArgsFailure1 | ^ caseConstructorArgsFailure2
-                | ^ caseListSuccess
-                | ^ caseListEmptyFailure1 | ^ caseListEmptyFailure2 | ^ caseListEmptyFailure3
-                | ^ caseListEmptySuccess | ^ caseListSingletonSuccess | ^ caseListNonemptySuccess
-    rule #normal => ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ resetEnv | ^ listAssignment | ^ assignment | ^ allocate | #let
-    rule #branch => #case | ^ iftrue | ^ iffalse
-    rule #loop   => ^ recCaseMatch
+    rule #normal => ^ lookup
+                  | ^ applicationFocusFunction
+                  | ^ applicationFocusArgument
+                  | ^ resetEnv
+                  | ^ listAssignment
+                  | ^ assignment
+                  | ^ allocate
+                  | #let
+    rule #loop   => ^ recCall
+    rule #branch => #case
+                  | ^ iftrue
+                  | ^ iffalse
+    rule #let    => ^ letBinds
+                  | ^ letRecBinds
+    rule #case   => ^ caseLinearMatchJoinSuccess
+                  | ^ caseLinearMatchJoinFailure
+                  | ^ caseBoolSuccess
+                  | ^ caseBoolFailure
+                  | ^ caseIntSuccess
+                  | ^ caseIntFailure
+                  | ^ caseStringSuccess
+                  | ^ caseStringFailure
+                  | ^ caseNameSuccess
+                  | ^ caseConstructorNameSuccess
+                  | ^ caseConstructorNameFailure
+                  | ^ caseConstructorArgsSuccess
+                  | ^ caseConstructorArgsFailure1
+                  | ^ caseConstructorArgsFailure2
+                  | ^ caseListSuccess
+                  | ^ caseListEmptyFailure3
+                  | ^ caseListEmptySuccess
+                  | ^ caseListSingletonSuccess
+                  | ^ caseListEmptyFailure1
+                  | ^ caseListEmptyFailure2
+                  | ^ caseListNonemptySuccess
 ```
 
 ### Define `bool?`

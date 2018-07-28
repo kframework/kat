@@ -95,7 +95,7 @@ Syntax
 
 ```k
 module FUN-UNTYPED-COMMON
-    imports DOMAINS-SYNTAX
+    imports DOMAINS
 ```
 
 ```kcompile
@@ -161,8 +161,8 @@ Lists of expressions are declared strict, so all expressions in the list get eva
 ```
 
 ```k
-    syntax Exp ::= Exp Exp  [left]
- // ------------------------------
+    syntax Exp ::= Exp Exp [left]
+ // -----------------------------
 
     syntax Bool ::= isApplication ( Exp ) [function]
  // ------------------------------------------------
@@ -266,9 +266,22 @@ Again, the type system will reject type-incorrect programs.
                    | mu ( Exp )
  // ---------------------------
 
-    syntax Case  ::= Exp "->" MuExp
+    syntax Case ::= "->" MuExp
+                  | Exp Case    [klabel(casePattern)]
+ // -------------------------------------------------
+
     syntax Cases ::= List{Case, "|"}
  // --------------------------------
+
+    syntax Case ::= #applyMu ( Case ) [function]
+ // --------------------------------------------
+    rule #applyMu(-> E)     => -> mu(E)
+    rule #applyMu(P C:Case) => P #applyMu(C)
+
+    syntax Cases ::= #applyMus ( Cases ) [function]
+ // ----------------------------------------------
+    rule #applyMus(.Cases)      => .Cases
+    rule #applyMus(C:Case | CS) => #applyMu(C) | #applyMus(CS)
 ```
 
 ### Binding Environments
@@ -303,7 +316,8 @@ Like for the function cases above, we allow a more generous syntax for the left-
     rule #exps(B:Binding and BS) => #exp(B) : #exps(BS)
 
     rule #exp(_:Name = E) => E
-    rule #exp(E:Exp E':Exp = E'' => E = fun E' -> E'')
+    rule #exp(E:Exp E':Exp = fun C:Case => E = fun E' C     )
+    rule #exp(E:Exp E':Exp = E''        => E = fun E' -> E'') [owise]
 ```
 
 References are first class values in FUN.
@@ -385,6 +399,7 @@ These inform the parser of precedence information when ambiguous parses show up.
 
 ```k
     syntax priorities @__FUN-UNTYPED-COMMON
+                    > casePattern
                     > ___FUN-UNTYPED-COMMON
                     > arith
                     > _:=__FUN-UNTYPED-COMMON
@@ -529,45 +544,43 @@ in the function body (we want static scoping in FUN).
       requires notBool isVal(E)
       [tag(applicationFocusFunction)]
 
+    rule <k> CV:ConstructorVal ~> #arg(V) => CV V ... </k>
+
     rule <k> E E':Exp => E' ~> #apply(E) ... </k>
       requires notBool isVal(E')
       [tag(applicationFocusArgument)]
 
-    rule <k> V:Val ~> #apply(E) => E V  ... </k>
+    rule <k> V:Val ~> #apply(E) => E V ... </k>
 
-    rule <k> CV:ConstructorVal ~> #arg(V) => CV V ... </k>
+    syntax KItem ::= #closure ( Map , Cases , Vals )
+ // ------------------------------------------------
+    rule <k> (closure(RHO, CS) => matchResult(.Names, .Vals) ~> #closure(RHO, CS, #collectArgs(REST))) ~> REST </k> requires #collectArgs(REST) =/=K .Vals
+    rule <k> (. => getMatching(P, V)) ~> matchResult(_, _) ~> #closure(RHO, ((P:Exp C:Case => C) | _), (V : VS => VS)) ... </k>
+    rule <k> (matchFailure => matchResult(.Names, .Vals)) ~> #closure(RHO, (C:Case | CS => CS), (_ => #collectArgs(REST))) ~> REST </k>
+    rule <k> matchResult(XS, VS) ~> #closure(RHO, -> ME | _, .Vals) ~> REST => binds(XS, VS) ~> ME ~> setEnv(RHO') ~> #stripArgs(REST) </k>
+         <env> RHO' => RHO </env>
 
-    rule <k> closure(_,_) ~> (#arg(AV:ApplicableVal) ~> #arg(V') => #arg(AV V')) ... </k>
-    rule <k> closure(_,_) ~> #arg(V) ~> (K:KItem ~> REST => .) </k>
-         <callStack> (.List => ListItem(K ~> REST)) ... </callStack>
-      requires notBool isArg(K)
+    rule <k> mu(E) => E ... </k> [tag(recCall)]
+
+    syntax Vals ::= #collectArgs ( K ) [function]
+ // ---------------------------------------------
+    rule #collectArgs(#arg(V) ~> KS) => V : #collectArgs(KS)
+    rule #collectArgs(_)             => .Vals                [owise]
+
+    syntax K ::= #stripArgs ( K ) [function]
+ // ----------------------------------------
+    rule #stripArgs(#arg(V) ~> KS) => #stripArgs(KS)
+    rule #stripArgs(KS)            => KS             [owise]
 ```
 
 #### Note:
 
-The reader may want to get familiar with how the pre-defined pattern
-matching works before proceeding. The best way to do that is to consult
-`k/include/modules/pattern-matching.k`.
+The reader may want to get familiar with how the pre-defined pattern matching works before proceeding.
+The best way to do that is to consult `k/include/modules/pattern-matching.k`.
 
-We distinguish two cases when the closure is applied. If the first
-pattern matches, then we pick the first case: switch to the closed
-environment, get the matching map and bind all its variables, and
-finally evaluate the function body of the first case, making sure that
-the environment is properly recovered afterwards. If the first pattern
-does not match, then we drop it and thus move on to the next one.
-
-```k
-    rule <k> (. => getMatching(P, V)) ~> closure(_, P -> _ | _) ~> #arg(V) </k>
-
-    rule <k> (matchFailure => .) ~> closure(_, (C:Case | CS:Cases => CS)) ~> #arg(_) </k>
-
-    rule <k> matchResult(XS, VS) ~> closure(RHO, _ -> E:Exp | _) ~> #arg(_) => binds(XS, VS) ~> E </k>
-         <env> RHO' => RHO </env>
-         <callStack> (.List => ListItem(setEnv(RHO'))) ... </callStack>
-
-    rule <k> matchResult(_, _) ~> closure(RHO, _ -> (mu(E) => E) | _) ~> #arg(_) </k>
-      [tag(recCaseMatch)]
-```
+We distinguish two cases when the closure is applied.
+If the first pattern matches, then we pick the first case: switch to the closed environment, get the binding from the match, evaluate the function body in the combined environment, making sure that the environment is properly recovered afterwards.
+If the first pattern does not match, then we drop it and thus move on to the next one.
 
 Let and Letrec
 --------------
@@ -731,9 +744,9 @@ These operations add a single binding (or list of binding) into the current envi
     rule <k> #bindsRec((X:Name , XS:Names), V:Val : VS:Vals) => #bindRec(X, V) ~> #bindsRec(XS, VS) ... </k>
     rule <k> #bindsRec(.Names,              .Vals)           => .                                   ... </k>
 
-    rule <k> #bind(X, V)                   => #allocate(X, .Names) ~> #assign(X, V)  ... </k>
-    rule <k> #bindRec(X, V)                => #assign(X, V)                          ... </k> requires notBool isClosureVal(V)
-    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, closure(RHO, #applyMu(CS))) ... </k>
+    rule <k> #bind(X, V)                   => #allocate(X, .Names) ~> #assign(X, V)   ... </k>
+    rule <k> #bindRec(X, V)                => #assign(X, V)                           ... </k> requires notBool isClosureVal(V)
+    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, closure(RHO, #applyMus(CS))) ... </k>
 
     rule <k> #assign(X, #listTailMatch(V)) => . ... </k>
          <env> ... X |-> L ... </env>
@@ -751,11 +764,6 @@ These operations add a single binding (or list of binding) into the current envi
          <env>     RHO   => RHO[X <- NLOC]   </env>
          <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
       [tag(allocate)]
-
-    syntax Cases ::= #applyMu ( Cases ) [function]
- // ----------------------------------------------
-    rule #applyMu(.Cases)        => .Cases
-    rule #applyMu((P -> E) | CS) => (P -> mu(E)) | #applyMu(CS)
 ```
 
 ### Getters
