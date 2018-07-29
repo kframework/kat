@@ -103,10 +103,15 @@ module FUN-SBC
 **TODO**: Only abstracting the values in `RHO` will make references behave poorly.
 
 ```k
-    rule <s> abstract [ <FUN> <k> matchResult(XS, VS               ) ~> closure ( RHO , (P -> mu(E) | CS) ) ~> #arg(V) </k> <store> STORE                              </store> REST </FUN> ]
-          => pop        <FUN> <k> matchResult(XS, #abstractVals(VS)) ~> closure ( RHO , (P ->    E  | CS) ) ~> #arg(V) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN>
+    rule <s> abstract [ <FUN> <k> closure ( RHO , CS ) ~> ARGS                </k> <store> STORE                              </store> REST </FUN> ]
+          => pop        <FUN> <k> closure ( RHO , CS ) ~> #abstractArgs(ARGS) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN>
          ...
          </s>
+
+    syntax K ::= #abstractArgs ( K ) [function]
+ // -------------------------------------------
+    rule #abstractArgs(#arg(V) ~> KS) => #arg(#abstractVal(V)) ~> #abstractArgs(KS)
+    rule #abstractArgs(KS           ) => KS [owise]
 
     syntax Map ::= #abstractStore ( List , Map ) [function]
  // -------------------------------------------------------

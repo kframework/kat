@@ -262,26 +262,12 @@ Again, the type system will reject type-incorrect programs.
     syntax Exp ::= "fun" Cases
  // --------------------------
 
-    syntax MuExp ::= Exp
-                   | mu ( Exp )
- // ---------------------------
-
-    syntax Case ::= "->" MuExp
-                  | Exp Case    [klabel(casePattern)]
- // -------------------------------------------------
+    syntax Case ::= "->" Exp
+                  | Exp Case [klabel(casePattern)]
+ // ----------------------------------------------
 
     syntax Cases ::= List{Case, "|"}
  // --------------------------------
-
-    syntax Case ::= #applyMu ( Case ) [function]
- // --------------------------------------------
-    rule #applyMu(-> E)     => -> mu(E)
-    rule #applyMu(P C:Case) => P #applyMu(C)
-
-    syntax Cases ::= #applyMus ( Cases ) [function]
- // ----------------------------------------------
-    rule #applyMus(.Cases)      => .Cases
-    rule #applyMus(C:Case | CS) => #applyMu(C) | #applyMus(CS)
 ```
 
 ### Binding Environments
@@ -537,6 +523,10 @@ in the function body (we want static scoping in FUN).
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
 
+    syntax Exp ::= muclosure ( Map , Cases )
+ // ----------------------------------------
+    rule <k> muclosure(RHO, CS) => closure(RHO, CS) ... </k> [tag(recCall)]
+
     syntax Arg   ::= #arg   ( Val )
     syntax KItem ::= #apply ( Exp )
  // -------------------------------
@@ -559,8 +549,6 @@ in the function body (we want static scoping in FUN).
     rule <k> (matchFailure => matchResult(.Names, .Vals)) ~> #closure(RHO, (C:Case | CS => CS), (_ => #collectArgs(REST))) ~> REST </k>
     rule <k> matchResult(XS, VS) ~> #closure(RHO, -> ME | _, .Vals) ~> REST => binds(XS, VS) ~> ME ~> setEnv(RHO') ~> #stripArgs(REST) </k>
          <env> RHO' => RHO </env>
-
-    rule <k> mu(E) => E ... </k> [tag(recCall)]
 
     syntax Vals ::= #collectArgs ( K ) [function]
  // ---------------------------------------------
@@ -733,7 +721,7 @@ These operations add a single binding (or list of binding) into the current envi
                    | #bindsRec ( Names , Exps ) [strict(2)]
                    | #bind     ( Name  , Val  )
                    | #bindRec  ( Name  , Val  )
-                   | #assign   ( Name  , Val  )
+                   | #assign   ( Name  , Exp  )
                    | #allocate ( Names        )
  // -------------------------------------------
     rule <k> binds(.Names,              .Vals)           => .                            ... </k>
@@ -744,9 +732,9 @@ These operations add a single binding (or list of binding) into the current envi
     rule <k> #bindsRec((X:Name , XS:Names), V:Val : VS:Vals) => #bindRec(X, V) ~> #bindsRec(XS, VS) ... </k>
     rule <k> #bindsRec(.Names,              .Vals)           => .                                   ... </k>
 
-    rule <k> #bind(X, V)                   => #allocate(X, .Names) ~> #assign(X, V)   ... </k>
-    rule <k> #bindRec(X, V)                => #assign(X, V)                           ... </k> requires notBool isClosureVal(V)
-    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, closure(RHO, #applyMus(CS))) ... </k>
+    rule <k> #bind(X, V)                   => #allocate(X, .Names) ~> #assign(X, V) ... </k>
+    rule <k> #bindRec(X, V)                => #assign(X, V)                         ... </k> requires notBool isClosureVal(V)
+    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, muclosure(RHO, CS))        ... </k>
 
     rule <k> #assign(X, #listTailMatch(V)) => . ... </k>
          <env> ... X |-> L ... </env>
@@ -819,7 +807,7 @@ of expressions in a binding, respectively.
     syntax Val ::= #listTailMatch ( Vals )
  // --------------------------------------
 
-    syntax Bool ::= #isListTailMatch ( Val ) [function]
+    syntax Bool ::= #isListTailMatch ( Exp ) [function]
  // ---------------------------------------------------
     rule #isListTailMatch(#listTailMatch(_)) => true
     rule #isListTailMatch(_)                 => false [owise]
