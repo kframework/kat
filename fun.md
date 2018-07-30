@@ -527,9 +527,10 @@ in the function body (we want static scoping in FUN).
  // ----------------------------------------
     rule <k> muclosure(RHO, CS) => closure(RHO, CS) ... </k> [tag(recCall)]
 
-    syntax Arg   ::= #arg   ( Val )
-    syntax KItem ::= #apply ( Exp )
- // -------------------------------
+    syntax Arg   ::= #arg   ( Val  )
+    syntax KItem ::= #apply ( Exp  )
+                   | #args  ( Vals )
+ // --------------------------------
     rule <k> E:Exp V => E ~> #arg(V) ... </k>
       requires notBool isVal(E)
       [tag(applicationFocusFunction)]
@@ -544,10 +545,10 @@ in the function body (we want static scoping in FUN).
 
     syntax KItem ::= #closure ( Map , Cases , Vals )
  // ------------------------------------------------
-    rule <k> (closure(RHO, CS) => matchResult(.Names, .Vals) ~> #closure(RHO, CS, #collectArgs(REST))) ~> REST </k> requires #collectArgs(REST) =/=K .Vals
+    rule <k> (closure(RHO, CS) ~> REST) => matchResult(.Names, .Vals) ~> #closure(RHO, CS, #collectArgs(REST)) ~> #args(#collectArgs(REST)) ~> #stripArgs(REST) </k> requires #collectArgs(REST) =/=K .Vals
     rule <k> (. => getMatching(P, V)) ~> matchResult(_, _) ~> #closure(RHO, ((P:Exp C:Case => C) | _), (V : VS => VS)) ... </k>
-    rule <k> (matchFailure => matchResult(.Names, .Vals)) ~> #closure(RHO, (C:Case | CS => CS), (_ => #collectArgs(REST))) ~> REST </k>
-    rule <k> matchResult(XS, VS) ~> #closure(RHO, -> ME | _, .Vals) ~> REST => binds(XS, VS) ~> ME ~> setEnv(RHO') ~> #stripArgs(REST) </k>
+    rule <k> (matchFailure => matchResult(.Names, .Vals)) ~> #closure(RHO, (C:Case | CS => CS), (_ => VS)) ~> #args(VS) ~> REST </k>
+    rule <k> matchResult(XS, VS) ~> #closure(RHO, -> ME | _, .Vals) ~> #args(_) => binds(XS, VS) ~> ME ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
 
     syntax Vals ::= #collectArgs ( K ) [function]
