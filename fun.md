@@ -445,11 +445,10 @@ the first part of the K tutorial).
 ```k
     configuration
       <FUN>
-        <k>         $PGM:Exp </k>
-        <callStack> .List    </callStack>
-        <env>       .Map     </env>
-        <store>     .Map     </store>
-        <nextLoc>   0        </nextLoc>
+        <k>       $PGM:Exp </k>
+        <env>     .Map     </env>
+        <store>   .Map     </store>
+        <nextLoc> 0        </nextLoc>
       </FUN>
 ```
 
