@@ -272,8 +272,8 @@ Again, the type system will reject type-incorrect programs.
 
 ### Binding Environments
 
-The `let` and `letrec` binders have the usual syntax and functional meaning. We allow multiple and-separated bindings.
-Like for the function cases above, we allow a more generous syntax for the left-hand sides of bindings, noting that the semantics will get stuck on incorrect bindings and that the type system will reject those programs.
+The `let` and `letrec` binders have the usual syntax and functional meaning.
+We allow multiple (potentially recursive) and-separated bindings.
 
 **TODO**: The "prefer" attribute for letrec currently needed due to tool bug, to make sure that "letrec" is not parsed as "let rec".
 
@@ -281,7 +281,11 @@ Like for the function cases above, we allow a more generous syntax for the left-
     syntax Exp ::= "let"    Bindings "in" Exp
                  | "letrec" Bindings "in" Exp [prefer]
  // --------------------------------------------------
+```
 
+Bindings themselves comprise of expressions `E = E'`, where variables in `E` are bound by matching before evaluating `E'`.
+
+```k
     syntax Binding  ::= Exp "=" Exp
     syntax Bindings ::= List{Binding,"and"}
  // ---------------------------------------
@@ -305,6 +309,8 @@ Like for the function cases above, we allow a more generous syntax for the left-
     rule #exp(E:Exp E':Exp = fun C:Case => E = fun E' C     )
     rule #exp(E:Exp E':Exp = E''        => E = fun E' -> E'') [owise]
 ```
+
+### References
 
 References are first class values in FUN.
 The construct `ref` takes an expression, evaluates it, and then it stores the resulting value at a fresh location in the store and returns that reference.
@@ -584,62 +590,65 @@ On failure, the process is restarted on the next `Case` in the closure function 
 Let and Letrec
 --------------
 
-To highlight the similarities and differences between `let` and
-`letrec`, we prefer to give them direct semantics instead of to desugar
-them like in LAMBDA. See the formal definitions of `bind` and `binds`.
-Informally, `bindTo(\it Xs,\it Es)` first evaluates the expressions
-${\it Es}\in\textit{Exps}$ in the current environment (i.e., it is
-strict in its second argument), then it binds the variables in
-${\it Xs}\in\textit{Names}$ to new locations and adds those bindings to
-the environment, and finally writes the values previously obtained after
-evaluating the expressions $\it Es$ to those new locations;
-`bind(\it Xs)` does only the bindings of $\it Xs$ to new locations and
-adds those bindings to the environment; and `assignTo(\it Xs,\it Es)`
-evaluates the expressions $\it Es$ in the current environment and then
-it writes the resulting values to the locations to which the variables
-$\it Xs$ are already bound to in the environment.
-
-Therefore, "`let \it Xs=\it Es in \it E`" first evaluates $\it Es$ in
-the current environment, then adds new bindings for $\it Xs$ to fresh
-locations in the environment, then writes the values of $\it Es$ to
-those locations, and finally evaluates *E* in the new environment,
-making sure that the environment is properly recovered after the
-evaluation of *E*. On the other hand, `letrec` does the same things but
-in a different order: it first adds new bindings for $\it Xs$ to fresh
-locations in the environment, then it evaluates $\it Es$ in the new
-environment, then it writes the resulting values to their corresponding
-locations, and finally it evaluates *E* and recovers the environment.
-The crucial difference is that the expressions $\it Es$ now see the
-locations of the variables $\it Xs$ in the environment, so if they are
-functions, which is typically the case with `letrec`, their closures
-will encapsulate in their environments the bindings of all the bound
-variables, including themselves (thus, we may have a closure value
-stored at location *L*, whose environment contains a binding of the form
-$\textit{F} \mapsto \textit{L}$; this way, the closure can invoke
-itself).
+The constructs `let` and `letrec` are very similar, but treat bound closures in the environment differently.
+Operator `binds` is strict in the second argument, meaning that the closures defined in the `let` will end up with the environment *before* the `let` bindings are evaluated.
+After the expressions have been evaluated to values (closures and constants), they are allocated a spot in the store and the appropriate environment binding is added.
 
 ```k
-    rule <k> let BS in E ~> REST => binds(#names(BS), #exps(BS)) ~> E </k>
+    rule <k> let BS in E => binds(#names(BS), #exps(BS)) ~> E ... </k>
          <env> RHO </env>
-         <callStack> (.List => ListItem(setEnv(RHO) ~> REST)) ... </callStack>
       [tag(letBinds)]
 
-    rule <k> letrec BS in E ~> REST => bindsRec(#names(BS), #exps(BS)) ~> E </k>
-         <env> RHO </env>
-         <callStack> (.List => ListItem(setEnv(RHO) ~> REST)) ... </callStack>
-      [tag(letRecBinds)]
-
-    rule <k> V:Val ~> (. => CALLSTACK) </k>
-         <callStack> (ListItem(CALLSTACK) => .List) ... </callStack>
+    syntax KItem ::= binds ( Names , Exps ) [strict(2)]
+ // ---------------------------------------------------
+    rule <k> binds(.Names,              .Vals)           => .                                                      ... </k>
+    rule <k> binds((X:Name , XS:Names), V:Val : VS:Vals) => #allocate(X, .Names) ~> #assign(X, V) ~> binds(XS, VS) ... </k>
 ```
 
-Recall that our syntax allows `let` and `letrec` to take any
-expression in place of its binding. This allows us to use the already
-existing function application construct to bind names to functions, such
-as, e.g., "`let x y = y in ...`". The desugaring macro in the syntax
-module uncurries such declarations, and then the semantic rules above
-only work when the remaining bindings are identifiers, so the semantics
-will get stuck on programs that misuse the `let` and `letrec` binders.
+In contrast, `bindsRec` is *not* strict, instead first all the storage locations are allocated then the strict `#bindsRec` is called.
+The closures produced by `#bindsRec` will get the original environment, and the extra bindings added by the `letrec` clause.
+
+```k
+    rule <k> letrec BS in E => bindsRec(#names(BS), #exps(BS)) ~> E ... </k>
+         <env> RHO </env>
+      [tag(letRecBinds)]
+
+    syntax KItem ::=  bindsRec ( Names , Exps )
+                   | #bindsRec ( Names , Exps ) [strict(2)]
+                   | #bindRec  ( Name  , Val  )
+ // -------------------------------------------
+    rule <k> bindsRec(XS, VS) => #allocate(XS) ~> #bindsRec(XS, VS) ... </k>
+
+    rule <k> #bindsRec((X:Name , XS:Names), V:Val : VS:Vals) => #bindRec(X, V) ~> #bindsRec(XS, VS) ... </k>
+    rule <k> #bindsRec(.Names,              .Vals)           => .                                   ... </k>
+
+    rule <k> #bindRec(X, V)                => #assign(X, V)                  ... </k> requires notBool isClosureVal(V)
+    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, muclosure(RHO, CS)) ... </k>
+```
+
+The following helpers actually do the allocation and assignment operations on the storage.
+
+```k
+    syntax KItem ::= #assign   ( Name  , Exp )
+                   | #allocate ( Names       )
+ // ------------------------------------------
+    rule <k> #assign(X, #listTailMatch(V)) => . ... </k>
+         <env> ... X |-> L ... </env>
+         <store> STORE => STORE[L <- V] </store>
+      [tag(listAssignment)]
+
+    rule <k> #assign(X, V) => . ... </k>
+         <env> ... X |-> L ... </env>
+         <store> STORE => STORE[L <- V] </store>
+      requires notBool #isListTailMatch(V)
+      [tag(assignment)]
+
+    rule <k> #allocate(.Names)              => .             ... </k>
+    rule <k> #allocate((X:Name , XS:Names)) => #allocate(XS) ... </k>
+         <env>     RHO   => RHO[X <- NLOC]   </env>
+         <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
+      [tag(allocate)]
+```
 
 References
 ----------
@@ -720,49 +729,6 @@ achieve the benefits of tail recursion in K.
     rule <k> _:Val ~> (setEnv(RHO) => .) ... </k>
          <env> _ => RHO </env>
       [tag(resetEnv)]
-```
-
-### `bind`, `binds`, and `bindsRec`
-
-These operations add a single binding (or list of binding) into the current environment/store.
-
-```k
-    syntax KItem ::=  binds    ( Names , Exps ) [strict(2)]
-                   |  bindsRec ( Names , Exps )
-                   | #bindsRec ( Names , Exps ) [strict(2)]
-                   | #bind     ( Name  , Val  )
-                   | #bindRec  ( Name  , Val  )
-                   | #assign   ( Name  , Exp  )
-                   | #allocate ( Names        )
- // -------------------------------------------
-    rule <k> binds(.Names,              .Vals)           => .                            ... </k>
-    rule <k> binds((X:Name , XS:Names), V:Val : VS:Vals) => #bind(X, V) ~> binds(XS, VS) ... </k>
-
-    rule <k> bindsRec(XS, VS) => #allocate(XS) ~> #bindsRec(XS, VS) ... </k>
-
-    rule <k> #bindsRec((X:Name , XS:Names), V:Val : VS:Vals) => #bindRec(X, V) ~> #bindsRec(XS, VS) ... </k>
-    rule <k> #bindsRec(.Names,              .Vals)           => .                                   ... </k>
-
-    rule <k> #bind(X, V)                   => #allocate(X, .Names) ~> #assign(X, V) ... </k>
-    rule <k> #bindRec(X, V)                => #assign(X, V)                         ... </k> requires notBool isClosureVal(V)
-    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, muclosure(RHO, CS))        ... </k>
-
-    rule <k> #assign(X, #listTailMatch(V)) => . ... </k>
-         <env> ... X |-> L ... </env>
-         <store> STORE => STORE[L <- V] </store>
-      [tag(listAssignment)]
-
-    rule <k> #assign(X, V) => . ... </k>
-         <env> ... X |-> L ... </env>
-         <store> STORE => STORE[L <- V] </store>
-      requires notBool #isListTailMatch(V)
-      [tag(assignment)]
-
-    rule <k> #allocate(.Names)              => .             ... </k>
-    rule <k> #allocate((X:Name , XS:Names)) => #allocate(XS) ... </k>
-         <env>     RHO   => RHO[X <- NLOC]   </env>
-         <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
-      [tag(allocate)]
 ```
 
 ### Getters
