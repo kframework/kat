@@ -511,22 +511,29 @@ argument):
 Functions and Closures
 ----------------------
 
-Like in the environment-based semantics of LAMBDA++ in the first part of
-the K tutorial, functions evaluate to closures. A closure includes the
-current environment besides the function contents; the environment will
-be used at execution time to lookup all the variables that appear free
-in the function body (we want static scoping in FUN).
+Like in the environment-based semantics of LAMBDA++ in the first part of the K tutorial, functions evaluate to closures.
+A closure includes the an environment and the function contents.
+The environment will be used at execution time to lookup non-parameter variables that appear free in the function body.
 
 ```k
     syntax ClosureVal ::= closure ( Map , Cases )
  // ---------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
+```
 
+We mark that a closure is from a recursive environment by storing it as a `muclosure`.
+Otherwise, evaluation of a `muclosure` is identical to that of a `closure`.
+
+```k
     syntax Exp ::= muclosure ( Map , Cases )
  // ----------------------------------------
     rule <k> muclosure(RHO, CS) => closure(RHO, CS) ... </k> [tag(recCall)]
+```
 
+In evaluating an application, the arguments are evaluated in reverse order until we reach the applied function.
+
+```k
     syntax Arg   ::= #arg   ( Val  )
     syntax KItem ::= #apply ( Exp  )
                    | #args  ( Vals )
@@ -542,12 +549,24 @@ in the function body (we want static scoping in FUN).
       [tag(applicationFocusArgument)]
 
     rule <k> V:Val ~> #apply(E) => E V ... </k>
+```
 
+Finally, once all arguments are evaluated, we can attempt pattern matching on the closure's function contents.
+The arguments are collected, and an empty substitution is initialized in a `matchResult`.
+As each argument is consumed, we match it against the closure's next pattern, incrementally building up the substitution.
+On failure, the process is restarted on the next `Case` in the closure function contents.
+
+```k
     syntax KItem ::= #closure ( Map , Cases , Vals )
  // ------------------------------------------------
-    rule <k> (closure(RHO, CS) ~> REST) => matchResult(.Names, .Vals) ~> #closure(RHO, CS, #collectArgs(REST)) ~> #args(#collectArgs(REST)) ~> #stripArgs(REST) </k> requires #collectArgs(REST) =/=K .Vals
+    rule <k> closure(RHO, CS) ~> REST
+          => matchResult(.Names, .Vals) ~> #closure(RHO, CS, #collectArgs(REST)) ~> #args(#collectArgs(REST)) ~> #stripArgs(REST) </k>
+      requires #collectArgs(REST) =/=K .Vals
+
     rule <k> (. => getMatching(P, V)) ~> matchResult(_, _) ~> #closure(RHO, ((P:Exp C:Case => C) | _), (V : VS => VS)) ... </k>
+
     rule <k> (matchFailure => matchResult(.Names, .Vals)) ~> #closure(RHO, (C:Case | CS => CS), (_ => VS)) ~> #args(VS) ~> REST </k>
+
     rule <k> matchResult(XS, VS) ~> #closure(RHO, -> ME | _, .Vals) ~> #args(_) => binds(XS, VS) ~> ME ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
 
@@ -561,15 +580,6 @@ in the function body (we want static scoping in FUN).
     rule #stripArgs(#arg(V) ~> KS) => #stripArgs(KS)
     rule #stripArgs(KS)            => KS             [owise]
 ```
-
-#### Note:
-
-The reader may want to get familiar with how the pre-defined pattern matching works before proceeding.
-The best way to do that is to consult `k/include/modules/pattern-matching.k`.
-
-We distinguish two cases when the closure is applied.
-If the first pattern matches, then we pick the first case: switch to the closed environment, get the binding from the match, evaluate the function body in the combined environment, making sure that the environment is properly recovered afterwards.
-If the first pattern does not match, then we drop it and thus move on to the next one.
 
 Let and Letrec
 --------------
