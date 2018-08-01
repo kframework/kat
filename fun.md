@@ -11,84 +11,66 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
 -   The basic builtin data-types of integers, booleans and strings.
 
 -   Builtin lists, which can hold any elements, including other lists.
-    Lists are enclosed in square brackets and their elements are comma-separated; e.g., `[1,2,3]`.
+    Lists are enclosed in square brackets and their elements are colon-separated; e.g., `[ 1 : 2 : 3 : .Exps ]`.
 
 -   User-defined data-types, by means of constructor terms.
-    Constructor names start with a capital letter (while any other identifier in the language starts with a lowercase letter), and they can be followed by an arbitrary number of comma-separated arguments enclosed in parentheses; parentheses are not needed when the constructor takes no arguments.
-    For example, `Pair(5,7)` is a constructor term holding two numbers, `Cons(1,Cons(2,Cons(3,Nil)))` is a list-like constructor term holding 3 elements, and `Tree(Tree(Leaf(1), Leaf(2)), Leaf(3))` is a tree-like constructor term holding 3 elements.
+    Constructor names start with a capital letter (while any other identifier in the language starts with a lowercase letter), and they can be followed by an arbitrary number of space separated arguments.
+    For example, `Pair 5 7` is a constructor term holding two numbers, `Cons 1 (Cons 2 (Cons 3 Nil))` is a list-like constructor term holding 3 elements, and `Tree (Tree (Leaf 1) (Leaf 2)) (Leaf 3)` is a tree-like constructor term holding 3 elements.
     In the untyped version of the FUN language, no type checking or inference is performed to ensure that the data constructors are used correctly.
-    The execution will simply get stuck when they are misused. Moreover, since no type checking is performed, the data-types are not even declared in the untyped version of FUN.
+    The execution will simply get stuck when they are misused.
+    Moreover, since no type checking is performed, the data-types are not even declared in the untyped version of FUN.
 
--   Functions and `let`/`letrec` binders can take multiple space-separated arguments, but these are desugared to ones that only take one argument, by currying.
-    For example, the expressions
+-   Functions declared in `let`/`letrec` binders and declared anonymously can take multiple space-separated arguments.
+    In addition, functions can be partially applied to arguments, allowing the function to be evaluated incrementally.
 
-    ```
-    fun x y -> x y
-    let x y = y in x
-    ```
-
-    are desugared, respectively, into the following expressions:
+    For example, the following is the reduction sequence of a partially applied anonymous function:
 
     ```
-    fun x -> fun y -> x y
-    let x = fun y -> y in x
+       (fun x y -> x) 3
+    => closure(.Map, x y -> x) 3
+    => closure(x |-> L, x y -> x)
     ```
+
+    with store location `L` pointing at the value `3`.
 
 -   Functions can be defined using pattern matching over the available data-types.
     For example, the program
 
     ```
-    letrec max = fun [h] -> h
-                 |   [h|t] -> let x = max t
-                              in  if h > x then h else x
-    in max [1, 3, 5, 2, 4, 0, -1, -5]
+    letrec max = fun [ h : .Exps ] -> h
+                 |   [ h : t     ] -> let x = max [ t ]
+                                       in if h > x then h else x
+    in max [ 1 : 3 : 5 : 2 : 4 : 0 : -1 : -5 : .Exps ]
     ```
 
     defines a function `max` that calculates the maximum element of a non-empty list, and the function
 
     ```
-    letrec ack = fun Pair(0,n) -> n + 1
-                 |   Pair(m,0) -> ack Pair(m - 1, 1)
-                 |   Pair(m,n) -> ack Pair(m - 1, ack Pair(m, n - 1))
-    in ack Pair(2,3)
+    letrec ack = fun (Pair 0 n) -> n + 1
+                 |   (Pair m 0) -> ack (Pair (m - 1) 1)
+                 |   (Pair m n) -> ack (Pair (m - 1) (ack (Pair m (n - 1))))
+    in ack (Pair 2 3)
     ```
 
     calculates the Ackermann function applied to a particular pair of numbers.
-    Patterns can be nested.
-    Patterns can currently only be used in function definitions, and not directly in `let`/`letrec` binders.
+    Patterns can currently only be used when declaring arguments to a function, not directly in `let`/`letrec` binders.
     For example, this is not allowed:
 
     ```
-    letrec Pair(x,y) = Pair(1,2) in x+y
+    letrec (Pair x y) = (Pair 1 2) in x + y
     ```
 
     But this is allowed:
 
     ```
-    let f Pair(x,y) = x+y in f Pair(1,2)
+    let f (Pair x y) = x + y in f (Pair 1 2)
     ```
 
-    because it is first reduced to
-
-    ```
-    let f = fun Pair(x,y) -> x+y in f Pair(1,2)
-    ```
-
-    by uncurrying of the `let` binder, and pattern matching is allowed in function arguments.
-
--   We include a `callcc` construct, for two reasons: first, several functional languages support this construct; second, some semantic frameworks have difficulties defining it.
-    Not K.
+-   We include a `callcc` construct ("call with current continuation") to demonstrate the modularity of K semantic definitions.
+    This allows for using `try`/`catch` control flow constructs.
 
 -   Finally, we include mutables by means of referencing an expression, getting the reference of a variable, dereferencing and assignment.
     We include these for the same reasons as above: there are languages which have them, and they are not easy to define in some semantic frameworks.
-
-Like in many other languages, some of FUN's constructs can be desugared into a smaller set of basic constructs.
-We do that as usual, using macros, and then we only give semantics to the core constructs.
-
-#### Note:
-
-We recommend the reader to first consult the dynamic semantics of the LAMBDA++ language in the first part of the K Tutorial.
-To keep the comments below small and focused, we will not re-explain functional or K features that have already been explained in there.
 
 Syntax
 ======
@@ -114,10 +96,10 @@ We start with the syntactic definition of FUN names.
 We have several categories of names: ones to be used for functions and variables, others to be used for data constructors, others for types and others for type variables.
 We will introduce them as needed, starting with the former category.
 We prefer the names of variables and functions to start with lower case letters.
-Three special names `$h`, `$t`, and `$k` are used in the semantics for desugaring builtin functions to actual functions (they will not parse in real programs).
+Two special names `$x` and `$k` are used in the semantics for desugaring builtin functions to actual functions (they will not parse in real programs).
 
 ```k
-    syntax Name  ::= "$h" | "$t" | "$k"
+    syntax Name  ::= "$x" | "$k"
     syntax Names ::= List{Name,","}
  // -------------------------------
 ```
@@ -344,7 +326,7 @@ We also need to introduce the special expression contant `throw`, but we need to
     syntax Exp ::= "callcc"
                  | "try" Exp "catch" "(" Name ")" Exp
  // -------------------------------------------------
-    rule try E catch(X) E' => callcc (fun $k -> (fun $t -> E) (fun X -> $k E')) [macro]
+    rule try E catch(X) E' => callcc (fun $k -> (fun $x -> E) (fun X -> $k E')) [macro]
 ```
 
 ### Types
@@ -425,9 +407,7 @@ endmodule
 Semantics
 =========
 
-The semantics below is environment-based. A substitution-based
-definition of FUN is also available, but that drops the `&` construct as
-explained above.
+The semantics below is environment-based.
 
 ```k
 module FUN-UNTYPED
@@ -438,9 +418,9 @@ module FUN-UNTYPED
 Configuration
 -------------
 
-The [k]{.sans-serif}, [env]{.sans-serif}, and [store]{.sans-serif} cells
-are standard (see, for example, the definition of LAMBDA++ or IMP++ in
-the first part of the K tutorial).
+Computation will happen on the `<k>` cell.
+The `<store>` will be used as a memory, which is addressed through the `<env>`.
+`<nextLoc>` tracks the next available `<store>` location, and is incremented on allocation.
 
 ```k
     configuration
@@ -493,25 +473,12 @@ Expressions
 Conditional
 -----------
 
+Because the conditional is declared `strict`, we only need to provide the semantics in terms of values.
+
 ```k
     rule <k> if  true then E else _ => E ... </k> [tag(iftrue)]
     rule <k> if false then _ else E => E ... </k> [tag(iffalse)]
 ```
-
-Lists
------
-
-We have already declared the syntactic list of expressions strict, so we
-can assume that all the elements that appear in a FUN list are
-evaluated. The only thing left to do is to state that a list of values
-is a value itself, that is, that the list square-bracket construct is
-indeed a constructor, and to give the semantics of `cons`. Since `cons`
-is a builtin function and is expected to take two arguments, we have to
-also state that `cons` itself is a value (specifically, a
-function/closure value, but we do not need that level of detail here),
-and also that `cons` applied to a value is a value (specifically, it
-would be a function/closure value that expects the second, list
-argument):
 
 Functions and Closures
 ----------------------
@@ -652,53 +619,30 @@ The following helpers actually do the allocation and assignment operations on th
 References
 ----------
 
-The semantics of references is self-explanatory, except maybe for the
-desugaring rule of `ref`, which is further discussed. Note that `&X`
-grabs the location of $X$ from the environment. Sequential composition,
-which is needed only to accumulate the side effects due to assignments,
-was strict in the first argument. Once evaluated, its first argument is
-simply discarded:
+References allow direct manipulation of the `<store>`.
+Syntax `& X` dereferences variable `X`, giving back it's associated store location.
+`@ L` loads the value at store location `L` directly.
+`L := V` assigns the store location `L` to the value `V` directly.
+Sequential composition `E ; E'` allows having the side-effects of expression `E` evaluated, and the result of `E'` returned.
 
 ```k
-    syntax Name ::= "$x"
- // --------------------
     rule ref => fun $x -> & $x [macro]
+    // rule <k> ref => fun $x -> & $x ... </k>
 
     rule <k> & X              => L     ... </k> <env>   ... X |-> L        ... </env>
     rule <k> @ L:Int          => V:Val ... </k> <store> ... L |-> V        ... </store>
     rule <k>   L:Int := V:Val => V     ... </k> <store> ... L |-> (_ => V) ... </store>
 
-    rule <k> V:Val; E => E ... </k>
+    rule <k> V:Val ; E => E ... </k>
 ```
-
-The desugaring rule of `ref` (first rule above) works because `&`
-takes a variable and returns its location (like in C). Note that some
-"pure" functional programming researchers strongly dislike the `&`
-construct, but favor `ref`. We refrain from having a personal opinion on
-this issue here, but support `&` in the environment-based definition of
-FUN because it is, technically speaking, more powerful than `ref`. From
-a language design perspective, it would be equally easy to drop `&` and
-instead give a direct semantics to `ref`. In fact, this is precisely
-what we do in the substitution-based definition of FUN, because there
-appears to be no way to give a substitution-based definition to the `&`
-construct.
 
 Callcc
 ------
 
-As we know it from the LAMBDA++ tutorial, call-with-current-continuation
-is quite easy to define in K. We first need to define a special value
-wrapping an execution context, that is, an environment saying where the
-variables should be looked up, and a computation structure saying what
-is left to execute (in a substitution-based definition, this special
-value would be even simpler, as it would only need to wrap the
-computation structure---see, for example, the substitution-based
-semantics of LAMBDA++ in the the first part of the K tutorial, or the
-substitution-based definition of FUN). Then `callcc` creates such a
-value containing the current environment and the current remaining
-computation, and passes it to its argument function. When/If invoked,
-the special value replaces the current execution context with its own
-and continues the execution normally.
+As we know it from the LAMBDA++ tutorial, call-with-current-continuation is quite easy to define in K.
+We create a wrapper `cc(RHO, K)` which stores the current environment `RHO` and remainder of the computation `K`.
+`callcc E` evaluates `E` and calls the resulting closure with argument `cc(RHO, K)`.
+If the resulting closure invokes the stored `cc(RHO, K)`, the current state is replaced with the stored environment `RHO` and computation `K`.
 
 ```k
     syntax Val ::= cc ( Map , K )
@@ -717,10 +661,8 @@ Auxiliary operations
 
 ### Environment recovery
 
-The environment recovery operation is the same as for the LAMBDA++
-language in the K tutorial and many other languages provided with the
-K distribution. The first "anywhere" rule below shows an elegant way to
-achieve the benefits of tail recursion in K.
+Environment recovery is used in multiple places where a sub-expression needs to be evaluated in a different environment than the current one.
+`setEnv(RHO)` is used to recover the original environment once the sub-expression is evaluated to a value `V`.
 
 ```k
     syntax KItem ::= setEnv ( Map )
@@ -732,8 +674,7 @@ achieve the benefits of tail recursion in K.
 
 ### Getters
 
-The following auxiliary operations extract the list of identifiers and
-of expressions in a binding, respectively.
+The following auxiliary operations extract the list of identifiers and of expressions in a binding, respectively.
 
 ```k
     /* Matching */
