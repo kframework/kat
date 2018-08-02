@@ -323,10 +323,11 @@ To issustrate the strength of `callcc`, we also allow exceptions in FUN by means
 We also need to introduce the special expression contant `throw`, but we need to use it as a function argument name in the desugaring macro, so we define it as a name instead of as an expression constant:
 
 ```k
-    syntax Exp ::= "callcc"
-                 | "try" Exp "catch" "(" Name ")" Exp
- // -------------------------------------------------
-    rule try E catch(X) E' => callcc (fun $k -> (fun $x -> E) (fun X -> $k E')) [macro]
+    syntax Name ::= "throw" [token]
+    syntax Exp  ::= "callcc"
+                  | "try" Exp "catch" "(" Name ")" Exp
+ // --------------------------------------------------
+    rule try E catch(X) E' => callcc (fun $k -> (fun throw -> E) (fun X -> $k E')) [macro]
 ```
 
 ### Types
@@ -652,8 +653,10 @@ If the resulting closure invokes the stored `cc(RHO, K)`, the current state is r
     rule <k> (callcc V:Val => V cc(RHO, K)) ~> K </k>
          <env> RHO </env>
 
-    rule <k> cc(RHO, K) V:Val ~> _ => V ~> K </k>
+    rule <k> cc(RHO, K) ~> #arg(V) ~> _ => V ~> K </k>
          <env> _ => RHO </env>
+
+    rule <k> closure(RHO, CS) cc(RHO', K) => closure(RHO, CS) ~> #arg(cc(RHO', K)) ... </k>
 ```
 
 Auxiliary operations
