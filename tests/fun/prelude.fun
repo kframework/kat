@@ -1,10 +1,10 @@
-let id    = fun x         -> x
-and fst   = fun l r       -> l
-and snd   = fun l r       -> r
-and cons  = fun h t       -> [ h : t ]
-and head  = fun [ h : t ] -> h
-and tail  = fun [ h : t ] -> [ t ]
-and apply = fun f d       -> f d
+let id    x   = x
+and fst   l r = l
+and snd   l r = r
+and cons  h t = [ h : t ]
+and apply f d = f d
+and head [ h : t ] = h
+and tail [ h : t ] = [ t ]
  in apply id (head (tail [ 3 : 5 : 7 : 9 : .Exps ]))
 
 // 5
