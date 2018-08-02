@@ -540,7 +540,7 @@ On failure, the process is restarted on the next `Case` in the closure function 
 
     rule <k> (matchFailure => matchResult(.Names, .Vals)) ~> #closure(RHO, (C:Case | CS => CS), (_ => VS)) ~> #args(VS) ~> REST </k>
 
-    rule <k> matchResult(XS, VS) ~> #closure(RHO, -> ME | _, .Vals) ~> #args(_) => binds(XS, VS) ~> ME ~> setEnv(RHO') ... </k>
+    rule <k> matchResult(XS, VS) ~> #closure(RHO, -> E | _, VS') ~> #args(_) => binds(XS, VS) ~> #applyAll(E, VS') ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
 
     syntax Vals ::= #collectArgs ( K ) [function]
@@ -552,6 +552,11 @@ On failure, the process is restarted on the next `Case` in the closure function 
  // ----------------------------------------
     rule #stripArgs(#arg(V) ~> KS) => #stripArgs(KS)
     rule #stripArgs(KS)            => KS             [owise]
+
+    syntax Exp ::= #applyAll ( Exp , Vals ) [function]
+ // --------------------------------------------------
+    rule #applyAll(E, .Vals ) => E
+    rule #applyAll(E, V : VS) => #applyAll(E V, VS)
 ```
 
 Let and Letrec
