@@ -28,7 +28,7 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
     ```
        (fun x y -> x) 3
     => closure(.Map, x y -> x) 3
-    => closure(x |-> L, x y -> x)
+    => closure(x |-> L, y -> x)
     ```
 
     with store location `L` pointing at the value `3`.
