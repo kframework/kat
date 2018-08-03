@@ -57,8 +57,8 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
                   | ^ iffalse
     rule #let    => ^ letBinds
                   | ^ letRecBinds
-    rule #case   => ^ caseLinearMatchJoinSuccess
-                  | ^ caseLinearMatchJoinFailure
+    rule #case   => ^ caseNonlinearMatchJoinSuccess
+                  | ^ caseNonlinearMatchJoinFailure
                   | ^ caseBoolSuccess
                   | ^ caseBoolFailure
                   | ^ caseIntSuccess
