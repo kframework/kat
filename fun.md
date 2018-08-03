@@ -416,7 +416,6 @@ The semantics below is environment-based.
 ```k
 module FUN-UNTYPED
     imports FUN-UNTYPED-COMMON
-    imports DOMAINS
 ```
 
 Configuration
