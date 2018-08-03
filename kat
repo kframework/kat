@@ -69,49 +69,14 @@ run_ksearch() {
 }
 
 run_test() {
-    local test_file strategy_file test_number counter exit_status current_status
-    local test_id test_pgm_name test_output_dir test_output_file test_expected_dir test_expected_file
+    local test_file expected_hash
     test_file="$1"     ; shift
-    strategy_file="$1" ; shift
-    { test_number="$1" && shift ; } || test_number="*"
+    expected_hash="$1" ; shift
 
-    [[ -f "$test_file"     ]] || die "File '$test_file' does not exist ..."
-    [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
-    test_expected_dir="$(dirname "$test_file")/output"
-    test_output_dir="$test_logs/$test_expected_dir"
-    mkdir -p "$test_output_dir"
-
-    exit_status=0
-    counter=0
-    while read strategy; do
-        [[ "$strategy" != '' ]] || continue
-        counter=$((counter + 1))
-        [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
-
-        test_pgm_name="$(basename $test_file)"
-        test_id="$(echo "$test_pgm_name $strategy" | md5sum | tr -d '[:space:]-')"
-        test_output_file="$test_output_dir/$test_id.out"
-        test_expected_file="$test_expected_dir/$test_id.out"
-        progress "testing: '$test_file' with strategy '$strategy', output $test_output_file"
-
-        echo "Program:  $test_pgm_name"      > "$test_output_file"
-        echo "Strategy: $strategy"          >> "$test_output_file"
-        { printf '=%.0s' {1..80} ; echo ; } >> "$test_output_file"
-        run_krun "$test_file" "$strategy"   >> "$test_output_file"
-
-        if [[ ! -f "$test_expected_file" ]]; then
-            warn "Expected output file does not exist: $test_expected_file"
-            exit_status='1'
-        else
-            current_status='0'
-            pretty_diff "$test_expected_file" "$test_output_file" || current_status="$?"
-            if [[ "$current_status" != '0' ]]; then
-                echo "$test_file with strategy '$strategy'" >> "$failing_log"
-                exit_status="$current_status"
-            fi
-        fi
-    done < "$strategy_file"
-    return "$exit_status"
+    actual_hash="$(run_krun_orig $test_file | md5sum | cut --field='1' --delimiter=' ')"
+    if [[ "$actual_hash" != "$expected_hash" ]]; then
+        die "./kat run-orig $test_file\n    expected $expected_hash\n    actual   $actual_hash"
+    fi
 }
 
 # Main
@@ -147,11 +112,10 @@ case "$run_command" in
 
        # Testing
        # -------
-       $0 test <pgm> <strat> [<strat-num>] Run a test from the `tests/` directory.
+       $0 test <pgm> <hash>   Test that running with `run-orig` produces the correct hash.
 
        Note: <pgm>          is the path to the program in `tests/`
-             <strat>        is a file with one strategy per line
-             <strat-num>    is which strategy from <strat> to run (default '*')
+             <hash>         is the expected md5sum of the output
 
        Note: This command is more for devs and CI servers.
 " ; exit ;;
