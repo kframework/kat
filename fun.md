@@ -77,7 +77,10 @@ Syntax
 
 ```k
 module FUN-UNTYPED-COMMON
-    imports DOMAINS
+    imports MAP
+    imports INT
+    imports FLOAT
+    imports STRING
 ```
 
 ```kcompile
@@ -546,11 +549,13 @@ On failure, the process is restarted on the next `Case` in the closure function 
     syntax Vals ::= #collectArgs ( K ) [function]
  // ---------------------------------------------
     rule #collectArgs(#arg(V) ~> KS) => V : #collectArgs(KS)
+    rule #collectArgs(#arg(V))       => V : .Vals
     rule #collectArgs(_)             => .Vals                [owise]
 
     syntax K ::= #stripArgs ( K ) [function]
  // ----------------------------------------
     rule #stripArgs(#arg(V) ~> KS) => #stripArgs(KS)
+    rule #stripArgs(#arg(_))       => .
     rule #stripArgs(KS)            => KS             [owise]
 
     syntax Exp ::= #applyAll ( Exp , Vals ) [function]
