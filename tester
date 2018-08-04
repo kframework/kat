@@ -10,7 +10,7 @@ runtest() {
     ./kat test "$test_file" "$test_hash_orig" "$test_hash_exec" || exit_status="$?"
 }
 
-runtest tests/fun/ackermann.fun                   103a032a87e4855ba91fe5b5c9b52a7b xxx
+runtest tests/fun/ackermann.fun                   103a032a87e4855ba91fe5b5c9b52a7b b63045261cd1eab797e2efc2d09804c2
 runtest tests/fun/collatz-all-upto.fun            d1d56e40ca7ba4869e2be56f05d15ce6 xxx
 runtest tests/fun/constructor-bst-sorting.fun     5cf50a61d7a350beb9b4a1c99f20e2ab xxx
 runtest tests/fun/constructor-tree-mirror.fun     5d5282b1a5eb1e1cc831889fe5d64a56 xxx

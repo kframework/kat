@@ -535,7 +535,7 @@ On failure, the process is restarted on the next `Case` in the closure function 
 ```k
     rule <k> (closure(RHO, CS) => closure(RHO, CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
 
-    rule <k> (. => getMatching(P, V, BS)) ~> closure(RHO, (P C => C) | CS, BS => .Bindings, VS => V : VS) ~> (#arg(V) => .) ... </k>
+    rule <k> (. => getMatchingBindings(P, V, BS)) ~> closure(RHO, (P C => C) | CS, BS => .Bindings, VS => V : VS) ~> (#arg(V) => .) ... </k>
 
     rule <k> (matchResult(BS) => .) ~> closure(RHO,  P C | CS,           _  => BS, VS         )                             ... </k>
     rule <k> (matchFailure    => .) ~> closure(RHO, (C:Case | CS => CS), BS,       VS => .Vals) ~> (. => #sequenceArgs(VS)) ... </k>
@@ -687,7 +687,7 @@ The following auxiliary operations extract the list of identifiers and of expres
                          | matchResult    ( Bindings )
                          | matchResultAdd ( Bindings , Name , Val , Bindings )
  // --------------------------------------------------------------------------
-    rule <k> getMatching(E, V, BS) => getMatching(E, V) ~> matchResult(BS) ... </k>
+    rule <k> getMatchingBindings(E, V, BS) => getMatching(E, V) ~> matchResult(BS) ... </k>
 
     rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
 
@@ -699,10 +699,10 @@ The following auxiliary operations extract the list of identifiers and of expres
     rule <k> matchResultAdd(N:Name = V:Val and BS, N', V', BS') => matchResultAdd(BS, N', V' , N = V and BS') ... </k> requires N =/=K N'  orBool V  ==K V' [tag(caseNonlinearMatchJoinSuccess)]
     rule <k> matchResultAdd(N:Name = V:Val and BS, N', V', BS') => matchFailure                               ... </k> requires N  ==K N' andBool V =/=K V' [tag(caseNonlinearMatchJoinFailure)]
 
-    syntax MatchResult ::= getMatching  ( Exp   , Val  )
-                         | getMatchings ( Exps  , Vals )
-                         | getMatching  ( Exp   , Val , Bindings )
- // --------------------------------------------------------------
+    syntax MatchResult ::= getMatching         ( Exp   , Val  )
+                         | getMatchings        ( Exps  , Vals )
+                         | getMatchingBindings ( Exp   , Val , Bindings )
+ // ---------------------------------------------------------------------
     rule <k> matchResult(BS) ~> getMatchings(ES, VS') => getMatchings(ES, VS') ~> matchResult(BS) ... </k>
     rule <k> matchResult(BS) ~> getMatching (E , V  ) => getMatching (E , V  ) ~> matchResult(BS) ... </k>
 
