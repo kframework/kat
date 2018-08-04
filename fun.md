@@ -493,7 +493,7 @@ The environment will be used at execution time to lookup non-parameter variables
 
 ```k
     syntax ClosureVal ::= closure ( Map , Cases )
-                        | closure ( Map , Cases , Bindings , List ) [klabel(partialClosure)]
+                        | closure ( Map , Cases , Bindings , Vals ) [klabel(partialClosure)]
  // ----------------------------------------------------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
@@ -511,10 +511,9 @@ Otherwise, evaluation of a `muclosure` is identical to that of a `closure`.
 In evaluating an application, the arguments are evaluated in reverse order until we reach the applied function.
 
 ```k
-    syntax Arg   ::= #arg   ( Val  )
-    syntax KItem ::= #apply ( Exp  )
-                   | #args  ( List )
- // --------------------------------
+    syntax Arg   ::= #arg   ( Val )
+    syntax KItem ::= #apply ( Exp )
+ // -------------------------------
     rule <k> E:Exp V => E ~> #arg(V) ... </k>
       requires notBool isVal(E)
       [tag(applicationFocusFunction)]
@@ -534,20 +533,20 @@ As each argument is consumed, we match it against the closure's next pattern, in
 On failure, the process is restarted on the next `Case` in the closure function contents.
 
 ```k
-    rule <k> (closure(RHO, CS) => closure(RHO, CS, .Bindings, .List)) ~> #arg(_) ... </k>
+    rule <k> (closure(RHO, CS) => closure(RHO, CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
 
-    rule <k> (. => getMatching(P, V, BS)) ~> closure(RHO, P C | CS, BS => .Bindings, (.List => ListItem(V)) VS) ~> (#arg(V) => .) ... </k>
+    rule <k> (. => getMatching(P, V, BS)) ~> closure(RHO, (P C => C) | CS, BS => .Bindings, VS => V : VS) ~> (#arg(V) => .) ... </k>
 
-    rule <k> (matchResult(BS) => .) ~> closure(RHO, (P C => C) | CS,        _  => BS, VS         )                             ... </k>
-    rule <k> (matchFailure    => .) ~> closure(RHO, (C:Case    | CS => CS), BS,       VS => .List) ~> (. => #sequenceArgs(VS)) ... </k>
+    rule <k> (matchResult(BS) => .) ~> closure(RHO,  P C | CS,           _  => BS, VS         )                             ... </k>
+    rule <k> (matchFailure    => .) ~> closure(RHO, (C:Case | CS => CS), BS,       VS => .Vals) ~> (. => #sequenceArgs(VS)) ... </k>
 
-    rule <k> closure(RHO, -> E | CS:Cases, BS, VS) => let BS in E ~> setEnv(RHO') ... </k>
+    rule <k> matchResult(BS) ~> closure(RHO, -> E | _, _, _) => let BS in E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
 
-    syntax K ::= #sequenceArgs ( List ) [function]
+    syntax K ::= #sequenceArgs ( Vals ) [function]
  // ----------------------------------------------
-    rule #sequenceArgs(.List)          => .
-    rule #sequenceArgs(ListItem(A) VS) => #arg(A) ~> #sequenceArgs(VS)
+    rule #sequenceArgs(.Vals)  => .
+    rule #sequenceArgs(V : VS) => #sequenceArgs(VS) ~> #arg(V)
 ```
 
 Let and Letrec
@@ -562,10 +561,16 @@ After the expressions have been evaluated to values (closures and constants), th
          <env> RHO </env>
       [tag(letBinds)]
 
-    syntax KItem ::= binds ( Names , Exps ) [strict(2)]
- // ---------------------------------------------------
-    rule <k> binds(.Names,              .Vals)           => .                                                      ... </k>
-    rule <k> binds((X:Name , XS:Names), V:Val : VS:Vals) => #allocate(X, .Names) ~> #assign(X, V) ~> binds(XS, VS) ... </k>
+    syntax KItem ::=  binds ( Names , Exps )
+                   | #binds ( Names        )
+                   | #binds ( Names , Vals )
+ // ----------------------------------------
+    rule <k> binds(XS, ES) => ES ~> #binds(XS) ... </k>
+
+    rule <k> VS:Vals ~> #binds(XS) => #binds(XS, VS) ... </k>
+
+    rule <k> #binds(.Names,   .Vals)  => .                                                       ... </k>
+    rule <k> #binds((X , XS), V : VS) => #allocate(X, .Names) ~> #assign(X, V) ~> #binds(XS, VS) ... </k>
 ```
 
 In contrast, `bindsRec` is *not* strict, instead first all the storage locations are allocated then the strict `#bindsRec` is called.
@@ -577,16 +582,17 @@ The closures produced by `#bindsRec` will get the original environment, and the 
       [tag(letRecBinds)]
 
     syntax KItem ::=  bindsRec ( Names , Exps )
-                   | #bindsRec ( Names , Exps ) [strict(2)]
-                   | #bindRec  ( Name  , Val  )
+                   | #bindsRec ( Names , Exps )
+                   | #bindRec  ( Name         )
  // -------------------------------------------
-    rule <k> bindsRec(XS, VS) => #allocate(XS) ~> #bindsRec(XS, VS) ... </k>
+    rule <k> bindsRec(XS, ES) => #allocate(XS) ~> #bindsRec(XS, ES) ... </k>
 
-    rule <k> #bindsRec((X:Name , XS:Names), V:Val : VS:Vals) => #bindRec(X, V) ~> #bindsRec(XS, VS) ... </k>
-    rule <k> #bindsRec(.Names,              .Vals)           => .                                   ... </k>
+    rule <k> #bindsRec((X:Name , XS:Names), E:Exp : ES) => E ~> #bindRec(X) ~> #bindsRec(XS, ES) ... </k>
+    rule <k> #bindsRec(.Names,              .Exps)      => .                                     ... </k>
 
-    rule <k> #bindRec(X, V)                => #assign(X, V)                  ... </k> requires notBool isClosureVal(V)
-    rule <k> #bindRec(X, closure(RHO, CS)) => #assign(X, muclosure(RHO, CS)) ... </k>
+    rule <k> V:Val                    ~> #bindRec(X) => #assign(X, V)                        ... </k> requires notBool isClosureVal(V)
+    rule <k> closure(RHO, CS)         ~> #bindRec(X) => #assign(X, muclosure(RHO, CS))       ... </k>
+    rule <k> closure(RHO, CS, BS, VS) ~> #bindRec(X) => #assign(X, closure(RHO, CS, BS, VS)) ... </k>
 ```
 
 The following helpers actually do the allocation and assignment operations on the storage.
