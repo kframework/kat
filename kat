@@ -73,6 +73,7 @@ run_test() {
     test_file="$1"     ; shift
     expected_hash="$1" ; shift
 
+    progress "test run-orig $test_file"
     actual_hash="$(run_krun_orig $test_file | md5sum | cut --field='1' --delimiter=' ')"
     if [[ "$actual_hash" != "$expected_hash" ]]; then
         die "./kat run-orig $test_file\n    expected $expected_hash\n    actual   $actual_hash"
