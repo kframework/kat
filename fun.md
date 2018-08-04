@@ -534,35 +534,20 @@ As each argument is consumed, we match it against the closure's next pattern, in
 On failure, the process is restarted on the next `Case` in the closure function contents.
 
 ```k
-    syntax KItem ::= #closure ( Map , Cases , List )
- // ------------------------------------------------
     rule <k> (closure(RHO, CS) => closure(RHO, CS, .Bindings, .List)) ~> #arg(_) ... </k>
 
-    rule <k> closure(RHO, CS, BS, VS) ~> (              #arg(V) => #args(    ListItem(V))) ... </k>
-    rule <k> closure(RHO, CS, BS, VS) ~> (#args(VS') ~> #arg(V) => #args(VS' ListItem(V))) ... </k>
+    rule <k> (. => getMatching(P, V, BS)) ~> closure(RHO, P C | CS, BS => .Bindings, (.List => ListItem(V)) VS) ~> (#arg(V) => .) ... </k>
 
-    rule <k> (closure(RHO, CS, BS, VS) ~> #args(VS') => matchResult(BS) ~> #closure(RHO, CS, VS') ~> #args(VS VS')) ~> REST </k>
-      requires notBool #moreArgs(REST)
+    rule <k> (matchResult(BS) => .) ~> closure(RHO, (P C => C) | CS,        _  => BS, VS         )                             ... </k>
+    rule <k> (matchFailure    => .) ~> closure(RHO, (C:Case    | CS => CS), BS,       VS => .List) ~> (. => #sequenceArgs(VS)) ... </k>
 
-    rule <k> (. => getMatching(P, V)) ~> matchResult(_) ~> #closure(RHO, (P C => C) | CS, (ListItem(V) VS => VS)) ... </k>
-
-    rule <k> (matchFailure => matchResult(.Bindings)) ~> #closure(RHO, (C:Case | CS => CS), (_ => VS)) ~> #args(VS) ... </k>
-
-    rule <k> matchResult(BS) ~> #closure(RHO, -> E | CS:Cases, VS) ~> #args(_) => let BS in #applyAll(E, VS) ~> setEnv(RHO') ... </k>
+    rule <k> closure(RHO, -> E | CS:Cases, BS, VS) => let BS in E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
 
-    rule <k> matchResult(BS) ~> #closure(RHO, P:Exp C:Case | CS, .List) ~> #args(VS) => closure(RHO, P C | CS, BS, VS) ... </k>
-
-    syntax Bool ::= #moreArgs ( K ) [function]
- // ------------------------------------------
-    rule #moreArgs(#arg(_) ~> _) => true
-    rule #moreArgs(#arg(_)     ) => true
-    rule #moreArgs(_           ) => false [owise]
-
-    syntax Exp ::= #applyAll ( Exp , List ) [function]
- // --------------------------------------------------
-    rule #applyAll(E, .List           ) => E
-    rule #applyAll(E, (ListItem(V) VS)) => #applyAll(E V, VS)
+    syntax K ::= #sequenceArgs ( List ) [function]
+ // ----------------------------------------------
+    rule #sequenceArgs(.List)          => .
+    rule #sequenceArgs(ListItem(A) VS) => #arg(A) ~> #sequenceArgs(VS)
 ```
 
 Let and Letrec
@@ -694,10 +679,13 @@ The following auxiliary operations extract the list of identifiers and of expres
     /* Matching */
     syntax MatchResult ::= getMatching  ( Exp   , Val  )
                          | getMatchings ( Exps  , Vals )
+                         | getMatching  ( Exp   , Val , Bindings )
                          | "matchFailure"                [smtlib(matchFailure)]
                          | matchResult    ( Bindings )
                          | matchResultAdd ( Bindings , Name , Val , Bindings )
  // --------------------------------------------------------------------------
+    rule <k> getMatching(E, V, BS) => getMatching(E, V) ~> matchResult(BS) ... </k>
+
     rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
 
     rule <k> _:MatchResult ~> (matchResult(.Bindings) => .) ... </k>
