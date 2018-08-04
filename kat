@@ -77,7 +77,7 @@ run_test() {
     run_orig_output="$test_logs/$test_file.run-orig"
     mkdir -p "$(dirname $run_orig_output)"
     run_krun_orig $test_file > "$run_orig_output"
-    actual_hash="$(cat $run_orig_output | md5sum | cut --field='1' --delimiter=' ')"
+    actual_hash="$(cat $run_orig_output | md5sum | tr -d '[:space:]-')"
     if [[ "$actual_hash" != "$expected_hash" ]]; then
         die "./kat run-orig $test_file\n    expected $expected_hash\n    actual   $actual_hash"
     fi
