@@ -27,8 +27,8 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
 
     ```
        (fun x y -> x) 3
-    => closure(.Map, x y -> x) 3
-    => closure(x |-> L, y -> x)
+    => closure(.Map, x y -> x,           .Bindings, .List      ) 3
+    => closure(.Map,   y -> x, x = 3 and .Bindings, ListItem(3))
     ```
 
     with store location `L` pointing at the value `3`.
@@ -493,7 +493,8 @@ The environment will be used at execution time to lookup non-parameter variables
 
 ```k
     syntax ClosureVal ::= closure ( Map , Cases )
- // ---------------------------------------------
+                        | closure ( Map , Cases , Bindings , List ) [klabel(partialClosure)]
+ // ----------------------------------------------------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
 ```
@@ -535,10 +536,12 @@ On failure, the process is restarted on the next `Case` in the closure function 
 ```k
     syntax KItem ::= #closure ( Map , Cases , List )
  // ------------------------------------------------
-    rule <k> closure(RHO, CS) ~> (             #arg(V) => #args(   ListItem(V))) ... </k>
-    rule <k> closure(RHO, CS) ~> (#args(VS) ~> #arg(V) => #args(VS ListItem(V))) ... </k>
+    rule <k> (closure(RHO, CS) => closure(RHO, CS, .Bindings, .List)) ~> #arg(_) ... </k>
 
-    rule <k> (closure(RHO, CS) => matchResult(.Bindings) ~> #closure(RHO, CS, VS)) ~> #args(VS) ~> REST </k>
+    rule <k> closure(RHO, CS, BS, VS) ~> (              #arg(V) => #args(    ListItem(V))) ... </k>
+    rule <k> closure(RHO, CS, BS, VS) ~> (#args(VS') ~> #arg(V) => #args(VS' ListItem(V))) ... </k>
+
+    rule <k> (closure(RHO, CS, BS, VS) ~> #args(VS') => matchResult(BS) ~> #closure(RHO, CS, VS') ~> #args(VS VS')) ~> REST </k>
       requires notBool #moreArgs(REST)
 
     rule <k> (. => getMatching(P, V)) ~> matchResult(_) ~> #closure(RHO, (P C => C) | CS, (ListItem(V) VS => VS)) ... </k>
@@ -547,6 +550,8 @@ On failure, the process is restarted on the next `Case` in the closure function 
 
     rule <k> matchResult(BS) ~> #closure(RHO, -> E | CS:Cases, VS) ~> #args(_) => let BS in #applyAll(E, VS) ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
+
+    rule <k> matchResult(BS) ~> #closure(RHO, P:Exp C:Case | CS, .List) ~> #args(VS) => closure(RHO, P C | CS, BS, VS) ... </k>
 
     syntax Bool ::= #moreArgs ( K ) [function]
  // ------------------------------------------
