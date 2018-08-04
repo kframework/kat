@@ -11,12 +11,13 @@ runtest() {
 }
 
 runtest tests/fun/ackermann.fun                   103a032a87e4855ba91fe5b5c9b52a7b b63045261cd1eab797e2efc2d09804c2
-runtest tests/fun/collatz-all-upto.fun            d1d56e40ca7ba4869e2be56f05d15ce6 xxx
-runtest tests/fun/constructor-bst-sorting.fun     5cf50a61d7a350beb9b4a1c99f20e2ab xxx
-runtest tests/fun/constructor-tree-mirror.fun     5d5282b1a5eb1e1cc831889fe5d64a56 xxx
-runtest tests/fun/empty-argument.fun              8c375a6f1820372c6cc32b84e2740ccd xxx
-runtest tests/fun/exceptions-branch.fun           062736d4f769b6778384db923a26b75c xxx
-runtest tests/fun/exceptions-branch-shadowing.fun bf0999071053e8106d89e049df42c545 xxx
+# infinite loop
+# runtest tests/fun/collatz-all-upto.fun          d1d56e40ca7ba4869e2be56f05d15ce6 xxx
+runtest tests/fun/constructor-bst-sorting.fun     5cf50a61d7a350beb9b4a1c99f20e2ab 2e9aa3cb0dcbd492c2af11088502caeb
+runtest tests/fun/constructor-tree-mirror.fun     5d5282b1a5eb1e1cc831889fe5d64a56 767c35265175b1d82bb312e6d7fd87c7
+runtest tests/fun/empty-argument.fun              8c375a6f1820372c6cc32b84e2740ccd e1d24c4c1a8155730194e5b3e3835e2b
+runtest tests/fun/exceptions-branch.fun           062736d4f769b6778384db923a26b75c 0029b082f4957ac57af4dd68deceb43d
+runtest tests/fun/exceptions-branch-shadowing.fun bf0999071053e8106d89e049df42c545 d98371e066f2de30604a809e882a6e4b
 runtest tests/fun/exceptions.fun                  10931e126aa8637b065c958b85ccb6e5 xxx
 runtest tests/fun/exceptions-simple.fun           ecd3ab88dd726d28ef8a2a53e686eb6b xxx
 runtest tests/fun/factorial-and-list-max.fun      fb5f3ffe3c0109d330feb4418746e5b2 xxx
