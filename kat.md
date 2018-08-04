@@ -391,12 +391,14 @@ Things added to the sort `StateOp` will automatically load the current state for
 
 -   `exec` executes the given state to completion.
     Note that `krun === exec` if we assume that `#normal | #branch | #loop | ^ regular` is a total strategy.
+-   `trace` is like `exec`, but pushes the states visited onto the `<states>` stack.
 -   `eval` executes a given state to completion and checks `bool?`.
 
 ```k
-    syntax Strategy ::= "exec"
- // --------------------------
-    rule <s> exec => step * ... </s>
+    syntax Strategy ::= "exec" | "trace"
+ // ------------------------------------
+    rule <s> exec  => step *          ... </s>
+    rule <s> trace => (step ; push) * ... </s>
 
     syntax Pred ::= "eval"
  // ----------------------
