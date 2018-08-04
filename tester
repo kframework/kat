@@ -1,44 +1,57 @@
 #!/usr/bin/env bash
 
-set -e
+exit_status='0'
 
-./kat test tests/fun/ackermann.fun                   103a032a87e4855ba91fe5b5c9b52a7b
-./kat test tests/fun/collatz-all-upto.fun            d1d56e40ca7ba4869e2be56f05d15ce6
-./kat test tests/fun/constructor-bst-sorting.fun     5cf50a61d7a350beb9b4a1c99f20e2ab
-./kat test tests/fun/constructor-tree-mirror.fun     5d5282b1a5eb1e1cc831889fe5d64a56
-./kat test tests/fun/empty-argument.fun              8c375a6f1820372c6cc32b84e2740ccd
-./kat test tests/fun/exceptions-branch.fun           062736d4f769b6778384db923a26b75c
-./kat test tests/fun/exceptions-branch-shadowing.fun bf0999071053e8106d89e049df42c545
-./kat test tests/fun/exceptions.fun                  10931e126aa8637b065c958b85ccb6e5
-./kat test tests/fun/exceptions-simple.fun           ecd3ab88dd726d28ef8a2a53e686eb6b
-./kat test tests/fun/factorial-and-list-max.fun      fb5f3ffe3c0109d330feb4418746e5b2
-./kat test tests/fun/list-1.fun                      3ef41d1fa0266af816cd5dbb1507760d
-./kat test tests/fun/list-2.fun                      b406b72ccca0b381ce5bc86333a63249
-./kat test tests/fun/list-match.fun                  38be5f602078ff8ea7da583fb2711b4a
-./kat test tests/fun/list-max.fun                    086f61a3292db6b68d973e3df4aaaf5b
-./kat test tests/fun/long-loop.fun                   6e2cb3e9cbf9b8460ccaa7c5ae7d8188
-./kat test tests/fun/map.fun                         35f2c2feaf21c2c6318079dc991badcd
-./kat test tests/fun/non-linear-pattern.fun          0c3192aac4e49aed27747a1841abd3f0
-./kat test tests/fun/nth.fun                         898a61fa41201bfb08a2a284d45144d6
-./kat test tests/fun/partial-application.fun         2d8cc8067c123570887d1ac2741dc7e0
-./kat test tests/fun/pattern.fun                     3957531918041363f0b21ba934c4215f
-./kat test tests/fun/polymorphism-1.fun              7f1a30162d10027c5dc96867c50735cb
-./kat test tests/fun/polymorphism-2.fun              d89a2c547d87a9b3f7ccdfad34c324cb
-./kat test tests/fun/polymorphism-3.fun              b5a729c9b23883a5eaf46c8d0f91fffb
-./kat test tests/fun/prelude.fun                     a8cab1aa7432c7f710a7dee46282d786
-./kat test tests/fun/references-1.fun                6533d8b5921c87787933085e13f6339d
-./kat test tests/fun/references-2.fun                7e087b171a69092e3fc630afeaece4a0
-./kat test tests/fun/references-3.fun                e4055be648a775a273b48297c543882f
-./kat test tests/fun/references-4.fun                a769758a875288268478418d913c4c05
-./kat test tests/fun/references-5.fun                7253969e7627926c1e92cccc4572a208
-./kat test tests/fun/simple-application.fun          e0ec3580a4d5bf4e6cec120ce09c73fb
-./kat test tests/fun/simple-case.fun                 7587f7dd9bf78bb90aaba90113ffaaf7
-./kat test tests/fun/simple-case-letrec.fun          40f8dc34adfbb9ebfa36f8eb8b6b5c42
-./kat test tests/fun/simple-list.fun                 b8884415b7ff0f40d2288ad5379cca73
-./kat test tests/fun/sum.fun                         462f9bc25a799532d44dd93dd10c44bb
-./kat test tests/fun/sum-tail-recursive.fun          81ed5d115b043ae2b448476b8732aab6
-./kat test tests/fun/tail-recursion.fun              0dfb92d3b508f3998c5351926857fccd
-./kat test tests/fun/tail-recursion.fun              0dfb92d3b508f3998c5351926857fccd
-./kat test tests/fun/tuple-1.fun                     db4c0e2f2c6209d2cea8f9fafa243305
-./kat test tests/fun/tuple-2.fun                     5bed64a6d2c42dac3d71676a63f7130d
-./kat test tests/fun/tuple-3.fun                     6c0d791c73660d0e37b509ef65f491f0
+runtest() {
+    local test_file test_hash
+    test_file="$1" ; shift
+    test_hash="$1" ; shift
+    ./kat test "$test_file" "$test_hash" || exit_status="$?"
+}
+
+runtest tests/fun/ackermann.fun                   103a032a87e4855ba91fe5b5c9b52a7b
+runtest tests/fun/collatz-all-upto.fun            d1d56e40ca7ba4869e2be56f05d15ce6
+runtest tests/fun/constructor-bst-sorting.fun     5cf50a61d7a350beb9b4a1c99f20e2ab
+runtest tests/fun/constructor-tree-mirror.fun     5d5282b1a5eb1e1cc831889fe5d64a56
+runtest tests/fun/empty-argument.fun              8c375a6f1820372c6cc32b84e2740ccd
+runtest tests/fun/exceptions-branch.fun           062736d4f769b6778384db923a26b75c
+runtest tests/fun/exceptions-branch-shadowing.fun bf0999071053e8106d89e049df42c545
+runtest tests/fun/exceptions.fun                  10931e126aa8637b065c958b85ccb6e5
+runtest tests/fun/exceptions-simple.fun           ecd3ab88dd726d28ef8a2a53e686eb6b
+runtest tests/fun/factorial-and-list-max.fun      fb5f3ffe3c0109d330feb4418746e5b2
+runtest tests/fun/fold.fun                        1316d3231846a76625b4bc560f3ac758
+runtest tests/fun/fold-sum.fun                    ea64bc2af98d82589b9db650b2a152d1
+runtest tests/fun/fold-tree.fun                   107ca787401bcadbfb24c00c8268d0a9
+runtest tests/fun/list-1.fun                      3ef41d1fa0266af816cd5dbb1507760d
+runtest tests/fun/list-2.fun                      b406b72ccca0b381ce5bc86333a63249
+runtest tests/fun/list-match.fun                  38be5f602078ff8ea7da583fb2711b4a
+runtest tests/fun/list-max.fun                    086f61a3292db6b68d973e3df4aaaf5b
+runtest tests/fun/long-loop.fun                   6e2cb3e9cbf9b8460ccaa7c5ae7d8188
+runtest tests/fun/map.fun                         35f2c2feaf21c2c6318079dc991badcd
+runtest tests/fun/non-linear-pattern.fun          0c3192aac4e49aed27747a1841abd3f0
+runtest tests/fun/nth.fun                         f80031255e5d68b545ac4e0d6a101286
+runtest tests/fun/partial-application.fun         c585e314c5830ac3ef8da011a5701dec
+runtest tests/fun/pattern-failure.fun             d94d7cd6375326340309c673fe4c0cb1
+runtest tests/fun/pattern.fun                     0bde5e8afc94f1a16f623d46dc239c1d
+runtest tests/fun/pattern-simple.fun              3b58b41549dedb7070f3f31e115b04a9
+runtest tests/fun/polymorphism-1.fun              7f1a30162d10027c5dc96867c50735cb
+runtest tests/fun/polymorphism-2.fun              d89a2c547d87a9b3f7ccdfad34c324cb
+runtest tests/fun/polymorphism-3.fun              b5a729c9b23883a5eaf46c8d0f91fffb
+runtest tests/fun/prelude.fun                     a8cab1aa7432c7f710a7dee46282d786
+runtest tests/fun/references-1.fun                6533d8b5921c87787933085e13f6339d
+runtest tests/fun/references-2.fun                7e087b171a69092e3fc630afeaece4a0
+runtest tests/fun/references-3.fun                e4055be648a775a273b48297c543882f
+runtest tests/fun/references-4.fun                a769758a875288268478418d913c4c05
+runtest tests/fun/references-5.fun                7253969e7627926c1e92cccc4572a208
+runtest tests/fun/simple-application.fun          e0ec3580a4d5bf4e6cec120ce09c73fb
+runtest tests/fun/simple-case.fun                 7587f7dd9bf78bb90aaba90113ffaaf7
+runtest tests/fun/simple-case-letrec.fun          40f8dc34adfbb9ebfa36f8eb8b6b5c42
+runtest tests/fun/simple-list.fun                 b8884415b7ff0f40d2288ad5379cca73
+runtest tests/fun/sum.fun                         462f9bc25a799532d44dd93dd10c44bb
+runtest tests/fun/sum-tail-recursive.fun          81ed5d115b043ae2b448476b8732aab6
+runtest tests/fun/tail-recursion.fun              0dfb92d3b508f3998c5351926857fccd
+runtest tests/fun/tuple-1.fun                     db4c0e2f2c6209d2cea8f9fafa243305
+runtest tests/fun/tuple-2.fun                     5bed64a6d2c42dac3d71676a63f7130d
+runtest tests/fun/tuple-3.fun                     6c0d791c73660d0e37b509ef65f491f0
+
+exit "$exit_status"
