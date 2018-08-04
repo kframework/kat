@@ -683,10 +683,7 @@ The following auxiliary operations extract the list of identifiers and of expres
 
 ```k
     /* Matching */
-    syntax MatchResult ::= getMatching  ( Exp   , Val  )
-                         | getMatchings ( Exps  , Vals )
-                         | getMatching  ( Exp   , Val , Bindings )
-                         | "matchFailure"                [smtlib(matchFailure)]
+    syntax MatchResult ::= "matchFailure"
                          | matchResult    ( Bindings )
                          | matchResultAdd ( Bindings , Name , Val , Bindings )
  // --------------------------------------------------------------------------
@@ -702,6 +699,10 @@ The following auxiliary operations extract the list of identifiers and of expres
     rule <k> matchResultAdd(N:Name = V:Val and BS, N', V', BS') => matchResultAdd(BS, N', V' , N = V and BS') ... </k> requires N =/=K N'  orBool V  ==K V' [tag(caseNonlinearMatchJoinSuccess)]
     rule <k> matchResultAdd(N:Name = V:Val and BS, N', V', BS') => matchFailure                               ... </k> requires N  ==K N' andBool V =/=K V' [tag(caseNonlinearMatchJoinFailure)]
 
+    syntax MatchResult ::= getMatching  ( Exp   , Val  )
+                         | getMatchings ( Exps  , Vals )
+                         | getMatching  ( Exp   , Val , Bindings )
+ // --------------------------------------------------------------
     rule <k> matchResult(BS) ~> getMatchings(ES, VS') => getMatchings(ES, VS') ~> matchResult(BS) ... </k>
     rule <k> matchResult(BS) ~> getMatching (E , V  ) => getMatching (E , V  ) ~> matchResult(BS) ... </k>
 
@@ -717,9 +718,9 @@ The following auxiliary operations extract the list of identifiers and of expres
     rule <k> getMatching(C:ConstructorName , C':ConstructorName) => matchResult(.Bindings) ... </k> requires C  ==K C' [tag(caseConstructorNameSuccess)]
     rule <k> getMatching(C:ConstructorName , C':ConstructorName) => matchFailure           ... </k> requires C =/=K C' [tag(caseConstructorNameFailure)]
 
-    rule <k> getMatching(E:Exp E':Exp , AV:ApplicableVal V':Val) => getMatching(E, AV) ~> getMatching(E', V') ... </k> [tag(caseConstructorArgsSuccess)]
-    rule <k> getMatching(E:Exp E':Exp , AV:ApplicableVal       ) => matchFailure                              ... </k> requires notBool isApplication(AV) [tag(caseConstructorArgsFailure1)]
-    rule <k> getMatching(E:Exp        , AV:ApplicableVal V':Val) => matchFailure                              ... </k> requires notBool isApplication(E)  [tag(caseConstructorArgsFailure2)]
+    rule <k> getMatching(E:Exp E':Exp , CV:ConstructorVal V':Val) => getMatching(E, CV) ~> getMatching(E', V') ... </k>                                                      [tag(caseConstructorArgsSuccess)]
+    rule <k> getMatching(E:Exp E':Exp , CN:ConstructorName      ) => matchFailure                              ... </k>                                                      [tag(caseConstructorArgsFailure1)]
+    rule <k> getMatching(E:Exp        , CV:ConstructorVal V':Val) => matchFailure                              ... </k> requires notBool (isName(E) orBool isApplication(E)) [tag(caseConstructorArgsFailure2)]
 
     rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
 
