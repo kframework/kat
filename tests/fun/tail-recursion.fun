@@ -7,7 +7,7 @@
 
 datatype nothing = Nothing
 
-let n = ref 1000
+let n = ref 100
 in letrec f Nothing = if @n>0 then n := @n - 1; f Nothing else 0
    in f Nothing
 
