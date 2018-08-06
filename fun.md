@@ -687,8 +687,6 @@ The following auxiliary operations extract the list of identifiers and of expres
                          | matchResult    ( Bindings )
                          | matchResultAdd ( Bindings , Name , Val , Bindings )
  // --------------------------------------------------------------------------
-    rule <k> getMatchingBindings(E, V, BS) => getMatching(E, V) ~> matchResult(BS) ... </k>
-
     rule <k> matchFailure ~> (_:MatchResult => .) ... </k>
 
     rule <k> _:MatchResult ~> (matchResult(.Bindings) => .) ... </k>
@@ -703,6 +701,8 @@ The following auxiliary operations extract the list of identifiers and of expres
                          | getMatchings        ( Exps  , Vals )
                          | getMatchingBindings ( Exp   , Val , Bindings )
  // ---------------------------------------------------------------------
+    rule <k> getMatchingBindings(E, V, BS) => getMatching(E, V) ~> matchResult(BS) ... </k>
+
     rule <k> matchResult(BS) ~> getMatchings(ES, VS') => getMatchings(ES, VS') ~> matchResult(BS) ... </k>
     rule <k> matchResult(BS) ~> getMatching (E , V  ) => getMatching (E , V  ) ~> matchResult(BS) ... </k>
 
