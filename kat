@@ -90,7 +90,7 @@ run_test() {
             progress "failed: '$test_file' with '$exec_strategy'\n" \
                      "            expected $expected_hash\n" \
                      "            actual   $actual_hash"
-            exit_code='1'
+            exit_status='1'
         else
             progress "passed: '$test_file' with '$exec_strategy'"
         fi
