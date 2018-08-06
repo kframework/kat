@@ -8,6 +8,6 @@ and collatz = fun 1 -> 1
                          1 + collatz (n / 2)
                        else
                          1 + collatz (3 * n + 1)
-in allCollatz 100
+in allCollatz 20
 
-// 3242
+// 216

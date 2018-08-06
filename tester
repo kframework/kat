@@ -11,8 +11,7 @@ runtest() {
 }
 
 runtest tests/fun/ackermann.fun                   103a032a87e4855ba91fe5b5c9b52a7b b63045261cd1eab797e2efc2d09804c2
-# infinite loop
-# runtest tests/fun/collatz-all-upto.fun          d1d56e40ca7ba4869e2be56f05d15ce6 xxx
+runtest tests/fun/collatz-all-upto.fun            d1d56e40ca7ba4869e2be56f05d15ce6 1405772010e8559afc1e7a790785c320
 runtest tests/fun/constructor-bst-sorting.fun     5cf50a61d7a350beb9b4a1c99f20e2ab 2e9aa3cb0dcbd492c2af11088502caeb
 runtest tests/fun/constructor-tree-mirror.fun     5d5282b1a5eb1e1cc831889fe5d64a56 767c35265175b1d82bb312e6d7fd87c7
 runtest tests/fun/empty-argument.fun              8c375a6f1820372c6cc32b84e2740ccd e1d24c4c1a8155730194e5b3e3835e2b
