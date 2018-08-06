@@ -69,30 +69,34 @@ run_ksearch() {
 }
 
 run_test() {
-    local test_file expected_run_orig_hash expected_run_exec_hash
-    local run_orig_output run_exec_output
-    test_file="$1"     ; shift
-    expected_run_orig_hash="$1" ; shift
-    expected_run_exec_hash="$1" ; shift
+    local test_file exec_strategy expected_hash actual_hash output_file exit_status
+    test_file="$1" ; shift
+    exit_status='0'
 
-    progress "test $test_file"
-    run_orig_output="$test_logs/$test_file.run-orig"
-    run_exec_output="$test_logs/$test_file.run-exec"
-    mkdir -p "$(dirname $run_orig_output)"
+    while [[ "$#" -gt '1' ]]; do
+        exec_strategy="$1" ; shift
+        expected_hash="$1" ; shift
+        progress "test:   '$test_file' with '$exec_strategy'"
 
-    run_krun_orig $test_file      > "$run_orig_output"
-    run_krun      $test_file exec > "$run_exec_output"
+        output_file="$test_logs/$test_file.$expected_hash"
+        if [[ "$exec_strategy" == 'orig' ]]; then
+            run_krun_orig "$test_file"                  > "$output_file"
+        else
+            run_krun      "$test_file" "$exec_strategy" > "$output_file"
+        fi
 
-    actual_run_orig_hash="$(cat $run_orig_output | md5sum | tr -d '[:space:]-')"
-    actual_run_exec_hash="$(cat $run_exec_output | md5sum | tr -d '[:space:]-')"
+        actual_hash="$(cat "$output_file" | md5sum | tr -d '[:space:]-')"
+        if [[ "$expected_hash" != "$actual_hash" ]]; then
+            progress "failed: '$test_file' with '$exec_strategy'\n" \
+                     "            expected $expected_hash\n" \
+                     "            actual   $actual_hash"
+            exit_code='1'
+        else
+            progress "passed: '$test_file' with '$exec_strategy'"
+        fi
+    done
 
-    if [[ "$actual_run_orig_hash" != "$expected_run_orig_hash" ]]; then
-        die "./kat run-orig $test_file\n    expected $expected_run_orig_hash\n    actual   $actual_run_orig_hash"
-    fi
-
-    if [[ "$actual_run_exec_hash" != "$expected_run_exec_hash" ]]; then
-        die "./kat run $test_file exec\n    expected $expected_run_exec_hash\n    actual   $actual_run_exec_hash"
-    fi
+    exit "$exit_status"
 }
 
 # Main
