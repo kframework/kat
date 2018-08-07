@@ -533,7 +533,10 @@ As each argument is consumed, we match it against the closure's next pattern, in
 On failure, the process is restarted on the next `Case` in the closure function contents.
 
 ```k
-    rule <k> (closure(RHO, CS) => closure(RHO, CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
+    rule <k> (closure(RHO, P C | CS) => closure(RHO, CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
+
+    rule <k> closure(RHO, -> E) => E ~> setEnv(RHO') ... </k>
+         <env> RHO' => RHO </env>
 
     rule <k> (. => getMatchingBindings(P, V, BS)) ~> closure(RHO, (P C => C) | CS, BS => .Bindings, VS => V : VS) ~> (#arg(V) => .) ... </k>
 
