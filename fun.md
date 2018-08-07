@@ -557,7 +557,7 @@ Operator `binds` is strict in the second argument, meaning that the closures def
 After the expressions have been evaluated to values (closures and constants), they are allocated a spot in the store and the appropriate environment binding is added.
 
 ```k
-    rule <k> let BS in E => binds(#names(BS), #exps(BS)) ~> E ... </k>
+    rule <k> let BS in E => binds(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
       [tag(letBinds)]
 
@@ -577,7 +577,7 @@ In contrast, `bindsRec` is *not* strict, instead first all the storage locations
 The closures produced by `#bindsRec` will get the original environment, and the extra bindings added by the `letrec` clause.
 
 ```k
-    rule <k> letrec BS in E => bindsRec(#names(BS), #exps(BS)) ~> E ... </k>
+    rule <k> letrec BS in E => bindsRec(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
          <env> RHO </env>
       [tag(letRecBinds)]
 
