@@ -553,60 +553,35 @@ Let and Letrec
 --------------
 
 The constructs `let` and `letrec` are very similar, but treat bound closures in the environment differently.
-Operator `binds` is strict in the second argument, meaning that the closures defined in the `let` will end up with the environment *before* the `let` bindings are evaluated.
-After the expressions have been evaluated to values (closures and constants), they are allocated a spot in the store and the appropriate environment binding is added.
+Closures defined in `let` bindings must only contain the environment of the `let` binding, while `letrec` closures must also contain the current bindings in their environment.
+Helpers `binds` and `bindsRec` ensure that the definitions are evaluated in the correct environment, before and after the bindings are allocated respectively.
 
 ```k
-    rule <k> let BS in E => binds(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
-         <env> RHO </env>
-      [tag(letBinds)]
+    rule <k> let    BS in E => binds   (#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k> <env> RHO </env> [tag(letBinds)]
+    rule <k> letrec BS in E => bindsRec(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k> <env> RHO </env> [tag(letRecBinds)]
 
-    syntax KItem ::=  binds ( Names , Exps )
-                   | #binds ( Names        )
-                   | #binds ( Names , Vals )
- // ----------------------------------------
-    rule <k> binds(XS, ES) => ES ~> #binds(XS) ... </k>
-
-    rule <k> VS:Vals ~> #binds(XS) => #binds(XS, VS) ... </k>
-
-    rule <k> #binds(.Names,   .Vals)  => .                                                       ... </k>
-    rule <k> #binds((X , XS), V : VS) => #allocate(X, .Names) ~> #assign(X, V) ~> #binds(XS, VS) ... </k>
-```
-
-In contrast, `bindsRec` is *not* strict, instead first all the storage locations are allocated then the strict `#bindsRec` is called.
-The closures produced by `#bindsRec` will get the original environment, and the extra bindings added by the `letrec` clause.
-
-```k
-    rule <k> letrec BS in E => bindsRec(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k>
-         <env> RHO </env>
-      [tag(letRecBinds)]
-
-    syntax KItem ::=  bindsRec ( Names , Exps )
-                   | #bindsRec ( Names , Exps )
-                   | #bindRec  ( Name         )
- // -------------------------------------------
-    rule <k> bindsRec(XS, ES) => #allocate(XS) ~> #bindsRec(XS, ES) ... </k>
-
-    rule <k> #bindsRec((X:Name , XS:Names), E:Exp : ES) => E ~> #bindRec(X) ~> #bindsRec(XS, ES) ... </k>
-    rule <k> #bindsRec(.Names,              .Exps)      => .                                     ... </k>
-
-    rule <k> V:Val                    ~> #bindRec(X) => #assign(X, V)                        ... </k> requires notBool isClosureVal(V)
-    rule <k> closure(RHO, CS)         ~> #bindRec(X) => #assign(X, muclosure(RHO, CS))       ... </k>
-    rule <k> closure(RHO, CS, BS, VS) ~> #bindRec(X) => #assign(X, closure(RHO, CS, BS, VS)) ... </k>
+    syntax KItem ::= binds    ( Names , Exps )
+                   | bindsRec ( Names , Exps )
+ // ------------------------------------------
+    rule <k> binds   (XS, ES) => ES            ~> #allocate(XS) ~> #assign(XS) ... </k>
+    rule <k> bindsRec(XS, ES) => #allocate(XS) ~> ES            ~> #assign(XS) ... </k>
 ```
 
 The following helpers actually do the allocation and assignment operations on the storage.
 
 ```k
-    syntax KItem ::= #assign   ( Name  , Exp )
-                   | #allocate ( Names       )
- // ------------------------------------------
-    rule <k> #assign(X, #listTailMatch(V)) => . ... </k>
+    syntax KItem ::= #assign   ( Names )
+                   | #allocate ( Names )
+ // ------------------------------------
+    rule <k> .Vals ~> #assign(.Names) => . ... </k>
+    rule <k> VS:Vals ~> #allocate(XS) => #allocate(XS) ~> VS ... </k>
+
+    rule <k> (#listTailMatch(V) : VS => VS) ~> #assign(X , XS => XS) ... </k>
          <env> ... X |-> L ... </env>
          <store> STORE => STORE[L <- V] </store>
       [tag(listAssignment)]
 
-    rule <k> #assign(X, V) => . ... </k>
+    rule <k> (V:Val : VS => VS) ~> #assign(X , XS => XS) ... </k>
          <env> ... X |-> L ... </env>
          <store> STORE => STORE[L <- V] </store>
       requires notBool #isListTailMatch(V)
