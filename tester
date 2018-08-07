@@ -33,7 +33,7 @@ runtest tests/fun/pattern.fun                     orig 0bde5e8afc94f1a16f623d46d
 runtest tests/fun/pattern-simple.fun              orig 3b58b41549dedb7070f3f31e115b04a9 exec 141de01cd5bf3901624eb871b3bfd1be
 runtest tests/fun/polymorphism-1.fun              orig 7f1a30162d10027c5dc96867c50735cb exec 7fa2d1d5339ccfba5a53046f7aaae953 compile 7dfe72a2ce2208b872a87496dba64e3d
 runtest tests/fun/polymorphism-2.fun              orig d89a2c547d87a9b3f7ccdfad34c324cb exec bc22029d6dc95843cf6ee4eae6a16cdb compile 74039696b3c6f4cd49da615d22670f8e
-runtest tests/fun/polymorphism-3.fun              orig b5a729c9b23883a5eaf46c8d0f91fffb exec 1b1c08d1cde79417f62b89616fc5241c compile xxx
+runtest tests/fun/polymorphism-3.fun              orig b5a729c9b23883a5eaf46c8d0f91fffb exec 1b1c08d1cde79417f62b89616fc5241c compile c7cda5ba62a412df69614d14b15301b3
 runtest tests/fun/prelude.fun                     orig a8cab1aa7432c7f710a7dee46282d786 exec 46417781f019b888076bb69ba9b01d9c compile fad229ebcb0a206a3541abfc9afab336
 runtest tests/fun/references-1.fun                orig 6533d8b5921c87787933085e13f6339d exec bd42ea3d9be0fa54e5800dc63dfed065
 runtest tests/fun/references-2.fun                orig 7e087b171a69092e3fc630afeaece4a0 exec fb114b06bdd4f8a8460d8ee5dbdaf16c compile 50e803f6c2919dfe5b4cb13182dd148a
