@@ -499,15 +499,6 @@ The environment will be used at execution time to lookup non-parameter variables
          <env> RHO </env>
 ```
 
-We mark that a closure is from a recursive environment by storing it as a `muclosure`.
-Otherwise, evaluation of a `muclosure` is identical to that of a `closure`.
-
-```k
-    syntax Exp ::= muclosure ( Map , Cases )
- // ----------------------------------------
-    rule <k> muclosure(RHO, CS) => closure(RHO, CS) ... </k> [tag(recCall)]
-```
-
 In evaluating an application, the arguments are evaluated in reverse order until we reach the applied function.
 
 ```k
@@ -566,8 +557,33 @@ Helpers `binds` and `bindsRec` ensure that the definitions are evaluated in the 
     syntax KItem ::= binds    ( Names , Exps )
                    | bindsRec ( Names , Exps )
  // ------------------------------------------
-    rule <k> binds   (XS, ES) => ES            ~> #allocate(XS) ~> #assign(XS) ... </k>
-    rule <k> bindsRec(XS, ES) => #allocate(XS) ~> ES            ~> #assign(XS) ... </k>
+    rule <k> binds   (XS, ES) => ES            ~> #allocate(XS)             ~> #assign(XS) ... </k>
+    rule <k> bindsRec(XS, ES) => #allocate(XS) ~> ES            ~> #markMus ~> #assign(XS) ... </k>
+
+    syntax KItem ::= "#markMus"
+ // ---------------------------
+    rule <k> VS ~> #markMus => #applyMuVals(VS) ... </k>
+
+    syntax Exp ::= mu ( Exp )
+ // -------------------------
+    rule <k> mu ( E ) => E ... </k> [tag(recCall)]
+
+    syntax Vals  ::= #applyMuVals  ( Vals  ) [function]
+    syntax Val   ::= #applyMuVal   ( Val   ) [function]
+    syntax Cases ::= #applyMuCases ( Cases ) [function]
+    syntax Case  ::= #applyMuCase  ( Case  ) [function]
+ // ---------------------------------------------------
+    rule #applyMuVals(.Vals)  => .Vals
+    rule #applyMuVals(V : VS) => #applyMuVal(V) : #applyMuVals(VS)
+
+    rule #applyMuVal(V)                => V requires notBool isClosureVal(V)
+    rule #applyMuVal(closure(RHO, CS)) => closure(RHO, #applyMuCases(CS))
+
+    rule #applyMuCases(.Cases) => .Cases
+    rule #applyMuCases(C | CS) => #applyMuCase(C) | #applyMuCases(CS)
+
+    rule #applyMuCase(P C)  => P #applyMuCase(C)
+    rule #applyMuCase(-> E) => -> mu(E)
 ```
 
 The following helpers actually do the allocation and assignment operations on the storage.
