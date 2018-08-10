@@ -537,15 +537,15 @@ module KAT-SBC
 The interface of this analysis requires you define when to abstract and how to abstract.
 
 -   `_subsumes?_` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
--   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
+-   `abstract` is a (user defined) rule than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 
 ```k
     syntax Pred ::= State "subsumes?" State
  // ---------------------------------------
 
-    syntax StateOp ::= "abstract"
- // -----------------------------
+    syntax Strategy ::= "abstract"
+ // ------------------------------
 ```
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.

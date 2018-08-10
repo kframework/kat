@@ -103,24 +103,20 @@ module FUN-SBC
 **TODO**: Only abstracting the values in `RHO` will make references behave poorly.
 
 ```k
-    rule <s> abstract [ <FUN> <k> muclosure ( RHO , CS ) ~> ARGS                </k> <store> STORE                              </store> REST </FUN> ]
-          => pop        <FUN> <k> muclosure ( RHO , CS ) ~> #abstractArgs(ARGS) </k> <store> #abstractStore(values(RHO), STORE) </store> REST </FUN>
-         ...
-         </s>
+    rule <s> abstract => #abstract(values(RHO)) ... </s>
+         <FUN>
+           <k> mu ( E ) ... </k>
+           <env> RHO </env>
+           ...
+         </FUN>
 
-    syntax K ::= #abstractArgs ( K ) [function]
- // -------------------------------------------
-    rule #abstractArgs(#arg(V) ~> KS) => #arg(#abstractVal(V)) ~> #abstractArgs(KS)
-    rule #abstractArgs(#arg(V))       => #arg(#abstractVal(V))
-    rule #abstractArgs(KS           ) => KS [owise]
+    syntax Strategy ::= #abstract ( List )
+ // --------------------------------------
+    rule <s> #abstract(.List) => . ... </s>
 
-    syntax Map ::= #abstractStore ( List , Map ) [function]
- // -------------------------------------------------------
-    rule #abstractStore(.List, RHO) => RHO
-
-    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (E:Exp   => E                )) XS))
-    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (V:Val   => #abstractVal (V ))) XS))
-    rule #abstractStore(((ListItem(X) => .List) KEYS), ((X |-> (VS:Vals => #abstractVals(VS))) XS))
+    rule <s> #abstract((ListItem(X) => .List) XS) ... </s> <store> ... X |-> E:Exp                     ... </store>
+    rule <s> #abstract((ListItem(X) => .List) XS) ... </s> <store> ... X |-> (V  => #abstractVal(V))   ... </store>
+    rule <s> #abstract((ListItem(X) => .List) XS) ... </s> <store> ... X |-> (VS => #abstractVals(VS)) ... </store>
 
     syntax Val  ::= #abstractVal  ( Val  ) [function]
     syntax Vals ::= #abstractVals ( Vals ) [function]
