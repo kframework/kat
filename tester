@@ -6,6 +6,7 @@ runtest() {
     ./kat test "$@" || exit_status="$?"
 }
 
+
 runtest tests/fun/ackermann.fun                   orig 103a032a87e4855ba91fe5b5c9b52a7b exec b63045261cd1eab797e2efc2d09804c2
 runtest tests/fun/collatz-all-upto.fun            orig 1505d6f98afd8039a446b6db4fc03d15 exec 1405772010e8559afc1e7a790785c320
 runtest tests/fun/constructor-bst-sorting.fun     orig 5cf50a61d7a350beb9b4a1c99f20e2ab exec 2e9aa3cb0dcbd492c2af11088502caeb
@@ -19,12 +20,15 @@ runtest tests/fun/factorial-and-list-max.fun      orig fb5f3ffe3c0109d330feb4418
 runtest tests/fun/fold.fun                        orig 1316d3231846a76625b4bc560f3ac758 exec 30cac5be882df221bf1d571f075eb935
 runtest tests/fun/fold-sum.fun                    orig ea64bc2af98d82589b9db650b2a152d1 exec bb8b9be131f3edabf21053afef559c4c
 runtest tests/fun/fold-tree.fun                   orig 107ca787401bcadbfb24c00c8268d0a9 exec b25872e6c1e243bc16a359d57249a1fb
+runtest tests/fun/function-no-arguments.fun       orig xxx                              exec xxx
+runtest tests/fun/inf-rec-non-func.fun            orig xxx                              exec xxx
 runtest tests/fun/list-1.fun                      orig 3ef41d1fa0266af816cd5dbb1507760d exec 52fa09d4b6091af19f9670e7feda09f1
 runtest tests/fun/list-2.fun                      orig b406b72ccca0b381ce5bc86333a63249 exec 2ddba4cc1b7844ccf3345685389e3955 compile b1e7840eb7bee1838bd586af9006607e
 runtest tests/fun/list-match.fun                  orig 38be5f602078ff8ea7da583fb2711b4a exec 198d959c01fb4544353b933d3f85321e compile c16ecb59ff4421f0a90ba67035b578e1
 runtest tests/fun/list-max.fun                    orig 086f61a3292db6b68d973e3df4aaaf5b exec 2450449439463f5008fe99d821bd7304
 runtest tests/fun/long-loop.fun                   orig 6e2cb3e9cbf9b8460ccaa7c5ae7d8188 exec 31f7f7378b69a1f11b71383d85abc751
 runtest tests/fun/map.fun                         orig 35f2c2feaf21c2c6318079dc991badcd exec 1598924ad7a2dd2a1b353bbd1dbf5374
+runtest tests/fun/nats.fun                        orig xxx                              exec xxx
 runtest tests/fun/non-linear-pattern.fun          orig 0c3192aac4e49aed27747a1841abd3f0 exec eb8d471b3a9b14d6d778027395d35d95 compile 1aab78a96722682cd8ff3fdb8f46f911
 runtest tests/fun/nth.fun                         orig f80031255e5d68b545ac4e0d6a101286 exec ff005ba889f96c91d473f2eb1c543f13
 runtest tests/fun/partial-application.fun         orig c585e314c5830ac3ef8da011a5701dec exec 5d657c7b27b3beef1660b410a40542be compile 62f7fa0f9f6b7fa07040aafd4942c4b1
