@@ -143,25 +143,10 @@ test-imp: $(test_imp_files:=.test)
 test-fun: $(test_fun_files:=.test)
 
 %.imp.test:
-	$(TEST) $*.imp $*.strat
+	$(TEST) $*
 
 %.fun.test:
-	$(TEST) $*.fun $*.strat
-
-test-exec: test-exec-imp test-exec-fun
-test-exec-imp: $(test_imp_files:=.exec)
-test-exec-fun: $(test_fun_files:=.exec)
-
-$(test_dir)/%.exec: $(test_output)/exec/$(test_dir)/%.orig $(test_output)/exec/$(test_dir)/%.exec
-	git diff --no-index $^
-
-$(test_output)/exec/%.orig:
-	mkdir -p $(dir $@)
-	./kat run-orig $* > $@
-
-$(test_output)/exec/%.exec:
-	mkdir -p $(dir $@)
-	./kat run $* exec > $@
+	$(TEST) $*
 
 # SBC Benchmarking
 # ----------------

@@ -73,12 +73,17 @@ run_test() {
     test_file="$1" ; shift
     exit_status='0'
 
-    while [[ "$#" -gt '1' ]]; do
-        exec_strategy="$1" ; shift
-        expected_hash="$1" ; shift
-        progress "test:   '$test_file' with '$exec_strategy'"
-
+    while read expected_hash exec_strategy; do
         output_file="$test_logs/$test_file.$expected_hash"
+        mkdir -p "$(dirname "$output_file")"
+        progress "test:   '$test_file' with '$exec_strategy', output to '$output_file'"
+
+        if [[ -f "$test_file.imp" ]]; then
+            test_file="$test_file.imp"
+        elif [[ -f "$test_file.fun" ]]; then
+            test_file="$test_file.fun"
+        fi
+
         if [[ "$exec_strategy" == 'orig' ]]; then
             run_krun_orig "$test_file"                  > "$output_file"
         else
@@ -94,7 +99,7 @@ run_test() {
         else
             progress "passed: '$test_file' with '$exec_strategy'"
         fi
-    done
+    done < "$test_file.strat"
 
     exit "$exit_status"
 }

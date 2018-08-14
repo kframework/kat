@@ -1,10 +1,11 @@
-(^ regular | #normal) *
-(^ regular | #normal) * ; abstract
-(^ regular | #normal) * ; abstract ; #loop
-(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) *
-(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
-(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) *
-(^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
-setAnalysis .Rules ; setStates .States ; push ; compile-step 5
-setAnalysis .Rules ; setStates .States ; push ; compile-step 6
-exec
+462f9bc25a799532d44dd93dd10c44bb orig
+975def2beaac13930c18a5cad8792a52 exec
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) *
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; abstract
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; abstract ; #loop
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) *
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) *
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; abstract ; #loop ; (^ regular | #normal) * ; ^ caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx setAnalysis .Rules ; setStates .States ; push ; compile-step 5
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx setAnalysis .Rules ; setStates .States ; push ; compile-step 6

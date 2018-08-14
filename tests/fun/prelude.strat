@@ -1,9 +1,10 @@
-(^ regular | #normal) *
-(^ regular | #normal) * ; which-can? #branch
-(^ regular | #normal | #branch) *
-how-many? (^ regular | #normal)
-how-many? (^ regular | #normal | #branch)
-exec
-bounded-compile 0
-bounded-compile 1
-compile
+a8cab1aa7432c7f710a7dee46282d786 orig
+46417781f019b888076bb69ba9b01d9c exec
+fad229ebcb0a206a3541abfc9afab336 compile
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) *
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal) * ; which-can? #branch
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (^ regular | #normal | #branch) *
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx how-many? (^ regular | #normal)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx how-many? (^ regular | #normal | #branch)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx bounded-compile 0
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx bounded-compile 1
