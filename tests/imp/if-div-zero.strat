@@ -1,3 +1,3 @@
-step 4 ; which-can? (^ divzero | ^ divnonzero)
-(#normal | ^ regular) until (^ divzero | ^ divnonzero)
-compile
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1 step 4 ; which-can? (^ divzero | ^ divnonzero)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2 (#normal | ^ regular) until (^ divzero | ^ divnonzero)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx3 compile

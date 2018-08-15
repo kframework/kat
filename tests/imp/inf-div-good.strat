@@ -1,2 +1,2 @@
-bimc 5000 (not can? (^ divzero))
-compile
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1 bimc 5000 (not can? (^ divzero))
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2 compile

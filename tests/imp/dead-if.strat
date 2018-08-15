@@ -1,6 +1,6 @@
-step 2 ; ^ iftrue
-step 2 ; which-can? (^ iftrue)
-step 2 ; which-can? (^ iftrue | ^ iffalse)
-step 2 ; which-can? (^ iffalse)
-exec-to-branch
-compile
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1 step 2 ; ^ iftrue
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2 step 2 ; which-can? (^ iftrue)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx3 step 2 ; which-can? (^ iftrue | ^ iffalse)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx4 step 2 ; which-can? (^ iffalse)
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5 exec-to-branch
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx6 compile
