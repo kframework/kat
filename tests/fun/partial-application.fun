@@ -1,4 +1,4 @@
-// 7
+// 12
 
 let f x = fun [ h : t ] h -> x + h
           |   l         z -> x * z
