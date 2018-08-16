@@ -524,7 +524,7 @@ As each argument is consumed, we match it against the closure's next pattern, in
 On failure, the process is restarted on the next `Case` in the closure function contents.
 
 ```k
-    rule <k> (closure(RHO, P C | CS) => closure(RHO, CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
+    rule <k> (closure(RHO, P C | CS) => closure(RHO, P C | CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
 
     rule <k> closure(RHO, -> E) => E ~> setEnv(RHO') ... </k>
          <env> RHO' => RHO </env>
