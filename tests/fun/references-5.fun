@@ -1,4 +1,4 @@
-// [7 : 8 : 9 : .Exps ]
+// [7 : 8 : 9 : .Vals ]
 
 // testing &, *, := and lists
 
