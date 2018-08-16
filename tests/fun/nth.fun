@@ -1,3 +1,5 @@
+// [ 10 : 11 : 12 : 13 : 14 : .Vals ]
+
 letrec
     nat n m = if n == m then [ n : .Vals ]
                         else cons n (nat (n + 1) m)
@@ -11,5 +13,3 @@ and map f = fun [       ] -> []
 and app = fun [       ] x -> []
             | [ h : t ] x -> cons (h x) (app [ t ] x)
  in app (map nth (nat 1 5)) [ 10 : 11 : 12 : 13 : 14 : 15 : 16 : 17 : .Exps ]
-
-// [ 10 : 11 : 12 : 13 : 14 : .Vals ]

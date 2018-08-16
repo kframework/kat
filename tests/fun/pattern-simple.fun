@@ -1,3 +1,5 @@
+// Pair (Pair 1 9) (Pair 0 1)
+
 datatype ('a,'b)    pair   = Pair   'a 'b
 datatype ('a,'b,'c) triple = Triple 'a 'b 'c
 
@@ -9,5 +11,3 @@ in letrec length = fun [       ] -> 0
                     |   (Triple [       ] [] [ Pair 7 2 : x : c ]) -> x
                     |   default                                    -> Pair 0 0
  in Pair (complex mylist1) (complex mylist2)
-
-// Pair (Pair 1 9) (Pair 0 1)

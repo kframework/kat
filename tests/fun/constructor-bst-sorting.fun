@@ -1,3 +1,5 @@
+// [ 0 : 0 : 1 : 1 : 2 : 2 : 3 : 3 : 4 : 4 : 5 : 5 : .Vals ]
+
 datatype 'a bst = Empty
                 | Leaf 'a
                 | Node ('a bst) 'a ('a bst)
@@ -24,6 +26,3 @@ letrec cons h [ t ] = [ h : t ]
                  | [ h1 : t1 ] [ h2 : t2 ] -> cons h1 (cons h2 (merge [ t1 ] [ t2 ]))
    and shuffle n = merge (downto n) (upto n)
  in bst_sort (shuffle 5)
-
-// [ 0 : 0 : 1 : 1 : 2 : 2 : 3 : 3 : 4 : 4 : 5 : 5 : .Vals ]
-

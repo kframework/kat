@@ -1,3 +1,5 @@
+// 17
+
 let y = 3
  in try (
       try (
@@ -8,5 +10,3 @@ let y = 3
     ) catch(x) (
       x + 1
     )
-
-// 17

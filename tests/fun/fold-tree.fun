@@ -1,3 +1,5 @@
+// 42
+
 datatype 'a tree = Leaf | Tree ('a tree) 'a ('a tree)
 
 letrec foldtree f b = fun Leaf                -> b
@@ -10,5 +12,3 @@ letrec foldtree f b = fun Leaf                -> b
 //    6   11
 //   / \
 //  3  21
-
-// 42

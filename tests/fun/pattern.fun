@@ -1,3 +1,5 @@
+// [ Pair 10 9 : Pair 0 1 : Pair 0 0 : .Vals ]
+
 datatype ('a,'b)    pair   = Pair   'a 'b
 datatype ('a,'b,'c) triple = Triple 'a 'b 'c
 
@@ -15,5 +17,3 @@ in letrec length = fun [       ] -> 0
       and map f = fun [       ] -> []
                   |   [ h : t ] -> cons (f h) (map f [ t ])
 in map complex mylist
-
-// [ Pair 10 9 : Pair 0 1 : Pair 0 0 : .Vals ]

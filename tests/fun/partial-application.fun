@@ -1,3 +1,5 @@
+// 7
+
 let f x = fun [ h : t ] h -> x + h
           |   l         z -> x * z
 and apply f = f 4

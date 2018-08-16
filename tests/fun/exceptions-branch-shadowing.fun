@@ -1,3 +1,5 @@
+// 21
+
 let x = 3
  in try (
       try (
@@ -8,5 +10,3 @@ let x = 3
     ) catch(x) (
       x + 1
     )
-
-// 21

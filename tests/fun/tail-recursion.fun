@@ -1,3 +1,5 @@
+// 0
+
 // This tail recursive program uses fixed memory, but can take a lot of
 // computation/stack space if the semantics is not tail-recursive.
 // Curiously, the tail recursion rule does not seem to be favoured by
@@ -10,5 +12,3 @@ datatype nothing = Nothing
 let n = ref 100
 in letrec f Nothing = if @n>0 then n := @n - 1; f Nothing else 0
    in f Nothing
-
-// 0

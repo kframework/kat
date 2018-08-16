@@ -1,3 +1,5 @@
+// 18
+
 // testing functions taking tuple arguments
 
 datatype ('a,'b,'c) triple = Triple 'a 'b 'c

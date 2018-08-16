@@ -1,3 +1,5 @@
+// 620448401733239439360000
+
 datatype ('a,'b) pair = Pair 'a 'b
 
 let head [ h : t ] = h
@@ -20,5 +22,3 @@ in letrec max l (Pair x y) = if @x != y
                           then 1
                           else x * factorial (x - 1)
 in max (map factorial [ 1 : 2 : 3 : factorial 4 : .Exps ]) (Pair (ref 1) 1)
-
-// 620448401733239439360000

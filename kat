@@ -76,7 +76,9 @@ run_test() {
     while read expected_hash exec_strategy; do
         output_file="$test_logs/$test_file.$expected_hash"
         mkdir -p "$(dirname "$output_file")"
-        progress "test:   '$test_file' with '$exec_strategy', output to '$output_file'"
+        progress "test:   '$test_file' with '$exec_strategy'\n" \
+                 "            output: $output_file\n" \
+                 "            strat:  $test_file.strat"
 
         if [[ -f "$test_file.imp" ]]; then
             test_file="$test_file.imp"
@@ -92,9 +94,11 @@ run_test() {
 
         actual_hash="$(cat "$output_file" | md5sum | tr -d '[:space:]-')"
         if [[ "$expected_hash" != "$actual_hash" ]]; then
-            progress "failed: '$test_file' with '$exec_strategy'\n" \
-                     "            expected $expected_hash\n" \
-                     "            actual   $actual_hash"
+            progress "failed:   '$test_file' with '$exec_strategy'\n" \
+                     "              expected: $expected_hash\n" \
+                     "              actual:   $actual_hash\n" \
+                     "expected: $(head -n1 "$test_file")\n" \
+                     "output:   $(cat "$output_file")"
             exit_status='1'
         else
             progress "passed: '$test_file' with '$exec_strategy'"
