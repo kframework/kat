@@ -1,3 +1,5 @@
+// y |-> 7 x |-> 1    OR     y |-> 7 x |-> -1    OR    div-zero-error
+
 int x , y ;
 y = 7 ;
 x = symbolicInt ;

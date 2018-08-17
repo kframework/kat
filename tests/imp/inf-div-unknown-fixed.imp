@@ -1,3 +1,5 @@
+// non-terminating
+
 int x , y ;
 x = symbolicInt ;
 y = symbolicInt ;

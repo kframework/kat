@@ -1,3 +1,5 @@
+// div-zero-error
+
 int x , y ;
 y = symbolicInt ;
 x = 10 ;

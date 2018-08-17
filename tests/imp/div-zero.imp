@@ -1,3 +1,5 @@
+// x |-> V0 y |-> 7 / V1     OR    div-zero-error
+
 int x , y ;
 x = symbolicInt ;
 y = symbolicInt ;
