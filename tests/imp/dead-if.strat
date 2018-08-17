@@ -1,6 +1,6 @@
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1 step 2 ; ^ iftrue
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx2 step 2 ; which-can? (^ iftrue)
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx3 step 2 ; which-can? (^ iftrue | ^ iffalse)
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx4 step 2 ; which-can? (^ iffalse)
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5 exec-to-branch
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx6 compile
+e261f4443e30df18d162dcc997a03023 step 2 ; ^ iftrue
+21f610dd46f7bc063e28815b2a09e5ee step 2 ; which-can? (^ iftrue)
+21f610dd46f7bc063e28815b2a09e5ee step 2 ; which-can? (^ iftrue | ^ iffalse)
+02e9d3f9e5025d14571836d2fa54ee2b step 2 ; which-can? (^ iffalse)
+56e00a3f8b9a9d790ee342b6237f9773 exec-to-branch
+72b7ef7f82a8b10679fecaf240cbd01a compile

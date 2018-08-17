@@ -1,8 +1,4 @@
 38620c8c0c1c446700c4e82dd06f79f5 orig
 aaf886f9eada27af7703678ac0c1d4c0 exec
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx3 (#normal | ^ regular) * ; ^ recCall
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx4 (#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseSuccess
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5 (#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx6 (#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; ^ caseSuccess
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx7 (#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; which-can? (^ caseSuccess | ^ caseFailure)
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8 (#normal | ^ regular) * ; ^ recCall ; (#normal | ^ regular) * ; ^ caseFailure ; ^ regular ; which-can? (^ caseSuccess | ^ caseFailure)
+f722aa4f4c9b28952194a97e9a402fcd (#normal | ^ regular | #branch) * ; ^ recCall
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx7 (#normal | ^ regular | #branch) * ; ^ recCall ; (#normal | ^ regular) *
