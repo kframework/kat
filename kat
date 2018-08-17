@@ -69,22 +69,25 @@ run_ksearch() {
 }
 
 run_test() {
-    local test_file exec_strategy expected_hash actual_hash output_file exit_status
-    test_file="$1" ; shift
+    local test_name test_ext test_file test_strat
+    local exec_strategy expected_hash actual_hash output_file exit_status
+    test_name="$1" ; shift
     exit_status='0'
+
+    if [[ -f "$test_name.imp" ]]; then
+        test_ext="imp"
+    elif [[ -f "$test_name.fun" ]]; then
+        test_ext="fun"
+    fi
+    test_file="$test_name.$test_ext"
+    test_strat="$test_name.strat"
 
     while read expected_hash exec_strategy; do
         output_file="$test_logs/$test_file.$expected_hash"
         mkdir -p "$(dirname "$output_file")"
         progress "test:   '$test_file' with '$exec_strategy'\n" \
                  "            output: $output_file\n" \
-                 "            strat:  $test_file.strat"
-
-        if [[ -f "$test_file.imp" ]]; then
-            test_file="$test_file.imp"
-        elif [[ -f "$test_file.fun" ]]; then
-            test_file="$test_file.fun"
-        fi
+                 "            strat:  $test_strat"
 
         if [[ "$exec_strategy" == 'orig' ]]; then
             run_krun_orig "$test_file"                  > "$output_file"
@@ -103,7 +106,7 @@ run_test() {
         else
             progress "passed: '$test_file' with '$exec_strategy'"
         fi
-    done < "$test_file.strat"
+    done < "$test_strat"
 
     exit "$exit_status"
 }
