@@ -40,9 +40,11 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
           If the latter rules are allowed to execute first, K does not prune applications of them as infeasible properly.
 
 ```k
-    syntax Strategy ::= "#case" [function]
-                      | "#let"  [function]
- // --------------------------------------
+    syntax Strategy ::= "#case"        [function]
+                      | "#caseSuccess" [function]
+                      | "#caseFailure" [function]
+                      | "#let"         [function]
+ // ---------------------------------------------
     rule #normal => ^ lookup
                   | ^ applicationFocusFunction
                   | ^ applicationFocusArgument
@@ -57,27 +59,29 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
                   | ^ iffalse
     rule #let    => ^ letBinds
                   | ^ letRecBinds
-    rule #case   => ^ caseNonlinearMatchJoinSuccess
-                  | ^ caseNonlinearMatchJoinFailure
-                  | ^ caseBoolSuccess
-                  | ^ caseBoolFailure
-                  | ^ caseIntSuccess
-                  | ^ caseIntFailure
-                  | ^ caseStringSuccess
-                  | ^ caseStringFailure
-                  | ^ caseNameSuccess
-                  | ^ caseConstructorNameSuccess
-                  | ^ caseConstructorNameFailure
-                  | ^ caseConstructorArgsSuccess
-                  | ^ caseConstructorArgsFailure1
-                  | ^ caseConstructorArgsFailure2
-                  | ^ caseListSuccess
-                  | ^ caseListEmptyFailure3
-                  | ^ caseListEmptySuccess
-                  | ^ caseListSingletonSuccess
-                  | ^ caseListEmptyFailure1
-                  | ^ caseListEmptyFailure2
-                  | ^ caseListNonemptySuccess
+    rule #case   => #caseSuccess
+                  | #caseFailure
+    rule #caseSuccess => ^ caseNonlinearMatchJoinSuccess
+                       | ^ caseBoolSuccess
+                       | ^ caseIntSuccess
+                       | ^ caseStringSuccess
+                       | ^ caseNameSuccess
+                       | ^ caseConstructorNameSuccess
+                       | ^ caseConstructorArgsSuccess
+                       | ^ caseListSuccess
+                       | ^ caseListEmptySuccess
+                       | ^ caseListSingletonSuccess
+                       | ^ caseListNonemptySuccess
+    rule #caseFailure => ^ caseNonlinearMatchJoinFailure
+                       | ^ caseBoolFailure
+                       | ^ caseIntFailure
+                       | ^ caseStringFailure
+                       | ^ caseConstructorNameFailure
+                       | ^ caseConstructorArgsFailure1
+                       | ^ caseConstructorArgsFailure2
+                       | ^ caseListEmptyFailure3
+                       | ^ caseListEmptyFailure1
+                       | ^ caseListEmptyFailure2
 ```
 
 ### Define `bool?`
