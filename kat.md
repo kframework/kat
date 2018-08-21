@@ -247,7 +247,7 @@ The strategy language is a simple imperative language with sequencing and choice
          ...
          </s>
 
-    rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N =/=Int 0
+    rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N >Int 0
 ```
 
 Meta Strategies
