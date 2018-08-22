@@ -1,11 +1,11 @@
 c016f256c0b07bc4993e229c156abcd7 orig
 36138427689f88afa2cde68cd0bfb1af exec
 ee2bf38fb8bfa5476f35de105fd23487 (^ regular | #normal | #branch) *
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx4 (^ regular | #normal | #branch) * ; abstract
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5 (^ regular | #normal | #branch) * ; abstract ; #loop
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx6 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) *
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx7 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) *
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx9 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx4 (^ regular | #normal | #branch) * ; abstract
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5 (^ regular | #normal | #branch) * ; abstract ; #loop
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx6 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) *
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx7 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) *
+# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx9 (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
 462b23067745592b3f1db1089b18deb9 setAnalysis .Rules ; setStates .States ; push ; compile-step 5
 9decf30e2a85581dad3762b090266ad6 setAnalysis .Rules ; setStates .States ; push ; compile-step 6
