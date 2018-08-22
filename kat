@@ -44,7 +44,7 @@ run_krun() {
     strategy="$1" ; shift
     run_env kcompile "$run_file"
     export K_OPTS=-Xss500m
-    krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" "$run_file" "$@"
+    krun --z3-executable --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" "$run_file" "$@"
 }
 
 run_krun_orig() {
