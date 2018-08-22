@@ -83,6 +83,10 @@ run_test() {
     test_strat="$test_name.strat"
 
     while read expected_hash exec_strategy; do
+        if [[ "$expected_hash" == "#" ]]; then
+            warn "skipping: '$test_file' with '$exec_strategy'"
+            continue
+        fi
         output_file="$test_logs/$test_file.$expected_hash"
         mkdir -p "$(dirname "$output_file")"
         progress "test:   '$test_file' with '$exec_strategy'\n" \
