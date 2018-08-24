@@ -163,8 +163,8 @@ A list is turned back into a regular element by wrapping it in the `[_]` operato
 ```k
     syntax Exps ::= Vals
     syntax Vals ::= Val | ".Vals" [klabel(.Vals)] | Val ":" Vals
-    syntax Exps ::= Exp | ".Exps" [klabel(.Vals)] | Exp ":" Exps [seqstrict]
- // ------------------------------------------------------------------------
+    syntax Exps ::= Exp | ".Exps" [klabel(.Vals)] | Exp ":" Exps
+ // ------------------------------------------------------------
 
     syntax Val ::= "[" Vals "]"
     syntax Exp ::= "[" Exps "]" [strict]
@@ -474,6 +474,21 @@ Expressions
     rule <k> false || E => E          ... </k>
 ```
 
+Lists must be handled carefully, because not every `ClosureVal` should be considered fully evaluated.
+
+```k
+    syntax KItem ::= "#consHead" Val | "#consTail" Exps
+ // ---------------------------------------------------
+    rule <k> E : ES => E ~> #consTail ES ... </k>
+      requires notBool areFullyEvaluated(E : ES)
+
+    rule <k> V ~> #consTail ES => ES ~> #consHead V ... </k>
+      requires isFullyEvaluated(V)
+
+    rule <k> VS ~> #consHead V => V : VS ... </k>
+      requires areFullyEvaluated(VS)
+```
+
 Conditional
 -----------
 
@@ -497,6 +512,26 @@ The environment will be used at execution time to lookup non-parameter variables
  // ----------------------------------------------------------------------------------------
     rule <k> fun CASES => closure(RHO, CASES) ... </k>
          <env> RHO </env>
+
+    syntax Bool ::= isEmptyClosureVal ( Val ) [function]
+ // ----------------------------------------------------
+    rule isEmptyClosureVal(V) => false requires notBool isClosureVal(V)
+
+    rule isEmptyClosureVal(closure(_, -> E | _)) => true
+    rule isEmptyClosureVal(closure(_, _ _  | _)) => false
+
+    rule isEmptyClosureVal(closure(_, -> E | _, _, _)) => true
+    rule isEmptyClosureVal(closure(_, _ _  | _, _, _)) => false
+
+    syntax Bool ::=  isFullyEvaluated ( Exp  ) [function]
+                  | areFullyEvaluated ( Exps ) [function]
+ // -----------------------------------------------------
+    rule isFullyEvaluated(E    ) => false                        requires notBool isVal(E)
+    rule isFullyEvaluated(V:Val) => notBool isEmptyClosureVal(V)
+
+    rule areFullyEvaluated(.Exps)  => true
+    rule areFullyEvaluated(N:Name) => false
+    rule areFullyEvaluated(E : ES) => isFullyEvaluated(E) andBool areFullyEvaluated(ES)
 ```
 
 In evaluating an application, the arguments are evaluated in reverse order until we reach the applied function.
@@ -516,6 +551,7 @@ In evaluating an application, the arguments are evaluated in reverse order until
       [tag(applicationFocusArgument)]
 
     rule <k> V:Val ~> #apply(E) => E V ... </k>
+      requires isFullyEvaluated(V)
 ```
 
 Finally, once all arguments are evaluated, we can attempt pattern matching on the closure's function contents.
