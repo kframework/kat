@@ -604,17 +604,18 @@ Helpers `binds` and `bindsRec` ensure that the definitions are evaluated in the 
  // -------------------------
     rule <k> mu ( E ) => E ... </k> [tag(recCall)]
 
-    syntax Vals  ::= #applyMuVals  ( Vals  ) [function]
-    syntax Val   ::= #applyMuVal   ( Val   ) [function]
-    syntax Cases ::= #applyMuCases ( Cases ) [function]
-    syntax Case  ::= #applyMuCase  ( Case  ) [function]
- // ---------------------------------------------------
+    syntax Vals  ::= #applyMuVals ( Vals ) [function]
+    syntax Val   ::= #applyMuVal  ( Val  ) [function]
+ // -------------------------------------------------
     rule #applyMuVals(.Vals)  => .Vals
     rule #applyMuVals(V : VS) => #applyMuVal(V) : #applyMuVals(VS)
 
     rule #applyMuVal(V)                => V requires notBool isClosureVal(V)
     rule #applyMuVal(closure(RHO, CS)) => closure(RHO, #applyMuCases(CS))
 
+    syntax Cases ::= #applyMuCases ( Cases ) [function]
+    syntax Case  ::= #applyMuCase  ( Case  ) [function]
+ // ---------------------------------------------------
     rule #applyMuCases(.Cases) => .Cases
     rule #applyMuCases(C | CS) => #applyMuCase(C) | #applyMuCases(CS)
 
