@@ -403,10 +403,9 @@ The `<store>` will be used as a memory, which is addressed through the `<env>`.
 ```k
     configuration
       <FUN>
-        <k>       $PGM:Exp </k>
-        <env>     .Map     </env>
-        <store>   .Map     </store>
-        <nextLoc> 0        </nextLoc>
+        <k>    $PGM:Exp </k>
+        <env>  .Map     </env>
+        <envs> .List    </envs>
       </FUN>
 ```
 
@@ -415,8 +414,7 @@ Lookup
 
 ```k
     rule <k> X:Name => V ... </k>
-         <env>   ... X |-> L       ... </env>
-         <store> ...       L |-> V ... </store>
+         <env> ... X |-> V ... </env>
       [tag(lookup)]
 ```
 
@@ -536,16 +534,14 @@ On failure, the process is restarted on the next `Case` in the closure function 
 ```k
     rule <k> (closure(RHO, P C | CS) => closure(RHO, P C | CS, .Bindings, .Vals)) ~> #arg(_) ... </k>
 
-    rule <k> closure(RHO, -> E) => E ~> setEnv(RHO') ... </k>
-         <env> RHO' => RHO </env>
+    rule <k> closure(RHO, -> E) => pushEnv ~> setEnv(RHO) ~> let .Bindings in E ~> popEnv ... </k>
 
     rule <k> (. => getMatchingBindings(P, V, BS)) ~> closure(RHO, (P C => C) | CS, BS => .Bindings, VS => V : VS) ~> (#arg(V) => .) ... </k>
 
     rule <k> (matchResult(BS) => .) ~> closure(RHO,  P C | CS,           _  => BS, VS         )                             ... </k>
     rule <k> (matchFailure    => .) ~> closure(RHO, (C:Case | CS => CS), BS,       VS => .Vals) ~> (. => #sequenceArgs(VS)) ... </k>
 
-    rule <k> matchResult(BS) ~> closure(RHO, -> E | _, _, _) => let BS in E ~> setEnv(RHO') ... </k>
-         <env> RHO' => RHO </env>
+    rule <k> matchResult(BS) ~> closure(RHO, -> E | _, _, _) => pushEnv ~> setEnv(RHO) ~> let BS in E ~> popEnv ... </k>
 
     syntax K ::= #sequenceArgs ( Vals ) [function]
  // ----------------------------------------------
@@ -561,67 +557,63 @@ Closures defined in `let` bindings must only contain the environment of the `let
 Helpers `binds` and `bindsRec` ensure that the definitions are evaluated in the correct environment, before and after the bindings are allocated respectively.
 
 ```k
-    rule <k> let    BS in E => binds   (#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k> <env> RHO </env> [tag(letBinds)]
-    rule <k> letrec BS in E => bindsRec(#names(BS), #exps(BS)) ~> E ~> setEnv(RHO) ... </k> <env> RHO </env> [tag(letRecBinds)]
+    rule <k> let    BS in E => pushEnv ~> #exps(BS) ~> #assign  (#names(BS)) ~> E ~> popEnv ... </k> [tag(letBinds)]
+    rule <k> letrec BS in E => pushEnv ~> #exps(BS) ~> #assignMu(#names(BS)) ~> E ~> popEnv ... </k> [tag(letRecBinds)]
 
-    syntax KItem ::= binds    ( Names , Exps )
-                   | bindsRec ( Names , Exps )
- // ------------------------------------------
-    rule <k> binds   (XS, ES) => ES            ~> #allocate(XS)             ~> #assign(XS) ... </k>
-    rule <k> bindsRec(XS, ES) => #allocate(XS) ~> ES            ~> #markMus ~> #assign(XS) ... </k>
+    syntax Exp ::= mu ( Names , Exp )
+ // ---------------------------------
+    rule <k> mu ( .Names , E ) => E    ... </k> [tag(recCall)]
 
-    syntax KItem ::= "#markMus"
- // ---------------------------
-    rule <k> VS ~> #markMus => #applyMuVals(VS) ... </k>
-
-    syntax Exp ::= mu ( Exp )
- // -------------------------
-    rule <k> mu ( E ) => E ... </k> [tag(recCall)]
-
-    syntax Vals  ::= #applyMuVals ( Vals ) [function]
-    syntax Val   ::= #applyMuVal  ( Val  ) [function]
- // -------------------------------------------------
-    rule #applyMuVals(.Vals)  => .Vals
-    rule #applyMuVals(V : VS) => #applyMuVal(V) : #applyMuVals(VS)
-
-    rule #applyMuVal(V)                => V requires notBool isClosureVal(V)
-    rule #applyMuVal(closure(RHO, CS)) => closure(RHO, #applyMuCases(CS))
-
-    syntax Cases ::= #applyMuCases ( Cases ) [function]
-    syntax Case  ::= #applyMuCase  ( Case  ) [function]
- // ---------------------------------------------------
-    rule #applyMuCases(.Cases) => .Cases
-    rule #applyMuCases(C | CS) => #applyMuCase(C) | #applyMuCases(CS)
-
-    rule #applyMuCase(P C)  => P #applyMuCase(C)
-    rule #applyMuCase(-> E) => -> mu(E)
+    rule <k> mu ( (X , XS => XS) , E ) ... </k>
+         <env> ENV => ENV[X <- ENV'[X]] </env>
+         <envs> ListItem(_) ListItem(ENV':Map) ... </envs>
+      requires X in_keys(ENV')
 ```
 
 The following helpers actually do the allocation and assignment operations on the storage.
 
 ```k
     syntax KItem ::= #assign   ( Names )
-                   | #allocate ( Names )
+                   | #assignMu ( Names )
  // ------------------------------------
+    rule <k> VS:Vals ~> (#assignMu(XS) => #markMus(XS) ~> #assign(XS)) ... </k>
+
     rule <k> .Vals ~> #assign(.Names) => . ... </k>
-    rule <k> VS:Vals ~> #allocate(XS) => #allocate(XS) ~> VS ... </k>
 
     rule <k> (#listTailMatch(V) : VS => VS) ~> #assign(X , XS => XS) ... </k>
-         <env> ... X |-> L ... </env>
-         <store> STORE => STORE[L <- V] </store>
+         <env> ENV => ENV[X <- V] </env>
       [tag(listAssignment)]
 
     rule <k> (V:Val : VS => VS) ~> #assign(X , XS => XS) ... </k>
-         <env> ... X |-> L ... </env>
-         <store> STORE => STORE[L <- V] </store>
+         <env> ENV => ENV[X <- V] </env>
       requires notBool #isListTailMatch(V)
       [tag(assignment)]
+```
 
-    rule <k> #allocate(.Names)              => .             ... </k>
-    rule <k> #allocate((X:Name , XS:Names)) => #allocate(XS) ... </k>
-         <env>     RHO   => RHO[X <- NLOC]   </env>
-         <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
-      [tag(allocate)]
+This machinery actually ensures that the recursive expressions know which values they may access from the enclosing environment.
+
+```k
+    syntax KItem ::= #markMus ( Names )
+ // -----------------------------------
+    rule <k> VS:Vals ~> #markMus(XS) => #applyMuVals(XS, VS) ... </k>
+
+    syntax Vals  ::= #applyMuVals ( Names , Vals ) [function]
+    syntax Val   ::= #applyMuVal  ( Names , Val  ) [function]
+ // ---------------------------------------------------------
+    rule #applyMuVals(XS, .Vals)  => .Vals
+    rule #applyMuVals(XS, V : VS) => #applyMuVal(XS, V) : #applyMuVals(XS, VS)
+
+    rule #applyMuVal(XS, V)                => V requires notBool isClosureVal(V)
+    rule #applyMuVal(XS, closure(RHO, CS)) => closure(RHO, #applyMuCases(XS, CS))
+
+    syntax Cases ::= #applyMuCases ( Names , Cases ) [function]
+    syntax Case  ::= #applyMuCase  ( Names , Case  ) [function]
+ // -----------------------------------------------------------
+    rule #applyMuCases(XS, .Cases) => .Cases
+    rule #applyMuCases(XS, C | CS) => #applyMuCase(XS, C) | #applyMuCases(XS, CS)
+
+    rule #applyMuCase(XS, P C)  => P #applyMuCase(XS, C)
+    rule #applyMuCase(XS, -> E) => -> mu(XS, E)
 ```
 
 Callcc
@@ -640,8 +632,7 @@ If the resulting closure invokes the stored `cc(RHO, K)`, the current state is r
     rule <k> (callcc V:Val => V cc(RHO, K)) ~> K </k>
          <env> RHO </env>
 
-    rule <k> cc(RHO, K) ~> #arg(V) ~> _ => V ~> K </k>
-         <env> _ => RHO </env>
+    rule <k> cc(RHO, K) ~> #arg(V) ~> _ => setEnv(RHO) ~> V ~> K </k>
 
     rule <k> closure(RHO, CS) cc(RHO', K) => closure(RHO, CS) ~> #arg(cc(RHO', K)) ... </k>
 ```
@@ -655,11 +646,17 @@ Environment recovery is used in multiple places where a sub-expression needs to 
 `setEnv(RHO)` is used to recover the original environment once the sub-expression is evaluated to a value `V`.
 
 ```k
-    syntax KItem ::= setEnv ( Map )
- // -------------------------------
-    rule <k> _:Val ~> (setEnv(RHO) => .) ... </k>
+    syntax KItem ::= setEnv ( Map ) | "pushEnv" | "popEnv"
+ // ------------------------------------------------------
+    rule <k> setEnv(RHO) => . ... </k>
          <env> _ => RHO </env>
-      [tag(resetEnv)]
+
+    rule <k> pushEnv => . ... </k>
+         <env> ENV </env>
+         <envs> .List => ListItem(ENV) ... </envs>
+
+    rule <k> V:Val ~> popEnv => setEnv(ENV) ~> V ... </k>
+         <envs> ListItem(ENV) => .List ... </envs>
 ```
 
 ### Getters

@@ -48,7 +48,6 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
     rule #normal => ^ lookup
                   | ^ applicationFocusFunction
                   | ^ applicationFocusArgument
-                  | ^ resetEnv
                   | ^ listAssignment
                   | ^ assignment
                   | ^ allocate
@@ -107,20 +106,20 @@ module FUN-SBC
 **TODO**: Only abstracting the values in `RHO` will make references behave poorly.
 
 ```k
-    rule <s> abstract => #abstract(values(RHO)) ... </s>
+    rule <s> abstract => #abstract(keys(RHO)) ... </s>
          <FUN>
-           <k> mu ( E ) ... </k>
+           <k> mu ( XS , E ) ... </k>
            <env> RHO </env>
            ...
          </FUN>
 
-    syntax Strategy ::= #abstract ( List )
- // --------------------------------------
-    rule <s> #abstract(.List) => . ... </s>
+    syntax Strategy ::= #abstract ( Set )
+ // -------------------------------------
+    rule <s> #abstract(.Set) => . ... </s>
 
-    rule <s> #abstract((ListItem(X) => .List) XS) ... </s> <store> ... X |-> E:Exp                     ... </store>
-    rule <s> #abstract((ListItem(X) => .List) XS) ... </s> <store> ... X |-> (V  => #abstractVal(V))   ... </store>
-    rule <s> #abstract((ListItem(X) => .List) XS) ... </s> <store> ... X |-> (VS => #abstractVals(VS)) ... </store>
+    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s> <env> ... X |-> E:Exp                     ... </env>
+    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s> <env> ... X |-> (V  => #abstractVal(V))   ... </env>
+    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s> <env> ... X |-> (VS => #abstractVals(VS)) ... </env>
 
     syntax Val  ::= #abstractVal  ( Val  ) [function]
     syntax Vals ::= #abstractVals ( Vals ) [function]
