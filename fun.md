@@ -69,9 +69,6 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
 -   We include a `callcc` construct ("call with current continuation") to demonstrate the modularity of K semantic definitions.
     This allows for using `try`/`catch` control flow constructs.
 
--   Finally, we include mutables by means of referencing an expression, getting the reference of a variable, dereferencing and assignment.
-    We include these for the same reasons as above: there are languages which have them, and they are not easy to define in some semantic frameworks.
-
 Syntax
 ======
 
@@ -88,7 +85,7 @@ module FUN-UNTYPED-COMMON
 ```
 
 FUN is an expression language.
-The constructs below fall into several categories: names, arithmetic constructs, conventional functional constructs, patterns and pattern matching, data constructs, lists, references, and call-with-current-continuation (callcc).
+The constructs below fall into several categories: names, arithmetic constructs, conventional functional constructs, patterns and pattern matching, data constructs, lists, and call-with-current-continuation (callcc).
 The arithmetic constructs are standard; they are present in almost all our K language definitions.
 The meaning of FUN's constructs are discussed in more depth when we define their semantics in the next module.
 
@@ -295,26 +292,6 @@ Bindings themselves comprise of expressions `E = E'`, where variables in `E` are
     rule #exp(E:Exp E':Exp = E''        => E = fun E' -> E'') [owise]
 ```
 
-### References
-
-References are first class values in FUN.
-The construct `ref` takes an expression, evaluates it, and then it stores the resulting value at a fresh location in the store and returns that reference.
-Syntactically, `ref` is just an expression constant.
-The construct `&` takes a name as argument and evaluates to a reference, namely the store reference where the variable passed as argument stores its value.
-The construct `@` takes a reference and evaluates to the value stored there.
-The construct `:=` takes two expressions, the first expected to evaluate to a reference; the value of its second argument will be stored at the location to which the first points (the old value is thus lost).
-Finally, since expression evaluation now has side effects, it makes sense to also add a sequential composition construct, which is sequentially strict.
-This evaluates to the value of its second argument; the value of the first argument is lost (which has therefore been evaluated only for its side effects.
-
-```k
-    syntax Exp ::= "ref"
-                 | "&" Name
-                 | "@" Exp      [seqstrict]
-                 | Exp ":=" Exp [seqstrict]
-                 | Exp ";"  Exp [strict(1), right]
- // ----------------------------------------------
-```
-
 ### Jumps in Control Flow
 
 Call-with-current-continuation, named `callcc` in FUN, is a powerful control operator that originated in the Scheme programming language, but it now exists in many other functional languages.
@@ -376,15 +353,12 @@ Additional Priorities
 These inform the parser of precedence information when ambiguous parses show up.
 
 ```k
-    syntax priorities @__FUN-UNTYPED-COMMON
-                    > casePattern
+    syntax priorities casePattern
                     > ___FUN-UNTYPED-COMMON
                     > arith
-                    > _:=__FUN-UNTYPED-COMMON
                     > let_in__FUN-UNTYPED-COMMON
                       letrec_in__FUN-UNTYPED-COMMON
                       if_then_else__FUN-UNTYPED-COMMON
-                    > _;__FUN-UNTYPED-COMMON
                     > fun__FUN-UNTYPED-COMMON
                     > datatype_=___FUN-UNTYPED-COMMON
 endmodule
@@ -648,26 +622,6 @@ The following helpers actually do the allocation and assignment operations on th
          <env>     RHO   => RHO[X <- NLOC]   </env>
          <nextLoc> NLOC  => NLOC +Int 1      </nextLoc>
       [tag(allocate)]
-```
-
-References
-----------
-
-References allow direct manipulation of the `<store>`.
-Syntax `& X` dereferences variable `X`, giving back it's associated store location.
-`@ L` loads the value at store location `L` directly.
-`L := V` assigns the store location `L` to the value `V` directly.
-Sequential composition `E ; E'` allows having the side-effects of expression `E` evaluated, and the result of `E'` returned.
-
-```k
-    rule ref => fun $x -> & $x [macro]
-    // rule <k> ref => fun $x -> & $x ... </k>
-
-    rule <k> & X              => L     ... </k> <env>   ... X |-> L        ... </env>
-    rule <k> @ L:Int          => V:Val ... </k> <store> ... L |-> V        ... </store>
-    rule <k>   L:Int := V:Val => V     ... </k> <store> ... L |-> (_ => V) ... </store>
-
-    rule <k> V:Val ; E => E ... </k>
 ```
 
 Callcc

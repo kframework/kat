@@ -9,6 +9,5 @@
 
 datatype nothing = Nothing
 
-let n = ref 100
-in letrec f Nothing = if @n>0 then n := @n - 1; f Nothing else 0
-   in f Nothing
+letrec f n Nothing = if n > 0 then f (n - 1) Nothing else 0
+in f 100 Nothing
