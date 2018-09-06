@@ -163,13 +163,13 @@ A list is turned back into a regular element by wrapping it in the `[_]` operato
     syntax Exps ::= Exp | ".Exps" [klabel(.Vals)] | Exp ":" Exps
  // ------------------------------------------------------------
 
-    syntax Val ::= "[" Vals "]"
-    syntax Exp ::= "[" Exps "]" [strict]
- // ------------------------------------
+    syntax Val ::= "[" Vals "]" [klabel(valList)]
+    syntax Exp ::= "[" Exps "]" [klabel(expList)]
+ // ---------------------------------------------
 
     syntax Exp ::= "[" "]" [function]
  // ---------------------------------
-    rule [ ] => [ .Vals ]
+    rule [ ] => valList(.Vals)
 ```
 
 ### Expressions
@@ -449,6 +449,12 @@ Expressions
 Lists must be handled carefully, because not every `ClosureVal` should be considered fully evaluated.
 
 ```k
+    syntax KItem ::= "#expList"
+ // ---------------------------
+    rule <k> expList(ES)         => ES ~> #expList ... </k>
+    rule <k> VS:Vals ~> #expList => valList(VS)    ... </k>
+      requires areFullyEvaluated(VS)
+
     syntax KItem ::= "#consHead" Val | "#consTail" Exps
  // ---------------------------------------------------
     rule <k> E : ES => E ~> #consTail ES ... </k>
@@ -500,6 +506,8 @@ The environment will be used at execution time to lookup non-parameter variables
  // -----------------------------------------------------
     rule isFullyEvaluated(E    ) => false                        requires notBool isVal(E)
     rule isFullyEvaluated(V:Val) => notBool isEmptyClosureVal(V)
+    rule isFullyEvaluated(valList(VS)) => areFullyEvaluated(VS)
+    rule isFullyEvaluated(expList(VS)) => false
 
     rule areFullyEvaluated(.Exps)  => true
     rule areFullyEvaluated(N:Name) => false
@@ -704,7 +712,8 @@ The following auxiliary operations extract the list of identifiers and of expres
     rule <k> getMatching(E:Exp E':Exp , CN:ConstructorName      ) => matchFailure                              ... </k>                                                      [tag(caseConstructorArgsFailure1)]
     rule <k> getMatching(E:Exp        , CV:ConstructorVal V':Val) => matchFailure                              ... </k> requires notBool (isName(E) orBool isApplication(E)) [tag(caseConstructorArgsFailure2)]
 
-    rule <k> getMatching([ES:Exps], [VS:Vals]) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
+    rule <k> getMatching(expList(ES), valList(VS)) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
+    rule <k> getMatching(valList(ES), valList(VS)) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
 
     rule <k> getMatchings(E:Exp,             .Vals            ) => matchFailure                              ... </k> requires notBool isName(E) [tag(caseListEmptyFailure1)]
     rule <k> getMatchings((_:Exp : _:Exps ), .Vals            ) => matchFailure                              ... </k>                            [tag(caseListEmptyFailure2)]

@@ -132,7 +132,7 @@ module FUN-SBC
 
     rule #abstractVal(_:ConstructorVal) => ?CV:ConstructorVal
     rule #abstractVal(CV:ClosureVal)    => CV:ClosureVal
-    rule #abstractVal([VS])             => [#abstractVals(VS)]
+    rule #abstractVal([VS])             => valList(#abstractVals(VS))
 ```
 
 ### Define `_subsumes?_`
