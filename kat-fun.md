@@ -106,20 +106,21 @@ module FUN-SBC
 **TODO**: Only abstracting the values in `RHO` will make references behave poorly.
 
 ```k
-    rule <s> abstract => #abstract(keys(RHO)) ... </s>
+    rule <s> abstract => #abstractNames(keys(RHO)) ... </s>
          <FUN>
            <k> mu ( XS , E ) ... </k>
            <env> RHO </env>
            ...
          </FUN>
 
-    syntax Strategy ::= #abstract ( Set )
- // -------------------------------------
-    rule <s> #abstract(.Set) => . ... </s>
+    syntax Strategy ::= #abstractNames ( Set  )
+                      | #abstractName  ( Name )
+ // -------------------------------------------
+    rule <s> #abstractNames(.Set)          => .                                      ... </s>
+    rule <s> #abstractNames(SetItem(X) XS) => #abstractName(X) ~> #abstractNames(XS) ... </s>
 
-    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s> <env> ... X |-> E:Exp                     ... </env>
-    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s> <env> ... X |-> (V  => #abstractVal(V))   ... </env>
-    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s> <env> ... X |-> (VS => #abstractVals(VS)) ... </env>
+    rule <s> #abstractName(X) => . ... </s> <env> ... X |-> (V  => #abstractVal(V))   ... </env>
+    rule <s> #abstractName(X) => . ... </s> <env> ... X |-> (VS => #abstractVals(VS)) ... </env>
 
     syntax Val  ::= #abstractVal  ( Val  ) [function]
     syntax Vals ::= #abstractVals ( Vals ) [function]
