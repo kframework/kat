@@ -113,9 +113,9 @@ module FUN-SBC
            ...
          </FUN>
 
-    syntax Strategy ::= #abstractNames ( Set  )
-                      | #abstractName  ( Name )
- // -------------------------------------------
+    syntax KItem ::= #abstractNames ( Set  )
+                   | #abstractName  ( Name )
+ // ----------------------------------------
     rule <s> #abstractNames(.Set)          => .                                      ... </s>
     rule <s> #abstractNames(SetItem(X) XS) => #abstractName(X) ~> #abstractNames(XS) ... </s>
 
@@ -133,7 +133,7 @@ module FUN-SBC
 
     rule #abstractVal(_:ConstructorVal) => ?CV:ConstructorVal
     rule #abstractVal(CV:ClosureVal)    => CV:ClosureVal
-    rule #abstractVal([VS])             => valList(#abstractVals(VS))
+    rule #abstractVal(valList(VS))      => valList(#abstractVals(VS))
 ```
 
 ### Define `_subsumes?_`
