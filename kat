@@ -80,7 +80,7 @@ run_ksearch() {
 }
 
 run_test() {
-    local test_name test_ext test_file test_strat
+    local test_name test_ext test_file test_strat test_out test_expected
     local exec_strategy expected_hash actual_hash output_file exit_status
     test_name="$1" ; shift
     exit_status='0'
@@ -90,34 +90,29 @@ run_test() {
     elif [[ -f "$test_name.fun" ]]; then
         test_ext="fun"
     fi
+
     test_file="$test_name.$test_ext"
     test_strat="$test_name.strat"
+    test_out="$test_name.out"
+    test_expected="$test_name.expected"
 
-    while read expected_hash exec_strategy; do
-        if [[ "$expected_hash" == "#" ]]; then
-            warn "skipping: '$test_file' with '$exec_strategy'"
-            continue
-        fi
-        output_file="$test_logs/$test_file.$expected_hash"
-        mkdir -p "$(dirname "$output_file")"
-        progress "test:   '$test_file' with '$exec_strategy'\n" \
-                 "            output: $output_file\n" \
-                 "            strat:  $test_strat"
+    {   while read expected_hash exec_strategy; do
+            echo
+            echo "Strategy: $exec_strategy"
+            echo "================================================================================"
 
-        run_program "$test_file" "$exec_strategy" > "$output_file"
+            if [[ "$expected_hash" == "#" ]]; then
+                warn "skipping: '$test_file' with '$exec_strategy'"
+                echo "SKIPPING"
+                continue
+            fi
 
-        actual_hash="$(cat "$output_file" | md5sum | tr -d '[:space:]-')"
-        if [[ "$expected_hash" != "$actual_hash" ]]; then
-            progress "failed:   '$test_file' with '$exec_strategy'\n" \
-                     "              expected: $expected_hash\n" \
-                     "              actual:   $actual_hash\n" \
-                     "expected: $(head -n1 "$test_file")\n" \
-                     "output:   $(cat "$output_file")"
-            exit_status='1'
-        else
-            progress "passed: '$test_file' with '$exec_strategy'"
-        fi
-    done < "$test_strat"
+            run_program "$test_file" "$exec_strategy"
+        done < "$test_strat"
+    } > "$test_out"
+
+    git --no-pager diff --no-index "$test_expected" "$test_out" \
+        || exit_status="$?"
 
     exit "$exit_status"
 }
