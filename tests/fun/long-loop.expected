@@ -1,0 +1,115 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    0
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        0
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: exec-to-branch
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        0
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: init-compile ; compile-step 5
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules
+    </analysis>
+    <states>
+      <FUN>
+        <k>
+          letrec ( longLoop = fun 0 x y z -> 0 | c x y z -> let ( y2 = y * x + ( 100 - z ) ) and .Bindings in let ( x2 = x + 1 ) and .Bindings in let ( z2 = z * z * x2 ) and .Bindings in let ( y3 = 30 + y2 ) and .Bindings in let ( z3 = 15 * y2 ) and .Bindings in let ( c2 = c - 1 ) and .Bindings in longLoop c2 x2 y3 z3 | .Cases ) and .Bindings in longLoop 3 0 0 0
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > < ^ caseIntFailure > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > < ^ caseNameSuccess > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > : .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        closure ( .Map , x y z -> mu ( longLoop , .Names , let ( y2 = y * x + ( 100 - z ) ) and .Bindings in let ( x2 = x + 1 ) and .Bindings in let ( z2 = z * z * x2 ) and .Bindings in let ( y3 = 30 + y2 ) and .Bindings in let ( z3 = 15 * y2 ) and .Bindings in let ( c2 = c - 1 ) and .Bindings in longLoop c2 x2 y3 z3 ) | .Cases , c = 3 and .Bindings , 3 : .Vals ) ~> #arg ( 0 ) ~> #arg ( 0 ) ~> #arg ( 0 ) ~> popEnv
+      </k>
+      <env>
+        longLoop |-> closure ( .Map , 0 x y z -> mu ( longLoop , .Names , 0 ) | c x y z -> mu ( longLoop , .Names , let ( y2 = y * x + ( 100 - z ) ) and .Bindings in let ( x2 = x + 1 ) and .Bindings in let ( z2 = z * z * x2 ) and .Bindings in let ( y3 = 30 + y2 ) and .Bindings in let ( z3 = 15 * y2 ) and .Bindings in let ( c2 = c - 1 ) and .Bindings in longLoop c2 x2 y3 z3 ) | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: # compile
+================================================================================
+SKIPPING

@@ -1,0 +1,282 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    21
+  </k>
+  <env>
+    $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3
+  </env>
+  <envs>
+    ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv ~> popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 10 )
+    ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv ~> popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv ~> popEnv )
+    throw |-> closure ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv ~> popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , x -> $k ( if x == 10 then throw ( 2 * x ) else 7 + x ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv ~> popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv ~> popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 )
+    ListItem ( x |-> 3 )
+    ListItem ( x |-> 3 )
+    ListItem ( .Map )
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        21
+      </k>
+      <env>
+        $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3
+      </env>
+      <envs>
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 10 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , x -> $k ( if x == 10 then throw ( 2 * x ) else 7 + x ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( x = 3 ) and .Bindings in callcc fun $k -> ( fun throw -> callcc ( fun $k -> fun throw -> 3 + throw 10 * 2 | .Cases ( fun x -> $k if x == 10 then throw ( 2 * x ) else 7 + x | .Cases ) | .Cases ) | .Cases ) ( fun x -> $k ( x + 1 ) | .Cases ) | .Cases
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          21
+        </k>
+        <env>
+          $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3
+        </env>
+        <envs>
+          ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 10 )
+          ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 )
+          ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          throw |-> closure ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , x -> $k if x == 10 then throw ( 2 * x ) else 7 + x | .Cases )
+          x |-> 3 )
+          ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 )
+          ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 )
+          ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+          x |-> 3 )
+          ListItem ( .Map )
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        21
+      </k>
+      <env>
+        $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3
+      </env>
+      <envs>
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 10 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , x -> $k if x == 10 then throw ( 2 * x ) else 7 + x | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , x -> $k ( x + 1 ) | .Cases )
+        x |-> 3 )
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

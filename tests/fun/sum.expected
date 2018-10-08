@@ -1,0 +1,142 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    55
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        55
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (^ regular | #normal | #branch) *
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        mu ( .Names , n + sum ( n - 1 ) ) ~> popEnv ~> popEnv ~> popEnv
+      </k>
+      <env>
+        n |-> 10
+        sum |-> closure ( .Map , 0 -> mu ( sum , .Names , 0 ) | n -> mu ( sum , .Names , n + sum ( n - 1 ) ) | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+        ListItem ( sum |-> closure ( .Map , 0 -> mu ( sum , .Names , 0 ) | n -> mu ( sum , .Names , n + sum ( n - 1 ) ) | .Cases ) )
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: # (^ regular | #normal | #branch) * ; abstract
+================================================================================
+SKIPPING
+
+Strategy: # (^ regular | #normal | #branch) * ; abstract ; #loop
+================================================================================
+SKIPPING
+
+Strategy: # (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) *
+================================================================================
+SKIPPING
+
+Strategy: # (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
+================================================================================
+SKIPPING
+
+Strategy: # (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) *
+================================================================================
+SKIPPING
+
+Strategy: # (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
+================================================================================
+SKIPPING
+
+Strategy: setAnalysis .Rules ; setStates .States ; push ; compile-step 5
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules
+    </analysis>
+    <states>
+      <FUN>
+        <k>
+          letrec ( sum = fun 0 -> 0 | n -> n + sum ( n - 1 ) | .Cases ) and .Bindings in sum 10
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > < ^ caseIntFailure > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > < ^ caseNameSuccess > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > : .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        pushEnv ~> setEnv ( .Map ) ~> let ( n = 10 ) and .Bindings in mu ( sum , .Names , n + sum ( n - 1 ) ) ~> popEnv ~> popEnv
+      </k>
+      <env>
+        sum |-> closure ( .Map , 0 -> mu ( sum , .Names , 0 ) | n -> mu ( sum , .Names , n + sum ( n - 1 ) ) | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: # setAnalysis .Rules ; setStates .States ; push ; compile-step 6
+================================================================================
+SKIPPING

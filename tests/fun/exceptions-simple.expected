@@ -1,0 +1,133 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    6
+  </k>
+  <env>
+    $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3
+  </env>
+  <envs>
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 , y -> $k ( y + 4 ) | .Cases )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 )
+    ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+    x |-> 3 )
+    ListItem ( x |-> 3 )
+    ListItem ( x |-> 3 )
+    ListItem ( .Map )
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        6
+      </k>
+      <env>
+        $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3
+      </env>
+      <envs>
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , y -> $k ( y + 4 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 )
+        ListItem ( x |-> 3 )
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( x = 3 ) and .Bindings in callcc fun $k -> fun throw -> x + throw 2 | .Cases ( fun y -> $k ( y + 4 ) | .Cases ) | .Cases
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          6
+        </k>
+        <env>
+          $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3
+        </env>
+        <envs>
+          ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+          throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 , y -> $k ( y + 4 ) | .Cases )
+          x |-> 3 )
+          ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 )
+          ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+          x |-> 3 )
+          ListItem ( x |-> 3 )
+          ListItem ( .Map )
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        6
+      </k>
+      <env>
+        $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3
+      </env>
+      <envs>
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        throw |-> closure ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 , y -> $k ( y + 4 ) | .Cases )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 )
+        ListItem ( $k |-> cc ( x |-> 3 , popEnv )
+        x |-> 3 )
+        ListItem ( x |-> 3 )
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

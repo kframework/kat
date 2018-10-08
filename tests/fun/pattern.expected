@@ -1,0 +1,43 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    [ Pair 10 9 : Pair 0 1 : Pair 0 0 : .Vals ]
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        [ Pair 10 9 : Pair 0 1 : Pair 0 0 : .Vals ]
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

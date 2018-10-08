@@ -1,0 +1,333 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    5
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        5
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( id x = x ) and fst l r = l and snd l r = r and cons h [ t ] = [ h : t ] and apply f d = f d and head [ h : t ] = h and tail [ h : t ] = [ t ] and .Bindings in apply id ( head tail [ 3 : 5 : 7 : 9 : .Exps ] )
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          5
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        5
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (^ regular | #normal) *
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        getMatching ( [ h : t ] , [ 3 : 5 : 7 : 9 : .Vals ] ) ~> closure ( .Map , -> [ t ] | .Cases , .Bindings , [ 3 : 5 : 7 : 9 : .Vals ] : .Vals ) ~> #apply ( head ) ~> #apply ( apply id ) ~> popEnv
+      </k>
+      <env>
+        apply |-> closure ( .Map , f d -> f d | .Cases )
+        cons |-> closure ( .Map , h [ t ] -> [ h : t ] | .Cases )
+        fst |-> closure ( .Map , l r -> l | .Cases )
+        head |-> closure ( .Map , [ h : t ] -> h | .Cases )
+        id |-> closure ( .Map , x -> x | .Cases )
+        snd |-> closure ( .Map , l r -> r | .Cases )
+        tail |-> closure ( .Map , [ h : t ] -> [ t ] | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (^ regular | #normal) * ; which-can? #branch
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( ) ~> #which-can ^ caseListSuccess
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        getMatching ( [ h : t ] , [ 3 : 5 : 7 : 9 : .Vals ] ) ~> closure ( .Map , -> [ t ] | .Cases , .Bindings , [ 3 : 5 : 7 : 9 : .Vals ] : .Vals ) ~> #apply ( head ) ~> #apply ( apply id ) ~> popEnv
+      </k>
+      <env>
+        apply |-> closure ( .Map , f d -> f d | .Cases )
+        cons |-> closure ( .Map , h [ t ] -> [ h : t ] | .Cases )
+        fst |-> closure ( .Map , l r -> l | .Cases )
+        head |-> closure ( .Map , [ h : t ] -> h | .Cases )
+        id |-> closure ( .Map , x -> x | .Cases )
+        snd |-> closure ( .Map , l r -> r | .Cases )
+        tail |-> closure ( .Map , [ h : t ] -> [ t ] | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (^ regular | #normal | #branch) *
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        5
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: how-many? (^ regular | #normal)
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( ) ~> #how-many 50
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        getMatching ( [ h : t ] , [ 3 : 5 : 7 : 9 : .Vals ] ) ~> closure ( .Map , -> [ t ] | .Cases , .Bindings , [ 3 : 5 : 7 : 9 : .Vals ] : .Vals ) ~> #apply ( head ) ~> #apply ( apply id ) ~> popEnv
+      </k>
+      <env>
+        apply |-> closure ( .Map , f d -> f d | .Cases )
+        cons |-> closure ( .Map , h [ t ] -> [ h : t ] | .Cases )
+        fst |-> closure ( .Map , l r -> l | .Cases )
+        head |-> closure ( .Map , [ h : t ] -> h | .Cases )
+        id |-> closure ( .Map , x -> x | .Cases )
+        snd |-> closure ( .Map , l r -> r | .Cases )
+        tail |-> closure ( .Map , [ h : t ] -> [ t ] | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: how-many? (^ regular | #normal | #branch)
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( ) ~> #how-many 159
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        5
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: bounded-compile 0
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules
+    </analysis>
+    <states>
+      <FUN>
+        <k>
+          let ( id x = x ) and fst l r = l and snd l r = r and cons h [ t ] = [ h : t ] and apply f d = f d and head [ h : t ] = h and tail [ h : t ] = [ t ] and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> : .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        let ( id x = x ) and fst l r = l and snd l r = r and cons h [ t ] = [ h : t ] and apply f d = f d and head [ h : t ] = h and tail [ h : t ] = [ t ] and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: bounded-compile 1
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules
+    </analysis>
+    <states>
+      <FUN>
+        <k>
+          let ( id x = x ) and fst l r = l and snd l r = r and cons h [ t ] = [ h : t ] and apply f d = f d and head [ h : t ] = h and tail [ h : t ] = [ t ] and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> : .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        let ( id x = x ) and fst l r = l and snd l r = r and cons h [ t ] = [ h : t ] and apply f d = f d and head [ h : t ] = h and tail [ h : t ] = [ t ] and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
