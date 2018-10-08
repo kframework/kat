@@ -1,8 +1,8 @@
-0b956b07578fac9649841cd8e5e99a58 (#normal | ^ regular) * ; #caseSuccess
-9a69ea719fd198b76bb67ecdac3c2cac (#normal | ^ regular) * ; #caseFailure
-a7f50ef3919bdb20003477d49ab0009a (#normal | ^ regular) * ; which-can? #case
-94345e9a86371efa7922371bbfa6f3a0 (#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; #caseSuccess
-# xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5 (#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; which-can? #case
-bcea8a68daebe320f094f461086e62bc orig
-473351b853d4eb8e3bca4247276578ab exec
-afac2bffc447c231e86138ecda8597d5 compile
+(#normal | ^ regular) * ; #caseSuccess
+(#normal | ^ regular) * ; #caseFailure
+(#normal | ^ regular) * ; which-can? #case
+(#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; #caseSuccess
+# (#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; which-can? #case
+orig
+exec
+compile

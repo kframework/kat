@@ -1,3 +1,3 @@
-59f17e242f7e58e7c43ad31fab77c3c9 step 4 ; which-can? (^ divzero | ^ divnonzero)
-0c8b20e1399d88a1d63cfd910cbeeab3 (#normal | ^ regular) until (^ divzero | ^ divnonzero)
-869ef2514b59127a80f58577f7b9f158 compile
+step 4 ; which-can? (^ divzero | ^ divnonzero)
+(#normal | ^ regular) until (^ divzero | ^ divnonzero)
+compile

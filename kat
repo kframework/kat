@@ -81,7 +81,7 @@ run_ksearch() {
 
 run_test() {
     local test_name test_ext test_file test_strat test_out test_expected
-    local exec_strategy expected_hash actual_hash output_file exit_status
+    local exec_strategy exit_status
     test_name="$1" ; shift
     exit_status='0'
 
@@ -96,12 +96,12 @@ run_test() {
     test_out="$test_name.out"
     test_expected="$test_name.expected"
 
-    {   while read expected_hash exec_strategy; do
+    {   while read exec_strategy; do
             echo
             echo "Strategy: $exec_strategy"
             echo "================================================================================"
 
-            if [[ "$expected_hash" == "#" ]]; then
+            if [[ "$(echo "$exec_strategy" | head -c 1)" == "#" ]]; then
                 warn "skipping: '$test_file' with '$exec_strategy'"
                 echo "SKIPPING"
                 continue
