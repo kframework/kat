@@ -1,0 +1,74 @@
+
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int n , s , .Ids ; n = V0 ; s = V1 ; while ( 0 <= n ) { s = s + n ; n = n + -1 ; } s = s + 300 ;
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; } ~> s = s + 300 ;
+        </k>
+        <mem>
+          n |-> V0
+          s |-> V1
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; } ~> s = s + 300 ;
+        </k>
+        <mem>
+          n |-> V2
+          s |-> V3
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          n |-> V2
+          s |-> V3 +Int 300
+        </mem>
+      </imp> requires 0 <=Int V2 ==K false > , < <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; } ~> s = s + 300 ;
+        </k>
+        <mem>
+          n |-> V4
+          s |-> V5
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= n ) { s = s + n ; n = n + -1 ; } ~> s = s + 300 ;
+        </k>
+        <mem>
+          n |-> V4 +Int -1
+          s |-> V5 +Int V4
+        </mem>
+      </imp> requires 0 <=Int V4 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( 0 <= n ) { s = s + n ; n = n + -1 ; } ~> s = s + 300 ;
+      </k>
+      <mem>
+        n |-> V6
+        s |-> V7
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

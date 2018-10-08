@@ -1,0 +1,158 @@
+
+Strategy: ^ regular 6 ; ^ assignment 2 ; ^ regular 2 ; ^ lookup ; ^ regular 2 ; ^ lookup ; ^ regular 3 ; ^ iftrue ; push ; rename-vars ; push
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      <imp>
+        <k>
+          { if ( x <= y ) { x = 10 ; } else { x = 11 ; } }
+        </k>
+        <mem>
+          x |-> V0
+          y |-> V1
+        </mem>
+      </imp> : <imp>
+        <k>
+          { if ( x <= y ) { x = 10 ; } else { x = 11 ; } }
+        </k>
+        <mem>
+          x |-> V2
+          y |-> V3
+        </mem>
+      </imp> : .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        { if ( x <= y ) { x = 10 ; } else { x = 11 ; } }
+      </k>
+      <mem>
+        x |-> V0
+        y |-> V1
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        { x = 10 ; }
+      </k>
+      <mem>
+        x |-> V0
+        y |-> V1
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iffalse
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( V0 <=Int V1 ) { x = 10 ; } else { x = 11 ; }
+      </k>
+      <mem>
+        x |-> V0
+        y |-> V1
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: # ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; which-can? (^ iffalse | ^ iftrue)
+================================================================================
+SKIPPING
+
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , .Ids ; x = V0 ; y = V1 ; if ( x <= y ) { if ( x <= y ) { x = 10 ; } else { x = 11 ; } } else { x = 12 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> 12
+          y |-> V1
+        </mem>
+      </imp> requires V0 <=Int V1 ==K false > , < <imp>
+        <k>
+          int x , y , .Ids ; x = V2 ; y = V3 ; if ( x <= y ) { if ( x <= y ) { x = 10 ; } else { x = 11 ; } } else { x = 12 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> 10
+          y |-> V3
+        </mem>
+      </imp> requires V2 <=Int V3 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> 10
+        y |-> V3
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

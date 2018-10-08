@@ -1,0 +1,101 @@
+
+Strategy: (#normal | ^ regular) until ^ whileIMP
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+      </k>
+      <mem>
+        x |-> 10
+        y |-> 0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , y , .Ids ; x = 10 ; y = 0 ; while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } y = y * 2 ;
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> 10
+          y |-> 0
+        </mem>
+      </imp> requires #True > , < <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> V0
+          y |-> V1
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> V0
+          y |-> V1 *Int 2
+        </mem>
+      </imp> requires 0 <=Int V0 ==K false > , < <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> V2
+          y |-> V3
+        </mem>
+      </imp> --> <imp>
+        <k>
+          while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+        </k>
+        <mem>
+          x |-> V2 -Int 1
+          y |-> V3 +Int 1
+        </mem>
+      </imp> requires 0 <=Int V2 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        while ( 0 <= x ) { x = x - 1 ; y = y + 1 ; } ~> y = y * 2 ;
+      </k>
+      <mem>
+        x |-> V4
+        y |-> V5
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
