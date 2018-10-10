@@ -21,7 +21,7 @@ test_output:=.build/logs
 .PHONY: deps deps-k deps-ocaml deps-tangle \
 		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun  defn-fun-kcompile \
 		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun build-fun-kcompile \
-		test-bimc test-sbc test
+		test test-imp test-fun
 
 all: build
 
@@ -133,8 +133,8 @@ $(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
 # Testing
 # -------
 
-test_imp_files:=$(wildcard $(test_dir)/imp/*.imp)
-test_fun_files:=$(wildcard $(test_dir)/fun/*.fun)
+test_imp_files:=$(wildcard $(test_dir)/imp/*.strat)
+test_fun_files:=$(wildcard $(test_dir)/fun/*.strat)
 
 TEST=./kat test
 
@@ -142,28 +142,5 @@ test: test-imp test-fun
 test-imp: $(test_imp_files:=.test)
 test-fun: $(test_fun_files:=.test)
 
-%.imp.test:
+%.strat.test:
 	$(TEST) $*
-
-%.fun.test:
-	$(TEST) $*
-
-# SBC Benchmarking
-# ----------------
-
-sbced_files:=$(wildcard $(test_dir)/sbced/*.k)
-
-$(test_dir)/sbced/%/diff.runtime: $(test_dir)/sbced/%/original.runtime $(test_dir)/sbced/%/compiled.runtime
-	git diff --no-index --ignore-space-change $^ || true
-
-$(test_dir)/sbced/%/original.runtime: $(defn_dir)/krun/imp-kompiled/interpreter $(test_dir)/%.imp
-	eval $$(opam config env) ; \
-		time ( $(krun) --directory $(defn_dir)/krun $(test_dir)/$*.imp &>$@ ) &>> $@
-
-$(test_dir)/sbced/%/compiled-kompiled/interpreter: $(test_dir)/sbced/%/compiled.k
-	eval $$(opam config env) ; \
-		$(kompile) --backend ocaml --main-module COMPILED --syntax-module COMPILED $< --directory $(test_dir)/sbced/$*
-
-$(test_dir)/sbced/%/compiled.runtime: $(test_dir)/sbced/%/compiled-kompiled/interpreter $(test_dir)/%.imp
-	eval $$(opam config env) ; \
-		time ( $(krun) --directory tests/sbced/$* -cN=10000 &>$@ ) &>> $@
