@@ -6,7 +6,10 @@ Strategy: orig
     17
   </k>
   <env>
-    $k |-> cc ( y |-> 3 , popEnv )
+    $k |-> cc ( $k |-> cc ( y |-> 3 , popEnv )
+    throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
+    y |-> 3 , x -> $k ( x + 1 ) | .Cases )
+    y |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
     throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
     y |-> 3 , x -> $k ( x + 1 ) | .Cases )
     y |-> 3
@@ -16,12 +19,6 @@ Strategy: orig
     throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
     y |-> 3 , x -> $k ( x + 1 ) | .Cases )
     y |-> 3 )
-    ListItem ( $k |-> cc ( y |-> 3 , popEnv )
-    y |-> 3 )
-    ListItem ( $k |-> cc ( y |-> 3 , popEnv )
-    y |-> 3 )
-    ListItem ( y |-> 3 )
-    ListItem ( y |-> 3 )
     ListItem ( .Map )
   </envs>
 </FUN>
@@ -46,10 +43,7 @@ Strategy: exec
         17
       </k>
       <env>
-        $k |-> cc ( $k |-> cc ( y |-> 3 , popEnv )
-        throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
-        y |-> 3 , x -> $k ( x + 1 ) | .Cases )
-        y |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        $k |-> cc ( y |-> 3 , popEnv )
         throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
         y |-> 3 , x -> $k ( x + 1 ) | .Cases )
         y |-> 3
@@ -59,6 +53,12 @@ Strategy: exec
         throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
         y |-> 3 , x -> $k ( x + 1 ) | .Cases )
         y |-> 3 )
+        ListItem ( $k |-> cc ( y |-> 3 , popEnv )
+        y |-> 3 )
+        ListItem ( $k |-> cc ( y |-> 3 , popEnv )
+        y |-> 3 )
+        ListItem ( y |-> 3 )
+        ListItem ( y |-> 3 )
         ListItem ( .Map )
       </envs>
     </FUN>
@@ -88,10 +88,7 @@ Strategy: compile
           17
         </k>
         <env>
-          $k |-> cc ( $k |-> cc ( y |-> 3 , popEnv )
-          throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
-          y |-> 3 , x -> $k ( x + 1 ) | .Cases )
-          y |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+          $k |-> cc ( y |-> 3 , popEnv )
           throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
           y |-> 3 , x -> $k ( x + 1 ) | .Cases )
           y |-> 3
@@ -101,6 +98,12 @@ Strategy: compile
           throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
           y |-> 3 , x -> $k ( x + 1 ) | .Cases )
           y |-> 3 )
+          ListItem ( $k |-> cc ( y |-> 3 , popEnv )
+          y |-> 3 )
+          ListItem ( $k |-> cc ( y |-> 3 , popEnv )
+          y |-> 3 )
+          ListItem ( y |-> 3 )
+          ListItem ( y |-> 3 )
           ListItem ( .Map )
         </envs>
       </FUN> requires #True >
@@ -115,10 +118,7 @@ Strategy: compile
         17
       </k>
       <env>
-        $k |-> cc ( $k |-> cc ( y |-> 3 , popEnv )
-        throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
-        y |-> 3 , x -> $k ( x + 1 ) | .Cases )
-        y |-> 3 , popEnv ~> popEnv ~> popEnv ~> popEnv )
+        $k |-> cc ( y |-> 3 , popEnv )
         throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
         y |-> 3 , x -> $k ( x + 1 ) | .Cases )
         y |-> 3
@@ -128,6 +128,12 @@ Strategy: compile
         throw |-> closure ( $k |-> cc ( y |-> 3 , popEnv )
         y |-> 3 , x -> $k ( x + 1 ) | .Cases )
         y |-> 3 )
+        ListItem ( $k |-> cc ( y |-> 3 , popEnv )
+        y |-> 3 )
+        ListItem ( $k |-> cc ( y |-> 3 , popEnv )
+        y |-> 3 )
+        ListItem ( y |-> 3 )
+        ListItem ( y |-> 3 )
         ListItem ( .Map )
       </envs>
     </FUN>

@@ -119,7 +119,7 @@ Strategy: setAnalysis .Rules ; setStates .States ; push ; compile-step 5
         <envs>
           .List
         </envs>
-      </FUN> < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > < ^ caseIntFailure > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > < ^ caseNameSuccess > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ allocate | ^ letBinds | ^ letRecBinds ) * > : .States
+      </FUN> < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ letBinds | ^ letRecBinds ) * > < ^ caseIntFailure > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ letBinds | ^ letRecBinds ) * > < ^ caseNameSuccess > < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ letBinds | ^ letRecBinds ) * > : .States
     </states>
   </kat>
   <harness>

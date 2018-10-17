@@ -665,6 +665,7 @@ Environment recovery is used in multiple places where a sub-expression needs to 
 
     rule <k> V:Val ~> popEnv => setEnv(ENV) ~> V ... </k>
          <envs> ListItem(ENV) => .List ... </envs>
+      requires isFullyEvaluated(V)
 ```
 
 ### Getters

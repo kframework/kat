@@ -30,11 +30,6 @@ Strategy: orig
     throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
     ListItem ( $k |-> cc ( .Map , . )
     throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-    ListItem ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-    ListItem ( $k |-> cc ( .Map , . ) )
-    ListItem ( $k |-> cc ( .Map , . ) )
-    ListItem ( .Map )
     ListItem ( .Map )
   </envs>
 </FUN>
@@ -83,6 +78,11 @@ Strategy: exec
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
         ListItem ( $k |-> cc ( .Map , . )
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
+        ListItem ( $k |-> cc ( .Map , . )
+        throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
+        ListItem ( $k |-> cc ( .Map , . ) )
+        ListItem ( $k |-> cc ( .Map , . ) )
+        ListItem ( .Map )
         ListItem ( .Map )
       </envs>
     </FUN>
@@ -136,6 +136,11 @@ Strategy: compile
           throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
           ListItem ( $k |-> cc ( .Map , . )
           throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
+          ListItem ( $k |-> cc ( .Map , . )
+          throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
+          ListItem ( $k |-> cc ( .Map , . ) )
+          ListItem ( $k |-> cc ( .Map , . ) )
+          ListItem ( .Map )
           ListItem ( .Map )
         </envs>
       </FUN> requires #True >
@@ -174,6 +179,11 @@ Strategy: compile
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
         ListItem ( $k |-> cc ( .Map , . )
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
+        ListItem ( $k |-> cc ( .Map , . )
+        throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
+        ListItem ( $k |-> cc ( .Map , . ) )
+        ListItem ( $k |-> cc ( .Map , . ) )
+        ListItem ( .Map )
         ListItem ( .Map )
       </envs>
     </FUN>

@@ -19,7 +19,6 @@ Strategy: orig
     ListItem ( $k |-> cc ( x |-> 3 , popEnv )
     x |-> 3 )
     ListItem ( x |-> 3 )
-    ListItem ( x |-> 3 )
     ListItem ( .Map )
   </envs>
 </FUN>
@@ -56,6 +55,7 @@ Strategy: exec
         x |-> 3 )
         ListItem ( $k |-> cc ( x |-> 3 , popEnv )
         x |-> 3 )
+        ListItem ( x |-> 3 )
         ListItem ( x |-> 3 )
         ListItem ( .Map )
       </envs>
@@ -99,6 +99,7 @@ Strategy: compile
           ListItem ( $k |-> cc ( x |-> 3 , popEnv )
           x |-> 3 )
           ListItem ( x |-> 3 )
+          ListItem ( x |-> 3 )
           ListItem ( .Map )
         </envs>
       </FUN> requires #True >
@@ -125,6 +126,7 @@ Strategy: compile
         x |-> 3 )
         ListItem ( $k |-> cc ( x |-> 3 , popEnv )
         x |-> 3 )
+        ListItem ( x |-> 3 )
         ListItem ( x |-> 3 )
         ListItem ( .Map )
       </envs>

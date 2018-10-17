@@ -130,7 +130,7 @@ Strategy: (^ regular | #normal) * ; which-can? #branch
 ================================================================================
 <kat-FUN>
   <s>
-    #STUCK ( ) ~> #which-can ^ caseListSuccess
+    #STUCK ( ) ~> #which-can ^ caseListSuccess1
   </s>
   <kat>
     <analysis>
