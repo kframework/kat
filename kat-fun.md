@@ -50,7 +50,6 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
                   | ^ applicationFocusArgument
                   | ^ listAssignment
                   | ^ assignment
-                  | ^ allocate
                   | #let
     rule #loop   => ^ recCall
     rule #branch => #case
@@ -67,7 +66,8 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
                        | ^ caseNameSuccess
                        | ^ caseConstructorNameSuccess
                        | ^ caseConstructorArgsSuccess
-                       | ^ caseListSuccess
+                       | ^ caseListSuccess1
+                       | ^ caseListSuccess2
                        | ^ caseListEmptySuccess
                        | ^ caseListSingletonSuccess
                        | ^ caseListNonemptySuccess

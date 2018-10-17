@@ -712,8 +712,8 @@ The following auxiliary operations extract the list of identifiers and of expres
     rule <k> getMatching(E:Exp E':Exp , CN:ConstructorName      ) => matchFailure                              ... </k>                                                      [tag(caseConstructorArgsFailure1)]
     rule <k> getMatching(E:Exp        , CV:ConstructorVal V':Val) => matchFailure                              ... </k> requires notBool (isName(E) orBool isApplication(E)) [tag(caseConstructorArgsFailure2)]
 
-    rule <k> getMatching(expList(ES), valList(VS)) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
-    rule <k> getMatching(valList(ES), valList(VS)) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess)]
+    rule <k> getMatching(expList(ES), valList(VS)) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess1)]
+    rule <k> getMatching(valList(ES), valList(VS)) => getMatchings(ES, VS) ... </k> [tag(caseListSuccess2)]
 
     rule <k> getMatchings(E:Exp,             .Vals            ) => matchFailure                              ... </k> requires notBool isName(E) [tag(caseListEmptyFailure1)]
     rule <k> getMatchings((_:Exp : _:Exps ), .Vals            ) => matchFailure                              ... </k>                            [tag(caseListEmptyFailure2)]
