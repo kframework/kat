@@ -1,3 +1,5 @@
+// closure ( f00 |-> 0 f01 |-> 1 f02 |-> 2 f03 |-> 3 , x -> f03 ( f03 x ) | .Cases )
+
 // testing polymorphism and also the efficiency of the type inferencer
 
 let f00 = fun x -> fun y -> x in

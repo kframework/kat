@@ -1,0 +1,79 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    12
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        12
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (#normal | ^ regular | #branch) * ; ^ recCall
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        n - 1 ~> popEnv ~> popEnv ~> popEnv
+      </k>
+      <env>
+        f |-> closure ( .Map , 0 -> mu ( f , .Names , 0 ) | n -> mu ( f , .Names , n - 1 ) | .Cases )
+        n |-> 13
+      </env>
+      <envs>
+        ListItem ( .Map )
+        ListItem ( f |-> closure ( .Map , 0 -> mu ( f , .Names , 0 ) | n -> mu ( f , .Names , n - 1 ) | .Cases ) )
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: # (#normal | ^ regular | #branch) * ; ^ recCall ; (#normal | ^ regular) *
+================================================================================
+SKIPPING

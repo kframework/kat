@@ -1,0 +1,92 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    Pair ( Pair 1 ( Wrapper 2 ) ) ( Pair 3 4 )
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        Pair ( Pair 1 ( Wrapper 2 ) ) ( Pair 3 4 )
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( x = 1 ) and y = Wrapper 2 and z = Pair 3 4 and .Bindings in Pair ( Pair x y ) z
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          Pair ( Pair 1 ( Wrapper 2 ) ) Pair 3 4
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        Pair ( Pair 1 ( Wrapper 2 ) ) Pair 3 4
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

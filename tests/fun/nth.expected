@@ -1,0 +1,43 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    [ 10 : 11 : 12 : 13 : 14 : .Vals ]
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        [ 10 : 11 : 12 : 13 : 14 : .Vals ]
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

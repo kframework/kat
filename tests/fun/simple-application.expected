@@ -1,0 +1,92 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    15
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        15
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( f x = x + 1 ) and g x = x * 2 and y = 7 and .Bindings in f ( g y )
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          15
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        15
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

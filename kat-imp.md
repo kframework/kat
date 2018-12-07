@@ -89,12 +89,14 @@ module IMP-SBC
 IMP will abstract by turning all the values in memory into fresh symbolic values.
 
 ```k
-    syntax Strategy ::= "#abstract" Set State
- // -----------------------------------------
-    rule <s> abstract [ <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ] => #abstract keys(MEM) <imp> <k> KCELL </k> <mem> MEM </mem> </imp> ... </s>
-    rule <s> #abstract .Set STATE                                      => pop STATE                                                        ... </s>
+    syntax Strategy ::= #abstract ( Set )
+ // -------------------------------------
+    rule <s> abstract => #abstract(keys(MEM)) ... </s>
+         <mem> MEM </mem>
 
-    rule <s> #abstract ((SetItem(X) => .Set) XS) <imp> <mem> MEM => MEM[X <- ?V:Int] </mem> ... </imp> ... </s>
+    rule <s> #abstract(.Set) => . ... </s>
+    rule <s> #abstract((SetItem(X) => .Set) XS) ... </s>
+         <mem> MEM => MEM[X <- ?V:Int] </mem>
 ```
 
 ### Define `_subsumes?_`

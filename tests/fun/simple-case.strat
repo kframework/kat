@@ -1,0 +1,8 @@
+(#normal | ^ regular) * ; #caseSuccess
+(#normal | ^ regular) * ; #caseFailure
+(#normal | ^ regular) * ; which-can? #case
+(#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; #caseSuccess
+# (#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; which-can? #case
+orig
+exec
+compile

@@ -1,0 +1,29 @@
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        Tree ( Tree ( Tree ( Leaf 5 ) ( Leaf 4 ) ) ( Leaf 3 ) ) ( Tree ( Leaf 2 ) ( Leaf 1 ) )
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

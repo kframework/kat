@@ -35,10 +35,52 @@ Here the definition of a `State` for FUN is given, as well as the definitions of
 
 ### Define `#branch` and `#normal`
 
+**TODO**: HACK!!!
+          Rules `resetEnv` and `switchFocus` need to execute before `heatExps`, `heatCTorArgs`, and `unwrapApplication`.
+          If the latter rules are allowed to execute first, K does not prune applications of them as infeasible properly.
+
 ```k
-    rule #normal => ^ lookup | ^ assignment
-    rule #branch => ^ iftrue | ^ iffalse
-    rule #loop   => ^ letRecursive
+    syntax Strategy ::= "#case"        [function]
+                      | "#caseSuccess" [function]
+                      | "#caseFailure" [function]
+                      | "#let"         [function]
+ // ---------------------------------------------
+    rule #normal => ^ lookup
+                  | ^ applicationFocusFunction
+                  | ^ applicationFocusArgument
+                  | ^ listAssignment
+                  | ^ assignment
+                  | #let
+    rule #loop   => ^ recCall
+    rule #branch => #case
+                  | ^ iftrue
+                  | ^ iffalse
+    rule #let    => ^ letBinds
+                  | ^ letRecBinds
+    rule #case   => #caseSuccess
+                  | #caseFailure
+    rule #caseSuccess => ^ caseNonlinearMatchJoinSuccess
+                       | ^ caseBoolSuccess
+                       | ^ caseIntSuccess
+                       | ^ caseStringSuccess
+                       | ^ caseNameSuccess
+                       | ^ caseConstructorNameSuccess
+                       | ^ caseConstructorArgsSuccess
+                       | ^ caseListSuccess1
+                       | ^ caseListSuccess2
+                       | ^ caseListEmptySuccess
+                       | ^ caseListSingletonSuccess
+                       | ^ caseListNonemptySuccess
+    rule #caseFailure => ^ caseNonlinearMatchJoinFailure
+                       | ^ caseBoolFailure
+                       | ^ caseIntFailure
+                       | ^ caseStringFailure
+                       | ^ caseConstructorNameFailure
+                       | ^ caseConstructorArgsFailure1
+                       | ^ caseConstructorArgsFailure2
+                       | ^ caseListEmptyFailure3
+                       | ^ caseListEmptyFailure1
+                       | ^ caseListEmptyFailure2
 ```
 
 ### Define `bool?`
@@ -61,8 +103,37 @@ module FUN-SBC
 
 ### Define `abstract`
 
+**TODO**: Only abstracting the values in `RHO` will make references behave poorly.
+
 ```k
-    rule <s> abstract [ STATE ] => pop STATE ... </s>
+    rule <s> abstract => #abstractNames(keys(RHO)) ... </s>
+         <FUN>
+           <k> mu ( XS , E ) ... </k>
+           <env> RHO </env>
+           ...
+         </FUN>
+
+    syntax KItem ::= #abstractNames ( Set  )
+                   | #abstractName  ( Name )
+ // ----------------------------------------
+    rule <s> #abstractNames(.Set)          => .                                      ... </s>
+    rule <s> #abstractNames(SetItem(X) XS) => #abstractName(X) ~> #abstractNames(XS) ... </s>
+
+    rule <s> #abstractName(X) => . ... </s> <env> ... X |-> (V  => #abstractVal(V))   ... </env>
+    rule <s> #abstractName(X) => . ... </s> <env> ... X |-> (VS => #abstractVals(VS)) ... </env>
+
+    syntax Val  ::= #abstractVal  ( Val  ) [function]
+    syntax Vals ::= #abstractVals ( Vals ) [function]
+ // -------------------------------------------------
+    rule #abstractVals(_:Vals) => ?VS:Vals
+
+    rule #abstractVal(_:Int)    => ?I:Int
+    rule #abstractVal(_:Bool)   => ?B:Bool
+    rule #abstractVal(_:String) => ?S:String
+
+    rule #abstractVal(_:ConstructorVal) => ?CV:ConstructorVal
+    rule #abstractVal(CV:ClosureVal)    => CV:ClosureVal
+    rule #abstractVal(valList(VS))      => valList(#abstractVals(VS))
 ```
 
 ### Define `_subsumes?_`

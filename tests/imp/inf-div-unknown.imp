@@ -1,3 +1,5 @@
+// div-zero-error    OR    non-terminating
+
 int x , y ;
 x = symbolicInt ;
 y = symbolicInt ;

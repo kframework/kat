@@ -1,5 +1,5 @@
 ^ regular 6 ; ^ assignment 2 ; ^ regular 2 ; ^ lookup ; ^ regular 2 ; ^ lookup ; ^ regular 3 ; ^ iftrue ; push ; rename-vars ; push
 ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue
 ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iffalse
-^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; which-can? (^ iffalse | ^ iftrue)
+# ^ regular * ; ^ assignment 2 ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; ^ iftrue ; (^ regular * ; ^ lookup) 2 ; ^ regular * ; which-can? (^ iffalse | ^ iftrue)
 compile

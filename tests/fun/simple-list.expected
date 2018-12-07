@@ -1,0 +1,92 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    [ 3 : 4 : 17 : 8 : .Vals ]
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        [ 3 : 4 : 17 : 8 : .Vals ]
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( x = 7 ) and .Bindings in [ 3 : 4 : x + 10 : 8 : .Exps ]
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          [ 3 : 4 : 17 : 8 : .Exps ]
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        [ 3 : 4 : 17 : 8 : .Exps ]
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

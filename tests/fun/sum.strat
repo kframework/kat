@@ -1,1 +1,11 @@
+orig
 exec
+(^ regular | #normal | #branch) *
+# (^ regular | #normal | #branch) * ; abstract
+# (^ regular | #normal | #branch) * ; abstract ; #loop
+# (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) *
+# (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; which-can? #branch
+# (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) *
+# (^ regular | #normal | #branch) * ; abstract ; #loop ; (^ regular | #normal) * ; #caseFailure ; (^ regular | #normal) 15 ; ^ switchFocus ; (^ regular | #normal) *
+setAnalysis .Rules ; setStates .States ; push ; compile-step 5
+# setAnalysis .Rules ; setStates .States ; push ; compile-step 6

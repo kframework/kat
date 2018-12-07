@@ -47,6 +47,14 @@ make deps
 make build
 ```
 
+If `make deps` fails due to Ocaml compiler errors, you can try manually running:
+
+```sh
+eval $(opam config env)
+opam switch 4.03.0+k
+make deps -B
+```
+
 This Repository
 ---------------
 

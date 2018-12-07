@@ -247,7 +247,7 @@ The strategy language is a simple imperative language with sequencing and choice
          ...
          </s>
 
-    rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N =/=Int 0
+    rule <s> S { N , M } => S ~> S { N -Int 1 , #decrement(M) } ... </s> requires N >Int 0
 ```
 
 Meta Strategies
@@ -307,6 +307,19 @@ The following strategies get information about the current state or manipulate t
  // ---------------------------------------------------
     rule #orStrategy(S1 | S2) => true
     rule #orStrategy(_)       => false [owise]
+```
+
+-   `how-many?_` will let you know how many times a given strategy can be taken.
+
+```k
+    syntax Strategy  ::= "how-many?" Strategy
+    syntax Exception ::= "#how-many" Int
+                       | "#how-many" Strategy Int
+ // ---------------------------------------------
+    rule <s> how-many? S => S ~> #how-many S 0 ... </s>
+
+    rule <s>             #how-many S N => S ~> #how-many S (N +Int 1) ... </s>
+    rule <s> #STUCK() ~> #how-many S N => #how-many N                 ... </s>
 ```
 
 Strategy Primitives
@@ -378,12 +391,14 @@ Things added to the sort `StateOp` will automatically load the current state for
 
 -   `exec` executes the given state to completion.
     Note that `krun === exec` if we assume that `#normal | #branch | #loop | ^ regular` is a total strategy.
+-   `trace` is like `exec`, but pushes the states visited onto the `<states>` stack.
 -   `eval` executes a given state to completion and checks `bool?`.
 
 ```k
-    syntax Strategy ::= "exec"
- // --------------------------
-    rule <s> exec => step * ... </s>
+    syntax Strategy ::= "exec" | "trace"
+ // ------------------------------------
+    rule <s> exec  => step *          ... </s>
+    rule <s> trace => (step ; push) * ... </s>
 
     syntax Pred ::= "eval"
  // ----------------------
@@ -522,15 +537,15 @@ module KAT-SBC
 The interface of this analysis requires you define when to abstract and how to abstract.
 
 -   `_subsumes?_` is a predicate on two states that should be provided by the language definition (indicating whether the first state is more general than the second).
--   `abstract` is an operator than should abstract away enough details of the state to guarantee termination of the execution of compilation.
+-   `abstract` is a (user defined) rule than should abstract away enough details of the state to guarantee termination of the execution of compilation.
      Note that `abstract` needs to also take care not to destroy all information collected about the state in this execution.
 
 ```k
     syntax Pred ::= State "subsumes?" State
  // ---------------------------------------
 
-    syntax StateOp ::= "abstract"
- // -----------------------------
+    syntax Strategy ::= "abstract"
+ // ------------------------------
 ```
 
 -   `subsumed?` is a predicate that checks if any of the left-hand sides of the rules `_subsumes_` the current state.
@@ -604,29 +619,37 @@ Finally, semantics based compilation is provided as a macro.
              else if try-state? STATE < #branch >
               then ( split-rules STATE #branch
                    )
-             else if try-state? STATE < #normal | ^ regular >
-              then ( push STATE < (#normal | ^ regular) * > )
+             else if try-state? STATE < ^ regular | #normal >
+              then ( push STATE < (^ regular | #normal) * > )
              else  ( mk-rule STATE )
              ...
          </s>
 ```
 
 -   `compile` will initialize the stack to empty and the analysis to `.Rules`, then compile the current program to completion.
+-   `bounded-compile_` will run the compiler for the specified number of steps.
 
 ```k
     syntax Strategy ::= "compile" | "#compile"
  // ------------------------------------------
-    rule <s> ( compile
-            => setAnalysis .Rules
-            ~> setStates   .States
-            ~> push
-            ~> #compile
-             )
-             ...
-         </s>
+    rule <s> compile => init-compile ~> #compile ... </s>
 
     rule <s> #compile => .                   ... </s> <states> .States        </states>
     rule <s> (. => compile-step) ~> #compile ... </s> <states> STATE : STATES </states>
+
+    syntax Strategy ::= "bounded-compile" Int | "#bounded-compile" Int
+ // ------------------------------------------------------------------
+    rule <s> bounded-compile N => init-compile ~> #bounded-compile N ... </s>
+
+    rule <s> #bounded-compile 0 => . ... </s>
+    rule <s> #bounded-compile N => . ... </s> <states> STATE : STATES </states>
+    rule <s> (. => compile-step) ~> #bounded-compile (N => N -Int 1) ... </s>
+         <states> STATE : STATES </states>
+      requires N =/=Int 0
+
+    syntax Strategy ::= "init-compile"
+ // ----------------------------------
+    rule <s> init-compile => setAnalysis .Rules ~> setStates .States ~> push ... </s>
 endmodule
 ```
 

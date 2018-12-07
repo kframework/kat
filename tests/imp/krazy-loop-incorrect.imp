@@ -1,3 +1,5 @@
+// div-zero-error
+
 int i , j , k , l , m , s ;
 i = 11 ;
 j = 11 ;

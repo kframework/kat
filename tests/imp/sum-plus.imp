@@ -1,3 +1,5 @@
+// non-terminating    OR    n |-> V0 s |-> (V0 +Int 1 V0 /Int 2) +Int 300
+
 int n , s ;
 n = symbolicInt ;
 s = symbolicInt ;

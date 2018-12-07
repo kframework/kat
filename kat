@@ -14,10 +14,6 @@ die()      { echo -e "FATAL:" "$@" >&2 ; exit 1 ; }
 progress() { echo -e "== $@" >&2 ; }
 warn()     { progress "[WARNING] $@" ; }
 
-pretty_diff() {
-    git --no-pager diff --no-index "$@"
-}
-
 # Environment Setup
 # -----------------
 
@@ -54,6 +50,17 @@ run_krun_orig() {
     krun --directory "$DEFN_DIRECTORY" "$run_file" "$@"
 }
 
+run_program() {
+    local run_file strategy
+    run_file="$1" ; shift
+    strategy="$1" ; shift
+    if [[ "$strategy" == 'orig' ]]; then
+        run_krun_orig "$run_file" "$@"
+    else
+        run_krun "$run_file" "$strategy" "$@"
+    fi
+}
+
 run_kdebug() {
     local run_file strategy
     run_file="$1" ; shift
@@ -69,49 +76,41 @@ run_ksearch() {
 }
 
 run_test() {
-    local test_file strategy_file test_number counter exit_status current_status
-    local test_id test_pgm_name test_output_dir test_output_file test_expected_dir test_expected_file
-    test_file="$1"     ; shift
-    strategy_file="$1" ; shift
-    { test_number="$1" && shift ; } || test_number="*"
+    local test_name test_ext test_file test_strat test_out test_expected
+    local exec_strategy exit_status
+    test_name="$1" ; shift
+    exit_status='0'
 
-    [[ -f "$test_file"     ]] || die "File '$test_file' does not exist ..."
-    [[ -f "$strategy_file" ]] || die "File '$strategy_file' does not exist ..."
-    test_expected_dir="$(dirname "$test_file")/output"
-    test_output_dir="$test_logs/$test_expected_dir"
-    mkdir -p "$test_output_dir"
+    if [[ -f "$test_name.imp" ]]; then
+        test_ext="imp"
+    elif [[ -f "$test_name.fun" ]]; then
+        test_ext="fun"
+    fi
 
-    exit_status=0
-    counter=0
-    while read strategy; do
-        [[ "$strategy" != '' ]] || continue
-        counter=$((counter + 1))
-        [[ "$test_number" == '*' ]] || [[ "$test_number" == "$counter" ]] || continue
+    test_file="$test_name.$test_ext"
+    test_strat="$test_name.strat"
+    test_out="$test_name.out"
+    test_expected="$test_name.expected"
 
-        test_pgm_name="$(basename $test_file)"
-        test_id="$(echo "$test_pgm_name $strategy" | md5sum | tr -d '[:space:]-')"
-        test_output_file="$test_output_dir/$test_id.out"
-        test_expected_file="$test_expected_dir/$test_id.out"
-        progress "testing: '$test_file' with strategy '$strategy', output $test_output_file"
+    {   while read exec_strategy; do
+            echo
+            echo "Strategy: $exec_strategy"
+            echo "================================================================================"
 
-        echo "Program:  $test_pgm_name"      > "$test_output_file"
-        echo "Strategy: $strategy"          >> "$test_output_file"
-        { printf '=%.0s' {1..80} ; echo ; } >> "$test_output_file"
-        run_krun "$test_file" "$strategy"   >> "$test_output_file"
-
-        if [[ ! -f "$test_expected_file" ]]; then
-            warn "Expected output file does not exist: $test_expected_file"
-            exit_status='1'
-        else
-            current_status='0'
-            pretty_diff "$test_expected_file" "$test_output_file" || current_status="$?"
-            if [[ "$current_status" != '0' ]]; then
-                echo "$test_file with strategy '$strategy'" >> "$failing_log"
-                exit_status="$current_status"
+            if [[ "$(echo "$exec_strategy" | head -c 1)" == "#" ]]; then
+                warn "skipping: '$test_file' with '$exec_strategy'"
+                echo "SKIPPING"
+                continue
             fi
-        fi
-    done < "$strategy_file"
-    return "$exit_status"
+
+            run_program "$test_file" "$exec_strategy"
+        done < "$test_strat"
+    } > "$test_out"
+
+    git --no-pager diff --no-index "$test_expected" "$test_out" \
+        || exit_status="$?"
+
+    exit "$exit_status"
 }
 
 # Main
@@ -124,34 +123,32 @@ run_command="$1" ; shift
 case "$run_command" in
 
     # Running
-    run)      run_krun      "$@" ;;
-    run-orig) run_krun_orig "$@" ;;
-    debug)    run_kdebug    "$@" ;;
-    search)   run_ksearch   "$@" ;;
+    run)    run_program "$@" ;;
+    debug)  run_kdebug  "$@" ;;
+    search) run_ksearch "$@" ;;
 
     # Testing
     test) run_test "$@" ;;
 
     *) echo "
-    usage: $0 [run|run-orig|debug|search] <file> <strategy> <K args>*
+    usage: $0 [run|debug|search] <file> <strategy> <K args>*
 
        # Running
        # -------
        $0 run      <pgm> <strategy>   Run a single program using given strategy
-       $0 run-orig <pgm>              Run a single program using the original definition
        $0 debug    <pgm> <strategy>   Run a single program using given strategy in the debugger
        $0 search   <pgm> <strategy>   Search a single program's executions using given strategy
 
        Note: <pgm> is a path to a file containing a program (languages supported: IMP, FUN).
              <strategy> is a term in sort STRATEGY.
+                        If `STRATEGY == orig`, then it runs with the *original* semantics under the OCaml backend.
 
        # Testing
        # -------
-       $0 test <pgm> <strat> [<strat-num>] Run a test from the `tests/` directory.
+       $0 test <pgm> <hash>   Test that running with `run-orig` produces the correct hash.
 
        Note: <pgm>          is the path to the program in `tests/`
-             <strat>        is a file with one strategy per line
-             <strat-num>    is which strategy from <strat> to run (default '*')
+             <hash>         is the expected md5sum of the output
 
        Note: This command is more for devs and CI servers.
 " ; exit ;;

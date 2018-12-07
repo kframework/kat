@@ -1,0 +1,184 @@
+
+Strategy: step 2 ; ^ iftrue
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        { x = 1 ; }
+      </k>
+      <mem>
+        x |-> V0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: step 2 ; which-can? (^ iftrue)
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iftrue
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( V0 <=Int 7 ) { x = 1 ; } else { x = -1 ; }
+      </k>
+      <mem>
+        x |-> V0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: step 2 ; which-can? (^ iftrue | ^ iffalse)
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iffalse | ^ iftrue
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( V0 <=Int 7 ) { x = 1 ; } else { x = -1 ; }
+      </k>
+      <mem>
+        x |-> V0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: step 2 ; which-can? (^ iffalse | ^ divzero)
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iffalse
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( V0 <=Int 7 ) { x = 1 ; } else { x = -1 ; }
+      </k>
+      <mem>
+        x |-> V0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: exec-to-branch
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( ) ~> #which-can ^ iffalse | ^ iftrue
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        if ( V0 <=Int 7 ) { x = 1 ; } else { x = -1 ; }
+      </k>
+      <mem>
+        x |-> V0
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>
+
+Strategy: compile
+================================================================================
+<kat-imp>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <imp>
+        <k>
+          int x , .Ids ; x = V0 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> -1
+        </mem>
+      </imp> requires V0 <=Int 7 ==K false > , < <imp>
+        <k>
+          int x , .Ids ; x = V1 ; if ( x <= 7 ) { x = 1 ; } else { x = -1 ; }
+        </k>
+        <mem>
+          .Map
+        </mem>
+      </imp> --> <imp>
+        <k>
+          .
+        </k>
+        <mem>
+          x |-> 1
+        </mem>
+      </imp> requires V1 <=Int 7 ==K true >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <imp>
+      <k>
+        .
+      </k>
+      <mem>
+        x |-> 1
+      </mem>
+    </imp>
+  </harness>
+</kat-imp>

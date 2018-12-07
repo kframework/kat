@@ -1,0 +1,92 @@
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    18
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        18
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( f ( Triple x y z ) = x + y + z * y + z - x + z * z - y ) and .Bindings in f ( Triple 1 2 3 )
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          18
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        18
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

@@ -1,0 +1,212 @@
+
+Strategy: (#normal | ^ regular) * ; #caseSuccess
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        getMatching ( 0 , 13 ) ~> closure ( .Map , -> 0 | n -> n - 1 | .Cases , .Bindings , 13 : .Vals ) ~> popEnv
+      </k>
+      <env>
+        f |-> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (#normal | ^ regular) * ; #caseFailure
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        matchFailure ~> closure ( .Map , -> 0 | n -> n - 1 | .Cases , .Bindings , 13 : .Vals ) ~> popEnv
+      </k>
+      <env>
+        f |-> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (#normal | ^ regular) * ; which-can? #case
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( ) ~> #which-can ^ caseIntFailure
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        getMatching ( 0 , 13 ) ~> closure ( .Map , -> 0 | n -> n - 1 | .Cases , .Bindings , 13 : .Vals ) ~> popEnv
+      </k>
+      <env>
+        f |-> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: (#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; #caseSuccess
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        matchResult ( n = 13 and .Bindings ) ~> closure ( .Map , -> n - 1 | .Cases , .Bindings , 13 : .Vals ) ~> popEnv
+      </k>
+      <env>
+        f |-> closure ( .Map , 0 -> 0 | n -> n - 1 | .Cases )
+      </env>
+      <envs>
+        ListItem ( .Map )
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: # (#normal | ^ regular) * ; #caseFailure ; (#normal | ^ regular) * ; which-can? #case
+================================================================================
+SKIPPING
+
+Strategy: orig
+================================================================================
+<FUN>
+  <k>
+    12
+  </k>
+  <env>
+    .Map
+  </env>
+  <envs>
+    .List
+  </envs>
+</FUN>
+
+Strategy: exec
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Analysis
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        12
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>
+
+Strategy: compile
+================================================================================
+<kat-FUN>
+  <s>
+    #STUCK ( )
+  </s>
+  <kat>
+    <analysis>
+      .Rules , < <FUN>
+        <k>
+          let ( f = fun 0 -> 0 | n -> n - 1 | .Cases ) and .Bindings in f 13
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> --> <FUN>
+        <k>
+          12
+        </k>
+        <env>
+          .Map
+        </env>
+        <envs>
+          .List
+        </envs>
+      </FUN> requires #True >
+    </analysis>
+    <states>
+      .States
+    </states>
+  </kat>
+  <harness>
+    <FUN>
+      <k>
+        12
+      </k>
+      <env>
+        .Map
+      </env>
+      <envs>
+        .List
+      </envs>
+    </FUN>
+  </harness>
+</kat-FUN>

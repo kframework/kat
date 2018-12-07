@@ -1,0 +1,10 @@
+orig
+exec
+compile
+(^ regular | #normal) *
+(^ regular | #normal) * ; which-can? #branch
+(^ regular | #normal | #branch) *
+how-many? (^ regular | #normal)
+how-many? (^ regular | #normal | #branch)
+bounded-compile 0
+bounded-compile 1

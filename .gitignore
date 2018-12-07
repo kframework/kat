@@ -1,3 +1,4 @@
 /.build/*
 !/.build/k
 !/.build/pandoc-tangle
+/tests/*/*.out

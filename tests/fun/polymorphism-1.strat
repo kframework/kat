@@ -1,6 +1,7 @@
+orig
+exec
+compile
 skip
 step
 step ; step
 step 8
-exec
-compile
