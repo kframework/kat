@@ -2452,8 +2452,9 @@ Strategy: compile
           x |-> V3 -Int 1
           y |-> V4 /Int V3
         </mem>
-      </imp> requires 0 <=Int V3 ==K true #And
-      V3 ==K 0 ==K false > , < <imp>
+      </imp> requires 0 <=Int V3 ==K true
+      #And
+        V3 ==K 0 ==K false > , < <imp>
         <k>
           while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>

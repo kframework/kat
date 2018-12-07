@@ -314,13 +314,13 @@ Strategy: bounded-compile 1
         <envs>
           .List
         </envs>
-      </FUN> : .States
+      </FUN> < ( ^ regular | ^ lookup | ^ applicationFocusFunction | ^ applicationFocusArgument | ^ listAssignment | ^ assignment | ^ letBinds | ^ letRecBinds ) * > : .States
     </states>
   </kat>
   <harness>
     <FUN>
       <k>
-        let ( id x = x ) and fst l r = l and snd l r = r and cons h [ t ] = [ h : t ] and apply f d = f d and head [ h : t ] = h and tail [ h : t ] = [ t ] and .Bindings in apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) )
+        pushEnv ~> fun x -> x | .Cases : fun l r -> l | .Cases : fun l r -> r | .Cases : fun h [ t ] -> [ h : t ] | .Cases : fun f d -> f d | .Cases : fun [ h : t ] -> h | .Cases : fun [ h : t ] -> [ t ] | .Cases : .Vals ~> #assign ( id , fst , snd , cons , apply , head , tail , .Names ) ~> apply id ( head ( tail [ 3 : 5 : 7 : 9 : .Vals ] ) ) ~> popEnv
       </k>
       <env>
         .Map

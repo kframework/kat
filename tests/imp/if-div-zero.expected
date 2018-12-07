@@ -76,8 +76,9 @@ Strategy: compile
           x |-> -1
           y |-> 7
         </mem>
-      </imp> requires 7 /Int V0 <=Int 3 ==K false #And
-      V0 ==K 0 ==K false > , < <imp>
+      </imp> requires 7 /Int V0 <=Int 3 ==K false
+      #And
+        V0 ==K 0 ==K false > , < <imp>
         <k>
           int x , y , .Ids ; y = 7 ; x = V1 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
         </k>
@@ -92,8 +93,9 @@ Strategy: compile
           x |-> 1
           y |-> 7
         </mem>
-      </imp> requires 7 /Int V1 <=Int 3 ==K true #And
-      V1 ==K 0 ==K false > , < <imp>
+      </imp> requires 7 /Int V1 <=Int 3 ==K true
+      #And
+        V1 ==K 0 ==K false > , < <imp>
         <k>
           int x , y , .Ids ; y = 7 ; x = 0 ; if ( y / x <= 3 ) { x = 1 ; } else { x = -1 ; }
         </k>

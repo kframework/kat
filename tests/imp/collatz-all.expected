@@ -8142,8 +8142,9 @@ Strategy: compile
           n |-> 3 *Int V10 +Int 1
           x |-> V11 +Int 1
         </mem>
-      </imp> requires 2 <=Int V10 ==K true #And
-      V10 <=Int V10 /Int 2 *Int 2 ==K false > , < <imp>
+      </imp> requires 2 <=Int V10 ==K true
+      #And
+        V10 <=Int V10 /Int 2 *Int 2 ==K false > , < <imp>
         <k>
           while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ~> b = b + 1 ; ~> while ( b <= 10 ) { n = b ; while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } b = b + 1 ; }
         </k>
@@ -8161,8 +8162,9 @@ Strategy: compile
           n |-> V13 /Int 2
           x |-> V14 +Int 1
         </mem>
-      </imp> requires 2 <=Int V13 ==K true #And
-      V13 <=Int V13 /Int 2 *Int 2 ==K true >
+      </imp> requires 2 <=Int V13 ==K true
+      #And
+        V13 <=Int V13 /Int 2 *Int 2 ==K true >
     </analysis>
     <states>
       .States

@@ -1,38 +1,7 @@
 
-Strategy: orig
+Strategy: #orig
 ================================================================================
-<FUN>
-  <k>
-    21
-  </k>
-  <env>
-    .Map
-  </env>
-  <envs>
-    ListItem ( $k |-> cc ( .Map , . ) )
-    ListItem ( $k |-> cc ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , popEnv ~> popEnv ~> popEnv ~> popEnv )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases )
-    x |-> 10 )
-    ListItem ( $k |-> cc ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , popEnv ~> popEnv ~> popEnv ~> popEnv )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-    ListItem ( $k |-> cc ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , popEnv ~> popEnv ~> popEnv ~> popEnv )
-    throw |-> closure ( $k |-> cc ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , popEnv ~> popEnv ~> popEnv ~> popEnv )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , x -> $k ( throw ( 2 * x ) + 7 ) | .Cases ) )
-    ListItem ( $k |-> cc ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , popEnv ~> popEnv ~> popEnv ~> popEnv )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-    ListItem ( $k |-> cc ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) , popEnv ~> popEnv ~> popEnv ~> popEnv )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-    ListItem ( $k |-> cc ( .Map , . )
-    throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-    ListItem ( .Map )
-  </envs>
-</FUN>
+SKIPPING
 
 Strategy: exec
 ================================================================================
@@ -78,11 +47,6 @@ Strategy: exec
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
         ListItem ( $k |-> cc ( .Map , . )
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-        ListItem ( $k |-> cc ( .Map , . )
-        throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-        ListItem ( $k |-> cc ( .Map , . ) )
-        ListItem ( $k |-> cc ( .Map , . ) )
-        ListItem ( .Map )
         ListItem ( .Map )
       </envs>
     </FUN>
@@ -136,11 +100,6 @@ Strategy: compile
           throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
           ListItem ( $k |-> cc ( .Map , . )
           throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-          ListItem ( $k |-> cc ( .Map , . )
-          throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-          ListItem ( $k |-> cc ( .Map , . ) )
-          ListItem ( $k |-> cc ( .Map , . ) )
-          ListItem ( .Map )
           ListItem ( .Map )
         </envs>
       </FUN> requires #True >
@@ -179,11 +138,6 @@ Strategy: compile
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
         ListItem ( $k |-> cc ( .Map , . )
         throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-        ListItem ( $k |-> cc ( .Map , . )
-        throw |-> closure ( $k |-> cc ( .Map , . ) , x -> $k ( x + 1 ) | .Cases ) )
-        ListItem ( $k |-> cc ( .Map , . ) )
-        ListItem ( $k |-> cc ( .Map , . ) )
-        ListItem ( .Map )
         ListItem ( .Map )
       </envs>
     </FUN>

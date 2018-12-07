@@ -54,8 +54,9 @@ Strategy: compile
           x |-> V4 -Int 1
           y |-> V5 /Int V4
         </mem>
-      </imp> requires 0 <=Int V4 ==K true #And
-      V4 ==K 0 ==K false > , < <imp>
+      </imp> requires 0 <=Int V4 ==K true
+      #And
+        V4 ==K 0 ==K false > , < <imp>
         <k>
           while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
