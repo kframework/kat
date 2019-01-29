@@ -46,11 +46,6 @@ $(pandoc_tangle_submodule)/make.timestamp:
 	touch $(pandoc_tangle_submodule)/make.timestamp
 
 deps-ocaml:
-	opam init --quiet --no-setup
-	opam repository add k "$(k_submodule)/k-distribution/target/release/k/lib/opam" \
-	    || opam repository set-url k "$(k_submodule)/k-distribution/target/release/k/lib/opam"
-	opam update
-	opam switch 4.06.1+k
 	eval $$(opam config env) \
 	    opam install --yes mlgmp zarith uuidm ocaml-protoc rlp yojson hex ocp-ocamlres
 
