@@ -105,7 +105,7 @@ $(imp_dir)/kcompile/kat-imp-kompiled/timestamp: $(imp_kcompile_files)
 $(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
-	    $(kompile) --main-module IMP --backend ocaml \
+	    $(kompile) --main-module IMP --backend ocaml --non-strict -O3 \
 	                 --syntax-module IMP $< --directory $(imp_dir)/krun
 
 build-fun: build-fun-kcompile build-fun-krun
@@ -114,14 +114,13 @@ build-fun-krun:     $(fun_dir)/krun/fun-kompiled/interpreter
 
 $(fun_dir)/kcompile/kat-fun-kompiled/timestamp: $(fun_kcompile_files)
 	@echo "== kompile: $@"
-	eval $$(opam config env) \
-	    $(kompile) --main-module FUN-ANALYSIS --backend java \
-	               --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/kcompile
+	$(kompile) --main-module FUN-ANALYSIS --backend java \
+	           --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/kcompile
 
 $(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
-	    $(kompile) --main-module FUN-UNTYPED --backend ocaml \
+	    $(kompile) --main-module FUN-UNTYPED --backend ocaml --non-strict -O3 \
 	               --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/krun
 
 # Testing
