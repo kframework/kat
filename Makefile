@@ -19,9 +19,9 @@ test_dir:=tests
 test_output:=.build/logs
 
 .PHONY: deps deps-k deps-ocaml deps-tangle \
-		defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun  defn-fun-kcompile \
-		build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun build-fun-kcompile \
-		test test-imp test-fun
+        defn  defn-imp  defn-imp-kcompile  defn-imp-krun  defn-fun  defn-fun-krun  defn-fun-kcompile \
+        build build-imp build-imp-kcompile build-imp-krun build-fun build-fun-krun build-fun-kcompile \
+        test test-imp test-fun
 
 all: build
 
@@ -38,7 +38,7 @@ deps-tangle: $(pandoc_tangle_submodule)/make.timestamp
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
 	cd $(k_submodule) \
-		&& mvn package -q -DskipTests
+	    && mvn package -q -DskipTests
 	touch $(k_submodule)/make.timestamp
 
 $(pandoc_tangle_submodule)/make.timestamp:
@@ -101,13 +101,13 @@ build-imp-krun:     $(imp_dir)/krun/imp-kompiled/interpreter
 $(imp_dir)/kcompile/kat-imp-kompiled/timestamp: $(imp_kcompile_files)
 	@echo "== kompile: $@"
 	$(kompile) --main-module IMP-ANALYSIS --backend java \
-				 --syntax-module IMP-ANALYSIS $< --directory $(imp_dir)/kcompile
+	           --syntax-module IMP-ANALYSIS $< --directory $(imp_dir)/kcompile
 
 $(imp_dir)/krun/imp-kompiled/interpreter: $(imp_krun_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
-		$(kompile) --main-module IMP --backend ocaml \
-					 --syntax-module IMP $< --directory $(imp_dir)/krun
+	    $(kompile) --main-module IMP --backend ocaml \
+	                 --syntax-module IMP $< --directory $(imp_dir)/krun
 
 build-fun: build-fun-kcompile build-fun-krun
 build-fun-kcompile: $(fun_dir)/kcompile/kat-fun-kompiled/timestamp
@@ -116,14 +116,14 @@ build-fun-krun:     $(fun_dir)/krun/fun-kompiled/interpreter
 $(fun_dir)/kcompile/kat-fun-kompiled/timestamp: $(fun_kcompile_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
-		$(kompile) --main-module FUN-ANALYSIS --backend java \
-				   --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/kcompile
+	    $(kompile) --main-module FUN-ANALYSIS --backend java \
+	               --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/kcompile
 
 $(fun_dir)/krun/fun-kompiled/interpreter: $(fun_krun_files)
 	@echo "== kompile: $@"
 	eval $$(opam config env) \
-		$(kompile) --main-module FUN-UNTYPED --backend ocaml \
-				   --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/krun
+	    $(kompile) --main-module FUN-UNTYPED --backend ocaml \
+	               --syntax-module FUN-UNTYPED-SYNTAX $< --directory $(fun_dir)/krun
 
 # Testing
 # -------
