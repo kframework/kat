@@ -85,22 +85,22 @@ defn-fun-java: $(fun_java_defn)
 $(imp_ocaml_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(krun_tangler) --metadata=code:.k $< > $@
+	pandoc --from markdown --to $(tangler) --metadata=code:$(krun_tangler) $< > $@
 
 $(imp_java_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(kcompile_tangler) --metadata=code:.k $< > $@
+	pandoc --from markdown --to $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
 
 $(fun_ocaml_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(krun_tangler) --metadata=code:.k $< > $@
+	pandoc --from markdown --to $(tangler) --metadata=code:$(krun_tangler) $< > $@
 
 $(fun_java_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(kcompile_tangler) --metadata=code:.k $< > $@
+	pandoc --from markdown --to $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
 
 # Build definitions
 
@@ -126,17 +126,17 @@ $(imp_java_kompiled): $(imp_java_defn)
 	    --directory $(imp_java_dir) -I $(imp_java_dir)             \
 	    --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $<
 
-$(java_ocaml_kompiled): $(java_ocaml_defn)
+$(fun_ocaml_kompiled): $(fun_ocaml_defn)
 	@echo "== kompile: $@"
 	eval $$(opam config env)                              \
 	    $(k_bin)/kompile -O3 --non-strict --backend ocaml \
-	    --directory $(java_ocaml_dir) -I $(java_ocaml_dir)  \
+	    --directory $(fun_ocaml_dir) -I $(fun_ocaml_dir)  \
 	    --main-module IMP --syntax-module IMP $<
 
-$(java_java_kompiled): $(java_java_defn)
+$(fun_java_kompiled): $(fun_java_defn)
 	@echo "== kompile: $@"
 	$(k_bin)/kompile --backend java                                \
-	    --directory $(java_java_dir) -I $(java_java_dir)             \
+	    --directory $(fun_java_dir) -I $(fun_java_dir)             \
 	    --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $<
 
 # Testing
