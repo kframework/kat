@@ -37,7 +37,7 @@ deps-tangle: $(pandoc_tangle_submodule)/make.timestamp
 
 $(k_submodule)/make.timestamp:
 	git submodule update --init -- $(k_submodule)
-	cd $(k_submodule) && mvn package -q -DskipTests -Dllvm.backend.skip
+	cd $(k_submodule) && mvn package -DskipTests -Dllvm.backend.skip
 	touch $(k_submodule)/make.timestamp
 
 $(pandoc_tangle_submodule)/make.timestamp:
