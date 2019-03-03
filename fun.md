@@ -23,16 +23,6 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
 -   Functions declared in `let`/`letrec` binders and declared anonymously can take multiple space-separated arguments.
     In addition, functions can be partially applied to arguments, allowing the function to be evaluated incrementally.
 
-    For example, the following is the reduction sequence of a partially applied anonymous function:
-
-    ```
-       (fun x y -> x) 3
-    => closure(.Map, x y -> x,           .Bindings, .List      ) 3
-    => closure(.Map,   y -> x, x = 3 and .Bindings, ListItem(3))
-    ```
-
-    with store location `L` pointing at the value `3`.
-
 -   Functions can be defined using pattern matching over the available data-types.
     For example, the program
 
@@ -46,6 +36,8 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
     defines a function `max` that calculates the maximum element of a non-empty list, and the function
 
     ```
+    datatype ('a,'b) pair = Pair 'a 'b
+
     letrec ack = fun (Pair 0 n) -> n + 1
                  |   (Pair m 0) -> ack (Pair (m - 1) 1)
                  |   (Pair m n) -> ack (Pair (m - 1) (ack (Pair m (n - 1))))
