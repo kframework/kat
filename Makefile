@@ -142,6 +142,7 @@ $(fun_java_kompiled): $(fun_java_defn)
 # Testing
 # -------
 
+test_dir:=tests
 test_imp_files:=$(wildcard $(test_dir)/imp/*.strat)
 test_fun_files:=$(wildcard $(test_dir)/fun/*.strat)
 
