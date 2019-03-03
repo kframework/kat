@@ -33,15 +33,15 @@ warn()     { progress "[WARNING] $@" ; }
 # -----------------
 
 run_env() {
-    local run_type run_file
-    run_type="$1" ; shift
-    run_file="$1" ; shift
-    if [[ "$run_type" == 'krun' ]]; then
+    local run_backend run_file
+    run_backend="$1" ; shift
+    run_file="$1"    ; shift
+    if [[ "$run_backend" == 'krun' ]]; then
         eval $(opam config env)
     fi
     case "$run_file" in
-        *.imp) DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
-        *.fun) DEFN_DIRECTORY="$build_dir/defn/fun/$run_type"        ;;
+        *.imp) DEFN_DIRECTORY="$build_dir/defn/imp/$run_backend"     ;;
+        *.fun) DEFN_DIRECTORY="$build_dir/defn/fun/$run_backend"     ;;
         *)     die "Do not know definition to run with: '$run_file'" ;;
     esac
 }
@@ -53,14 +53,14 @@ run_krun() {
     local run_file strategy
     run_file="$1" ; shift
     strategy="$1" ; shift
-    run_env kcompile "$run_file"
+    run_env java "$run_file"
     export K_OPTS=-Xss500m
     krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" "$run_file" "$@"
 }
 
 run_krun_orig() {
     local run_file="$1" ; shift
-    run_env krun "$run_file"
+    run_env ocaml "$run_file"
     export K_OPTS=-Xss500m
     krun --directory "$DEFN_DIRECTORY" "$run_file" "$@"
 }
