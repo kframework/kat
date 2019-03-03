@@ -431,11 +431,11 @@ Expressions
     rule <k> V1:Val == V2:Val => V1  ==K V2 ... </k>
     rule <k> V1:Val != V2:Val => V1 =/=K V2 ... </k>
 
-    rule <k>        ! T => notBool(T) ... </k>
-    rule <k> true  && E => E          ... </k>
-    rule <k> false && _ => false      ... </k>
-    rule <k> true  || _ => true       ... </k>
-    rule <k> false || E => E          ... </k>
+    rule <k>        ! T:Bool => notBool(T) ... </k>
+    rule <k> true  && E      => E          ... </k>
+    rule <k> false && _      => false      ... </k>
+    rule <k> true  || _      => true       ... </k>
+    rule <k> false || E      => E          ... </k>
 ```
 
 Lists must be handled carefully, because not every `ClosureVal` should be considered fully evaluated.
@@ -452,10 +452,10 @@ Lists must be handled carefully, because not every `ClosureVal` should be consid
     rule <k> E : ES => E ~> #consTail ES ... </k>
       requires notBool areFullyEvaluated(E : ES)
 
-    rule <k> V ~> #consTail ES => ES ~> #consHead V ... </k>
+    rule <k> V:Val ~> #consTail ES => ES ~> #consHead V ... </k>
       requires isFullyEvaluated(V)
 
-    rule <k> VS ~> #consHead V => V : VS ... </k>
+    rule <k> VS:Vals ~> #consHead V => V : VS ... </k>
       requires areFullyEvaluated(VS)
 ```
 
