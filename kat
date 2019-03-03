@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
 
-set -e      # Exit immediately if any command fails
+set -euo pipefail
+shopt -s extglob
 
-build_dir="$(pwd)/.build"
+kat_script="$0"
+while [[ -h "$kat_script" ]]; do
+    kat_dir="$(cd -P "$(dirname "$kat_script")" && pwd)"
+    kat_script="$(readlink "$kat_script")"
+    [[ "$kat_script" != /* ]] && kat_script="$kat_dir/$kat_script"
+done
+kat_dir="$(cd -P "$(dirname "$kat_script")" && pwd)"
+
+build_dir="$kat_dir/.build"
+release_dir="$build_dir/k/k-distribution/target/release/k"
+defn_dir="$build_dir/defn"
+
+export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+
 test_logs="$build_dir/logs"
+test_log="$test_logs/tests.log"
 failing_log="$test_logs/failing.lastrun"
 mkdir -p "$test_logs"
 
@@ -18,16 +33,16 @@ warn()     { progress "[WARNING] $@" ; }
 # -----------------
 
 run_env() {
-    local run_type release_dir
+    local run_type run_file
     run_type="$1" ; shift
     run_file="$1" ; shift
-    release_dir="$build_dir/k/k-distribution/target/release/k"
-    export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
-    eval $(opam config env)
+    if [[ "$run_type" == 'krun' ]]; then
+        eval $(opam config env)
+    fi
     case "$run_file" in
-        *.imp)  DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
-        *.fun)  DEFN_DIRECTORY="$build_dir/defn/fun/$run_type"        ;;
-        *)      die "Do not know definition to run with: '$run_file'" ;;
+        *.imp) DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
+        *.fun) DEFN_DIRECTORY="$build_dir/defn/fun/$run_type"        ;;
+        *)     die "Do not know definition to run with: '$run_file'" ;;
     esac
 }
 
@@ -102,8 +117,6 @@ run_test() {
 
 # Main
 # ----
-
-cd "$(dirname $0)"
 
 # main functionality
 run_command="$1" ; shift
