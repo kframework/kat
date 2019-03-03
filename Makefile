@@ -85,22 +85,22 @@ defn-fun-java: $(fun_java_defn)
 $(imp_ocaml_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(tangler) --metadata=code:$(krun_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(krun_tangler) $< > $@
 
 $(imp_java_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
 
 $(fun_ocaml_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(tangler) --metadata=code:$(krun_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(krun_tangler) $< > $@
 
 $(fun_java_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
 
 # Build definitions
 
@@ -128,16 +128,16 @@ $(imp_java_kompiled): $(imp_java_defn)
 
 $(fun_ocaml_kompiled): $(fun_ocaml_defn)
 	@echo "== kompile: $@"
-	eval $$(opam config env)                              \
-	    $(k_bin)/kompile -O3 --non-strict --backend ocaml \
-	    --directory $(fun_ocaml_dir) -I $(fun_ocaml_dir)  \
-	    --main-module IMP --syntax-module IMP $<
+	eval $$(opam config env)                                     \
+	    $(k_bin)/kompile -O3 --non-strict --backend ocaml        \
+	    --directory $(fun_ocaml_dir) -I $(fun_ocaml_dir)         \
+	    --main-module FUN-UNTYPED --syntax-module FUN-UNTYPED $<
 
 $(fun_java_kompiled): $(fun_java_defn)
 	@echo "== kompile: $@"
 	$(k_bin)/kompile --backend java                                \
 	    --directory $(fun_java_dir) -I $(fun_java_dir)             \
-	    --main-module IMP-ANALYSIS --syntax-module IMP-ANALYSIS $<
+	    --main-module FUN-ANALYSIS --syntax-module FUN-ANALYSIS $<
 
 # Testing
 # -------
