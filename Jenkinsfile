@@ -13,14 +13,21 @@ pipeline {
         }
       }
     }
+    stage('Dependencies') {
+      steps {
+        ansiColor('xterm') {
+          sh '''
+            make clean
+            make deps
+          '''
+        }
+      }
+    }
     stage('Build') {
       steps {
         ansiColor('xterm') {
           sh '''
-            export PATH=$HOME/.local/bin:$PATH
-            make clean
-            make deps
-            make build -j2
+            make build -j4
           '''
         }
       }
@@ -29,8 +36,7 @@ pipeline {
       steps {
         ansiColor('xterm') {
           sh '''
-            export PATH=$HOME/.local/bin:$PATH
-            make test -j6
+            make test -j8
           '''
         }
       }
