@@ -19,7 +19,6 @@ export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$rele
 
 test_logs="$build_dir/logs"
 test_log="$test_logs/tests.log"
-failing_log="$test_logs/failing.lastrun"
 mkdir -p "$test_logs"
 
 # Utilities
@@ -76,6 +75,24 @@ run_program() {
     fi
 }
 
+run_klab() {
+    local run_file run_strategy
+
+    run_file="$1"     ; shift
+    run_strategy="$1" ; shift
+
+    rm -rf '/tmp/klab'
+
+    $0 run $run_file "$run_strategy" \
+        --state-log --state-log-path /tmp/klab --state-log-id wasmtest \
+        --state-log-events OPEN,EXECINIT,SEARCHINIT,REACHINIT,REACHTARGET,REACHPROVED,NODE,RULE,SRULE,RULEATTEMPT,IMPLICATION,Z3QUERY,Z3RESULT,CLOSE \
+        --output json \
+        --output-tokenize '<s> <k>' \
+        >/dev/null
+
+    progress 'Run `TMPDIR=/tmp KLAB_EVMS_PATH=foo klab debugg wasmtest` to explore execution trace.'
+}
+
 run_test() {
     local test_name test_ext test_file test_strat test_out test_expected
     local exec_strategy exit_status
@@ -123,7 +140,8 @@ run_command="$1" ; shift
 case "$run_command" in
 
     # Running
-    run) run_program "$@" ;;
+    run)      run_program "$@" ;;
+    klab-run) run_klab    "$@" ;;
 
     # Testing
     test) run_test "$@" ;;
