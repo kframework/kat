@@ -88,6 +88,8 @@ run_klab() {
         --state-log-events OPEN,EXECINIT,SEARCHINIT,REACHINIT,REACHTARGET,REACHPROVED,NODE,RULE,SRULE,RULEATTEMPT,IMPLICATION,Z3QUERY,Z3RESULT,CLOSE \
         --output json \
         --output-tokenize '<s> <k>' \
+        --debug \
+        --no-sort-collections \
         >/dev/null
 
     progress 'Run `TMPDIR=/tmp KLAB_EVMS_PATH=foo klab debugg wasmtest` to explore execution trace.'
