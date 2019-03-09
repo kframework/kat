@@ -100,7 +100,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
     rule <s> #STUCK() ~> (S:Strategy => .)     ... </s>
     rule <s> #STUCK() ~> #try => pop ~> #false ... </s>
 
-    rule <s> SA:StrategyApplied => . ... </s>
+    rule <s> #appliedRule(_) => . ... </s>
 
     syntax Pred ::= "can?" Strategy
  // -------------------------------
