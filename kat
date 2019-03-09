@@ -38,6 +38,7 @@ run_env() {
     if [[ "$run_backend" == 'krun' ]]; then
         eval $(opam config env)
     fi
+    [[ -f "$run_file" ]] || die "File does not exist: '$run_file'"
     case "$run_file" in
         *.imp) DEFN_DIRECTORY="$build_dir/defn/imp/$run_backend"     ;;
         *.fun) DEFN_DIRECTORY="$build_dir/defn/fun/$run_backend"     ;;
@@ -90,6 +91,8 @@ run_klab() {
         --output-tokenize '<s> <k>' \
         --debug \
         --no-sort-collections \
+        --restore-original-names \
+        --no-alpha-renaming \
         >/dev/null
 
     progress 'Run `TMPDIR=/tmp KLAB_EVMS_PATH=foo klab debugg wasmtest` to explore execution trace.'
