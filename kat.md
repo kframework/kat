@@ -397,8 +397,8 @@ Things added to the sort `StateOp` will automatically load the current state for
 ```k
     syntax Strategy ::= "exec" | "trace"
  // ------------------------------------
-    rule <s> exec  => step *          ... </s>
-    rule <s> trace => (step ; push) * ... </s>
+    rule <s> exec  => step *                 ... </s>
+    rule <s> trace => (step ; push) * ; push ... </s>
 
     syntax Pred ::= "eval"
  // ----------------------
