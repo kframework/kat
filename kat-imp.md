@@ -37,7 +37,7 @@ Here the definition of a `State` for IMP is given, as well as the definitions of
 ### Define `#branch` and `#normal`
 
 ```k
-    rule #normal => ^ lookup | ^ assignment
+    rule #normal => ^ regular | ^ lookup | ^ assignment
     rule #branch => ^ iftrue | ^ iffalse | ^ divzero | ^ divnonzero
     rule #loop   => ^ whileIMP
 ```
