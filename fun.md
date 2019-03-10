@@ -96,14 +96,6 @@ Two special names `$x` and `$k` are used in the semantics for desugaring builtin
  // -------------------------------
 ```
 
-### Symbolic Integers
-
-```kcompile
-    syntax Int ::= "symbolicInt" [function]
- // ---------------------------------------
-    rule symbolicInt => ?V:Int
-```
-
 ### Values
 
 Expression constructs will be defined throughtout the syntax module.
