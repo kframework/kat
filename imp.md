@@ -31,8 +31,8 @@ module IMP
 ### Symbolic Integers
 
 ```kcompile
-    syntax Int ::= "symbolicInt" [function]
- // ---------------------------------------
+    syntax Int ::= "symbolicInt" [function, impure]
+ // -----------------------------------------------
     rule symbolicInt => ?V:Int
 ```
 
