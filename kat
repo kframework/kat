@@ -35,9 +35,7 @@ run_env() {
     local run_backend run_file
     run_backend="$1" ; shift
     run_file="$1"    ; shift
-    if [[ "$run_backend" == 'krun' ]]; then
-        eval $(opam config env)
-    fi
+    [[ "$run_backend" != 'ocaml' ]] || eval $(opam config env)
     [[ -f "$run_file" ]] || die "File does not exist: '$run_file'"
     case "$run_file" in
         *.imp) DEFN_DIRECTORY="$build_dir/defn/imp/$run_backend"     ;;
