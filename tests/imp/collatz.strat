@@ -1,2 +1,2 @@
-step-with skip ; step 2 ; bimc 5000 (bexp? n <= 1000)
-step-with skip ; step 2 ; bimc 20   (bexp? n <= 1000)
+step 2 ; bimc 5000 (bexp? n <= 1000)
+step 2 ; bimc 20   (bexp? n <= 1000)

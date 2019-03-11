@@ -1,5 +1,5 @@
 
-Strategy: step-with skip ; step 2 ; bimc 5000 (bexp? n <= 1000)
+Strategy: step 2 ; bimc 5000 (bexp? n <= 1000)
 ================================================================================
 <kat-imp>
   <s>
@@ -194,11 +194,11 @@ Strategy: step-with skip ; step 2 ; bimc 5000 (bexp? n <= 1000)
   </harness>
 </kat-imp>
 
-Strategy: step-with skip ; step 2 ; bimc 20   (bexp? n <= 1000)
+Strategy: step 2 ; bimc 20   (bexp? n <= 1000)
 ================================================================================
 <kat-imp>
   <s>
-    #STUCK ( ) ~> #bimc-result #true in 20 steps ~> ^ regular *
+    #STUCK ( ) ~> #bimc-result #true in 20 steps
   </s>
   <kat>
     <analysis>

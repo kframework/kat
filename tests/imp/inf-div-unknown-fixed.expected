@@ -74,7 +74,7 @@ Strategy: compile
         </mem>
       </imp> requires 0 <=Int V6 ==K true
       #And
-        0 <Int V6 ==K true >
+        ( 0 <Int V6 ) ==K true >
     </analysis>
     <states>
       .States

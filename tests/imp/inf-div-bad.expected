@@ -2454,7 +2454,7 @@ Strategy: compile
         </mem>
       </imp> requires 0 <=Int V3 ==K true
       #And
-        V3 ==K 0 ==K false > , < <imp>
+        V3 ==Int 0 ==K false > , < <imp>
         <k>
           while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>
