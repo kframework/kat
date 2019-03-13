@@ -33,11 +33,25 @@ pipeline {
       }
     }
     stage('Test') {
-      steps {
-        ansiColor('xterm') {
-          sh '''
-            make test -j8
-          '''
+      parallel {
+        stage('IMP') {
+          steps {
+            ansiColor('xterm') {
+              sh '''
+                make test-imp -j8
+              '''
+            }
+          }
+        }
+        stage('FUN') {
+          steps {
+            ansiColor('xterm') {
+              sh '''
+                echo "SKIPPING!!!"
+                # make test-fun -j8
+              '''
+            }
+          }
         }
       }
     }
