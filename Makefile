@@ -85,22 +85,22 @@ defn-fun-java: $(fun_java_defn)
 $(imp_ocaml_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(krun_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter=$(tangler) --metadata=code:$(krun_tangler) $< > $@
 
 $(imp_java_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter=$(tangler) --metadata=code:$(kcompile_tangler) $< > $@
 
 $(fun_ocaml_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(krun_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter=$(tangler) --metadata=code:$(krun_tangler) $< > $@
 
 $(fun_java_dir)/%.k: %.md $(pandoc_tangle_submodule)/make.timestamp
 	@echo "==  tangle: $@"
 	mkdir -p $(dir $@)
-	pandoc --from markdown --to markdown --lua-filter $(tangler) --metadata=code:$(kcompile_tangler) $< > $@
+	pandoc --from markdown --to markdown --lua-filter=$(tangler) --metadata=code:$(kcompile_tangler) $< > $@
 
 # Build definitions
 
