@@ -56,7 +56,7 @@ Strategy: compile
         </mem>
       </imp> requires 0 <=Int V4 ==K true
       #And
-        V4 ==K 0 ==K false > , < <imp>
+        V4 ==Int 0 ==K false > , < <imp>
         <k>
           while ( 0 <= x ) { y = y / x ; x = x - 1 ; }
         </k>

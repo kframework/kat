@@ -100,7 +100,7 @@ Here, a wrapper around this functionality is provided which will try to execute 
     rule <s> #STUCK() ~> (S:Strategy => .)     ... </s>
     rule <s> #STUCK() ~> #try => pop ~> #false ... </s>
 
-    rule <s> SA:StrategyApplied => . ... </s>
+    rule <s> #appliedRule(_) => . ... </s>
 
     syntax Pred ::= "can?" Strategy
  // -------------------------------
@@ -397,8 +397,8 @@ Things added to the sort `StateOp` will automatically load the current state for
 ```k
     syntax Strategy ::= "exec" | "trace"
  // ------------------------------------
-    rule <s> exec  => step *          ... </s>
-    rule <s> trace => (step ; push) * ... </s>
+    rule <s> exec  => step *                 ... </s>
+    rule <s> trace => (step ; push) * ; push ... </s>
 
     syntax Pred ::= "eval"
  // ----------------------
@@ -414,7 +414,7 @@ Things added to the sort `StateOp` will automatically load the current state for
     syntax Strategy ::= "exec-to-branch" | "#exec-to-branch"
  // --------------------------------------------------------
     rule <s> exec-to-branch
-          => (#normal | #loop | ^ regular) *
+          => (#normal | #loop) *
           ~> which-can? #branch
           ~> #exec-to-branch
          ...
@@ -603,7 +603,7 @@ The interface of this analysis requires you define when to abstract and how to a
 Finally, semantics based compilation is provided as a macro.
 
 -   `compile-step` will generate the rule associated to the state at the top of the `states` stack.
-    **Note**: Here we assume `#loop`, `#branch`, and `#normal | ^ regular` are disjoint strategies.
+    **Note**: Here we assume `#loop`, `#branch`, and `#normal` are disjoint strategies.
 
 ```k
     syntax Strategy ::= "compile-step"
@@ -619,8 +619,8 @@ Finally, semantics based compilation is provided as a macro.
              else if try-state? STATE < #branch >
               then ( split-rules STATE #branch
                    )
-             else if try-state? STATE < ^ regular | #normal >
-              then ( push STATE < (^ regular | #normal) * > )
+             else if try-state? STATE < #normal >
+              then ( push STATE < #normal * > )
              else  ( mk-rule STATE )
              ...
          </s>

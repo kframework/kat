@@ -1,1 +1,1 @@
-step-with skip ; step 6 ; bimc 5000 (not can? (^ divzero))
+step 6 ; bimc 5000 (not can? (^ divzero))

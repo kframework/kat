@@ -23,16 +23,6 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
 -   Functions declared in `let`/`letrec` binders and declared anonymously can take multiple space-separated arguments.
     In addition, functions can be partially applied to arguments, allowing the function to be evaluated incrementally.
 
-    For example, the following is the reduction sequence of a partially applied anonymous function:
-
-    ```
-       (fun x y -> x) 3
-    => closure(.Map, x y -> x,           .Bindings, .List      ) 3
-    => closure(.Map,   y -> x, x = 3 and .Bindings, ListItem(3))
-    ```
-
-    with store location `L` pointing at the value `3`.
-
 -   Functions can be defined using pattern matching over the available data-types.
     For example, the program
 
@@ -46,6 +36,8 @@ To make it more interesting and to highlight some of K's strengths, FUN includes
     defines a function `max` that calculates the maximum element of a non-empty list, and the function
 
     ```
+    datatype ('a,'b) pair = Pair 'a 'b
+
     letrec ack = fun (Pair 0 n) -> n + 1
                  |   (Pair m 0) -> ack (Pair (m - 1) 1)
                  |   (Pair m n) -> ack (Pair (m - 1) (ack (Pair m (n - 1))))
@@ -102,14 +94,6 @@ Two special names `$x` and `$k` are used in the semantics for desugaring builtin
     syntax Name  ::= "$x" | "$k"
     syntax Names ::= List{Name,","}
  // -------------------------------
-```
-
-### Symbolic Integers
-
-```kcompile
-    syntax Int ::= "symbolicInt" [function]
- // ---------------------------------------
-    rule symbolicInt => ?V:Int
 ```
 
 ### Values
@@ -439,11 +423,11 @@ Expressions
     rule <k> V1:Val == V2:Val => V1  ==K V2 ... </k>
     rule <k> V1:Val != V2:Val => V1 =/=K V2 ... </k>
 
-    rule <k>        ! T => notBool(T) ... </k>
-    rule <k> true  && E => E          ... </k>
-    rule <k> false && _ => false      ... </k>
-    rule <k> true  || _ => true       ... </k>
-    rule <k> false || E => E          ... </k>
+    rule <k>        ! T:Bool => notBool(T) ... </k>
+    rule <k> true  && E      => E          ... </k>
+    rule <k> false && _      => false      ... </k>
+    rule <k> true  || _      => true       ... </k>
+    rule <k> false || E      => E          ... </k>
 ```
 
 Lists must be handled carefully, because not every `ClosureVal` should be considered fully evaluated.
@@ -460,10 +444,10 @@ Lists must be handled carefully, because not every `ClosureVal` should be consid
     rule <k> E : ES => E ~> #consTail ES ... </k>
       requires notBool areFullyEvaluated(E : ES)
 
-    rule <k> V ~> #consTail ES => ES ~> #consHead V ... </k>
+    rule <k> V:Val ~> #consTail ES => ES ~> #consHead V ... </k>
       requires isFullyEvaluated(V)
 
-    rule <k> VS ~> #consHead V => V : VS ... </k>
+    rule <k> VS:Vals ~> #consHead V => V : VS ... </k>
       requires areFullyEvaluated(VS)
 ```
 

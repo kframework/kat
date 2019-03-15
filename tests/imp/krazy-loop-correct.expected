@@ -1,5 +1,5 @@
 
-Strategy: step-with skip ; step 6 ; bimc 5000 (not can? (^ divzero))
+Strategy: step 6 ; bimc 5000 (not can? (^ divzero))
 ================================================================================
 <kat-imp>
   <s>

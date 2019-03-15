@@ -106,7 +106,7 @@ Strategy: compile
         </mem>
       </imp> requires 2 <=Int V14 ==K true
       #And
-        V14 <=Int V14 /Int 2 *Int 2 ==K false > , < <imp>
+        ( V14 <=Int V14 /Int 2 *Int 2 ) ==K false > , < <imp>
         <k>
           while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } ~> c = c + 1 ; ~> while ( c <= b ) { n = c ; while ( 2 <= n ) { if ( n <= ( n / 2 ) * 2 ) { n = n / 2 ; } else { n = 3 * n + 1 ; } x = x + 1 ; } c = c + 1 ; }
         </k>

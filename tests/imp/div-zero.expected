@@ -49,7 +49,7 @@ Strategy: compile
           x |-> V0
           y |-> 7 /Int V0
         </mem>
-      </imp> requires V0 ==K 0 ==K false > , < <imp>
+      </imp> requires V0 ==Int 0 ==K false > , < <imp>
         <k>
           int x , y , .Ids ; x = 0 ; y = V2 ; y = 7 / x ;
         </k>

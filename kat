@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
 
-set -e      # Exit immediately if any command fails
+set -euo pipefail
+shopt -s extglob
 
-build_dir="$(pwd)/.build"
+kat_script="$0"
+while [[ -h "$kat_script" ]]; do
+    kat_dir="$(cd -P "$(dirname "$kat_script")" && pwd)"
+    kat_script="$(readlink "$kat_script")"
+    [[ "$kat_script" != /* ]] && kat_script="$kat_dir/$kat_script"
+done
+kat_dir="$(cd -P "$(dirname "$kat_script")" && pwd)"
+
+build_dir="$kat_dir/.build"
+release_dir="$build_dir/k/k-distribution/target/release/k"
+defn_dir="$build_dir/defn"
+
+export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
+
 test_logs="$build_dir/logs"
-failing_log="$test_logs/failing.lastrun"
+test_log="$test_logs/tests.log"
 mkdir -p "$test_logs"
 
 # Utilities
@@ -18,16 +32,15 @@ warn()     { progress "[WARNING] $@" ; }
 # -----------------
 
 run_env() {
-    local run_type release_dir
-    run_type="$1" ; shift
-    run_file="$1" ; shift
-    release_dir="$build_dir/k/k-distribution/target/release/k"
-    export PATH="$release_dir/lib/native/linux:$release_dir/lib/native/linux64:$release_dir/bin/:$PATH"
-    eval $(opam config env)
+    local run_backend run_file
+    run_backend="$1" ; shift
+    run_file="$1"    ; shift
+    [[ "$run_backend" != 'ocaml' ]] || eval $(opam config env)
+    [[ -f "$run_file" ]] || die "File does not exist: '$run_file'"
     case "$run_file" in
-        *.imp)  DEFN_DIRECTORY="$build_dir/defn/imp/$run_type"        ;;
-        *.fun)  DEFN_DIRECTORY="$build_dir/defn/fun/$run_type"        ;;
-        *)      die "Do not know definition to run with: '$run_file'" ;;
+        *.imp) DEFN_DIRECTORY="$build_dir/defn/imp/$run_backend"     ;;
+        *.fun) DEFN_DIRECTORY="$build_dir/defn/fun/$run_backend"     ;;
+        *)     die "Do not know definition to run with: '$run_file'" ;;
     esac
 }
 
@@ -38,14 +51,14 @@ run_krun() {
     local run_file strategy
     run_file="$1" ; shift
     strategy="$1" ; shift
-    run_env kcompile "$run_file"
+    run_env java "$run_file"
     export K_OPTS=-Xss500m
     krun --directory "$DEFN_DIRECTORY" -cSTRATEGY="$strategy" "$run_file" "$@"
 }
 
 run_krun_orig() {
     local run_file="$1" ; shift
-    run_env krun "$run_file"
+    run_env ocaml "$run_file"
     export K_OPTS=-Xss500m
     krun --directory "$DEFN_DIRECTORY" "$run_file" "$@"
 }
@@ -61,23 +74,32 @@ run_program() {
     fi
 }
 
-run_kdebug() {
-    local run_file strategy
-    run_file="$1" ; shift
-    strategy="$1" ; shift
-    run_krun "$run_file" "$strategy" --debugger "$@"
-}
+run_klab() {
+    local run_file run_strategy
 
-run_ksearch() {
-    local run_file strategy
-    run_file="$1" ; shift
-    strategy="$1" ; shift
-    run_krun "$run_file" "$strategy" --search "$@"
+    run_file="$1"     ; shift
+    run_strategy="$1" ; shift
+
+    rm -rf '/tmp/klab'
+
+    $0 run $run_file "$run_strategy" \
+        --state-log --state-log-path /tmp/klab --state-log-id wasmtest \
+        --state-log-events OPEN,EXECINIT,SEARCHINIT,REACHINIT,REACHTARGET,REACHPROVED,NODE,RULE,SRULE,RULEATTEMPT,IMPLICATION,Z3QUERY,Z3RESULT,CLOSE \
+        --output json \
+        --output-tokenize '<s> <k>' \
+        --debug \
+        --no-sort-collections \
+        --restore-original-names \
+        --no-alpha-renaming \
+        >/dev/null
+
+    progress 'Run `TMPDIR=/tmp KLAB_EVMS_PATH=foo klab debugg wasmtest` to explore execution trace.'
 }
 
 run_test() {
     local test_name test_ext test_file test_strat test_out test_expected
     local exec_strategy exit_status
+
     test_name="$1" ; shift
     exit_status='0'
 
@@ -116,40 +138,29 @@ run_test() {
 # Main
 # ----
 
-cd "$(dirname $0)"
-
 # main functionality
 run_command="$1" ; shift
 case "$run_command" in
 
     # Running
-    run)    run_program "$@" ;;
-    debug)  run_kdebug  "$@" ;;
-    search) run_ksearch "$@" ;;
+    run)      run_program "$@" ;;
+    klab-run) run_klab    "$@" ;;
 
     # Testing
     test) run_test "$@" ;;
 
     *) echo "
-    usage: $0 [run|debug|search] <file> <strategy> <K args>*
+    usage: $0 run  <file> <strategy> <K args>*
+           $0 test <test_name>
 
        # Running
        # -------
-       $0 run      <pgm> <strategy>   Run a single program using given strategy
-       $0 debug    <pgm> <strategy>   Run a single program using given strategy in the debugger
-       $0 search   <pgm> <strategy>   Search a single program's executions using given strategy
+       $0 run:  Run a single program using given strategy
+       $0 test: Test that running a program with given strategies produces the correct output.
 
        Note: <pgm> is a path to a file containing a program (languages supported: IMP, FUN).
              <strategy> is a term in sort STRATEGY.
                         If `STRATEGY == orig`, then it runs with the *original* semantics under the OCaml backend.
-
-       # Testing
-       # -------
-       $0 test <pgm> <hash>   Test that running with `run-orig` produces the correct hash.
-
-       Note: <pgm>          is the path to the program in `tests/`
-             <hash>         is the expected md5sum of the output
-
-       Note: This command is more for devs and CI servers.
+             <test_name> name of a test in `tests/imp` or `tests/fun` without extension, eg. `tests/imp/collatz`.
 " ; exit ;;
 esac
